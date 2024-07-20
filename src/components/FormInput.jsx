@@ -46,7 +46,7 @@ function FormInput(
           'shadow-sm': showShadow,
         })}
       >
-        <label htmlFor={name} className="block text-sm text-gray-700  dark:text-gray-300 mb-1">
+        <label htmlFor={name} className="block text-sm text-gray-700 mb-1">
           {showLabel && <span className="capitalize">{placeholder}</span>}
           <input
             aria-label={ariaLabel}
@@ -58,7 +58,7 @@ function FormInput(
             name={name}
             value={name.split('.').reduce((a, b) => a[b], formValues)}
             className={classNames(
-              'w-full p-4 rounded-lg shadow-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500',
+              'w-full p-4 rounded-lg shadow-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white',
               {
                 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500':
                   hasError,

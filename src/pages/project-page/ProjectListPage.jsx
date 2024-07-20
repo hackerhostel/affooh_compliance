@@ -5,7 +5,7 @@ import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import {useDispatch} from "react-redux";
 import {setSelectedProject} from "../../state/slice/projectSlice.js";
 
-const ExampleListPage = () => {
+const ProjectListPage = () => {
   const dispatch = useDispatch();
   const { makeRequest, loading, error } = useGraphQL();
 
@@ -27,12 +27,12 @@ const ExampleListPage = () => {
   if (error) return <p>Error: {error.message}</p>;
 
   return (
-    <div className="h-screen overflow-y-auto">
+    <div className="h-list-screen overflow-y-auto">
       <div className="flex flex-col gap-2 p-2">
         {exampleList && Array.isArray(exampleList) && exampleList.map((element, index) => (
           <button
             key={index}
-            className="p-3 border border-blue-600 rounded-md bg-blue-50"
+            className="p-3 border border-gray-200 rounded-md"
             onClick={() => {
               dispatch(setSelectedProject(index))
             }}
@@ -45,4 +45,4 @@ const ExampleListPage = () => {
   );
 };
 
-export default ExampleListPage;
+export default ProjectListPage;

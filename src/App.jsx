@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import './App.css'
 import { Switch, Route, BrowserRouter } from 'react-router-dom';
-import ExampleListPage from "./pages/example-page/ExampleListPage.jsx";
+import ProjectListPage from "./pages/project-page/ProjectListPage.jsx";
 import Login from "./auth/Login.jsx";
 import PublicGuard from "./auth/PublicGuard.jsx";
 import AuthGuard from "./auth/AuthGuard.jsx";

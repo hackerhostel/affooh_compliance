@@ -1,39 +1,39 @@
-import {Menu} from '@headlessui/react';
-import {HomeIcon, UserIcon, BellIcon, CogIcon} from '@heroicons/react/24/outline';
-import {Link} from "react-router-dom";
-
-const MenuItem = ({link, children}) => (
-  <Menu as="div">
-    <Link to={link}
-          className="w-10 h-10 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center">
-      {children}
-    </Link>
-  </Menu>
-)
+import { Menu } from '@headlessui/react';
+import { HomeIcon, UserIcon, BellIcon, CogIcon, ClipboardIcon } from '@heroicons/react/24/outline';
+import { Link, useLocation } from "react-router-dom";
+import AffoohLogo from '../../assets/affooh_logo.png'
 
 function Sidebar() {
+  const location = useLocation();
+
+  const MenuItem = ({ link, Icon }) => (
+    <Menu as="div">
+      <Link to={link}
+            className={`w-12 h-12 ${location.pathname === link ? 'bg-primary-pink' : 'bg-gray-200 hover:bg-secondary-pink'} rounded-full flex items-center justify-center`}>
+        <Icon className={`w-6 h-6 ${location.pathname === link ? 'text-white' : 'text-gray-700'}`} />
+      </Link>
+    </Menu>
+  );
+
   return (
-    <div className="h-full w-16 bg-gray-800 text-white flex flex-col items-center py-5 space-y-3">
-      {/* Home Icon */}
-      <MenuItem link="/dashboard">
-        <HomeIcon className="w-6 h-6"/>
-      </MenuItem>
+    <div  className="flex flex-col">
+      <div className="w-20 h-20 items-center justify-center text-center border-r border-r-gray-200 px-2 py-4">
+        <img
+          src={AffoohLogo}
+          alt="Affooh Logo"
+          className="max-w-full max-h-full object-contain"
+        />
+      </div>
 
-      {/* User Icon */}
-      <MenuItem link="/profile">
-        <UserIcon className="w-6 h-6"/>
-      </MenuItem>
-
-      {/* Notifications Icon */}
-      <MenuItem link="/notifications">
-        <BellIcon className="w-6 h-6"/>
-      </MenuItem>
-
-      {/* Settings Icon */}
-      <MenuItem link="/settings">
-        <CogIcon className="w-6 h-6"/>
-      </MenuItem>
+      <div className="w-20 text-white flex flex-col items-center py-5 space-y-6 border-r border-r-gray-200">
+        <MenuItem link="/dashboard" Icon={HomeIcon}/>
+        <MenuItem link="/projects" Icon={ClipboardIcon}/>
+        <MenuItem link="/profile" Icon={UserIcon}/>
+        <MenuItem link="/notifications" Icon={BellIcon}/>
+        <MenuItem link="/settings" Icon={CogIcon}/>
+      </div>
     </div>
+
   );
 }
 
