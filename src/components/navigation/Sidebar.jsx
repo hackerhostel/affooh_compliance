@@ -29,8 +29,8 @@ function Sidebar() {
   );
 
   return (
-    <div className="flex flex-col h-screen border-r border-r-gray-200 bg-white shadow-md">
-      <div className="w-20 h-20 flex items-center justify-center px-2 py-4">
+    <div className="w-24 flex flex-col h-screen border-r border-r-gray-200 bg-white shadow-md">
+      <div className="h-20 flex items-center justify-center px-2 py-4">
         <img
           src={AffoohLogo}
           alt="Affooh Logo"
@@ -38,7 +38,7 @@ function Sidebar() {
         />
       </div>
 
-      <div className="w-20 flex-grow flex flex-col items-center py-5 space-y-6">
+      <div className="flex-grow flex flex-col items-center py-5 space-y-6">
         <MenuItem link="/dashboard" Icon={HomeIcon}/>
         <MenuItem link="/projects" Icon={ClipboardIcon}/>
         <MenuItem link="/profile" Icon={UserIcon}/>
@@ -46,7 +46,7 @@ function Sidebar() {
         <MenuItem link="/settings" Icon={CogIcon}/>
       </div>
 
-      <div className="w-20 pb-4">
+      <div className="pb-4">
         <Menu as="div" className="relative inline-block text-left w-full">
           <div className="flex justify-center">
             <Menu.Button
