@@ -3,7 +3,7 @@ const MainPageLayout = ({ title, leftColumn, rightColumn }) => {
     <div className="grid grid-cols-5 h-full">
       {/* Left Column (1 part) */}
       <div className="col-span-1">
-        <div className="px-2 my-3">
+        <div className="pl-4 my-3">
           <span className="text-2xl font-medium">{title}</span>
         </div>
         {leftColumn}

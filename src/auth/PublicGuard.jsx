@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Redirect, useLocation } from 'react-router-dom';
 import {getCurrentUser} from "aws-amplify/auth";
+import LoadingPage from "../pages/LoadingPage.jsx";
 
 const PublicGuard = ({ children, ...rest }) => {
   const pageLocation = useLocation();
@@ -28,7 +29,7 @@ const PublicGuard = ({ children, ...rest }) => {
   }, [pageLocation]);
 
   if (loading) {
-    return <div>loading...</div>;
+    return <LoadingPage />;
   }
 
   return (

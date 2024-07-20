@@ -26,6 +26,9 @@ export const listUserInvitesByOrganization = /* GraphQL */ `
   }
 `;
 
+/**
+ * @deprecated since version 2.0
+ */
 export const getProjectBreakdown = /* GraphQL */ `
     query MyQuery($defaultProject: String) {
         getProjectBreakdownV2(defaultProject: $defaultProject) {
@@ -34,38 +37,6 @@ export const getProjectBreakdown = /* GraphQL */ `
             defaultProject {
                 id
                 name
-                releases {
-                    id
-                    name
-                    releaseDate
-                    status
-                    type {
-                        id
-                        name
-                    }
-                    version
-                }
-                sprints {
-                    endDate
-                    id
-                    isBacklog
-                    name
-                    startDate
-                    status {
-                        colourCode
-                        id
-                        value
-                    }
-                }
-                testSuites {
-                    id
-                    status {
-                        id
-                        type
-                        value
-                    }
-                    summary
-                }
             }
             projects {
                 id

@@ -1,15 +1,15 @@
 import {useSelector} from "react-redux";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {selectSelectedProjectFromList} from "../../state/slice/projectSlice.js";
 
 const UserContentPage = () => {
-  const selectedProject = useSelector(selectSelectedProject);
+  const selectedProject = useSelector(selectSelectedProjectFromList);
 
   return (
    <>
      {!selectedProject ? (
-       <div className="p-4 text-center">No Details {selectedProject}</div>
+       <div className="p-4 text-center">No Details</div>
      ): (
-       <div className="p-4 text-center">selected id: {selectedProject}</div>
+       <div className="p-4 text-center">selected id: {selectedProject?.id}</div>
      )
      }
    </>

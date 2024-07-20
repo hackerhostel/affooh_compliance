@@ -7,6 +7,7 @@ import {useToasts} from "react-toast-notifications";
 import {useHistory} from "react-router-dom";
 import {doGetCurrentUser} from "../state/slice/authSlice.js";
 import {useDispatch} from "react-redux";
+import Spinner from "../components/Spinner.jsx";
 
 const Login = () => {
   const { addToast } = useToasts();
@@ -27,7 +28,6 @@ const Login = () => {
   };
 
   const login = async (event) => {
-
     event.preventDefault();
     if (formErrors) {
       setIsValidationErrorsShown(true);
@@ -81,11 +81,17 @@ const Login = () => {
               showErrors={isValidationErrorsShown}
             />
           </div>
-          <input
-            type="submit"
-            value="LOGIN"
-            className="w-full py-3 rounded-lg bg-purple-500 text-white font-bold hover:bg-purple-700 cursor-pointer"
-          />
+          {!loading ? (
+            <input
+              type="submit"
+              value="LOGIN"
+              className="w-full py-3 rounded-lg bg-purple-500 text-white font-bold hover:bg-purple-700 cursor-pointer"
+            />
+          ): (
+            <div className="flex items-center justify-center h-full w-full">
+              <Spinner/>
+            </div>
+          )}
         </form>
         <a className="block text-blue-700 mt-6 text-center" href="/signup">Sign Up</a>
       </div>

@@ -1,31 +1,32 @@
-import {useState} from "react";
+import {useCallback} from "react";
 import FormSelect from "../FormSelect.jsx";
+import {useSelector} from "react-redux";
+import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
 
 const Header = () => {
-  const [formValues, setFormValues] = useState({
-    country: '1',
-  });
+  const selectedProject = useSelector(selectSelectedProject);
+  const projectList = useSelector(selectProjectList);
 
   const handleChange = (e, value) => {
-    setFormValues(prev => ({...prev, [e.target.name]: value}));
+    // TODO: need to handle selected project change for the app
   };
 
-  const countryOptions = [
-    {value: '1', label: 'Project 1'},
-    {value: '2', label: 'Project 2'},
-    {value: '3', label: 'Project 3'},
-    // ... more options
-  ];
+  const getProjectOptions = useCallback(() => {
+    return projectList.map(project => ({
+      value: project.id,
+      label: project.name
+    }));
+  }, [projectList]);
 
   return (
     <div className="flex justify-between w-full">
-      <div className="p-5 w-96">
+      <div className="py-5 px-4 w-96">
         <FormSelect
-          name="country"
+          name="project"
           showLabel={false}
-          formValues={formValues}
+          formValues={{project: selectedProject?.id}}
           placeholder="Select a project"
-          options={countryOptions}
+          options={getProjectOptions()}
           onChange={handleChange}
         />
       </div>

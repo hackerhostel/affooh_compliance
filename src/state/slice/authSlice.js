@@ -8,6 +8,9 @@ const initialState = {
   user: {permissions: []},
 }
 
+/**
+ * @deprecated since version 2.0
+ */
 export const doGetCurrentUser = createAsyncThunk('src/auth/getCurrentUser', async (_, thunkApi) => {
   try {
     const client = generateClient();
