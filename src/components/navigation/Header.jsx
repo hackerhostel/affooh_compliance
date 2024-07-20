@@ -1,26 +1,9 @@
-import {useEffect, useState} from "react";
-import {doGetCurrentUser, selectUser} from "../../state/slice/authSlice.js";
-import {useDispatch, useSelector} from "react-redux";
-import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/react";
-import {signOut} from "aws-amplify/auth"
-import Spinner from "../Spinner.jsx";
+import {useState} from "react";
 import FormSelect from "../FormSelect.jsx";
 
 const Header = () => {
-  const dispatch = useDispatch();
-  const userDetails = useSelector(selectUser);
-
-  useEffect(() => {
-    dispatch(doGetCurrentUser())
-  }, []);
-
-  const handleSignOut = async () => {
-    await signOut({global: true});
-    window.location.reload();
-  }
-
   const [formValues, setFormValues] = useState({
-    country: '',
+    country: '1',
   });
 
   const handleChange = (e, value) => {
@@ -28,9 +11,9 @@ const Header = () => {
   };
 
   const countryOptions = [
-    {value: 'us', label: 'United States'},
-    {value: 'ca', label: 'Canada'},
-    {value: 'uk', label: 'United Kingdom'},
+    {value: '1', label: 'Project 1'},
+    {value: '2', label: 'Project 2'},
+    {value: '3', label: 'Project 3'},
     // ... more options
   ];
 
@@ -45,25 +28,6 @@ const Header = () => {
           options={countryOptions}
           onChange={handleChange}
         />
-      </div>
-      <div>
-        {!userDetails.firstName ? (
-          <div className="p-3 w-64 border border-gray-500 rounded-md flex items-center justify-center">
-            <Spinner/>
-          </div>
-        ) : (
-          <Menu>
-            <MenuButton
-              className="p-4 w-64 border border-gray-500 rounded-md">{`${userDetails.firstName} ${userDetails.lastName}`}</MenuButton>
-            <MenuItems anchor="bottom" className="bg-gray-100 border">
-              <MenuItem>
-                <button className="data-[focus]:bg-blue-100 px-5 py-3 w-64" onClick={handleSignOut}>
-                  Sign Out
-                </button>
-              </MenuItem>
-            </MenuItems>
-          </Menu>
-        )}
       </div>
     </div>
   )
