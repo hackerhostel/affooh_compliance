@@ -1,5 +1,5 @@
 import {Menu, Transition} from '@headlessui/react';
-import {HomeIcon, UserIcon, BellIcon, CogIcon, ClipboardIcon} from '@heroicons/react/24/outline';
+import {ClipboardIcon, CogIcon, HomeIcon, RectangleStackIcon, UserIcon} from '@heroicons/react/24/outline';
 import {Link, useLocation} from "react-router-dom";
 import AffoohLogo from '../../assets/affooh_logo.png'
 import {Fragment, useState} from "react";
@@ -41,7 +41,7 @@ function Sidebar() {
         <MenuItem link="/dashboard" Icon={HomeIcon}/>
         <MenuItem link="/projects" Icon={ClipboardIcon}/>
         <MenuItem link="/profile" Icon={UserIcon}/>
-        <MenuItem link="/notifications" Icon={BellIcon}/>
+        <MenuItem link="/test-plans" Icon={RectangleStackIcon}/>
         <MenuItem link="/settings" Icon={CogIcon}/>
       </div>
 

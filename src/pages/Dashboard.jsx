@@ -10,11 +10,11 @@ import {
   selectIsProjectDetailsError,
   selectIsProjectDetailsLoading,
 } from "../state/slice/projectSlice.js";
-import SkeletonLoader from "../components/SkeletonLoader.jsx";
 import React, {useEffect} from "react";
-import {doGetCurrentUser, selectUser} from "../state/slice/authSlice.js";
+import {doGetCurrentUser} from "../state/slice/authSlice.js";
 import LoadingPage from "./LoadingPage.jsx";
 import ServiceDownPage from "./ServiceDownPage.jsx";
+import TestPlanLayout from "./test-plan-page/index.jsx";
 
 const Dashboard = () => {
   const isProjectDetailsError = useSelector(selectIsProjectDetailsError);
@@ -50,8 +50,8 @@ const Dashboard = () => {
               <UserLayout />
             </Route>
 
-            <Route path="/notifications">
-              <UnderConstruction />
+            <Route path="/test-plans">
+              <TestPlanLayout/>
             </Route>
 
             <Route path="/settings">
