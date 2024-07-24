@@ -1,43 +1,34 @@
-import {useEffect} from "react";
-import {doGetCurrentUser, selectUser} from "../../state/slice/authSlice.js";
-import {useDispatch, useSelector} from "react-redux";
-import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/react";
-import {signOut} from "aws-amplify/auth"
-import Spinner from "../Spinner.jsx";
+import {useCallback} from "react";
+import FormSelect from "../FormSelect.jsx";
+import {useSelector} from "react-redux";
+import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
 
 const Header = () => {
-  const dispatch = useDispatch();
-  const userDetails = useSelector(selectUser);
+  const selectedProject = useSelector(selectSelectedProject);
+  const projectList = useSelector(selectProjectList);
 
-  useEffect(() => {
-    dispatch(doGetCurrentUser())
-  }, []);
+  const handleChange = (e, value) => {
+    // TODO: need to handle selected project change for the app
+  };
 
-  const handleSignOut = async () => {
-    await signOut({global: true});
-    window.location.reload();
-  }
+  const getProjectOptions = useCallback(() => {
+    return projectList.map(project => ({
+      value: project.id,
+      label: project.name
+    }));
+  }, [projectList]);
 
   return (
-    <div className="h-16 bg-gray-200 overflow-hidden flex justify-between p-0.5">
-      <div></div>
-      <div>
-        {!userDetails.firstName ? (
-          <div className="p-3 w-64 border border-gray-500 rounded-md flex items-center justify-center">
-            <Spinner/>
-          </div>
-        ) : (
-          <Menu>
-            <MenuButton className="p-4 w-64 border border-gray-500 rounded-md">{`${userDetails.firstName} ${userDetails.lastName}`}</MenuButton>
-            <MenuItems anchor="bottom" className="bg-gray-100 border">
-              <MenuItem>
-                <button className="data-[focus]:bg-blue-100 px-5 py-3 w-64" onClick={handleSignOut}>
-                  Sign Out
-                </button>
-              </MenuItem>
-            </MenuItems>
-          </Menu>
-          )}
+    <div className="flex justify-between w-full">
+      <div className="py-5 px-4 w-96">
+        <FormSelect
+          name="project"
+          showLabel={false}
+          formValues={{project: selectedProject?.id}}
+          placeholder="Select a project"
+          options={getProjectOptions()}
+          onChange={handleChange}
+        />
       </div>
     </div>
   )

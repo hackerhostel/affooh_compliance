@@ -5,10 +5,13 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors:{
-        'mainColor': 'rgba(235, 90, 132, 1)',
-        'textColor': 'rgba(116, 122, 136, 1)',
-      }
+      colors: {
+        'primary-pink': '#EB5A84',
+        'secondary-pink': '#fdd6db',
+      },
+      height: {
+        'list-screen': 'calc(100vh - 148px)',
+      },
     },
   },
   plugins: [],

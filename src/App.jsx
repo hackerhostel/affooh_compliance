@@ -1,8 +1,9 @@
 import {useState} from 'react'
 import './App.css'
 import { Switch, Route, BrowserRouter } from 'react-router-dom';
-import ExampleListPage from "./pages/example-page/ExampleListPage.jsx";
+import ProjectListPage from "./pages/project-page/ProjectListPage.jsx";
 import Login from "./auth/Login.jsx";
+import Register from './auth/Register.jsx'
 import PublicGuard from "./auth/PublicGuard.jsx";
 import AuthGuard from "./auth/AuthGuard.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -22,7 +23,7 @@ function App() {
           <Route path="/register">
             <PublicGuard>
               {/*TODO: need to implement*/}
-              {/*<Register />*/}
+              <Register />
             </PublicGuard>
           </Route>
 

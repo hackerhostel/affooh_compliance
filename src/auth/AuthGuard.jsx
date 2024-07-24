@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Redirect, Route, useLocation} from 'react-router-dom';
 import {getCurrentUser} from "aws-amplify/auth";
+import LoadingPage from "../pages/LoadingPage.jsx";
 
 const AuthGuard = ({ children, ...rest }) => {
   const pageLocation = useLocation();
@@ -29,7 +30,7 @@ const AuthGuard = ({ children, ...rest }) => {
 
   const renderGuard = () => {
     if (loading) {
-      return <div>Loading...</div>;
+      return <LoadingPage />;
     }
 
     if (!isAuthenticated) {
