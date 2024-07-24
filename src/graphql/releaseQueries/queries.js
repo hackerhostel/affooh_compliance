@@ -19,20 +19,20 @@ export const deleteRelease = /* GraphQL */ `
   }
 `;
 
-export const listReleasesByOrganization = /* GraphQL */ `
-  query MyQuery {
-    listReleasesByOrganization {
-      id
-      name
-      releaseDate
-      status
-      version
-      type {
-        id
-        name
-      }
+export const listReleasesByProject = /* GraphQL */ `
+    query MyQuery($projectID: Int!) {
+        listReleasesByProject (projectID: $projectID) {
+            id
+            name
+            releaseDate
+            status
+            type {
+                id
+                name
+            }
+            version
+        }
     }
-  }
 `;
 
 export const listReleaseAttributes = /* GraphQL */ `

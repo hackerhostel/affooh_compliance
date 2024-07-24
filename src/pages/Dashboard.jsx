@@ -15,6 +15,7 @@ import {doGetCurrentUser} from "../state/slice/authSlice.js";
 import LoadingPage from "./LoadingPage.jsx";
 import ServiceDownPage from "./ServiceDownPage.jsx";
 import TestPlanLayout from "./test-plan-page/index.jsx";
+import ReleaseLayout from "./release-page/index.jsx";
 
 const Dashboard = () => {
   const isProjectDetailsError = useSelector(selectIsProjectDetailsError);
@@ -52,6 +53,10 @@ const Dashboard = () => {
 
             <Route path="/test-plans">
               <TestPlanLayout/>
+            </Route>
+
+            <Route path="/releases">
+              <ReleaseLayout/>
             </Route>
 
             <Route path="/settings">
