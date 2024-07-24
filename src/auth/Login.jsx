@@ -2,11 +2,13 @@ import React, { useRef, useState } from 'react';
 import { signIn } from 'aws-amplify/auth';
 import useValidation from "../utils/use-validation.jsx";
 import FormInput from "../components/FormInput.jsx";
+import { useToasts } from "react-toast-notifications";
+import { useHistory, Link } from "react-router-dom";
+import { doGetCurrentUser } from "../state/slice/authSlice.js";
+import { useDispatch } from "react-redux";
+import LoginImage from '../images/login.png';
 import {LoginSchema} from "../state/domains/authModels.js";
-import {useToasts} from "react-toast-notifications";
-import {useHistory} from "react-router-dom";
-import {doGetCurrentUser} from "../state/slice/authSlice.js";
-import {useDispatch} from "react-redux";
+import Spinner from "../components/Spinner.jsx";
 
 const Login = () => {
   const { addToast } = useToasts();
@@ -115,3 +117,4 @@ const Login = () => {
 };
 
 export default Login;
+
