@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Redirect, useLocation } from 'react-router-dom';
 import {getCurrentUser} from "aws-amplify/auth";
+import Register from '../auth/Register'
 
 const PublicGuard = ({ children, ...rest }) => {
   const pageLocation = useLocation();
