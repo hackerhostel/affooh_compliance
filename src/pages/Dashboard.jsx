@@ -17,6 +17,7 @@ import ServiceDownPage from "./ServiceDownPage.jsx";
 import TestPlanLayout from "./test-plan-page/index.jsx";
 import ReleaseLayout from "./release-page/index.jsx";
 import SprintLayout from "./sprint-page/index.jsx";
+import SettingLayout from "./setting-page/index.jsx";
 
 const Dashboard = () => {
   const isProjectDetailsError = useSelector(selectIsProjectDetailsError);
@@ -61,7 +62,7 @@ const Dashboard = () => {
             </Route>
 
             <Route path="/settings">
-              <UnderConstruction />
+              <SettingLayout/>
             </Route>
 
             <Route path="/sprints">

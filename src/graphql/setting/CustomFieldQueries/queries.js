@@ -26,7 +26,6 @@ export const getAllCustomFields = /* GraphQL */ `
     ) {
       id
       name
-      description
       fieldType {
         id
         name
