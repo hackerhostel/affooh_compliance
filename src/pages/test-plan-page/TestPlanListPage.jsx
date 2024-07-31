@@ -3,7 +3,7 @@ import {useSelector} from "react-redux";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
 import {useFetchTestPlans} from "../../hooks/testPlanHooks/useFetchTestPlans.jsx";
-import {ChevronRightIcon} from "@heroicons/react/24/outline/index.js";
+import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 
@@ -49,9 +49,13 @@ const TestPlanListPage = () => {
                     >
                         <div className="text-left">
                             <div className="font-bold mb-1">{element?.name}</div>
-                            <div className="text-sm text-gray-600 flex items-center">{element?.sprintID}<span className="mx-1 text-black text-2xl ">&#8226;</span>{element?.releaseID}</div>
+                            <div className="text-sm text-gray-600 flex items-center">{element?.sprintID}<span
+                                className="mx-1 text-black text-2xl ">&#8226;</span>{element?.releaseID}</div>
                         </div>
-                        <ChevronRightIcon className={"w-4 h-4 text-black"}/>
+                        <div className={"flex gap-1"}>
+                            <TrashIcon className={"w-4 h-4 text-pink-700"}/>
+                            <ChevronRightIcon className={"w-4 h-4 text-black"}/>
+                        </div>
                     </button>
                 ))}
             </div>

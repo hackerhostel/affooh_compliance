@@ -3,41 +3,41 @@ import SearchBar from "../../components/SearchBar.jsx";
 import useGraphQL from "../../hooks/useGraphQL.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import {getAllCustomFields} from "../../graphql/setting/CustomFieldQueries/queries.js";
 import {Accordion} from "../../components/Accordian.jsx";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
+import {getScreensByProject} from "../../graphql/setting/ScreenQueries/queries.js";
 
-const CustomFieldsListPage = () => {
+const ScreenListPage = ({selectedProject}) => {
     // const dispatch = useDispatch();
     const {makeRequest, loading, error} = useGraphQL();
 
-    const [customFields, setCustomFields] = useState([]);
-    const [filteredCustomFields, setFilteredCustomFields] = useState([]);
+    const [screens, setScreens] = useState([]);
+    const [filteredScreens, setFilteredScreens] = useState([]);
 
     useEffect(() => {
-        const fetchCustomFields = async () => {
-            const query = getAllCustomFields;
-            const variables = {'excludeGeneralFields': false};
+        const fetchScreens = async () => {
+            const query = getScreensByProject;
+            const variables = {'projectID': selectedProject?.id};
             const response = await makeRequest(query, variables);
 
-            const customFieldsResponse = response.data.getCustomFieldsForOrganization;
-            if (customFieldsResponse && Array.isArray(customFieldsResponse)) {
-                setCustomFields(customFieldsResponse)
-                setFilteredCustomFields(customFieldsResponse)
+            const screensResponse = response?.data?.listScreensByProject;
+            if (screensResponse && Array.isArray(screensResponse)) {
+                setScreens(screensResponse)
+                setFilteredScreens(screensResponse)
             }
         };
 
-        fetchCustomFields();
+        fetchScreens();
     }, []);
 
     const handleSearch = (term) => {
         if (term.trim() === '') {
-            setFilteredCustomFields(customFields);
+            setFilteredScreens(screens);
         } else {
-            const filtered = customFields.filter(cf =>
+            const filtered = screens.filter(cf =>
                 cf?.name.toLowerCase().includes(term.toLowerCase())
             );
-            setFilteredCustomFields(filtered);
+            setFilteredScreens(filtered);
         }
     };
 
@@ -47,11 +47,11 @@ const CustomFieldsListPage = () => {
     return (
         <div className="w-full">
             <div className="flex flex-col gap-3">
-                <Accordion name={'Custom Fields'} addText={'Add New'}>
+                <Accordion name={'Screens'} addText={'Add New'}>
                     <div className="py-3">
                         <SearchBar onSearch={handleSearch}/>
                     </div>
-                    {filteredCustomFields.map((element, index) => (
+                    {filteredScreens.map((element, index) => (
                         <button
                             key={index}
                             className="flex justify-between items-center p-3 my-2 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100"
@@ -61,7 +61,7 @@ const CustomFieldsListPage = () => {
                         >
                             <div className="text-left">
                                 <div className="font-bold text-black mb-1">{element?.name}</div>
-                                <div className="text-xs text-gray-600">{element?.fieldType?.name}</div>
+                                <div className="text-xs text-gray-600">{element?.projects[0]?.name}</div>
                             </div>
                             <div className={"flex gap-1"}>
                                 <TrashIcon className={"w-4 h-4 text-pink-700"}/>
@@ -75,4 +75,4 @@ const CustomFieldsListPage = () => {
     );
 };
 
-export default CustomFieldsListPage;
+export default ScreenListPage;

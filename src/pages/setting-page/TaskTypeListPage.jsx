@@ -3,41 +3,41 @@ import SearchBar from "../../components/SearchBar.jsx";
 import useGraphQL from "../../hooks/useGraphQL.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import {getAllCustomFields} from "../../graphql/setting/CustomFieldQueries/queries.js";
 import {Accordion} from "../../components/Accordian.jsx";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
+import {getTaskTypesByProject} from "../../graphql/setting/TaskTypeQueries/queries.js";
 
-const CustomFieldsListPage = () => {
+const TaskTypeListPage = ({selectedProject}) => {
     // const dispatch = useDispatch();
     const {makeRequest, loading, error} = useGraphQL();
 
-    const [customFields, setCustomFields] = useState([]);
-    const [filteredCustomFields, setFilteredCustomFields] = useState([]);
+    const [taskTypes, setTaskTypes] = useState([]);
+    const [filteredTaskTypes, setFilteredTaskTypes] = useState([]);
 
     useEffect(() => {
-        const fetchCustomFields = async () => {
-            const query = getAllCustomFields;
-            const variables = {'excludeGeneralFields': false};
+        const fetchTaskTypes = async () => {
+            const query = getTaskTypesByProject;
+            const variables = {'projectID': selectedProject?.id};
             const response = await makeRequest(query, variables);
 
-            const customFieldsResponse = response.data.getCustomFieldsForOrganization;
-            if (customFieldsResponse && Array.isArray(customFieldsResponse)) {
-                setCustomFields(customFieldsResponse)
-                setFilteredCustomFields(customFieldsResponse)
+            const taskTypesResponse = response?.data?.listTaskTypesByProject;
+            if (taskTypesResponse && Array.isArray(taskTypesResponse)) {
+                setTaskTypes(taskTypesResponse)
+                setFilteredTaskTypes(taskTypesResponse)
             }
         };
 
-        fetchCustomFields();
+        fetchTaskTypes();
     }, []);
 
     const handleSearch = (term) => {
         if (term.trim() === '') {
-            setFilteredCustomFields(customFields);
+            setFilteredTaskTypes(taskTypes);
         } else {
-            const filtered = customFields.filter(cf =>
+            const filtered = taskTypes.filter(cf =>
                 cf?.name.toLowerCase().includes(term.toLowerCase())
             );
-            setFilteredCustomFields(filtered);
+            setFilteredTaskTypes(filtered);
         }
     };
 
@@ -47,21 +47,25 @@ const CustomFieldsListPage = () => {
     return (
         <div className="w-full">
             <div className="flex flex-col gap-3">
-                <Accordion name={'Custom Fields'} addText={'Add New'}>
+                <Accordion name={'Task Types'} addText={'Add New'}>
                     <div className="py-3">
                         <SearchBar onSearch={handleSearch}/>
                     </div>
-                    {filteredCustomFields.map((element, index) => (
+                    {filteredTaskTypes.map((element, index) => (
                         <button
                             key={index}
-                            className="flex justify-between items-center p-3 my-2 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100"
+                            className="flex justify-between items-center py-3 px-1 my-2 border border-gray-200 rounded-md w-full hover:bg-gray-100 gap-2"
                             // onClick={() => {
                             //     dispatch(setSelectedProjectFromList(index))
                             // }}
                         >
                             <div className="text-left">
                                 <div className="font-bold text-black mb-1">{element?.name}</div>
-                                <div className="text-xs text-gray-600">{element?.fieldType?.name}</div>
+                                <div className="text-xs text-gray-600 flex items-center">
+                                    {element?.projects[0]?.name}
+                                    <span className="mx-1 text-black text-2xl ">&#8226;</span>
+                                    {element?.screen?.name}
+                                </div>
                             </div>
                             <div className={"flex gap-1"}>
                                 <TrashIcon className={"w-4 h-4 text-pink-700"}/>
@@ -75,4 +79,4 @@ const CustomFieldsListPage = () => {
     );
 };
 
-export default CustomFieldsListPage;
+export default TaskTypeListPage;

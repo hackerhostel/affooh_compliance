@@ -41,6 +41,24 @@ export const getAllScreens = /* GraphQL */ `
   }
 `;
 
+export const getScreensByProject = /* GraphQL */ `
+  query MyQuery($projectID: Int!) {
+    listScreensByProject(projectID: $projectID) {
+      id
+      name
+      projects {
+        id
+        name
+      }
+      taskTypes {
+        id
+        name
+      }
+    }
+  }
+`;
+
+
 export const getScreen = /* GraphQL */ `
   query MyQuery($screenID: Int!, $projectID: Int!) {
     getScreen(projectID: $projectID, screenID: $screenID) {

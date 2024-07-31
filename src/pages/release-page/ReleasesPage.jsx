@@ -3,7 +3,7 @@ import {useSelector} from "react-redux";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
 import {useFetchReleases} from "../../hooks/releaseHooks/useFetchReleases.jsx";
-import {ChevronRightIcon} from "@heroicons/react/24/outline/index.js";
+import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 
@@ -51,7 +51,10 @@ const ReleasesPage = () => {
                             <div className="font-bold mb-1">{element?.name}</div>
                             <div className="flex text-xs text-gray-600 items-center">{element?.type?.name}</div>
                         </div>
-                        <ChevronRightIcon className={"w-4 h-4 text-black"}/>
+                        <div className={"flex gap-1"}>
+                            <TrashIcon className={"w-4 h-4 text-pink-700"}/>
+                            <ChevronRightIcon className={"w-4 h-4 text-black"}/>
+                        </div>
                     </button>
                 ))}
             </div>
