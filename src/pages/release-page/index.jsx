@@ -8,6 +8,7 @@ const ReleaseLayout = () => {
             title="Releases"
             leftColumn={<ReleasesPage/>}
             rightColumn={<ReleaseContentPage/>}
+            subText={"Add New"}
         />
     );
 }

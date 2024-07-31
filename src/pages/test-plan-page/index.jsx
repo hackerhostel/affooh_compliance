@@ -8,6 +8,7 @@ const TestPlanLayout = () => {
             title="Test Plans"
             leftColumn={<TestPlanListPage/>}
             rightColumn={<TestPlanContentPage/>}
+            subText={"Add New"}
         />
     );
 }
