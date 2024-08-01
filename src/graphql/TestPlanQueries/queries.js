@@ -1,5 +1,4 @@
 /* eslint-disable */
-// this is an auto generated file. This will be overwritten
 
 export const listTestPlansByProject = /* GraphQL */ `
     query MyQuery($projectID: Int!) {
@@ -12,3 +11,24 @@ export const listTestPlansByProject = /* GraphQL */ `
         }
     }
 `;
+
+export const getTestPlan = /* GraphQL */ `
+    query MyQuery($testPlanID: Int!) {
+        getTestPlan (testPlanID: $testPlanID) {
+            id
+            name
+            projectID
+            releaseID
+            sprintID
+            testSuites {
+                description
+                assignee
+                id
+                status
+                summary
+            }
+        }
+    }
+`;
+
+
