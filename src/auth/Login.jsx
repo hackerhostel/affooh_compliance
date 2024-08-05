@@ -3,21 +3,20 @@ import { signIn } from 'aws-amplify/auth';
 import useValidation from "../utils/use-validation.jsx";
 import FormInput from "../components/FormInput.jsx";
 import { useToasts } from "react-toast-notifications";
-import { useHistory, Link } from "react-router-dom";
+import { useHistory, Link, useLocation } from "react-router-dom";
 import { doGetCurrentUser } from "../state/slice/authSlice.js";
 import { useDispatch } from "react-redux";
 import LoginImage from '../images/login.png';
-import {LoginSchema} from "../state/domains/authModels.js";
-import Spinner from "../components/Spinner.jsx";
+import { LoginSchema } from "../state/domains/authModels.js";
+
 
 const Login = () => {
   const { addToast } = useToasts();
   const dispatch = useDispatch();
   const [enabled, setEnabled] = useState(true);
-
   const history = useHistory();
+  const location = useLocation();
   const [loginDetails, setLoginDetails] = useState({ username: '', password: '' });
-
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
@@ -31,6 +30,8 @@ const Login = () => {
 
   const login = async (event) => {
     event.preventDefault();
+    console.log('Login details:', loginDetails); // Added console log for login details
+
     if (formErrors) {
       setIsValidationErrorsShown(true);
       return;
@@ -46,15 +47,28 @@ const Login = () => {
     try {
       const response = await signIn(loginDetails);
       dispatch(doGetCurrentUser());
-      // TODO: handle challenges like NEW_PASSWORD_REQUIRED
       addToast('Logged in Successfully', { appearance: 'success', autoDismiss: true });
       formRef.current.reset();
       history.push('/dashboard');
     } catch (e) {
       addToast(e.message, { appearance: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
 
+  const navigateToRegister = () => {
+    if (location.pathname !== '/register') {
+      history.push('/register');
+    }
+  };
+
+  // const navigateToForgotPassword = () => {
+  //   if(location.pathname !== '/forgot-password') {
+  //     history.push('/forgot-password')
+  //   }
+  // };
+ 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className='flex flex-col md:flex-row bg-white shadow-2xl rounded-2xl m-24'>
@@ -98,12 +112,12 @@ const Login = () => {
               <input
                 type="submit"
                 value="Login"
-                className="w-full py-3 rounded-lg bg-primary-pink text-white font-bold  cursor-pointer"
+                className="w-full py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
               />
             </form>
             <div className="text-center mt-5 text-textColor">
               Don't have an account?
-              <Link to="/register" className="text-primary-pink"> Register Now</Link>
+              <span onClick={navigateToRegister} className="text-primary-pink cursor-pointer"> Register Now</span>
             </div>
           </div>
         </div>
@@ -117,4 +131,3 @@ const Login = () => {
 };
 
 export default Login;
-

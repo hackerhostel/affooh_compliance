@@ -8,9 +8,11 @@ import {Provider} from "react-redux";
 import {store} from './state'
 import {ToastProvider} from "react-toast-notifications";
 
+
 import 'devextreme/dist/css/dx.material.blue.light.css';
 
 Amplify.configure(AwsConfigAuth);
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>

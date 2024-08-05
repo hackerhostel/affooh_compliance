@@ -1,15 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import useValidation from "../utils/use-validation.jsx";
 import FormInput from "../components/FormInput.jsx";
 import LoginImage from '../images/register.jpg';
 import { RegisterSchema } from "../state/domains/authModels.js";
-import { doRegisterUser, selectRegisterState } from '../state/slice/registerSlice.js';
 
 const RegisterForm = () => {
-  const dispatch = useDispatch();
-  const { loading, error } = useSelector(selectRegisterState);
   const [registerDetails, setRegisterDetails] = useState({ organization: '', firstName: '', lastName: '', password: '', confirmPassword: '' });
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const formRef = useRef(null);
@@ -23,25 +19,14 @@ const RegisterForm = () => {
 
   const register = (event) => {
     event.preventDefault();
-    console.log('Form submitted with details:', registerDetails);
-    
-    if (formErrors && Object.keys(formErrors).length > 0) {
+    if (formErrors) {
       setIsValidationErrorsShown(true);
       return;
     }
 
-    if (registerDetails.password !== registerDetails.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
     setIsValidationErrorsShown(false);
-    dispatch(doRegisterUser(registerDetails));
+    // Handle form submission here
   };
-
-  useEffect(() => {
-    console.log('Register form rendered');
-  }, []);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -91,7 +76,7 @@ const RegisterForm = () => {
               </div>
               <div className="mb-6">
                 <FormInput
-                  type="password"
+                  type="text"
                   name="password"
                   formValues={registerDetails}
                   placeholder="Password"
@@ -100,9 +85,9 @@ const RegisterForm = () => {
                   showErrors={isValidationErrorsShown}
                 />
               </div>
-              <div className="mb-6 ">
+              <div className="mb-6">
                 <FormInput
-                  type="password"
+                  type="text"
                   name="confirmPassword"
                   formValues={registerDetails}
                   placeholder="Confirm Password"
@@ -113,18 +98,18 @@ const RegisterForm = () => {
               </div>
               <input
                 type="submit"
-                value="Sign Up"
+                value="Sign In"
                 className="w-full py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
               />
             </form>
-            <div className="text-center mt-5 text-text-color">
+            <div className="text-center mt-5 text-textColor">
               Already have an account?
               <Link 
                 to={{
                   pathname: "/login",
                   state: { from: location }
                 }} 
-                className="text-primary-pink ml-2"
+                className="text-primary-pink"
               >
                 Login
               </Link>
