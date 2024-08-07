@@ -16,6 +16,7 @@ const SprintListPage = () => {
   const [sprintList, setSprintList] = useState([]);
   const [filteredSprintList, setFilteredSprintList] = useState([]);
 
+  // TODO : Use the custom common hook useFetchProjectSprints to fetch data
   useEffect(() => {
     const fetchData = async () => {
       const query = listSprintsByProject;
