@@ -13,6 +13,7 @@ import {selectProjectList, selectSelectedProject} from "../../state/slice/projec
 import {useFetchProjectSprints} from "../../hooks/SprintHooks/useFetchProjectSprints.jsx";
 import {useFetchReleases} from "../../hooks/releaseHooks/useFetchReleases.jsx";
 import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
+import {selectTestCaseStatuses} from "../../state/slice/testCaseAttributeSlice.js";
 
 const TestPlanContentPage = () => {
     const isTestPlanDetailsLoading = useSelector(selectIsTestPlanDetailsLoading);
@@ -20,6 +21,9 @@ const TestPlanContentPage = () => {
     const selectedTestPlan = useSelector(selectSelectedTestPlan);
     const selectedProject = useSelector(selectSelectedProject);
     const projects = useSelector(selectProjectList);
+    const testCaseStatuses = useSelector(selectTestCaseStatuses);
+
+    console.log(testCaseStatuses)
 
     const {sprints, loading: sprintLoading, error: sprintError} = useFetchProjectSprints(selectedProject?.id)
     const {releases, loading: releaseLoading, error: releaseError} = useFetchReleases(selectedProject?.id)
@@ -57,6 +61,42 @@ const TestPlanContentPage = () => {
     if (isTestPlanDetailsError || sprintError || releaseError) {
         return <ErrorAlert message={error.message}/>;
     }
+
+    // useEffect(() => {
+    //     const data = [];
+    //     if (testSuiteAttributes?.testCases !== undefined) {
+    //         testSuiteAttributes?.testCases.map((task) => {
+    //             console.log('task', task);
+    //             data.push({
+    //                 value: task.id,
+    //                 label: task.summary
+    //             });
+    //         });
+    //     }
+    //     setTaskSelection(data);
+    // }, [testSuiteAttributes]);
+    //
+    // useEffect(() => {
+    //     if (testCaseAttributes !== null) {
+    //         const status = _.filter(testCaseAttributes?.attributes, {
+    //             type: 'STATUS'
+    //         });
+    //
+    //         const priority = _.filter(testCaseAttributes?.attributes, {
+    //             type: 'PRIORITY'
+    //         });
+    //
+    //         const category = _.filter(testCaseAttributes?.attributes, {
+    //             type: 'CATEGORY'
+    //         });
+    //
+    //         setTestCaseAttr({
+    //             priority: priority,
+    //             status: status,
+    //             category: category,
+    //         });
+    //     }
+    // }, [testCaseAttributes]);
 
     return (
         <div className={"p-7 bg-dashboard-bgc h-full"}>
