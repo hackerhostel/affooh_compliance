@@ -1,13 +1,16 @@
 import {useCallback} from "react";
 import FormSelect from "../FormSelect.jsx";
-import {useSelector} from "react-redux";
-import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {useDispatch, useSelector} from "react-redux";
+import {doSwitchProject, selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
 
 const Header = () => {
+  const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
   const projectList = useSelector(selectProjectList);
 
   const handleChange = (e, value) => {
+    console.log(value)
+    dispatch(doSwitchProject(value));
     // TODO: need to handle selected project change for the app
   };
 

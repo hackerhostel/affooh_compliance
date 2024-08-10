@@ -8,8 +8,6 @@ import AuthGuard from "./auth/AuthGuard.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
       <BrowserRouter>
         <Switch>
