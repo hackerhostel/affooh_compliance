@@ -29,9 +29,14 @@ export const getSprint = /* GraphQL */ `
     }
   }
 `;
+export const updateSprint = /* GraphQL */ `
+  mutation MyQuery($updatedSprintDetails: SprintUpdateInput!) {
+    updateSprint(updatedSprintDetails: $updatedSprintDetails)
+  }
+`;
 
 export const fetchSprintDetails = /* GraphQL */ `
-    query MyQuery($sprintID: Int!, $projectID: Int!) {
+    query MyQuery($sprintID: Int!) {
         listTasksBySprint(sprintID: $sprintID) {
             tasks {
                 id
@@ -92,21 +97,6 @@ export const fetchSprintDetails = /* GraphQL */ `
                     time
                 }
             }
-            priorities {
-                colourCode
-                id
-                value
-            }
-            severities {
-                colourCode
-                id
-                value
-            }
-            statuses {
-                colourCode
-                id
-                value
-            }
         }
         getSprint(sprintID: $sprintID) {
             id
@@ -126,51 +116,7 @@ export const fetchSprintDetails = /* GraphQL */ `
                 index
             }
         }
-        listUsersByProject(projectID: $projectID) {
-            id
-            firstName
-            lastName
-            email
-        }
-        listTaskTypesByProject(projectID: $projectID) {
-            description
-            id
-            name
-            projects {
-                id
-                name
-            }
-            screen {
-                id
-                name
-            }
-        }
-        getSprintFormData {
-            id
-            value
-            colourCode
-        }
-        getProject(projectID: $projectID) {
-            id
-            name
-            deletedAt
-            deleted
-            createdBy {
-                id
-                lastName
-                firstName
-            }
-            colorTheme
-            createdAt
-            avatar
-        }
     }
-`;
-
-export const updateSprint = /* GraphQL */ `
-  mutation MyQuery($updatedSprintDetails: SprintUpdateInput!) {
-    updateSprint(updatedSprintDetails: $updatedSprintDetails)
-  }
 `;
 
 export const deleteSprint = /* GraphQL */ `
