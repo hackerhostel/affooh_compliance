@@ -3,6 +3,7 @@ import {generateClient} from "aws-amplify/api";
 import {fetchAuthSession} from "aws-amplify/auth";
 import {getProjectBreakdown} from "../../graphql/organizationQueries/queries.js";
 import {doGetSprintBreakdown} from "./sprintSlice.js";
+import {doGetProjectUsers} from "./projectUsersSlice.js";
 
 const initialState = {
   isProjectDetailsError: false,
@@ -30,6 +31,7 @@ export const doGetProjectBreakdown = createAsyncThunk('src/project/getProjectBre
       if (projectDetails) {
         const projectBreakdownV2 = projectDetails.data.getProjectBreakdownV2
         thunkApi.dispatch(doGetSprintBreakdown(projectBreakdownV2?.defaultProject?.id));
+        thunkApi.dispatch(doGetProjectUsers(projectBreakdownV2?.defaultProject?.id));
         return projectBreakdownV2
       } else {
         return thunkApi.rejectWithValue('project details not found');
@@ -47,6 +49,7 @@ export const doSwitchProject = createAsyncThunk('src/project/switchProject',
 
       // TODO: other initial lists will be invoked here
       thunkApi.dispatch(doGetSprintBreakdown(newProjectId));
+      thunkApi.dispatch(doGetProjectUsers(newProjectId));
 
       if(projectList && Array.isArray(projectList)) {
         const pp = projectList.filter(p => p.id === newProjectId)

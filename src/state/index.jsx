@@ -4,6 +4,7 @@ import projectReducer from './slice/projectSlice.js'
 import testPlanReducer from "./slice/testPlanSlice.js";
 import sprintReducer from './slice/sprintSlice.js'
 import testCaseAttributeReducer from "./slice/testCaseAttributeSlice.js";
+import projectUsersReducer from "./slice/projectUsersSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     project: projectReducer,
     sprint: sprintReducer,
     testPlan: testPlanReducer,
-    testCaseAttribute: testCaseAttributeReducer
+    testCaseAttribute: testCaseAttributeReducer,
+    projectUsers : projectUsersReducer
   },
 })

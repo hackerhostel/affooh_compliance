@@ -1,7 +1,7 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {generateClient} from 'aws-amplify/api';
-import {fetchAuthSession} from 'aws-amplify/auth';
-import {getTestCaseFormData} from "../../graphql/testcaseQueries/queries.js";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { generateClient } from 'aws-amplify/api';
+import { fetchAuthSession } from 'aws-amplify/auth';
+import { getTestCaseFormData } from "../../graphql/testcaseQueries/queries.js";
 
 const initialState = {
     isTestCaseAttributeError: false,
@@ -15,8 +15,6 @@ export const doGetTestCaseAttribute = createAsyncThunk(
     'testCaseAttribute/getTestCaseAttribute',
     async (projectID, thunkApi) => {
         try {
-            console.log("testCaseAttributeResponse")
-
             const client = generateClient();
             const session = await fetchAuthSession();
             const authToken = session?.tokens?.idToken;
@@ -27,7 +25,7 @@ export const doGetTestCaseAttribute = createAsyncThunk(
 
             const testCaseAttributeResponse = await client.graphql({
                 query: getTestCaseFormData,
-                variables: {projectID},
+                variables: { projectID },
                 authToken,
             });
 
@@ -53,21 +51,14 @@ export const testCaseAttributeSlice = createSlice({
             .addCase(doGetTestCaseAttribute.pending, (state) => {
                 state.isTestCaseAttributeLoading = true;
             })
-            .addCase(doGetTestCaseAttribute.fulfilled, async (state, action) => {
+            .addCase(doGetTestCaseAttribute.fulfilled, (state, action) => {
                 state.isTestCaseAttributeLoading = false;
                 state.isTestCaseAttributeError = false;
-                console.log(action)
-                const payload = await action.payload;
+                const attributes = action.payload?.attributes || [];
 
-                state.testCaseStatuses = _.filter(payload?.attributes, {
-                    type: 'STATUS'
-                });
-                state.testCasePriorities = _.filter(payload?.attributes, {
-                    type: 'PRIORITY'
-                });
-                state.testCaseCategories = _.filter(payload?.attributes, {
-                    type: 'CATEGORY'
-                });
+                state.testCaseStatuses = attributes.filter(attr => attr.type === 'STATUS');
+                state.testCasePriorities = attributes.filter(attr => attr.type === 'PRIORITY');
+                state.testCaseCategories = attributes.filter(attr => attr.type === 'CATEGORY');
             })
             .addCase(doGetTestCaseAttribute.rejected, (state, action) => {
                 state.isTestCaseAttributeLoading = false;
@@ -76,7 +67,7 @@ export const testCaseAttributeSlice = createSlice({
     },
 });
 
-export const {clearTestCaseAttributeState} = testCaseAttributeSlice.actions;
+export const { clearTestCaseAttributeState } = testCaseAttributeSlice.actions;
 export const selectIsTestCaseAttributeError = (state) => state?.testCaseAttribute?.isTestCaseAttributeError;
 export const selectIsTestCaseAttributeLoading = (state) => state?.testCaseAttribute?.isTestCaseAttributeLoading;
 export const selectTestCaseStatuses = (state) => state?.testCaseAttribute?.testCaseStatuses;

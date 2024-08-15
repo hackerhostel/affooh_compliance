@@ -9,7 +9,9 @@ module.exports = {
         'primary-pink': '#EB5A84',
         'secondary-pink': '#fdd6db',
         'dashboard-bgc': '#f4f5fb',
-        'secondary-grey' : '#747A88'
+        'secondary-grey': '#747A88',
+        'dark-white': '#fbfbfb',
+        'in-progress': '#cafafa'
       },
       height: {
         'list-screen': 'calc(100vh - 148px)',

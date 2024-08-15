@@ -7,6 +7,8 @@ import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js"
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import {doGetTestPlan} from "../../state/slice/testPlanSlice.js";
+import {doGetTestCaseAttribute} from "../../state/slice/testCaseAttributeSlice.js";
+import {doGetProjectUsers} from "../../state/slice/projectUsersSlice.js";
 
 const TestPlanListPage = () => {
     const dispatch = useDispatch();
@@ -47,6 +49,7 @@ const TestPlanListPage = () => {
                         className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100"
                         onClick={() => {
                             dispatch(doGetTestPlan(element?.id))
+                            dispatch(doGetTestCaseAttribute(selectedProject.id))
                         }}
                     >
                         <div className="text-left">
