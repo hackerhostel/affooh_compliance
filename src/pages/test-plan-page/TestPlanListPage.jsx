@@ -1,13 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
 import {useFetchTestPlans} from "../../hooks/testPlanHooks/useFetchTestPlans.jsx";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
+import {doGetTestPlan} from "../../state/slice/testPlanSlice.js";
+import {doGetTestCaseAttribute} from "../../state/slice/testCaseAttributeSlice.js";
+import {doGetProjectUsers} from "../../state/slice/projectUsersSlice.js";
 
 const TestPlanListPage = () => {
+    const dispatch = useDispatch();
     const selectedProject = useSelector(selectSelectedProject);
 
     const {testPlans, loading, error} = useFetchTestPlans(selectedProject?.id)
@@ -43,9 +47,10 @@ const TestPlanListPage = () => {
                     <button
                         key={index}
                         className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100"
-                        // onClick={() => {
-                        //     dispatch(setSelectedProjectFromList(index))
-                        // }}
+                        onClick={() => {
+                            dispatch(doGetTestPlan(element?.id))
+                            dispatch(doGetTestCaseAttribute(selectedProject.id))
+                        }}
                     >
                         <div className="text-left">
                             <div className="font-bold mb-1">{element?.name}</div>

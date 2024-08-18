@@ -1,36 +1,30 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {selectProjectList, selectSelectedProject, setSelectedProjectFromList} from "../../state/slice/projectSlice.js";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
 import useGraphQL from "../../hooks/useGraphQL.jsx";
-import {listUsersByOrganization} from "../../graphql/userQueries/queries.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import {fetchSprintDetails, listSprintsByProject} from "../../graphql/sprintQueries/queries.js";
+import {listSprintsByProject} from "../../graphql/sprintQueries/queries.js";
+import {
+  selectIsSprintListForProjectError,
+  selectIsSprintListForProjectLoading,
+  selectSprintListForProject,
+  setSelectedSprint
+} from "../../state/slice/sprintSlice.js";
 
 const SprintListPage = () => {
   const dispatch = useDispatch();
-  const {makeRequest, loading, error} = useGraphQL();
-  const selectedProject = useSelector(selectSelectedProject);
+  const sprintListError = useSelector(selectIsSprintListForProjectError);
+  const sprintListForLoading = useSelector(selectIsSprintListForProjectLoading);
+  const sprintListForProject = useSelector(selectSprintListForProject);
 
   const [sprintList, setSprintList] = useState([]);
   const [filteredSprintList, setFilteredSprintList] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const query = listSprintsByProject;
-      const variables = { 'projectID': selectedProject?.id };
-      const data = await makeRequest(query, variables);
-
-      const userListResponse = data.data.listSprintsByProject;
-      if (userListResponse && Array.isArray(userListResponse)) {
-        setSprintList(userListResponse)
-        setFilteredSprintList(userListResponse)
-      }
-    };
-
-    fetchData();
-  }, []);
+    setFilteredSprintList(sprintListForProject)
+  }, [sprintListForProject]);
 
   const handleSearch = (term) => {
     if (term.trim() === '') {
@@ -43,8 +37,8 @@ const SprintListPage = () => {
     }
   };
 
-  if (loading) return <div className="p-2"><SkeletonLoader/></div>;
-  if (error) return <ErrorAlert message={error.message}/>;
+  if (sprintListForLoading) return <div className="p-2"><SkeletonLoader/></div>;
+  if (sprintListError) return <ErrorAlert message="failed to fetch sprints at the moment"/>;
 
   return (
     <div className="h-list-screen overflow-y-auto w-full">
@@ -57,7 +51,7 @@ const SprintListPage = () => {
             key={index}
             className="items-center p-3 border border-gray-200 rounded-md w-full grid grid-cols-3 gap-2 hover:bg-gray-100"
             onClick={() => {
-              dispatch(setSelectedProjectFromList(index))
+              dispatch(setSelectedSprint(element))
             }}
           >
             <div className="col-span-2 text-left">

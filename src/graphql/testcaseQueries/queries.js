@@ -21,26 +21,6 @@ export const getTestCaseFormData = /* GraphQL */ `
         type
         value
       }
-      labels {
-        colourCode
-        id
-        value
-      }
-      users {
-        id
-        lastName
-        firstName
-      }
-    }
-    listUsersByProject(projectID: $projectID) {
-      id
-      firstName
-      lastName
-      email
-    }
-    listTasksByProjectMinimal(projectID: $projectID) {
-      id
-      name
     }
   }
 `;
