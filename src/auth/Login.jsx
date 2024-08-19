@@ -5,7 +5,7 @@ import FormInput from "../components/FormInput.jsx";
 import {LoginSchema} from "../state/domains/authModels.js";
 import {useToasts} from "react-toast-notifications";
 import {useHistory} from "react-router-dom";
-import {doGetCurrentUser} from "../state/slice/authSlice.js";
+import {doGetWhoAmI} from "../state/slice/authSlice.js";
 import {useDispatch} from "react-redux";
 import Spinner from "../components/Spinner.jsx";
 
@@ -44,13 +44,15 @@ const Login = () => {
     try {
       const response = await signIn(loginDetails)
 
-      dispatch(doGetCurrentUser())
+      dispatch(doGetWhoAmI())
       // TODO: handle challenges like NEW_PASSWORD_REQUIRED
       addToast('logged in Successfully', { appearance: 'success', autoDismiss: true });
       formRef.current.reset();
       history.push('/dashboard');
     } catch (e) {
       addToast(e.message, { appearance: 'error' });
+    } finally {
+      setLoading(false);
     }
   }
 

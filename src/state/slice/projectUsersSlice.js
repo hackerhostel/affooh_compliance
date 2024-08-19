@@ -2,6 +2,8 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {generateClient} from 'aws-amplify/api';
 import {fetchAuthSession} from 'aws-amplify/auth';
 import {getProjectUsers} from "../../graphql/projectQueries/queries.js";
+import {doGetSprintBreakdown} from "./sprintSlice.js";
+import axios from "axios";
 
 const initialState = {
     isProjectUsersError: false,
@@ -11,32 +13,18 @@ const initialState = {
 
 export const doGetProjectUsers = createAsyncThunk(
     'projectUsers/getProjectUsers',
-    async (projectID, thunkApi) => {
+    async (projectId, thunkApi) => {
         try {
-            const client = generateClient();
+            const response = await axios.get(`/projects/${projectId}/users`)
+            const responseData = response.data.body;
 
-            const session = await fetchAuthSession();
-            const authToken = session?.tokens?.idToken;
-
-            if (!authToken) {
-                throw new Error('Failed to retrieve auth token');
+            if (responseData) {
+                return responseData
+            } else {
+                return thunkApi.rejectWithValue('sprint list not found');
             }
-
-            const projectUsersResponse = await client.graphql({
-                query: getProjectUsers,
-                variables: {projectID},
-                authToken,
-            });
-
-            if (!projectUsersResponse?.data?.listUsersByProject) {
-                throw new Error('Project users not found');
-            }
-
-            console.log(projectUsersResponse.data.listUsersByProject)
-
-            return projectUsersResponse.data.listUsersByProject;
         } catch (error) {
-            return thunkApi.rejectWithValue(error.message);
+            return thunkApi.rejectWithValue(error);
         }
     }
 );

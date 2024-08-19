@@ -2,6 +2,9 @@ import React, {useEffect, useState} from 'react';
 import {Redirect, Route, useLocation} from 'react-router-dom';
 import {getCurrentUser} from "aws-amplify/auth";
 import LoadingPage from "../pages/LoadingPage.jsx";
+import {setupAuthorizationHeader} from "../utils/apiUtils.js";
+
+setupAuthorizationHeader();
 
 const AuthGuard = ({ children, ...rest }) => {
   const pageLocation = useLocation();

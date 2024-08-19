@@ -1,34 +1,26 @@
 import React, {useEffect, useState} from 'react';
-import useGraphQL from "../../hooks/useGraphQL.jsx";
-import {listUsersByOrganization} from "../../graphql/userQueries/queries.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {setSelectedProjectFromList} from "../../state/slice/projectSlice.js";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import SearchBar from "../../components/SearchBar.jsx";
+import {
+  selectIsProjectUsersError,
+  selectIsProjectUsersLoading,
+  selectProjectUserList
+} from "../../state/slice/projectUsersSlice.js";
 
 const UserListPage = () => {
   const dispatch = useDispatch();
-  const {makeRequest, loading, error} = useGraphQL();
+  const userListError = useSelector(selectIsProjectUsersError);
+  const userListForLoading = useSelector(selectIsProjectUsersLoading);
+  const userListForProject = useSelector(selectProjectUserList);
 
-  const [userList, setUserList] = useState([]);
   const [filteredUserList, setFilteredUserList] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const query = listUsersByOrganization;
-      const variables = { /* your query variables */}; // not mandatory
-      const data = await makeRequest(query, variables);
-
-      const userListResponse = data.data.listUsersByOrganization;
-      if (userListResponse && Array.isArray(userListResponse)) {
-        setUserList(userListResponse)
-        setFilteredUserList(userListResponse)
-      }
-    };
-
-    fetchData();
-  }, []);
+    setFilteredUserList(userListForProject)
+  }, [userListForProject]);
 
   const handleSearch = (term) => {
     if (term.trim() === '') {
@@ -41,8 +33,8 @@ const UserListPage = () => {
     }
   };
 
-  if (loading) return <div className="p-2"><SkeletonLoader/></div>;
-  if (error) return <ErrorAlert message={error.message}/>;
+  if (userListForLoading) return <div className="p-2"><SkeletonLoader/></div>;
+  if (userListError) return <ErrorAlert message="failed to fetch users at the moment"/>;
 
   return (
     <div className="h-list-screen overflow-y-auto w-full">
