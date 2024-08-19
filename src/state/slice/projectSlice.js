@@ -15,24 +15,16 @@ const initialState = {
   isSwitchingProject: true
 }
 
-/**
- * @deprecated since version 2.0
- */
 export const doGetProjectBreakdown = createAsyncThunk('src/project/getProjectBreakdown',
   async (_, thunkApi) => {
     try {
-      const client = generateClient();
+      const state = thunkApi.getState();
+      const { selectedProject } = state.project;
 
-      const projectDetails = await client.graphql({
-        query: getProjectBreakdown,
-        authToken: (await fetchAuthSession())?.tokens?.idToken,
-      });
-
-      if (projectDetails) {
-        const projectBreakdownV2 = projectDetails.data.getProjectBreakdownV2
-        thunkApi.dispatch(doGetSprintBreakdown(projectBreakdownV2?.defaultProject?.id));
-        thunkApi.dispatch(doGetProjectUsers(projectBreakdownV2?.defaultProject?.id));
-        return projectBreakdownV2
+      if (selectedProject) {
+        const selectedProjectId = selectedProject?.id
+        thunkApi.dispatch(doGetSprintBreakdown(selectedProjectId));
+        thunkApi.dispatch(doGetProjectUsers(selectedProjectId));
       } else {
         return thunkApi.rejectWithValue('project details not found');
       }
@@ -67,23 +59,15 @@ export const projectSlice = createSlice({
     setSelectedProjectFromList: (state, action) => {
       state.selectedProjectFromList = action.payload;
     },
+    setProjectList: (state, action) => {
+      state.projectList = action.payload;
+    },
+    setSelectedProject: (state, action) => {
+      state.selectedProject = action.payload;
+    },
     clearProjectState: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(doGetProjectBreakdown.pending, (state, action) => {
-      state.isProjectDetailsLoading = true;
-    });
-    builder.addCase(doGetProjectBreakdown.fulfilled, (state, action) => {
-      state.selectedProject = action.payload.defaultProject;
-      state.projectList = action.payload.projects;
-      state.isProjectDetailsLoading = false;
-      state.isProjectDetailsError = false;
-    });
-    builder.addCase(doGetProjectBreakdown.rejected, (state, action) => {
-      state.isProjectDetailsLoading = false;
-      state.isProjectDetailsError = true;
-    });
-
     builder.addCase(doSwitchProject.pending, (state, action) => {
       state.isSwitchingProject = true;
     });
@@ -94,7 +78,7 @@ export const projectSlice = createSlice({
   }
 })
 
-export const {setSelectedProjectFromList} = projectSlice.actions;
+export const {setSelectedProjectFromList, setProjectList, setSelectedProject} = projectSlice.actions;
 
 export const selectIsProjectDetailsError = (state) => state.project.isProjectDetailsError;
 export const selectIsProjectDetailsLoading = (state) => state.project.isProjectDetailsLoading;

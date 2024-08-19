@@ -1,28 +1,24 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
-import {generateClient} from "aws-amplify/api";
-import {fetchAuthSession} from "aws-amplify/auth";
-import {getDetailsForDashboard} from "../../graphql/userQueries/queries.js";
+import axios from "axios";
+import {setProjectList, setSelectedProject} from "./projectSlice.js";
 
 const initialState = {
   appConfig: {},
   user: {permissions: []},
+  initialDataLoading: true,
+  initialDataError: false,
 }
 
-/**
- * @deprecated since version 2.0
- */
-export const doGetCurrentUser = createAsyncThunk('src/auth/getCurrentUser', async (_, thunkApi) => {
+export const doGetWhoAmI = createAsyncThunk('src/auth/doGetWhoAmI', async (_, thunkApi) => {
   try {
-    const client = generateClient();
+    const response = await axios.get('/users/who-am-i')
 
-    const userDetails = await client.graphql({
-      query: getDetailsForDashboard,
-      authToken: (await fetchAuthSession())?.tokens?.idToken,
-    });
+    const responseData = response.data.body;
+    if (response.data.body) {
+      thunkApi.dispatch(setProjectList(responseData.projects));
+      thunkApi.dispatch(setSelectedProject(responseData.projects[0]));
 
-    if (userDetails) {
-      // TODO: handle data
-      return userDetails.data.getDetailsForDashboard
+      return responseData.userDetails;
     } else {
       return thunkApi.rejectWithValue('User details not found');
     }
@@ -38,8 +34,16 @@ export const authSlice = createSlice({
     clearAuthState: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(doGetCurrentUser.fulfilled, (state, action) => {
-      state.user = action.payload;
+    builder.addCase(doGetWhoAmI.pending, (state, action) => {
+      state.initialDataLoading = true;
+    });
+    builder.addCase(doGetWhoAmI.fulfilled, (state, action) => {
+      state.initialDataLoading = false;
+      state.initialDataError = false;
+      state.user = action.payload
+    });
+    builder.addCase(doGetWhoAmI.rejected, (state, action) => {
+      state.initialDataError = true;
     });
   }
 })
@@ -47,5 +51,7 @@ export const authSlice = createSlice({
 export const {clearAuthState} = authSlice.actions
 
 export const selectUser = (state) => state.auth.user;
+export const selectInitialDataLoading = (state) => state.auth.initialDataLoading;
+export const selectInitialDataError = (state) => state.auth.initialDataError;
 
 export default authSlice.reducer

@@ -2,6 +2,7 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {generateClient} from "aws-amplify/api";
 import {fetchAuthSession} from "aws-amplify/auth";
 import {listSprintsByProject} from "../../graphql/sprintQueries/queries.js";
+import axios from "axios";
 
 const initialState = {
   selectedSprint: undefined,
@@ -13,16 +14,11 @@ const initialState = {
 export const doGetSprintBreakdown = createAsyncThunk('src/sprint/getSprintBreakdown',
   async (projectId, thunkApi) => {
     try {
-      const client = generateClient();
+      const response = await axios.get(`/projects/${projectId}/sprints`)
+      const responseData = response.data.body;
 
-      const sprintListResponse = await client.graphql({
-        query: listSprintsByProject,
-        variables: {projectID: projectId},
-        authToken: (await fetchAuthSession())?.tokens?.idToken,
-      });
-
-      if (sprintListResponse) {
-        return sprintListResponse.data.listSprintsByProject
+      if (responseData) {
+        return responseData.sprints
       } else {
         return thunkApi.rejectWithValue('sprint list not found');
       }
