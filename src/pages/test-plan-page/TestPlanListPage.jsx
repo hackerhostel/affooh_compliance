@@ -9,7 +9,8 @@ import {
     doGetTestPlans,
     selectIsTestPlanListForProjectError,
     selectIsTestPlanListForProjectLoading,
-    selectTestPlanListForProject
+    selectTestPlanListForProject,
+    setSelectedTestPlanId
 } from "../../state/slice/testPlansSlice.js";
 
 const TestPlanListPage = () => {
@@ -58,7 +59,7 @@ const TestPlanListPage = () => {
                         key={index}
                         className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100"
                         onClick={() => {
-                            // dispatch(doGetTestPlan(element?.id))
+                            dispatch(setSelectedTestPlanId(element?.id))
                             // dispatch(doGetTestCaseAttribute(selectedProject.id))
                         }}
                     >

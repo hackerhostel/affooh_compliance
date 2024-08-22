@@ -5,6 +5,7 @@ const initialState = {
     isTestPlanListForProjectError: false,
     isTestPlanListForProjectLoading: false,
     testPlanListForProject: [],
+    selectedTestPlanId: 0,
 };
 
 export const doGetTestPlans = createAsyncThunk(
@@ -30,6 +31,9 @@ export const testPlansSlice = createSlice({
     name: 'testPlans',
     initialState,
     reducers: {
+        setSelectedTestPlanId: (state, action) => {
+            state.selectedTestPlanId = action.payload;
+        },
         clearTestPlanState: () => initialState,
     },
     extraReducers: (builder) => {
@@ -38,7 +42,6 @@ export const testPlansSlice = createSlice({
                 state.isTestPlanListForProjectLoading = true;
             })
             .addCase(doGetTestPlans.fulfilled, (state, action) => {
-                console.log(action.payload)
                 state.testPlanListForProject = action.payload;
                 state.isTestPlanListForProjectLoading = false;
                 state.isTestPlanListForProjectError = false;
@@ -50,8 +53,9 @@ export const testPlansSlice = createSlice({
     },
 });
 
-export const {clearTestPlanState} = testPlansSlice.actions;
+export const {clearTestPlanState, setSelectedTestPlanId} = testPlansSlice.actions;
 
+export const selectSelectedTestPlanId = (state) => state.testPlans?.selectedTestPlanId;
 export const selectIsTestPlanListForProjectError = (state) => state?.testPlans?.isTestPlanListForProjectError;
 export const selectIsTestPlanListForProjectLoading = (state) => state?.testPlans?.isTestPlanListForProjectLoading;
 export const selectTestPlanListForProject = (state) => state?.testPlans?.testPlanListForProject;
