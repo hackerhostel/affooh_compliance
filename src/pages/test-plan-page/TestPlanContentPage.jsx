@@ -1,9 +1,4 @@
 import {useSelector} from "react-redux";
-import {
-    selectIsTestPlanDetailsError,
-    selectIsTestPlanDetailsLoading,
-    selectSelectedTestPlan
-} from "../../state/slice/testPlanSlice.js";
 import React, {useEffect, useRef, useState} from "react";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
@@ -17,9 +12,10 @@ import {selectSprintListForProject} from "../../state/slice/sprintSlice.js";
 import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
 
 const TestPlanContentPage = () => {
-    const isTestPlanDetailsLoading = useSelector(selectIsTestPlanDetailsLoading);
-    const isTestPlanDetailsError = useSelector(selectIsTestPlanDetailsError);
-    const selectedTestPlan = useSelector(selectSelectedTestPlan);
+    // const isTestPlanDetailsLoading = useSelector(selectIsTestPlanDetailsLoading);
+    // const isTestPlanDetailsError = useSelector(selectIsTestPlanDetailsError);
+    // const selectedTestPlan = useSelector(selectSelectedTestPlan);
+    const selectedTestPlan = null;
     const selectedProject = useSelector(selectSelectedProject);
     const projects = useSelector(selectProjectList);
     const testCaseStatuses = useSelector(selectTestCaseStatuses);
@@ -33,18 +29,18 @@ const TestPlanContentPage = () => {
     const [formErrors, setFormErrors] = useState({});
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
 
-    useEffect(() => {
-        if (selectedTestPlan?.id) {
-            // console.log(selectedTestPlan.testSuites)
-            setFormValues({
-                id: selectedTestPlan.id,
-                name: selectedTestPlan.name,
-                sprint: selectedTestPlan.sprintID,
-                project: selectedTestPlan.projectID,
-                release: selectedTestPlan.releaseID
-            })
-        }
-    }, [selectedTestPlan]);
+    // useEffect(() => {
+    //     if (selectedTestPlan?.id) {
+    //         // console.log(selectedTestPlan.testSuites)
+    //         setFormValues({
+    //             id: selectedTestPlan.id,
+    //             name: selectedTestPlan.name,
+    //             sprint: selectedTestPlan.sprintID,
+    //             project: selectedTestPlan.projectID,
+    //             release: selectedTestPlan.releaseID
+    //         })
+    //     }
+    // }, [selectedTestPlan]);
 
     const getOptions = (options) => {
         return options.map(o => ({value: Number(o.id), label: o.name}));
@@ -54,13 +50,13 @@ const TestPlanContentPage = () => {
         setFormValues({...formValues, [name]: value});
     };
 
-    if (isTestPlanDetailsLoading || releaseLoading) {
-        return <div className="m-10"><SkeletonLoader/></div>;
-    }
-
-    if (isTestPlanDetailsError || releaseError) {
-        return <ErrorAlert message={error.message}/>;
-    }
+    // if (isTestPlanDetailsLoading || releaseLoading) {
+    //     return <div className="m-10"><SkeletonLoader/></div>;
+    // }
+    //
+    // if (isTestPlanDetailsError || releaseError) {
+    //     return <ErrorAlert message={error.message}/>;
+    // }
 
     // useEffect(() => {
     //     const data = [];

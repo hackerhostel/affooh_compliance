@@ -2,26 +2,36 @@ import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
-import {useFetchTestPlans} from "../../hooks/testPlanHooks/useFetchTestPlans.jsx";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import {doGetTestPlan} from "../../state/slice/testPlanSlice.js";
-import {doGetTestCaseAttribute} from "../../state/slice/testCaseAttributeSlice.js";
-import {doGetProjectUsers} from "../../state/slice/projectUsersSlice.js";
+import {
+    doGetTestPlans,
+    selectIsTestPlanListForProjectError,
+    selectIsTestPlanListForProjectLoading,
+    selectTestPlanListForProject
+} from "../../state/slice/testPlansSlice.js";
 
 const TestPlanListPage = () => {
     const dispatch = useDispatch();
     const selectedProject = useSelector(selectSelectedProject);
+    const testPlansError = useSelector(selectIsTestPlanListForProjectError);
+    const testPlansLoading = useSelector(selectIsTestPlanListForProjectLoading);
+    const testPlans = useSelector(selectTestPlanListForProject);
 
-    const {testPlans, loading, error} = useFetchTestPlans(selectedProject?.id)
-    const [filteredTestPlans, setFilteredTestPlans] = useState([]);
+    useEffect(() => {
+        if (selectedProject?.id) {
+            dispatch(doGetTestPlans(selectedProject?.id));
+        }
+    }, [selectedProject]);
 
     useEffect(() => {
         if (testPlans.length) {
             setFilteredTestPlans(testPlans)
         }
     }, [testPlans]);
+
+    const [filteredTestPlans, setFilteredTestPlans] = useState([]);
 
     const handleSearch = (term) => {
         if (term.trim() === '') {
@@ -34,8 +44,8 @@ const TestPlanListPage = () => {
         }
     };
 
-    if (loading) return <div className="p-2"><SkeletonLoader/></div>;
-    if (error) return <ErrorAlert message={error.message}/>;
+    if (testPlansLoading) return <div className="p-2"><SkeletonLoader/></div>;
+    if (testPlansError) return <ErrorAlert message={testPlansError.message}/>;
 
     return (
         <div className="h-list-screen overflow-y-auto w-full">
@@ -48,14 +58,14 @@ const TestPlanListPage = () => {
                         key={index}
                         className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100"
                         onClick={() => {
-                            dispatch(doGetTestPlan(element?.id))
-                            dispatch(doGetTestCaseAttribute(selectedProject.id))
+                            // dispatch(doGetTestPlan(element?.id))
+                            // dispatch(doGetTestCaseAttribute(selectedProject.id))
                         }}
                     >
                         <div className="text-left">
                             <div className="font-bold mb-1">{element?.name}</div>
-                            <div className="text-sm text-gray-600 flex items-center">{element?.sprintID}<span
-                                className="mx-1 text-black text-2xl ">&#8226;</span>{element?.releaseID}</div>
+                            <div className="text-sm text-gray-600 flex items-center">{element?.sprintName}<span
+                                className="mx-1 text-black text-2xl ">&#8226;</span>{element?.releaseName}</div>
                         </div>
                         <div className={"flex gap-1"}>
                             <TrashIcon className={"w-4 h-4 text-pink-700"}/>
