@@ -1,27 +1,34 @@
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import React, {useEffect, useRef, useState} from "react";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
-import {useFetchReleases} from "../../hooks/releaseHooks/useFetchReleases.jsx";
 import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
-import {selectTestCaseStatuses} from "../../state/slice/testCaseAttributeSlice.js";
+import {doGetTestCaseFormData, selectTestCaseStatuses} from "../../state/slice/testCaseFormDataSlice.js";
 import {selectSprintListForProject} from "../../state/slice/sprintSlice.js";
 import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
-import {selectSelectedTestPlanId} from "../../state/slice/testPlansSlice.js";
+import {selectSelectedTestPlanId, setSelectedTestPlan} from "../../state/slice/testPlansSlice.js";
 import axios from "axios";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
+import {
+    doGetReleases,
+    selectIsReleaseListForProjectError,
+    selectIsReleaseListForProjectLoading,
+    selectReleaseListForProject
+} from "../../state/slice/releaseSlice.js";
 
 const TestPlanContentPage = () => {
+    const dispatch = useDispatch();
     const selectedTestPlanId = useSelector(selectSelectedTestPlanId);
     const selectedProject = useSelector(selectSelectedProject);
     const projects = useSelector(selectProjectList);
     const testCaseStatuses = useSelector(selectTestCaseStatuses);
     const sprintListForProject = useSelector(selectSprintListForProject);
     const projectUserList = useSelector(selectProjectUserList);
-
-    const {releases, loading: releaseLoading, error: releaseError} = useFetchReleases(selectedProject?.id)
+    const releases = useSelector(selectReleaseListForProject)
+    const releaseLoading = useSelector(selectIsReleaseListForProjectLoading)
+    const releaseError = useSelector(selectIsReleaseListForProjectError)
 
     const formRef = useRef(null);
     const [testPlan, setTestPlan] = useState({});
@@ -31,6 +38,13 @@ const TestPlanContentPage = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
+
+    useEffect(() => {
+        if (selectedProject?.id) {
+            dispatch(doGetReleases(selectedProject?.id));
+            dispatch(doGetTestCaseFormData(selectedProject?.id))
+        }
+    }, [selectedProject]);
 
     useEffect(() => {
         const fetchTestPlan = async () => {
@@ -50,6 +64,7 @@ const TestPlanContentPage = () => {
                         release: testPlanResponse.releaseID
                     })
                     setTestPlan(testPlanResponse)
+                    dispatch(setSelectedTestPlan(testPlanResponse))
                 }
             } catch (error) {
                 setError(true)
@@ -71,11 +86,11 @@ const TestPlanContentPage = () => {
         setFormValues({...formValues, [name]: value});
     };
 
-    if (loading) {
+    if (loading || releaseLoading) {
         return <div className="m-10"><SkeletonLoader/></div>;
     }
 
-    if (error) {
+    if (error || releaseError) {
         return <ErrorAlert message={error.message}/>;
     }
 

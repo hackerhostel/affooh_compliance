@@ -1,12 +1,12 @@
 import MainPageLayout from '../../layouts/MainPageLayout.jsx'
-import ReleasesPage from "./ReleasesPage.jsx";
+import ReleaseListPage from "./ReleaseListPage.jsx";
 import ReleaseContentPage from "./ReleaseContentPage.jsx";
 
 const ReleaseLayout = () => {
     return (
         <MainPageLayout
             title="Releases"
-            leftColumn={<ReleasesPage/>}
+            leftColumn={<ReleaseListPage/>}
             rightColumn={<ReleaseContentPage/>}
             subText={"Add New"}
         />

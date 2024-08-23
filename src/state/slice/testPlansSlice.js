@@ -6,6 +6,7 @@ const initialState = {
     isTestPlanListForProjectLoading: false,
     testPlanListForProject: [],
     selectedTestPlanId: 0,
+    selectedTestPlan: {},
 };
 
 export const doGetTestPlans = createAsyncThunk(
@@ -34,6 +35,9 @@ export const testPlansSlice = createSlice({
         setSelectedTestPlanId: (state, action) => {
             state.selectedTestPlanId = action.payload;
         },
+        setSelectedTestPlan: (state, action) => {
+            state.selectedTestPlan = action.payload;
+        },
         clearTestPlanState: () => initialState,
     },
     extraReducers: (builder) => {
@@ -53,11 +57,12 @@ export const testPlansSlice = createSlice({
     },
 });
 
-export const {clearTestPlanState, setSelectedTestPlanId} = testPlansSlice.actions;
+export const {clearTestPlanState, setSelectedTestPlanId, setSelectedTestPlan} = testPlansSlice.actions;
 
-export const selectSelectedTestPlanId = (state) => state.testPlans?.selectedTestPlanId;
 export const selectIsTestPlanListForProjectError = (state) => state?.testPlans?.isTestPlanListForProjectError;
 export const selectIsTestPlanListForProjectLoading = (state) => state?.testPlans?.isTestPlanListForProjectLoading;
 export const selectTestPlanListForProject = (state) => state?.testPlans?.testPlanListForProject;
+export const selectSelectedTestPlanId = (state) => state.testPlans?.selectedTestPlanId;
+export const selectSelectedTestPlan = (state) => state.testPlans?.selectedTestPlan;
 
 export default testPlansSlice.reducer;
