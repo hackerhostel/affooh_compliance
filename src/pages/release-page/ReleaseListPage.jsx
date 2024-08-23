@@ -1,17 +1,31 @@
 import React, {useEffect, useState} from 'react';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
-import {useFetchReleases} from "../../hooks/releaseHooks/useFetchReleases.jsx";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
+import {
+    doGetReleases,
+    selectIsReleaseListForProjectError,
+    selectIsReleaseListForProjectLoading,
+    selectReleaseListForProject
+} from "../../state/slice/releaseSlice.js";
 
-const ReleasesPage = () => {
+const ReleaseListPage = () => {
+    const dispatch = useDispatch();
     const selectedProject = useSelector(selectSelectedProject);
+    const releases = useSelector(selectReleaseListForProject)
+    const releaseLoading = useSelector(selectIsReleaseListForProjectLoading)
+    const releaseError = useSelector(selectIsReleaseListForProjectError)
 
-    const {releases, loading, error} = useFetchReleases(selectedProject?.id)
     const [filteredReleases, setFilteredReleases] = useState([]);
+
+    useEffect(() => {
+        if (selectedProject?.id) {
+            dispatch(doGetReleases(selectedProject?.id));
+        }
+    }, [selectedProject]);
 
     useEffect(() => {
         if (releases.length) {
@@ -30,8 +44,8 @@ const ReleasesPage = () => {
         }
     };
 
-    if (loading) return <div className="p-2"><SkeletonLoader/></div>;
-    if (error) return <ErrorAlert message={error.message}/>;
+    if (releaseLoading) return <div className="p-2"><SkeletonLoader/></div>;
+    if (releaseError) return <ErrorAlert message={error.message}/>;
 
     return (
         <div className="h-list-screen overflow-y-auto w-full">
@@ -62,4 +76,4 @@ const ReleasesPage = () => {
     );
 };
 
-export default ReleasesPage;
+export default ReleaseListPage;

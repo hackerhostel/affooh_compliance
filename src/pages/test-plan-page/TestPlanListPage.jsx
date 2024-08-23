@@ -60,7 +60,6 @@ const TestPlanListPage = () => {
                         className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100"
                         onClick={() => {
                             dispatch(setSelectedTestPlanId(element?.id))
-                            // dispatch(doGetTestCaseAttribute(selectedProject.id))
                         }}
                     >
                         <div className="text-left">
