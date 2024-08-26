@@ -1,5 +1,13 @@
 import {Menu, Transition} from '@headlessui/react';
-import {CheckIcon, ClipboardIcon, CogIcon, HomeIcon, RectangleStackIcon, UserIcon, ClipboardDocumentCheckIcon} from '@heroicons/react/24/outline';
+import {
+  CheckIcon,
+  ClipboardDocumentCheckIcon,
+  ClipboardIcon,
+  CogIcon,
+  HomeIcon,
+  RectangleStackIcon,
+  UserIcon
+} from '@heroicons/react/24/outline';
 import {Link, useLocation} from "react-router-dom";
 import AffoohLogo from '../../assets/affooh_logo.png'
 import {Fragment, useState} from "react";
