@@ -1,15 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {useHistory, useParams} from 'react-router-dom';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import SearchBar from "../../components/SearchBar.jsx";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
-import {selectSelectedTestPlan} from "../../state/slice/testPlansSlice.js";
+import {selectSelectedTestPlan, setSelectedTestPlan} from "../../state/slice/testPlansSlice.js";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 
 const TestPlanListPage = () => {
     const history = useHistory();
     const {test_plan_id} = useParams();
+    const dispatch = useDispatch();
 
     const selectedTestPlan = useSelector(selectSelectedTestPlan);
 
@@ -32,6 +33,7 @@ const TestPlanListPage = () => {
     useEffect(() => {
         if (testPlanResponse?.id) {
             setTestPlan(testPlanResponse)
+            dispatch(setSelectedTestPlan(testPlanResponse))
         }
     }, [testPlanResponse]);
 

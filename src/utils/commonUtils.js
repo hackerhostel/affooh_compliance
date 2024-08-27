@@ -17,3 +17,10 @@ export const formatDateIfDate = (dateObj) => {
 
 export const isNotEmptyObj = (value) =>
   value !== undefined && value !== null && Object.keys(value).length !== 0;
+
+export const getInitials = (name) => {
+  return name
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase())
+      .join('');
+}

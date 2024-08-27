@@ -21,7 +21,6 @@ const useFetchTestPlan = (testPlanId) => {
             } catch (error) {
                 setError(true)
                 setLoading(false)
-                console.error(error)
             }
         };
 
