@@ -16,7 +16,7 @@ import {
     selectIsReleaseListForProjectLoading,
     selectReleaseListForProject
 } from "../../state/slice/releaseSlice.js";
-import {useHistory, useParams} from "react-router-dom";
+import {useHistory} from "react-router-dom";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 
 const TestPlanContentPage = () => {
