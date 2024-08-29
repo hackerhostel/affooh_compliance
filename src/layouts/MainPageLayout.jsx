@@ -1,7 +1,7 @@
 import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
 import React from "react";
 
-const MainPageLayout = ({title, leftColumn, rightColumn, subText}) => {
+const MainPageLayout = ({title, leftColumn, rightColumn, subText, onAction}) => {
   return (
     <div className="grid grid-cols-5 h-full">
       {/* Left Column (1 part) */}
@@ -9,8 +9,8 @@ const MainPageLayout = ({title, leftColumn, rightColumn, subText}) => {
           <div className="pl-4 my-3 flex justify-between">
               <span className="text-2xl font-medium">{title}</span>
               {subText && (
-                  <div className={"flex gap-1 items-center mr-5"}>
-                      <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
+                  <div className={"flex gap-1 items-center mr-5"} onClick={onAction}>
+                      <PlusCircleIcon className={"w-6 h-6 text-pink-500 cursor-pointer"}/>
                       <span className="font-thin text-xs text-gray-600">{subText}</span>
                   </div>
               )}
