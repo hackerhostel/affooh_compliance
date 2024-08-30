@@ -6,6 +6,7 @@ import sprintReducer from './slice/sprintSlice.js'
 import testCaseFormDataReducer from "./slice/testCaseFormDataSlice.js";
 import projectUsersReducer from "./slice/projectUsersSlice.js";
 import releaseReducer from "./slice/releaseSlice.js";
+import platformReducer from "./slice/platformSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     testPlans: testPlansReducer,
     testCaseFormData: testCaseFormDataReducer,
     projectUsers: projectUsersReducer,
-    release: releaseReducer
+    release: releaseReducer,
+    platform: platformReducer
   },
 })
