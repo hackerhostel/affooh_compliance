@@ -26,5 +26,9 @@ export const getInitials = (name) => {
 }
 
 export const getSelectOptions = (options) => {
-  return options.map(o => ({value: Number(o.id), label: o.name}));
+  return options.map(o => ({value: Number(o.id), label: o?.name || o?.value}));
+};
+
+export const getUserSelectOptions = (options) => {
+  return options.map(o => ({value: Number(o.id), label: `${o.firstName} ${o.lastName}`}));
 };
