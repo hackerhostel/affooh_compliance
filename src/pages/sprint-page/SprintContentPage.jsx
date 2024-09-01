@@ -15,6 +15,7 @@ function transformTask(task) {
     id: task.id,
     status: task.attributes.status?.value || '',
     title: task.name,
+    taskCode: task.code,
     assignee: task.assignee ? `${task.assignee.firstName} ${task.assignee.lastName}`.trim() : '',
     epic: task.epicName || '',
     startDate: task.attributes.startDate?.value || null,

@@ -6,7 +6,7 @@ import UserLayout from "./user-page/index.jsx";
 import UnderConstruction from "../components/UnderConstruction.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import React, {useEffect} from "react";
-import {doGetWhoAmI, selectInitialDataError, selectInitialDataLoading} from "../state/slice/authSlice.js";
+import {doGetWhoAmI, selectInitialUserDataError, selectInitialUserDataLoading} from "../state/slice/authSlice.js";
 import LoadingPage from "./LoadingPage.jsx";
 import ServiceDownPage from "./ServiceDownPage.jsx";
 import TestPlanLayout from "./test-plan-page/index.jsx";
@@ -17,15 +17,19 @@ import {doGetProjectBreakdown, selectSelectedProject} from "../state/slice/proje
 import {isNotEmptyObj} from "../utils/commonUtils.js";
 import EditTaskPage from "../components/task/edit/EditTask.jsx";
 import TestSuiteLayout from "./test-suite-page/index.jsx";
+import {doGetMasterData, selectInitialDataError, selectInitialDataLoading} from "../state/slice/appSlice.js";
 
 const Dashboard = () => {
-  const isInitialDataError = useSelector(selectInitialDataError);
-  const isInitialDataLoading = useSelector(selectInitialDataLoading);
+  const isInitialAppDataError = useSelector(selectInitialDataError);
+  const isInitialAppDataLoading = useSelector(selectInitialDataLoading);
+  const isInitialUserDataError = useSelector(selectInitialUserDataError);
+  const isInitialUserDataLoading = useSelector(selectInitialUserDataLoading);
   const selectedProject = useSelector(selectSelectedProject);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(doGetWhoAmI())
+    dispatch(doGetMasterData())
   }, []);
 
   useEffect(() => {
@@ -34,8 +38,8 @@ const Dashboard = () => {
     }
   }, [selectedProject])
 
-  if (isInitialDataLoading) return <LoadingPage />;
-  if (isInitialDataError) return <ServiceDownPage />;
+  if (isInitialUserDataLoading || isInitialAppDataLoading) return <LoadingPage />;
+  if (isInitialUserDataError || isInitialAppDataError) return <ServiceDownPage />;
 
   return (
     <div  className="flex">
@@ -77,7 +81,7 @@ const Dashboard = () => {
               <SprintLayout />
             </Route>
 
-            <Route path="/task">
+            <Route path="/task/:code">
               <EditTaskPage />
             </Route>
 

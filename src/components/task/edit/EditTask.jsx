@@ -1,19 +1,54 @@
 import FormInput from "../../FormInput.jsx";
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import useValidation from "../../../utils/use-validation.jsx";
 import {LoginSchema} from "../../../state/domains/authModels.js";
 import EditTaskAdditionalDetails from "./EditTaskAdditionalDetails.jsx";
+import {useParams} from "react-router-dom";
+import axios from "axios";
+import SkeletonLoader from "../../SkeletonLoader.jsx";
+import ErrorAlert from "../../ErrorAlert.jsx";
 
 const EditTaskPage = () => {
-  const [loginDetails, setLoginDetails] = useState({ username: '', password: '' });
+  const {code} = useParams();
+  const [taskData, setTaskData] = useState({username: '', password: ''});
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const formRef = useRef(null);
-  const [formErrors] = useValidation(LoginSchema, loginDetails);
+  const [formErrors] = useValidation(LoginSchema, taskData);
+
+  const [loading, setLoading] = useState(false);
+  const [apiError, setAPIError] = useState(false);
 
   const handleFormChange = (name, value) => {
-    const newForm = { ...loginDetails, [name]: value };
-    setLoginDetails(newForm);
+    const newForm = {...taskData, [name]: value};
+    setTaskData(newForm);
   };
+
+  useEffect(() => {
+    const fetchTaskDetails = async () => {
+      setLoading(true)
+      try {
+        const response = await axios.get(`tasks/by-code/${code}`)
+        if (response.data) {
+          console.log(response.data)
+        }
+        setAPIError(false)
+      } catch (e) {
+        setAPIError(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTaskDetails()
+  }, [code]);
+
+  if (loading) {
+    return <div className="p-5"><SkeletonLoader fillBackground/></div>
+  }
+
+  if (apiError) {
+    return <div className="p-10"><ErrorAlert message="Cannot get task additional details at the moment"/></div>
+  }
 
   return (
     <div className="flex">
@@ -22,7 +57,7 @@ const EditTaskPage = () => {
           <FormInput
             type="text"
             name="username"
-            formValues={loginDetails}
+            formValues={taskData}
             placeholder="Task Title"
             onChange={({target: {name, value}}) => handleFormChange(name, value)}
             formErrors={formErrors}
@@ -45,7 +80,7 @@ const EditTaskPage = () => {
               <FormInput
                 type="text"
                 name="username"
-                formValues={loginDetails}
+                formValues={taskData}
                 onChange={({target: {name, value}}) => handleFormChange(name, value)}
                 formErrors={formErrors}
                 showErrors={isValidationErrorsShown}
@@ -54,7 +89,7 @@ const EditTaskPage = () => {
           </div>
         </div>
 
-        <EditTaskAdditionalDetails />
+        <EditTaskAdditionalDetails/>
       </div>
       <div className="w-1/3">w-2/3</div>
     </div>
