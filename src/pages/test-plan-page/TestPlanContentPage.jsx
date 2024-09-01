@@ -8,7 +8,6 @@ import {doGetTestCaseFormData, selectTestCaseStatuses} from "../../state/slice/t
 import {selectSprintListForProject} from "../../state/slice/sprintSlice.js";
 import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
 import {selectSelectedTestPlanId, setSelectedTestPlan} from "../../state/slice/testPlansSlice.js";
-import axios from "axios";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import {
@@ -17,9 +16,14 @@ import {
     selectIsReleaseListForProjectLoading,
     selectReleaseListForProject
 } from "../../state/slice/releaseSlice.js";
+import {useHistory} from "react-router-dom";
+import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
+import TestSuiteCreateComponent from "../test-suite-page/TestSuiteCreateComponent.jsx";
 
 const TestPlanContentPage = () => {
     const dispatch = useDispatch();
+    const history = useHistory();
+
     const selectedTestPlanId = useSelector(selectSelectedTestPlanId);
     const selectedProject = useSelector(selectSelectedProject);
     const projects = useSelector(selectProjectList);
@@ -31,13 +35,19 @@ const TestPlanContentPage = () => {
     const releaseError = useSelector(selectIsReleaseListForProjectError)
 
     const formRef = useRef(null);
-    const [testPlan, setTestPlan] = useState({});
+    const [testPlanId, setTestPlanId] = useState(0);
     const [formValues, setFormValues] = useState({id: 0, name: '', sprint: 0, project: 0, release: 0});
     const [formErrors, setFormErrors] = useState({});
+    const [isTestSuiteCreateOpen, setIsTestSuiteCreateOpen] = useState(false);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+    const {loading, error, data: testPlan} = useFetchTestPlan(testPlanId)
+
+    useEffect(() => {
+        if (selectedTestPlanId !== 0) {
+            setTestPlanId(selectedTestPlanId)
+        }
+    }, [selectedTestPlanId]);
 
     useEffect(() => {
         if (selectedProject?.id) {
@@ -47,36 +57,17 @@ const TestPlanContentPage = () => {
     }, [selectedProject]);
 
     useEffect(() => {
-        const fetchTestPlan = async () => {
-            setLoading(true)
-            setError(false)
-            try {
-                const response = await axios.get(`/test-plans/${selectedTestPlanId}`)
-                const testPlanResponse = response?.data?.testPlan;
-
-                if (testPlanResponse?.id) {
-                    setLoading(false)
-                    setFormValues({
-                        id: testPlanResponse.id,
-                        name: testPlanResponse.name,
-                        sprint: testPlanResponse.sprintID,
-                        project: testPlanResponse.projectID,
-                        release: testPlanResponse.releaseID
-                    })
-                    setTestPlan(testPlanResponse)
-                    dispatch(setSelectedTestPlan(testPlanResponse))
-                }
-            } catch (error) {
-                setError(true)
-                setLoading(false)
-                console.error(error)
-            }
-        };
-
-        if (selectedTestPlanId !== 0) {
-            fetchTestPlan()
+        if (testPlan?.id) {
+            setFormValues({
+                id: testPlan.id,
+                name: testPlan.name,
+                sprint: testPlan.sprintID,
+                project: testPlan.projectID,
+                release: testPlan.releaseID
+            })
+            dispatch(setSelectedTestPlan(testPlan))
         }
-    }, [selectedTestPlanId]);
+    }, [testPlan]);
 
     const getOptions = (options) => {
         return options.map(o => ({value: Number(o.id), label: o.name}));
@@ -84,6 +75,18 @@ const TestPlanContentPage = () => {
 
     const handleFormChange = (name, value) => {
         setFormValues({...formValues, [name]: value});
+    };
+
+    const handleTestSuiteCardClick = (test_suite_id) => {
+        history.push(`/test-plans/${selectedTestPlanId}/test-suites/${test_suite_id}`);
+    };
+
+    const onTestSuiteAddNew = () => {
+        setIsTestSuiteCreateOpen(true)
+    }
+
+    const handleTestSuiteCreateClose = () => {
+        setIsTestSuiteCreateOpen(false);
     };
 
     if (loading || releaseLoading) {
@@ -94,89 +97,73 @@ const TestPlanContentPage = () => {
         return <ErrorAlert message={error.message}/>;
     }
 
-    // useEffect(() => {
-    //     const data = [];
-    //     if (testSuiteAttributes?.testCases !== undefined) {
-    //         testSuiteAttributes?.testCases.map((task) => {
-    //             console.log('task', task);
-    //             data.push({
-    //                 value: task.id,
-    //                 label: task.summary
-    //             });
-    //         });
-    //     }
-    //     setTaskSelection(data);
-    // }, [testSuiteAttributes]);
-
-    return (
-        <div className={"p-7 bg-dashboard-bgc h-full"}>
+    return (<div className={"p-7 bg-dashboard-bgc h-full"}>
             <p className={"text-secondary-grey font-bold text-2xl mb-4"}>Test Plan</p>
             {!testPlan?.id ? (
-                <div className="p-8 text-center">No Details Available, Please Select a Test plan </div>
-            ) : (
-                <div className={"flex-col"}>
-                    <div className={"bg-white p-4 rounded-md"}>
-                        <form className="flex justify-between" ref={formRef}>
-                            <div className={"flex-col w-1/4"}>
-                                <p className={"text-secondary-grey"}>Name</p>
-                                <FormInput
-                                    type="text"
-                                    name="name"
-                                    formValues={formValues}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                    formErrors={formErrors}
-                                    showErrors={isValidationErrorsShown}
-                                />
-                            </div>
-                            <div className={"flex-col w-1/4"}>
-                                <p className={"text-secondary-grey"}>Sprint</p>
-                                <FormSelect
-                                    name="sprint"
-                                    formValues={formValues}
-                                    options={sprintListForProject.length ? getOptions(sprintListForProject) : []}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                />
-                            </div>
-                            <div className={"flex-col w-1/4"}>
-                                <p className={"text-secondary-grey"}>Project</p>
-                                <FormSelect
-                                    name="project"
-                                    formValues={formValues}
-                                    options={projects.length ? getOptions(projects) : []}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                    disabled={true}
-                                />
-                            </div>
-                            <div className={"flex-col w-1/5"}>
-                                <p className={"text-secondary-grey"}>Release</p>
-                                <FormSelect
-                                    name="release"
-                                    formValues={formValues}
-                                    options={releases.length ? getOptions(releases) : []}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                />
-                            </div>
-                        </form>
-                    </div>
-                    <div className={"flex gap-8 mt-7 mb-3"}>
-                        <p className={"text-secondary-grey font-bold text-lg"}>Test Suites</p>
-                        <div className={"flex gap-1 items-center mr-5"}>
-                            <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
-                            <span className="font-thin text-xs text-gray-600">Add New</span>
+                <div className="p-8 text-center">No Details Available, Please Select a Test plan </div>) : (<>
+                    <div className={"flex-col"}>
+                        <div className={"bg-white p-4 rounded-md"}>
+                            <form className="flex justify-between" ref={formRef}>
+                                <div className={"flex-col w-1/4"}>
+                                    <p className={"text-secondary-grey"}>Name</p>
+                                    <FormInput
+                                        type="text"
+                                        name="name"
+                                        formValues={formValues}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
+                                </div>
+                                <div className={"flex-col w-1/4"}>
+                                    <p className={"text-secondary-grey"}>Sprint</p>
+                                    <FormSelect
+                                        name="sprint"
+                                        formValues={formValues}
+                                        options={sprintListForProject.length ? getOptions(sprintListForProject) : []}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                    />
+                                </div>
+                                <div className={"flex-col w-1/4"}>
+                                    <p className={"text-secondary-grey"}>Project</p>
+                                    <FormSelect
+                                        name="project"
+                                        formValues={formValues}
+                                        options={projects.length ? getOptions(projects) : []}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                        disabled={true}
+                                    />
+                                </div>
+                                <div className={"flex-col w-1/5"}>
+                                    <p className={"text-secondary-grey"}>Release</p>
+                                    <FormSelect
+                                        name="release"
+                                        formValues={formValues}
+                                        options={releases.length ? getOptions(releases) : []}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                    />
+                                </div>
+                            </form>
                         </div>
-                    </div>
-                    <div className={"bg-white p-4 rounded-md min-h-44 flex items-center"}>
-                        {testPlan?.testSuites && testPlan?.testSuites.length ? (
-                            <div className={"flex gap-4 w-full overflow-x-auto"}>
-                                {testPlan.testSuites.map(ts => (
-                                    <div key={ts.id}
-                                         className={"flex flex-col gap-4 min-w-52 bg-dark-white border border-gray-200 rounded p-4 mb-4 cursor-pointer"}>
-                                        <p className={"text-secondary-grey font-bold text-base"}>{ts?.summary}</p>
-                                        {ts?.status && (
-                                            <p className={"text-secondary-grey text-xs bg-in-progress py-1 px-2 w-fit rounded"}>{testCaseStatuses.length ? testCaseStatuses.filter(tcs => tcs.id === ts?.status)[0]?.value : ''}</p>
-                                        )}
-                                        {ts?.assignee && (
-                                            <div className={"flex gap-5"}>
+                        <div className={"flex gap-8 mt-7 mb-3"}>
+                            <p className={"text-secondary-grey font-bold text-lg"}>Test Suites</p>
+                            <div className={"flex gap-1 items-center mr-5 cursor-pointer"} onClick={onTestSuiteAddNew}>
+                                <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
+                                <span className="font-thin text-xs text-gray-600">Add New</span>
+                            </div>
+                        </div>
+                        <div className={"bg-white p-4 rounded-md min-h-44 flex items-center"}>
+                            {testPlan?.testSuites && testPlan?.testSuites.length ? (
+                                <div className={"flex gap-4 w-full overflow-x-auto"}>
+                                    {testPlan.testSuites.map(ts => (
+                                        <div key={ts.id}
+                                             className={"flex flex-col gap-4 min-w-52 bg-dark-white border border-gray-200 rounded p-4 mb-4 cursor-pointer"}
+                                             onClick={() => handleTestSuiteCardClick(ts.id)}
+                                        >
+                                            <p className={"text-secondary-grey font-bold text-base"}>{ts?.summary}</p>
+                                            {ts?.status && (
+                                                <p className={"text-secondary-grey text-xs bg-in-progress py-1 px-2 w-fit rounded"}>{testCaseStatuses.length ? testCaseStatuses.filter(tcs => tcs.id === ts?.status)[0]?.value : ''}</p>)}
+                                            {ts?.assignee && (<div className={"flex gap-5"}>
                                                 <div
                                                     className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
                                                     {projectUserList.length ? (() => {
@@ -190,19 +177,15 @@ const TestPlanContentPage = () => {
                                                         return user?.firstName || "N/A";
                                                     })() : "N/A"}
                                                 </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className={"text-secondary-grey text-xs text-center w-full"}>No test suites</p>
-                        )}
+                                            </div>)}
+                                        </div>))}
+                                </div>) :
+                                (<p className={"text-secondary-grey text-xs text-center w-full"}>No test suites</p>)}
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
-    )
+                    <TestSuiteCreateComponent isOpen={isTestSuiteCreateOpen} onClose={handleTestSuiteCreateClose}/>
+                </>)}
+        </div>)
 }
 
 export default TestPlanContentPage;

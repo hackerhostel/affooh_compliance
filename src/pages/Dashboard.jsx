@@ -16,6 +16,7 @@ import SettingLayout from "./setting-page/index.jsx";
 import {doGetProjectBreakdown, selectSelectedProject} from "../state/slice/projectSlice.js";
 import {isNotEmptyObj} from "../utils/commonUtils.js";
 import EditTaskPage from "../components/task/edit/EditTask.jsx";
+import TestSuiteLayout from "./test-suite-page/index.jsx";
 
 const Dashboard = () => {
   const isInitialDataError = useSelector(selectInitialDataError);
@@ -54,6 +55,10 @@ const Dashboard = () => {
 
             <Route path="/profile">
               <UserLayout />
+            </Route>
+
+            <Route path="/test-plans/:test_plan_id/test-suites/:test_suite_id">
+              <TestSuiteLayout/>
             </Route>
 
             <Route path="/test-plans">
