@@ -15,6 +15,7 @@ import SprintLayout from "./sprint-page/index.jsx";
 import SettingLayout from "./setting-page/index.jsx";
 import {doGetProjectBreakdown, selectSelectedProject} from "../state/slice/projectSlice.js";
 import {isNotEmptyObj} from "../utils/commonUtils.js";
+import EditTaskPage from "../components/task/edit/EditTask.jsx";
 
 const Dashboard = () => {
   const isInitialDataError = useSelector(selectInitialDataError);
@@ -69,6 +70,10 @@ const Dashboard = () => {
 
             <Route path="/sprints">
               <SprintLayout />
+            </Route>
+
+            <Route path="/task">
+              <EditTaskPage />
             </Route>
 
             <Route exact path="/">

@@ -1,4 +1,7 @@
 import React, {useState} from 'react'
+import Modal from "../../components/Modal.jsx";
+import TaskForm from "../../components/task/CreateTask.jsx";
+import SampleModalContent from "../../components/SampleModalContent.jsx";
 
 const SprintHeader = ({sprintDetails}) => {
   const [typeFilter, setTypeFilter] = useState('All');
@@ -6,12 +9,14 @@ const SprintHeader = ({sprintDetails}) => {
   const [hideDone, setHideDone] = useState(true);
   const [hideEpic, setHideEpic] = useState(true);
 
+  const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
+
   const assigneeList = ['John Doe', 'Jane Smith', 'Bob Johnson'];
   const typeList = ['Bug', 'Feature', 'Task'];
   const isDue = true;
   const filterGroupChanged = true;
   const showSprintMangeBtn = true;
-  const data = [{ id: 1 }]; // Mock data array
+  const data = [{id: 1}]; // Mock data array
   const disableSprintMange = false;
   const sprintMangeText = 'Manage Sprint';
   const isBacklog = false;
@@ -29,11 +34,8 @@ const SprintHeader = ({sprintDetails}) => {
     console.log('Manage sprint');
   };
 
-  const handleCreateTask = () => {
-    console.log('Create task');
-  };
-
   return (
+    <>
       <div className="p-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -92,14 +94,24 @@ const SprintHeader = ({sprintDetails}) => {
               )}
               <button
                 className="bg-green-500 text-white px-4 py-2 rounded"
-                onClick={handleCreateTask}
+                onClick={() => setNewTaskModalOpen(true)}
               >
-                Task
+                New Task
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      <Modal
+        title={'Create New Task'}
+        isOpen={newTaskModalOpen}
+        onClose={() => setNewTaskModalOpen(false)}
+        type='side'
+      >
+        <TaskForm />
+      </Modal>
+    </>
   );
 }
 
