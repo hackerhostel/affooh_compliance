@@ -53,7 +53,7 @@ function FormSelect({
               onFocus={onFocus}
               {...rest}
             >
-              <option value="">{placeholder}</option>
+              <option value="" disabled hidden>{placeholder}</option>
               {options.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}

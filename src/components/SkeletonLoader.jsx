@@ -8,7 +8,7 @@ const SkeletonLoader = ({
 }) =>
   fillBackground ? (
       <div className="flex flex-col justify-center">
-        <div className="w-full bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
+        <div className="w-full bg-white py-8 px-4 shadow-md rounded-lg sm:px-10">
           <Skeleton count={bars} />
         </div>
       </div>

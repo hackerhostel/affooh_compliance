@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import DataGrid, {
   Column,
   SearchPanel,
@@ -7,18 +7,40 @@ import DataGrid, {
 import {formatDateIfDate} from "../../utils/commonUtils.js";
 
 import './custom-style.css';
+import {useHistory} from "react-router-dom";
 
 const SprintTable = ({taskList}) => {
+  const history = useHistory();
+
+  const taskTitleComponent = (data) => {
+    return <button
+      className="px-2 py-1 text-sm hover:bg-gray-50 rounded-lg"
+      onClick={() => {
+        history.push(`/task/${data?.key?.taskCode}`);
+      }}
+    >
+      {data.value}
+    </button>
+  };
+
   const customCellRender = (data) => {
-    if(typeof data.value === 'object') {
+    if (typeof data.value === 'object') {
       return <div className="px-2 py-1 text-sm">{formatDateIfDate(data.value)}</div>;
     }
     return <div className="px-2 py-1 text-sm">{data.value}</div>;
   };
 
   const customHeaderRender = (data) => {
-    return <div className="font-bold text-blue-600">{data.column.caption}</div>;
+    return <div className="font-bold text-gray-600">{data.column.caption}</div>;
   };
+
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight  - 200);
+
+  useEffect(() => {
+    const handleResize = () => setWindowHeight(window.innerHeight  - 200);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="p-4">
@@ -29,14 +51,15 @@ const SprintTable = ({taskList}) => {
         showBorders={true}
         width="100%"
         className="shadow-lg rounded-lg overflow-hidden sprint-grid-table"
+        height={windowHeight}
       >
-        <GroupPanel visible />
-        <SearchPanel visible />
-        <Grouping autoExpandAll />
-        <Paging enabled={false} />
-        <ColumnChooser enabled={true} mode="select" />
-        <Scrolling mode="standard" useNative={true} />
-        <Sorting mode="multiple" />
+        <GroupPanel visible/>
+        <SearchPanel visible/>
+        <Grouping autoExpandAll/>
+        <Paging enabled={false}/>
+        <ColumnChooser enabled={true} mode="select"/>
+        <Scrolling columnRenderingMode="virtual" />
+        <Sorting mode="multiple"/>
 
         <Column
           dataField="status"
@@ -47,8 +70,9 @@ const SprintTable = ({taskList}) => {
         <Column
           dataField="title"
           caption="Title"
+          width={500}
           headerCellRender={customHeaderRender}
-          cellRender={customCellRender}
+          cellRender={taskTitleComponent}
         />
         <Column
           dataField="assignee"
@@ -58,7 +82,7 @@ const SprintTable = ({taskList}) => {
           cellRender={customCellRender}
           // groupCellRender={(cellInfo) => (
           //   <div className="custom-group-cell">
-          //     awdawdawdawd
+          //     group cell test
           //   </div>
           // )}
         />

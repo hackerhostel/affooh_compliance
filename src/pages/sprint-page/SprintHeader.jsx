@@ -1,105 +1,69 @@
 import React, {useState} from 'react'
+import Modal from "../../components/Modal.jsx";
+import TaskForm from "../../components/task/create/CreateTask.jsx";
+import SampleModalContent from "../../components/SampleModalContent.jsx";
 
 const SprintHeader = ({sprintDetails}) => {
-  const [typeFilter, setTypeFilter] = useState('All');
-  const [hideSub, setHideSub] = useState(true);
-  const [hideDone, setHideDone] = useState(true);
-  const [hideEpic, setHideEpic] = useState(true);
+  const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
 
-  const assigneeList = ['John Doe', 'Jane Smith', 'Bob Johnson'];
-  const typeList = ['Bug', 'Feature', 'Task'];
-  const isDue = true;
   const filterGroupChanged = true;
   const showSprintMangeBtn = true;
-  const data = [{ id: 1 }]; // Mock data array
+  const data = [{id: 1}]; // Mock data array
   const disableSprintMange = false;
-  const sprintMangeText = 'Manage Sprint';
-  const isBacklog = false;
 
-  const handleTypeFilterChange = (e) => setTypeFilter(e.target.value);
-  const handleHideSub = (value) => setHideSub(value);
-  const handleHideDone = (value) => setHideDone(value);
-  const handleHideEpic = (value) => setHideEpic(value);
-
-  const handleSaveGrouping = () => {
-    console.log('Save grouping');
-  };
-
-  const handleSprintMangeBtn = () => {
-    console.log('Manage sprint');
-  };
-
-  const handleCreateTask = () => {
-    console.log('Create task');
-  };
+  const closeCreateTaskModal = () => setNewTaskModalOpen(false)
 
   return (
+    <>
       <div className="p-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
             <div className="flex items-center mb-2">
               <h2 className="text-xl font-bold mr-2">{sprintDetails?.name}</h2>
-              <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs">
+              <span className="bg-primary-pink text-white px-2 py-1 rounded-full text-xs">
               {sprintDetails?.status?.value}
             </span>
             </div>
-            {/*{!sprintDetails?.isBacklog && (*/}
-            {/*  <div className="flex items-center text-gray-600 mb-4">*/}
-            {/*    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"*/}
-            {/*         xmlns="http://www.w3.org/2000/svg">*/}
-            {/*      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}*/}
-            {/*            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>*/}
-            {/*    </svg>*/}
-            {/*    <span className="text-sm">*/}
-            {/*    /!*{moment(metaData.currentSprint?.createdAt).format('DD MMM')} - {moment(metaData.currentSprint?.endDate).format('DD MMM')}*!/*/}
-            {/*  </span>*/}
-            {/*  </div>*/}
-            {/*)}*/}
-            {/*<div className="flex items-center mt-10">*/}
-            {/*  {assigneeList.map((item, index) => (*/}
-            {/*    <div key={index} className="w-8 h-8 bg-gray-300 rounded-full mr-2"></div>*/}
-            {/*  ))}*/}
-            {/*  <select*/}
-            {/*    className="ml-2 border rounded px-2 py-1"*/}
-            {/*    value={typeFilter}*/}
-            {/*    onChange={handleTypeFilterChange}*/}
-            {/*  >*/}
-            {/*    <option value="All">All</option>*/}
-            {/*    {typeList.map((item, index) => (*/}
-            {/*      <option key={index} value={item}>{item}</option>*/}
-            {/*    ))}*/}
-            {/*  </select>*/}
-            {/*</div>*/}
           </div>
           <div>
             <div className="flex justify-end mb-4">
               {filterGroupChanged && (
                 <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-                  onClick={handleSaveGrouping}
+                  className="bg-secondary-grey text-white px-4 py-2 rounded mr-2"
+                  onClick={() => {}}
                 >
                   View
                 </button>
               )}
               {showSprintMangeBtn && data.length > 0 && (
                 <button
-                  className="bg-pink-500 text-white px-4 py-2 rounded mr-2"
-                  onClick={handleSprintMangeBtn}
-                  disabled={disableSprintMange}
+                  className="bg-primary-pink text-white px-4 py-2 rounded mr-2"
+                  onClick={() => {}}
+                  disabled={() => {}}
                 >
-                  {sprintMangeText}
+                  Manage Sprint
                 </button>
               )}
               <button
-                className="bg-green-500 text-white px-4 py-2 rounded"
-                onClick={handleCreateTask}
+                className="bg-primary-pink text-white px-4 py-2 rounded"
+                onClick={() => setNewTaskModalOpen(true)}
               >
-                Task
+                New Task
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      <Modal
+        title={'Create New Task'}
+        isOpen={newTaskModalOpen}
+        onClose={closeCreateTaskModal}
+        type='side'
+      >
+        <TaskForm sprintId={sprintDetails?.id} onClose={closeCreateTaskModal} />
+      </Modal>
+    </>
   );
 }
 
