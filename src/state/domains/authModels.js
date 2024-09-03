@@ -30,12 +30,13 @@ export const RegisterSchema = yup.object({
     .string()
     .oneOf([yup.ref('password'), null], 'Passwords must match')
     .required('Confirm Password is required'),
+  })
 
-// export const TaskCreateSchema = yup.object({
-//   taskTypeID: yup.string().required("task type is required"),
-//   name: yup.string().required("task title is required"),
-//   description: yup.string(),
-//   taskOwner: yup.number(),
-//   epic: yup.number(),
-//   assignee: yup.number()
-// });
+export const TaskCreateSchema = yup.object({
+  taskTypeID: yup.string().required("task type is required"),
+  name: yup.string().required("task title is required"),
+  description: yup.string(),
+  taskOwner: yup.number(),
+  epic: yup.number(),
+  assignee: yup.number()
+});
