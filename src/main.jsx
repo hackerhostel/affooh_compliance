@@ -21,7 +21,7 @@ Amplify.configure(AwsConfigAuth);
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <React.StrictMode>
-      <ToastProvider>
+      <ToastProvider autoDismiss={true} placement={"bottom-left"}>
         <App/>
       </ToastProvider>
     </React.StrictMode>

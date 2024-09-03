@@ -24,3 +24,11 @@ export const getInitials = (name) => {
       .map(word => word.charAt(0).toUpperCase())
       .join('');
 }
+
+export const getSelectOptions = (options) => {
+  return options.map(o => ({value: Number(o.id), label: o?.name || o?.value}));
+};
+
+export const getUserSelectOptions = (options) => {
+  return options.map(o => ({value: Number(o.id), label: `${o.firstName} ${o.lastName}`}));
+};

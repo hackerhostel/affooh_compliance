@@ -12,7 +12,7 @@ input, p, button, a, span, ::placeholder, label,
 }
 
 a:hover {
-  color: #5664d2;
+  color: #393939;
 }
 
 h2.MuiTypography-root {
@@ -207,7 +207,7 @@ button.MuiButton-root.button-link {
   text-decoration: underline;
 }
 button.MuiButton-root.button-link:hover {
-  color: #5664d2;
+  color: #393939;
 }
 
 button.pink-button {
@@ -353,7 +353,7 @@ p.signin-link a {
   margin-left: 10px;
 }
 p.signin-link a:hover {
-  color: #5664d2;
+  color: #393939;
 }
 
 .MuiFormControl-root.dash-select-box {

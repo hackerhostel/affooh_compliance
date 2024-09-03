@@ -16,8 +16,10 @@ import {
     selectIsReleaseListForProjectLoading,
     selectReleaseListForProject
 } from "../../state/slice/releaseSlice.js";
-import {useHistory, useParams} from "react-router-dom";
+import {useHistory} from "react-router-dom";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
+import TestSuiteCreateComponent from "../test-suite-page/TestSuiteCreateComponent.jsx";
+import TestSuiteEditComponent from "../test-suite-page/TestSuiteEditComponent.jsx";
 
 const TestPlanContentPage = () => {
     const dispatch = useDispatch();
@@ -37,6 +39,7 @@ const TestPlanContentPage = () => {
     const [testPlanId, setTestPlanId] = useState(0);
     const [formValues, setFormValues] = useState({id: 0, name: '', sprint: 0, project: 0, release: 0});
     const [formErrors, setFormErrors] = useState({});
+    const [isTestSuiteCreateOpen, setIsTestSuiteCreateOpen] = useState(false);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
 
     const {loading, error, data: testPlan} = useFetchTestPlan(testPlanId)
@@ -79,6 +82,14 @@ const TestPlanContentPage = () => {
         history.push(`/test-plans/${selectedTestPlanId}/test-suites/${test_suite_id}`);
     };
 
+    const onTestSuiteAddNew = () => {
+        setIsTestSuiteCreateOpen(true)
+    }
+
+    const handleTestSuiteCreateClose = () => {
+        setIsTestSuiteCreateOpen(false);
+    };
+
     if (loading || releaseLoading) {
         return <div className="m-10"><SkeletonLoader/></div>;
     }
@@ -88,98 +99,97 @@ const TestPlanContentPage = () => {
     }
 
     return (
-        <div className={"p-7 bg-dashboard-bgc h-full"}>
+        <div className={"p-7 bg-dashboard-bgc h-content-screen overflow-y-auto"}>
             <p className={"text-secondary-grey font-bold text-2xl mb-4"}>Test Plan</p>
             {!testPlan?.id ? (
                 <div className="p-8 text-center">No Details Available, Please Select a Test plan </div>
             ) : (
-                <div className={"flex-col"}>
-                    <div className={"bg-white p-4 rounded-md"}>
-                        <form className="flex justify-between" ref={formRef}>
-                            <div className={"flex-col w-1/4"}>
-                                <p className={"text-secondary-grey"}>Name</p>
-                                <FormInput
-                                    type="text"
-                                    name="name"
-                                    formValues={formValues}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                    formErrors={formErrors}
-                                    showErrors={isValidationErrorsShown}
-                                />
-                            </div>
-                            <div className={"flex-col w-1/4"}>
-                                <p className={"text-secondary-grey"}>Sprint</p>
-                                <FormSelect
-                                    name="sprint"
-                                    formValues={formValues}
-                                    options={sprintListForProject.length ? getOptions(sprintListForProject) : []}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                />
-                            </div>
-                            <div className={"flex-col w-1/4"}>
-                                <p className={"text-secondary-grey"}>Project</p>
-                                <FormSelect
-                                    name="project"
-                                    formValues={formValues}
-                                    options={projects.length ? getOptions(projects) : []}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                    disabled={true}
-                                />
-                            </div>
-                            <div className={"flex-col w-1/5"}>
-                                <p className={"text-secondary-grey"}>Release</p>
-                                <FormSelect
-                                    name="release"
-                                    formValues={formValues}
-                                    options={releases.length ? getOptions(releases) : []}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                />
-                            </div>
-                        </form>
-                    </div>
-                    <div className={"flex gap-8 mt-7 mb-3"}>
-                        <p className={"text-secondary-grey font-bold text-lg"}>Test Suites</p>
-                        <div className={"flex gap-1 items-center mr-5"}>
-                            <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
-                            <span className="font-thin text-xs text-gray-600">Add New</span>
+                <>
+                    <div className={"flex-col"}>
+                        <div className={"bg-white p-4 rounded-md"}>
+                            <form className="flex justify-between" ref={formRef}>
+                                <div className={"flex-col w-1/4"}>
+                                    <p className={"text-secondary-grey"}>Name</p>
+                                    <FormInput
+                                        type="text"
+                                        name="name"
+                                        formValues={formValues}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
+                                </div>
+                                <div className={"flex-col w-1/4"}>
+                                    <p className={"text-secondary-grey"}>Sprint</p>
+                                    <FormSelect
+                                        name="sprint"
+                                        formValues={formValues}
+                                        options={sprintListForProject.length ? getOptions(sprintListForProject) : []}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                    />
+                                </div>
+                                <div className={"flex-col w-1/4"}>
+                                    <p className={"text-secondary-grey"}>Project</p>
+                                    <FormSelect
+                                        name="project"
+                                        formValues={formValues}
+                                        options={projects.length ? getOptions(projects) : []}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                        disabled={true}
+                                    />
+                                </div>
+                                <div className={"flex-col w-1/5"}>
+                                    <p className={"text-secondary-grey"}>Release</p>
+                                    <FormSelect
+                                        name="release"
+                                        formValues={formValues}
+                                        options={releases.length ? getOptions(releases) : []}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                    />
+                                </div>
+                            </form>
                         </div>
-                    </div>
-                    <div className={"bg-white p-4 rounded-md min-h-44 flex items-center"}>
-                        {testPlan?.testSuites && testPlan?.testSuites.length ? (
-                            <div className={"flex gap-4 w-full overflow-x-auto"}>
-                                {testPlan.testSuites.map(ts => (
-                                    <div key={ts.id}
-                                         className={"flex flex-col gap-4 min-w-52 bg-dark-white border border-gray-200 rounded p-4 mb-4 cursor-pointer"}
-                                         onClick={() => handleTestSuiteCardClick(ts.id)}>
-                                        <p className={"text-secondary-grey font-bold text-base"}>{ts?.summary}</p>
-                                        {ts?.status && (
-                                            <p className={"text-secondary-grey text-xs bg-in-progress py-1 px-2 w-fit rounded"}>{testCaseStatuses.length ? testCaseStatuses.filter(tcs => tcs.id === ts?.status)[0]?.value : ''}</p>
-                                        )}
-                                        {ts?.assignee && (
-                                            <div className={"flex gap-5"}>
-                                                <div
-                                                    className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
-                                                    {projectUserList.length ? (() => {
-                                                        const user = projectUserList.find(pul => pul.id === ts.assignee);
-                                                        return `${user?.firstName?.[0] || 'N/'}${user?.lastName?.[0] || 'A'}`;
-                                                    })() : "N/A"}
-                                                </div>
-                                                <p className={"text-secondary-grey text-xs mt-3"}>
-                                                    {projectUserList.length ? (() => {
-                                                        const user = projectUserList.find(pul => pul.id === ts.assignee);
-                                                        return user?.firstName || "N/A";
-                                                    })() : "N/A"}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
+                        <div className={"flex gap-8 mt-7 mb-3"}>
+                            <p className={"text-secondary-grey font-bold text-lg"}>Test Suites</p>
+                            <div className={"flex gap-1 items-center mr-5 cursor-pointer"} onClick={onTestSuiteAddNew}>
+                                <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
+                                <span className="font-thin text-xs text-gray-600">Add New</span>
                             </div>
-                        ) : (
-                            <p className={"text-secondary-grey text-xs text-center w-full"}>No test suites</p>
-                        )}
+                        </div>
+                        <div className={"bg-white p-4 rounded-md min-h-44 flex items-center mb-10"}>
+                            {testPlan?.testSuites && testPlan?.testSuites.length ? (
+                                    <div className={"flex gap-4 w-full overflow-x-auto"}>
+                                        {testPlan.testSuites.map(ts => (
+                                            <div key={ts.id}
+                                                 className={"flex flex-col gap-4 min-w-52 bg-dark-white border border-gray-200 rounded p-4 mb-4 cursor-pointer"}
+                                                 onClick={() => handleTestSuiteCardClick(ts.id)}
+                                            >
+                                                <p className={"text-secondary-grey font-bold text-base"}>{ts?.summary}</p>
+                                                {ts?.status && (
+                                                    <p className={"text-secondary-grey text-xs bg-in-progress py-1 px-2 w-fit rounded"}>{testCaseStatuses.length ? testCaseStatuses.filter(tcs => tcs.id === ts?.status)[0]?.value : ''}</p>)}
+                                                {ts?.assignee && (<div className={"flex gap-5"}>
+                                                    <div
+                                                        className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
+                                                        {projectUserList.length ? (() => {
+                                                            const user = projectUserList.find(pul => pul.id === ts.assignee);
+                                                            return `${user?.firstName?.[0] || 'N/'}${user?.lastName?.[0] || 'A'}`;
+                                                        })() : "N/A"}
+                                                    </div>
+                                                    <p className={"text-secondary-grey text-xs mt-3"}>
+                                                        {projectUserList.length ? (() => {
+                                                            const user = projectUserList.find(pul => pul.id === ts.assignee);
+                                                            return user?.firstName || "N/A";
+                                                        })() : "N/A"}
+                                                    </p>
+                                                </div>)}
+                                            </div>))}
+                                    </div>) :
+                                (<p className={"text-secondary-grey text-xs text-center w-full"}>No test suites</p>)}
+                        </div>
+                        <TestSuiteEditComponent isOpen={true}/>
                     </div>
-                </div>
+                    <TestSuiteCreateComponent isOpen={isTestSuiteCreateOpen} onClose={handleTestSuiteCreateClose}/>
+                </>
             )}
         </div>
     )

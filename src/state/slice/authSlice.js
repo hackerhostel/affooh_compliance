@@ -51,7 +51,7 @@ export const authSlice = createSlice({
 export const {clearAuthState} = authSlice.actions
 
 export const selectUser = (state) => state.auth.user;
-export const selectInitialDataLoading = (state) => state.auth.initialDataLoading;
-export const selectInitialDataError = (state) => state.auth.initialDataError;
+export const selectInitialUserDataLoading = (state) => state.auth.initialDataLoading;
+export const selectInitialUserDataError = (state) => state.auth.initialDataError;
 
 export default authSlice.reducer
