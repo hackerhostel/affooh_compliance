@@ -16,6 +16,7 @@ module.exports = {
       },
       height: {
         'list-screen': 'calc(100vh - 148px)',
+        'content-screen': 'calc(100vh - 90px)',
       },
     },
   },

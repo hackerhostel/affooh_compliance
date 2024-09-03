@@ -42,7 +42,7 @@ const Dashboard = () => {
   if (isInitialUserDataError || isInitialAppDataError) return <ServiceDownPage />;
 
   return (
-    <div  className="flex">
+    <div  className="flex h-screen">
       <Sidebar/>
       <div className="bg-white overflow-hidden flex flex-col w-full">
         <Header/>
