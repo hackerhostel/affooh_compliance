@@ -19,6 +19,7 @@ import {
 import {useHistory} from "react-router-dom";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import TestSuiteCreateComponent from "../test-suite-page/TestSuiteCreateComponent.jsx";
+import TestSuiteEditComponent from "../test-suite-page/TestSuiteEditComponent.jsx";
 
 const TestPlanContentPage = () => {
     const dispatch = useDispatch();
@@ -97,10 +98,13 @@ const TestPlanContentPage = () => {
         return <ErrorAlert message={error.message}/>;
     }
 
-    return (<div className={"p-7 bg-dashboard-bgc h-full"}>
+    return (
+        <div className={"p-7 bg-dashboard-bgc h-content-screen overflow-y-auto"}>
             <p className={"text-secondary-grey font-bold text-2xl mb-4"}>Test Plan</p>
             {!testPlan?.id ? (
-                <div className="p-8 text-center">No Details Available, Please Select a Test plan </div>) : (<>
+                <div className="p-8 text-center">No Details Available, Please Select a Test plan </div>
+            ) : (
+                <>
                     <div className={"flex-col"}>
                         <div className={"bg-white p-4 rounded-md"}>
                             <form className="flex justify-between" ref={formRef}>
@@ -152,40 +156,43 @@ const TestPlanContentPage = () => {
                                 <span className="font-thin text-xs text-gray-600">Add New</span>
                             </div>
                         </div>
-                        <div className={"bg-white p-4 rounded-md min-h-44 flex items-center"}>
+                        <div className={"bg-white p-4 rounded-md min-h-44 flex items-center mb-10"}>
                             {testPlan?.testSuites && testPlan?.testSuites.length ? (
-                                <div className={"flex gap-4 w-full overflow-x-auto"}>
-                                    {testPlan.testSuites.map(ts => (
-                                        <div key={ts.id}
-                                             className={"flex flex-col gap-4 min-w-52 bg-dark-white border border-gray-200 rounded p-4 mb-4 cursor-pointer"}
-                                             onClick={() => handleTestSuiteCardClick(ts.id)}
-                                        >
-                                            <p className={"text-secondary-grey font-bold text-base"}>{ts?.summary}</p>
-                                            {ts?.status && (
-                                                <p className={"text-secondary-grey text-xs bg-in-progress py-1 px-2 w-fit rounded"}>{testCaseStatuses.length ? testCaseStatuses.filter(tcs => tcs.id === ts?.status)[0]?.value : ''}</p>)}
-                                            {ts?.assignee && (<div className={"flex gap-5"}>
-                                                <div
-                                                    className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
-                                                    {projectUserList.length ? (() => {
-                                                        const user = projectUserList.find(pul => pul.id === ts.assignee);
-                                                        return `${user?.firstName?.[0] || 'N/'}${user?.lastName?.[0] || 'A'}`;
-                                                    })() : "N/A"}
-                                                </div>
-                                                <p className={"text-secondary-grey text-xs mt-3"}>
-                                                    {projectUserList.length ? (() => {
-                                                        const user = projectUserList.find(pul => pul.id === ts.assignee);
-                                                        return user?.firstName || "N/A";
-                                                    })() : "N/A"}
-                                                </p>
-                                            </div>)}
-                                        </div>))}
-                                </div>) :
+                                    <div className={"flex gap-4 w-full overflow-x-auto"}>
+                                        {testPlan.testSuites.map(ts => (
+                                            <div key={ts.id}
+                                                 className={"flex flex-col gap-4 min-w-52 bg-dark-white border border-gray-200 rounded p-4 mb-4 cursor-pointer"}
+                                                 onClick={() => handleTestSuiteCardClick(ts.id)}
+                                            >
+                                                <p className={"text-secondary-grey font-bold text-base"}>{ts?.summary}</p>
+                                                {ts?.status && (
+                                                    <p className={"text-secondary-grey text-xs bg-in-progress py-1 px-2 w-fit rounded"}>{testCaseStatuses.length ? testCaseStatuses.filter(tcs => tcs.id === ts?.status)[0]?.value : ''}</p>)}
+                                                {ts?.assignee && (<div className={"flex gap-5"}>
+                                                    <div
+                                                        className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
+                                                        {projectUserList.length ? (() => {
+                                                            const user = projectUserList.find(pul => pul.id === ts.assignee);
+                                                            return `${user?.firstName?.[0] || 'N/'}${user?.lastName?.[0] || 'A'}`;
+                                                        })() : "N/A"}
+                                                    </div>
+                                                    <p className={"text-secondary-grey text-xs mt-3"}>
+                                                        {projectUserList.length ? (() => {
+                                                            const user = projectUserList.find(pul => pul.id === ts.assignee);
+                                                            return user?.firstName || "N/A";
+                                                        })() : "N/A"}
+                                                    </p>
+                                                </div>)}
+                                            </div>))}
+                                    </div>) :
                                 (<p className={"text-secondary-grey text-xs text-center w-full"}>No test suites</p>)}
                         </div>
+                        <TestSuiteEditComponent isOpen={true}/>
                     </div>
                     <TestSuiteCreateComponent isOpen={isTestSuiteCreateOpen} onClose={handleTestSuiteCreateClose}/>
-                </>)}
-        </div>)
+                </>
+            )}
+        </div>
+    )
 }
 
 export default TestPlanContentPage;
