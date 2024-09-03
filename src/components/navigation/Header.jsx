@@ -9,9 +9,7 @@ const Header = () => {
   const projectList = useSelector(selectProjectList);
 
   const handleChange = (e, value) => {
-    console.log(value)
     dispatch(doSwitchProject(value));
-    // TODO: need to handle selected project change for the app
   };
 
   const getProjectOptions = useCallback(() => {

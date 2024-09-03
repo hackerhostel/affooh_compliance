@@ -1,37 +1,40 @@
-import {Route, Switch} from "react-router-dom";
+import {Redirect, Route, Switch} from "react-router-dom";
 import Sidebar from "../components/navigation/Sidebar.jsx";
 import Header from "../components/navigation/Header.jsx";
 import ProjectLayout from "./project-page/index.jsx";
 import UserLayout from "./user-page/index.jsx";
 import UnderConstruction from "../components/UnderConstruction.jsx";
 import {useDispatch, useSelector} from "react-redux";
-import {
-  doGetProjectBreakdown,
-  selectIsProjectDetailsError,
-  selectIsProjectDetailsLoading,
-} from "../state/slice/projectSlice.js";
 import React, {useEffect} from "react";
-import {doGetCurrentUser} from "../state/slice/authSlice.js";
+import {doGetWhoAmI, selectInitialDataError, selectInitialDataLoading} from "../state/slice/authSlice.js";
 import LoadingPage from "./LoadingPage.jsx";
 import ServiceDownPage from "./ServiceDownPage.jsx";
 import TestPlanLayout from "./test-plan-page/index.jsx";
 import ReleaseLayout from "./release-page/index.jsx";
 import SprintLayout from "./sprint-page/index.jsx";
 import SettingLayout from "./setting-page/index.jsx";
+import {doGetProjectBreakdown, selectSelectedProject} from "../state/slice/projectSlice.js";
+import {isNotEmptyObj} from "../utils/commonUtils.js";
+import TestSuiteLayout from "./test-suite-page/index.jsx";
 
 const Dashboard = () => {
-  const isProjectDetailsError = useSelector(selectIsProjectDetailsError);
-  const isProjectDetailsLoading = useSelector(selectIsProjectDetailsLoading);
+  const isInitialDataError = useSelector(selectInitialDataError);
+  const isInitialDataLoading = useSelector(selectInitialDataLoading);
+  const selectedProject = useSelector(selectSelectedProject);
   const dispatch = useDispatch();
 
-  // TODO: need a api to get user details with permissions and selected project, organization and project list(id and name only)
   useEffect(() => {
-    dispatch(doGetCurrentUser())
-    dispatch(doGetProjectBreakdown())
+    dispatch(doGetWhoAmI())
   }, []);
 
-  if (isProjectDetailsLoading) return <LoadingPage />;
-  if (isProjectDetailsError) return <ServiceDownPage />;
+  useEffect(() => {
+    if(isNotEmptyObj(selectedProject)) {
+      dispatch(doGetProjectBreakdown())
+    }
+  }, [selectedProject])
+
+  if (isInitialDataLoading) return <LoadingPage />;
+  if (isInitialDataError) return <ServiceDownPage />;
 
   return (
     <div  className="flex">
@@ -53,6 +56,10 @@ const Dashboard = () => {
               <UserLayout />
             </Route>
 
+            <Route path="/test-plans/:test_plan_id/test-suites/:test_suite_id">
+              <TestSuiteLayout/>
+            </Route>
+
             <Route path="/test-plans">
               <TestPlanLayout/>
             </Route>
@@ -67,6 +74,14 @@ const Dashboard = () => {
 
             <Route path="/sprints">
               <SprintLayout />
+            </Route>
+
+            <Route exact path="/">
+              <Redirect
+                to={{
+                  pathname: '/dashboard',
+                }}
+              />
             </Route>
           </Switch>
         </main>

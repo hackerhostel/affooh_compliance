@@ -10,6 +10,10 @@ import {ToastProvider} from "react-toast-notifications";
 
 
 import 'devextreme/dist/css/dx.material.blue.light.css';
+import {getBuildConstant} from "./constants/build-constants.jsx";
+
+axios.defaults.baseURL = getAPIBaseURL();
+axios.defaults.headers.common['x-api-key'] = getBuildConstant('REACT_APP_X_API_KEY');
 
 Amplify.configure(AwsConfigAuth);
 

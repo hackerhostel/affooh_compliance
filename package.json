@@ -16,6 +16,7 @@
     "@reduxjs/toolkit": "^2.2.6",
     "autoprefixer": "^10.4.19",
     "aws-amplify": "^6.4.0",
+    "axios": "^1.7.4",
     "classnames": "^2.5.1",
     "date-fns": "^3.6.0",
     "devextreme": "21.2",

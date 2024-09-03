@@ -14,7 +14,8 @@ module.exports = {
         'dashboard-bgc': '#f4f5fb',
         'secondary-grey': '#747A88',
         'dark-white': '#fbfbfb',
-        'in-progress': '#cafafa'
+        'in-progress': '#cafafa',
+        'secondary-bgc': '#E8E8E85C'
       },
       height: {
         'list-screen': 'calc(100vh - 148px)',

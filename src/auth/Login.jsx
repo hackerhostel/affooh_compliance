@@ -8,7 +8,8 @@ import { doGetCurrentUser } from "../state/slice/authSlice.js";
 import { useDispatch } from "react-redux";
 import LoginImage from '../images/login.png';
 import { LoginSchema } from "../state/domains/authModels.js";
-
+import {doGetWhoAmI} from "../state/slice/authSlice.js";
+import Spinner from "../components/Spinner.jsx";
 
 const Login = () => {
   const { addToast } = useToasts();
@@ -44,9 +45,11 @@ const Login = () => {
     
 
     try {
-      const response = await signIn(loginDetails);
-      dispatch(doGetCurrentUser());
-      addToast('Logged in Successfully', { appearance: 'success', autoDismiss: true });
+      const response = await signIn(loginDetails)
+
+      dispatch(doGetWhoAmI())
+      // TODO: handle challenges like NEW_PASSWORD_REQUIRED
+      addToast('logged in Successfully', { appearance: 'success', autoDismiss: true });
       formRef.current.reset();
       history.push('/dashboard');
     } catch (e) {
