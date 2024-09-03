@@ -41,8 +41,7 @@ const Login = () => {
       return;
     }
 
-    setLoading(true);
-    setIsValidationErrorsShown(false);
+    
 
     try {
       const response = await signIn(loginDetails);

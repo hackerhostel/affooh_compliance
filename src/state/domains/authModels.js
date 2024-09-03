@@ -9,6 +9,15 @@ export const ForgotPasswordSchema = yup.object({
   username: yup.string().required(),
 })
 
+export const SprintSchema = yup.object({
+  sprintName: yup.string().required('Sprint name is required'),
+  startDate: yup.date().required('Start date is required'),
+  endDate: yup
+    .date()
+    .required('End date is required')
+    .min(yup.ref('startDate'), 'End date cannot be before start date'),
+});
+
 export const RegisterSchema = yup.object({
   organization: yup.string().required('Organization is required'),
   firstName: yup.string().required('First Name is required'),
