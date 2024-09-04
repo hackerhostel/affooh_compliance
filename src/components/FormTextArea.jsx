@@ -16,7 +16,7 @@ const FormTextArea = React.forwardRef((
         size = 'normal',
         showLabel = true,
         showShadow = true,
-        rows = 4,
+        rows = 2,
         disabled,
         onKeyDown,
         onMouseDown,

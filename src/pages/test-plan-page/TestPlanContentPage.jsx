@@ -42,7 +42,7 @@ const TestPlanContentPage = () => {
     const [isTestSuiteCreateOpen, setIsTestSuiteCreateOpen] = useState(false);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
 
-    const {loading, error, data: testPlan} = useFetchTestPlan(testPlanId)
+    const {loading, error, data: testPlan, refetch: reFetchTestPlan} = useFetchTestPlan(testPlanId)
 
     useEffect(() => {
         if (selectedTestPlanId !== 0) {
@@ -86,8 +86,11 @@ const TestPlanContentPage = () => {
         setIsTestSuiteCreateOpen(true)
     }
 
-    const handleTestSuiteCreateClose = () => {
+    const handleTestSuiteCreateClose = (created) => {
         setIsTestSuiteCreateOpen(false);
+        if (created === true) {
+            reFetchTestPlan()
+        }
     };
 
     if (loading || releaseLoading) {
