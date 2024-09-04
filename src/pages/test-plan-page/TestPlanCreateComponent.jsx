@@ -93,7 +93,7 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
                                     <FormSelect
                                         name="projectId"
                                         formValues={formValues}
-                                        options={projects.length ? getSelectOptions(projects) : []}
+                                        options={projects && projects.length ? getSelectOptions(projects) : []}
                                         onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                         disabled={true}
                                         formErrors={formErrors}
@@ -105,7 +105,7 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
                                     <FormSelect
                                         name="sprintId"
                                         formValues={formValues}
-                                        options={sprintListForProject.length ? getSelectOptions(sprintListForProject) : []}
+                                        options={sprintListForProject && sprintListForProject.length ? getSelectOptions(sprintListForProject) : []}
                                         onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                         formErrors={formErrors}
                                         showErrors={isValidationErrorsShown}
@@ -116,7 +116,7 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
                                     <FormSelect
                                         name="releaseId"
                                         formValues={formValues}
-                                        options={releases.length ? getSelectOptions(releases) : []}
+                                        options={releases && releases.length ? getSelectOptions(releases) : []}
                                         onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                         formErrors={formErrors}
                                         showErrors={isValidationErrorsShown}
