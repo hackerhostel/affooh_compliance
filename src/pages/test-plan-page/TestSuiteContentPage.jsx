@@ -1,28 +1,59 @@
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import React, {useEffect, useState} from "react";
-import {selectSelectedTestPlan} from "../../state/slice/testPlansSlice.js";
-import {useParams} from "react-router-dom";
-import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
+import {selectSelectedTestPlanId} from "../../state/slice/testPlansSlice.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/24/outline/index.js";
 import {doGetTestCaseFormData, selectTestCaseStatuses} from "../../state/slice/testCaseFormDataSlice.js";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import FormSelect from "../../components/FormSelect.jsx";
-import {getInitials} from "../../utils/commonUtils.js";
+import {getInitials, getSelectOptions} from "../../utils/commonUtils.js";
+import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
+import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
 
 const TestSuiteContentPage = () => {
-    const {test_suite_id} = useParams();
+    const dispatch = useDispatch();
 
     const selectedProject = useSelector(selectSelectedProject);
-    const selectedTestPlan = useSelector(selectSelectedTestPlan);
+    const selectedTestPlanId = useSelector(selectSelectedTestPlanId);
     const testCaseStatuses = useSelector(selectTestCaseStatuses);
 
-    const [testCycleId, setTestCycleId] = useState(0)
     const [testExecutionCycles, setTestExecutionCycles] = useState([]);
+    const [testExecutionOptions, setTestExecutionOptions] = useState([]);
     const [testExecutions, setTestExecutions] = useState([]);
+    const [testPlan, setTestPlan] = useState({});
+    const [testPlanId, setTestPlanId] = useState(0);
+    const [testSuiteId, setTestSuiteId] = useState(0);
+    const [testCycleId, setTestCycleId] = useState(0)
 
-    const {loading, error, data: testExecutionResponse} = useFetchTestExecution(Number(test_suite_id), testCycleId)
+    const {loading: testPlanLoading, error: testPlanError, data: testPlanResponse} = useFetchTestPlan(testPlanId)
+    const {
+        loading: testExecutionLoading,
+        error: testExecutionError,
+        data: testExecutionResponse
+    } = useFetchTestExecution(testSuiteId, testCycleId)
+
+    useEffect(() => {
+        if (testPlanResponse?.id) {
+            setTestPlan(testPlanResponse)
+            setTestExecutionCycles([])
+            setTestExecutionOptions([])
+            let testEOP = testPlanResponse?.testExecutionOptions || []
+            if (testEOP.length) {
+                setTestExecutionOptions(testEOP)
+                setTestSuiteId(testEOP[0].id)
+            }
+        }
+        if (!testCaseStatuses.length) {
+            dispatch(doGetTestCaseFormData(selectedProject?.id))
+        }
+    }, [testPlanResponse]);
+
+    useEffect(() => {
+        if (selectedTestPlanId !== 0 && testPlan?.id !== selectedTestPlanId) {
+            setTestPlanId(selectedTestPlanId)
+        }
+    }, [selectedTestPlanId]);
 
     useEffect(() => {
         if (testExecutionResponse.length) {
@@ -31,31 +62,32 @@ const TestSuiteContentPage = () => {
     }, [testExecutionResponse]);
 
     useEffect(() => {
-        if (selectedTestPlan?.id) {
-            const filteredTestExecutionCycles = selectedTestPlan?.testExecutionOptions.filter(to => to.id === Number(test_suite_id))[0].cycles
-            setTestExecutionCycles(filteredTestExecutionCycles)
-            setTestCycleId(filteredTestExecutionCycles[0].id)
+        if (testSuiteId !== 0) {
+            const filteredTestExecutionCycles = testExecutionOptions.filter(to => to.id === Number(testSuiteId))[0]?.cycles
+            if (filteredTestExecutionCycles && filteredTestExecutionCycles.length) {
+                setTestExecutionCycles(filteredTestExecutionCycles)
+                setTestCycleId(filteredTestExecutionCycles[0].id)
+            }
         }
-        if (!testCaseStatuses.length) {
-            dispatch(doGetTestCaseFormData(selectedProject?.id))
-        }
-    }, [selectedTestPlan, test_suite_id]);
+    }, [testSuiteId]);
 
-    const getOptions = (options) => {
-        return options.map(o => ({value: Number(o.id), label: o.name}));
+    const handleSuiteChange = (value) => {
+        if (value) {
+            setTestSuiteId(Number(value))
+        }
     };
 
     const handleCycleChange = (value) => {
         if (value) {
-            setTestCycleId(value)
+            setTestCycleId(Number(value))
         }
     };
 
-    if (loading) {
+    if (testPlanLoading) {
         return <div className="m-10"><SkeletonLoader/></div>;
     }
 
-    if (error) {
+    if (testPlanError || testExecutionError) {
         return <ErrorAlert message={error.message}/>;
     }
 
@@ -193,48 +225,72 @@ const TestSuiteContentPage = () => {
     return (
         <div className={"p-7 bg-dashboard-bgc h-full"}>
             <div className={"flex w-full justify-between items-center mb-10"}>
-                <p className={"text-secondary-grey font-bold text-2xl text-center align-middle"}>Test Execution List</p>
-                {testCycleId !== 0 && (
-                    <div className={"flex gap-8  justify-end w-1/2"}>
-                        <div className={"w-1/3"}>
+                <div>
+                    {testPlan?.id && (
+                        <p className={"text-secondary-grey font-bold text-md align-left"}>{testPlan.name}</p>
+                    )}
+                    <p className={"text-secondary-grey font-bold text-xl align-middle"}>Test Execution List</p>
+                </div>
+                <div className={"flex gap-5  justify-end w-1/2"}>
+                    {testPlanId !== 0 && testExecutionOptions.length > 0 && (
+                        <div className={"w-3/5"}>
+                            <FormSelect
+                                name="suite"
+                                formValues={{suite: testSuiteId}}
+                                options={testExecutionOptions.length ? getSelectOptions(testExecutionOptions) : []}
+                                onChange={({target: {value}}) => handleSuiteChange(value)}
+                            />
+                        </div>
+                    )}
+                    {testCycleId !== 0 && testExecutionCycles.length > 0 && (
+                        <div className={"w-2/5"}>
                             <FormSelect
                                 name="cycle"
                                 formValues={{cycle: testCycleId}}
-                                options={testExecutionCycles.length ? getOptions(testExecutionCycles) : []}
+                                options={testExecutionCycles.length ? getSelectOptions(testExecutionCycles) : []}
                                 onChange={({target: {value}}) => handleCycleChange(value)}
                             />
                         </div>
+                    )}
+                    {testExecutionOptions.length > 0 && testExecutionCycles.length > 0 && (
                         <button className="bg-primary-pink text-white px-14 rounded-lg">
                             Edit
                         </button>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
-            {testCycleId === 0 ? (
+            {testPlanId === 0 ? (
+                <div className="p-8 text-center">No Details Available, Please Select a Test Plan </div>
+            ) : testExecutionOptions?.length === 0 ? (
+                <div className="p-8 text-center">No Test Suites Available, Please Create a Test Suite </div>
+            ) : testCycleId === 0 ? (
                 <div className="p-8 text-center">No Details Available, Please Select a Test Cycle </div>
             ) : (
                 <div className={"flex-col"}>
                     <div className={"bg-white p-4 rounded-md"}>
-                        <table className="min-w-full border-collapse">
-                            <thead>
-                            <tr>
-                                <th className="px-4 py-2"></th>
-                                <th className="px-4 py-2 text-left">Summary</th>
-                                <th className="px-4 py-2 text-left">Platform</th>
-                                <th className="px-4 py-2 text-left">Priority</th>
-                                <th className="px-4 py-2 text-left">Category</th>
-                                <th className="px-4 py-2 text-left">Assignee</th>
-                                <th className="px-4 py-2 text-left">Status</th>
-                                <th className="px-4 py-2 text-left">Notes</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {testExecutions.map((row) => (
-                                <GenerateRow row={row} key={row.testCycleExecutionID}/>
-                            ))}
-                            </tbody>
-                        </table>
-
+                        {testExecutionLoading ? (
+                            <div className="m-10"><SkeletonLoader/></div>
+                        ) : (
+                            <table className="min-w-full border-collapse">
+                                <thead>
+                                <tr>
+                                    <th className="px-4 py-2"></th>
+                                    <th className="px-4 py-2 text-left">Summary</th>
+                                    <th className="px-4 py-2 text-left">Platform</th>
+                                    <th className="px-4 py-2 text-left">Priority</th>
+                                    <th className="px-4 py-2 text-left">Category</th>
+                                    <th className="px-4 py-2 text-left">Assignee</th>
+                                    <th className="px-4 py-2 text-left">Status</th>
+                                    <th className="px-4 py-2 text-left">Notes</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {testExecutions.map((row) => (
+                                    <GenerateRow row={row} key={row.testCycleExecutionID}/>
+                                ))}
+                                </tbody>
+                            </table>
+                        )}
                     </div>
                 </div>
             )}
