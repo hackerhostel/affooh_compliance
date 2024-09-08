@@ -72,7 +72,7 @@ const TaskForm = ({sprintId, onClose}) => {
       const response = await axios.get(`screens/${screenId}?projectID=${selectedProject.id}`)
       if (response.data.screen) {
         const screenData = response.data.screen
-        console.log(response.data.screen)
+
         setScreenDetails(screenData)
         setRequiredAdditionalFieldList(getRequiredAdditionalFieldList(screenData.tabs))
       }
@@ -95,8 +95,6 @@ const TaskForm = ({sprintId, onClose}) => {
       }
     })
 
-    console.log(formErrors)
-    console.log(additionalFieldFormErrors)
     if (formErrors || additionalFieldFormErrors) {
       setIsValidationErrorsShown(true);
       return;
@@ -117,16 +115,12 @@ const TaskForm = ({sprintId, onClose}) => {
         ([key, value]) => (value)
       ),
     }
-    console.log(payload)
 
     try {
-      // const response = await signIn(loginDetails)
-      //
-      // dispatch(doGetWhoAmI())
-      // // TODO: handle challenges like NEW_PASSWORD_REQUIRED
-      // addToast('logged in Successfully', { appearance: 'success', autoDismiss: true });
-      // formRef.current.reset();
-      // history.push('/dashboard');
+      const response = await axios.post("tasks", { task: payload })
+
+      addToast(`new task ID: ${response.data.id} added`, { appearance: 'success', autoDismiss: true });
+      onClose();
     } catch (e) {
       addToast(e.message, {appearance: 'error'});
     } finally {
