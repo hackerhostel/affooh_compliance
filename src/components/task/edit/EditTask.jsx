@@ -10,7 +10,7 @@ import ErrorAlert from "../../ErrorAlert.jsx";
 
 const EditTaskPage = () => {
   const {code} = useParams();
-  const [taskData, setTaskData] = useState({username: '', password: ''});
+  const [taskData, setTaskData] = useState({});
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const formRef = useRef(null);
   const [formErrors] = useValidation(LoginSchema, taskData);
@@ -28,8 +28,8 @@ const EditTaskPage = () => {
       setLoading(true)
       try {
         const response = await axios.get(`tasks/by-code/${code}`)
-        if (response.data) {
-          console.log(response.data)
+        if (response.data.body.task) {
+          setTaskData(response.data.body.task)
         }
         setAPIError(false)
       } catch (e) {
@@ -56,7 +56,7 @@ const EditTaskPage = () => {
         <div className="mb-6">
           <FormInput
             type="text"
-            name="username"
+            name="name"
             formValues={taskData}
             placeholder="Task Title"
             onChange={({target: {name, value}}) => handleFormChange(name, value)}
@@ -79,7 +79,7 @@ const EditTaskPage = () => {
             <div className="mb-6">
               <FormInput
                 type="text"
-                name="username"
+                name="description"
                 formValues={taskData}
                 onChange={({target: {name, value}}) => handleFormChange(name, value)}
                 formErrors={formErrors}
@@ -91,7 +91,43 @@ const EditTaskPage = () => {
 
         <EditTaskAdditionalDetails/>
       </div>
-      <div className="w-1/3">w-2/3</div>
+      <div className="w-1/3 p-5">
+        <div className="">
+          <div className="mb-6">
+            <FormInput
+              type="text"
+              name="name"
+              formValues={taskData}
+              placeholder="Assignee"
+              onChange={({target: {name, value}}) => handleFormChange(name, value)}
+              formErrors={formErrors}
+              showErrors={isValidationErrorsShown}
+            />
+          </div>
+          <div className="mb-6">
+            <FormInput
+              type="text"
+              name="name"
+              formValues={taskData}
+              placeholder="Task Owner"
+              onChange={({target: {name, value}}) => handleFormChange(name, value)}
+              formErrors={formErrors}
+              showErrors={isValidationErrorsShown}
+            />
+          </div>
+          <div className="mb-6">
+            <FormInput
+              type="text"
+              name="name"
+              formValues={taskData}
+              placeholder="Epic Name"
+              onChange={({target: {name, value}}) => handleFormChange(name, value)}
+              formErrors={formErrors}
+              showErrors={isValidationErrorsShown}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
