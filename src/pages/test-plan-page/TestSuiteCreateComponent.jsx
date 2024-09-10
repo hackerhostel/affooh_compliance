@@ -14,6 +14,9 @@ import {selectReleaseListForProject} from "../../state/slice/releaseSlice.js";
 import {selectTestCaseStatuses} from "../../state/slice/testCaseFormDataSlice.js";
 import {doGetPlatforms, selectPlatformList} from "../../state/slice/platformSlice.js";
 import FormTextArea from "../../components/FormTextArea.jsx";
+import Select from 'react-select';
+import {doGetTestCases, selectTestCasesForProject} from "../../state/slice/testCaseSlice.js";
+import axios from "axios";
 
 const TestSuiteCreateComponent = ({isOpen, onClose}) => {
     const {addToast} = useToasts();
@@ -25,12 +28,16 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
     const testCaseStatuses = useSelector(selectTestCaseStatuses);
     const releases = useSelector(selectReleaseListForProject)
     const platforms = useSelector(selectPlatformList);
+    const testCases = useSelector(selectTestCasesForProject)
 
     useEffect(() => {
         if (!platforms.length) {
             dispatch(doGetPlatforms())
         }
-    }, [platforms]);
+        if (!testCases.length) {
+            dispatch(doGetTestCases(selectedProject.id))
+        }
+    }, [platforms, testCases]);
 
     const [formValues, setFormValues] = useState({
         summary: '',
@@ -49,18 +56,28 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors] = useValidation(TestSuiteCreateSchema, formValues);
 
-    const handleFormChange = (name, value, isText) => {
-        setFormValues({...formValues, [name]: isText ? value : value});
+    const handleMultiSelect = (selectedOptions, actionMeta) => {
+        const {name} = actionMeta;
+        if (selectedOptions.length) {
+            setFormValues({...formValues, [name]: selectedOptions.map(sp => (sp.value))})
+        } else {
+            setFormValues({...formValues, [name]: []})
+        }
         setIsValidationErrorsShown(false);
     };
 
-    const handleClose = () => {
-        onClose();
+    const handleFormChange = (name, value, isText) => {
+        setFormValues({...formValues, [name]: isText ? value : Number(value)});
+        setIsValidationErrorsShown(false);
+    };
+
+    const handleClose = (created = false) => {
+        onClose(created);
         setFormValues({
             summary: '',
             description: '',
-            status: '',
-            assignee: '',
+            status: 0,
+            assignee: 0,
             releases: [],
             build: '',
             platforms: [],
@@ -73,37 +90,55 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
 
     const createTestSuite = async (event) => {
         event.preventDefault();
-        console.log(formValues)
-        // setIsSubmitting(true);
-        //
-        // if (formErrors && Object.keys(formErrors).length > 0) {
-        //     setIsValidationErrorsShown(true);
-        // } else {
-        //     setIsValidationErrorsShown(false);
-        //     try {
-        //         await axios.post("/test-plans/test-suites", {testSuite:formValues});
-        //         addToast('Test Suite Successfully Created', {appearance: 'success'});
-        //         handleClose();
-        //     } catch (error) {
-        //         addToast('Failed to create Test Suite', {appearance: 'error'});
-        //     }
-        // }
-        // setIsSubmitting(false);
+        console.log(formValues);
+        setIsSubmitting(true);
+
+        if (formErrors && Object.keys(formErrors).length > 0) {
+            setIsValidationErrorsShown(true);
+            let warningMsg = '';
+
+            if (formErrors?.releases && formErrors.releases.length > 0) {
+                warningMsg += '\n' + formErrors.releases[0];
+            }
+            if (formErrors?.platforms && formErrors.platforms.length > 0) {
+                warningMsg += '\n' + formErrors.platforms[0];
+            }
+            if (formErrors?.testCases && formErrors.testCases.length > 0) {
+                warningMsg += '\n' + formErrors.testCases[0];
+            }
+
+            if (warningMsg.trim() !== '') {
+                addToast(warningMsg.trim(), {appearance: 'warning', placement: 'top-right'});
+            }
+        } else {
+            setIsValidationErrorsShown(false);
+            try {
+                formValues.testPlanId = selectedTestPlan.id
+                await axios.post("/test-plans/test-suites", {testSuite: formValues});
+                addToast('Test Suite Successfully Created', {appearance: 'success'});
+                handleClose(true);
+            } catch (error) {
+                console.log(error)
+                addToast('Failed to create Test Suite', {appearance: 'error'});
+            }
+        }
+
+        setIsSubmitting(false);
     };
 
     return (
         <>
             {isOpen && (
                 <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
-                    <div className="bg-white p-6 shadow-lg w-1/2">
-                        <div className="flex justify-between items-center mb-4">
+                    <div className="bg-white p-5 shadow-lg w-1/2 h-screen overflow-y-auto">
+                        <div className="flex justify-between items-center">
                             <p className="font-bold text-2xl">New Test Suite</p>
                             <div className="cursor-pointer" onClick={handleClose}>
                                 <XMarkIcon className="w-6 h-6 text-gray-500"/>
                             </div>
                         </div>
-                        <form className={"flex flex-col justify-between h-5/6 mt-10"} onSubmit={createTestSuite}>
-                            <div className="space-y-4">
+                        <form className={"flex flex-col justify-between mt-5"} onSubmit={createTestSuite}>
+                            <div className="space-y-3">
                                 <div className={"flex-col"}>
                                     <p className={"text-secondary-grey"}>Summary</p>
                                     <FormInput
@@ -125,63 +160,72 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
                                         showErrors={isValidationErrorsShown}
                                     />
                                 </div>
+                                <div className={"flex-col"}>
+                                    <p className={"text-secondary-grey"}>Build Name</p>
+                                    <FormInput
+                                        type="text"
+                                        name="build"
+                                        formValues={formValues}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
+                                </div>
                                 <div className={"flex w-full justify-between gap-10"}>
                                     <div className={"flex-col w-2/4"}>
                                         <p className={"text-secondary-grey"}>Status</p>
                                         <FormSelect
                                             name="status"
                                             formValues={formValues}
-                                            options={getSelectOptions(testCaseStatuses)}
+                                            options={testCaseStatuses && testCaseStatuses.length ? getSelectOptions(testCaseStatuses) : []}
                                             onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                             formErrors={formErrors}
                                             showErrors={isValidationErrorsShown}
                                         />
                                     </div>
-                                    <div className={"flex-col w-2/4"}>
-                                        <p className={"text-secondary-grey"}>Associated Release(s)</p>
-                                        <FormSelect
-                                            name="releases"
-                                            formValues={formValues}
-                                            options={getSelectOptions(releases)}
-                                            onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
-                                            formErrors={formErrors}
-                                            showErrors={isValidationErrorsShown}
-                                        />
-                                    </div>
-                                </div>
-                                <div className={"flex w-full justify-between gap-10"}>
                                     <div className={"flex-col w-2/4"}>
                                         <p className={"text-secondary-grey"}>Assignee</p>
                                         <FormSelect
                                             name="assignee"
                                             formValues={formValues}
-                                            options={getUserSelectOptions(projectUserList)}
+                                            options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
                                             onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
-                                            formErrors={formErrors}
-                                            showErrors={isValidationErrorsShown}
-                                        />
-                                    </div>
-                                    <div className={"flex-col w-2/4"}>
-                                        <p className={"text-secondary-grey"}>Build Name</p>
-                                        <FormInput
-                                            type="text"
-                                            name="build"
-                                            formValues={formValues}
-                                            onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
                                             formErrors={formErrors}
                                             showErrors={isValidationErrorsShown}
                                         />
                                     </div>
                                 </div>
                                 <div className={"flex-col"}>
-                                    <p className={"text-secondary-grey"}>Platforms</p>
-                                    <FormSelect
+                                    <p className={"text-secondary-grey mb-2"}>Associated Release(s)</p>
+                                    <Select
+                                        name="releases"
+                                        defaultValue={formValues.releases}
+                                        onChange={handleMultiSelect}
+                                        options={releases && releases.length ? getSelectOptions(releases) : []}
+                                        isMulti
+                                        menuPlacement='top'
+                                    />
+                                </div>
+                                <div className={"flex-col"}>
+                                    <p className={"text-secondary-grey mb-2"}>Platforms</p>
+                                    <Select
                                         name="platforms"
-                                        formValues={formValues}
-                                        options={getSelectOptions(platforms)}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
+                                        defaultValue={formValues.platforms}
+                                        onChange={handleMultiSelect}
+                                        options={platforms && platforms.length ? getSelectOptions(platforms) : []}
+                                        isMulti
+                                        menuPlacement='top'
+                                    />
+                                </div>
+                                <div className={"flex-col"}>
+                                    <p className={"text-secondary-grey mb-2"}>Test Cases</p>
+                                    <Select
+                                        name="testCases"
+                                        defaultValue={formValues.testCases}
+                                        onChange={handleMultiSelect}
+                                        options={platforms && platforms.length ? getSelectOptions(testCases) : []}
+                                        isMulti
+                                        menuPlacement='top'
                                     />
                                 </div>
                             </div>

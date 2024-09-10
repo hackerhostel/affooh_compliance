@@ -6,8 +6,7 @@ const useFetchTestPlan = (testPlanId) => {
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchTestPlan = async () => {
+    const fetchTestPlan = async () => {
             setLoading(true)
             setError(false)
             try {
@@ -24,12 +23,13 @@ const useFetchTestPlan = (testPlanId) => {
             }
         };
 
+    useEffect(() => {
         if (testPlanId !== 0) {
             fetchTestPlan()
         }
     }, [testPlanId]);
 
-    return {data, error, loading};
+    return {data, error, loading, refetch: fetchTestPlan};
 };
 
 export default useFetchTestPlan;
