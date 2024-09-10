@@ -36,6 +36,7 @@ const TestPlanEditComponent = ({test_plan_id}) => {
 
     const formRef = useRef(null);
     const [testPlanId, setTestPlanId] = useState(0);
+    const [testSuiteId, setTestSuiteId] = useState(0);
     const [formValues, setFormValues] = useState({id: 0, name: '', sprint: 0, project: 0, release: 0});
     const [formErrors, setFormErrors] = useState({});
     const [isTestSuiteCreateOpen, setIsTestSuiteCreateOpen] = useState(false);
@@ -77,13 +78,13 @@ const TestPlanEditComponent = ({test_plan_id}) => {
         setFormValues({...formValues, [name]: value});
     };
 
-    const handleTestSuiteCardClick = (test_suite_id) => {
-        history.push(`/test-plans/${test_plan_id}/test-suites/${test_suite_id}`);
-    };
-
     const onTestSuiteAddNew = () => {
         setIsTestSuiteCreateOpen(true)
     }
+
+    const handleTestSuiteEditClose = () => {
+        setTestSuiteId(0)
+    };
 
     const handleTestSuiteCreateClose = (created) => {
         setIsTestSuiteCreateOpen(false);
@@ -164,7 +165,7 @@ const TestPlanEditComponent = ({test_plan_id}) => {
                                         {testPlan.testSuites.map(ts => (
                                             <div key={ts.id}
                                                  className={"flex flex-col gap-4 min-w-52 bg-dark-white border border-gray-200 rounded p-4 mb-4 cursor-pointer"}
-                                                 onClick={() => handleTestSuiteCardClick(ts.id)}
+                                                 onClick={() => setTestSuiteId(ts.id)}
                                             >
                                                 <p className={"text-secondary-grey font-bold text-base"}>{ts?.summary}</p>
                                                 {ts?.status && (
@@ -188,7 +189,7 @@ const TestPlanEditComponent = ({test_plan_id}) => {
                                     </div>) :
                                 (<p className={"text-secondary-grey text-xs text-center w-full"}>No test suites</p>)}
                         </div>
-                        <TestSuiteEditComponent isOpen={false}/>
+                        <TestSuiteEditComponent testSuiteId={testSuiteId} onClose={handleTestSuiteEditClose}/>
                     </div>
                     <TestSuiteCreateComponent isOpen={isTestSuiteCreateOpen} onClose={handleTestSuiteCreateClose}/>
                 </>
