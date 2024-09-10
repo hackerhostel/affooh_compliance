@@ -50,7 +50,7 @@ const RegisterForm = () => {
         <div className='flex flex-col pt-24 pl-28' style={{ width: '650px', height: '797px' }}>
           <div className='w-3/4'>
             <div>
-              <h1 className="mb-3 text-4xl font-bold">Register</h1>
+              <h3 style={{fontWeight:"bold", fontSize:"42px"}} className="mb-3">Register</h3>
               <span className="font-light text-lg text-textColor">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore</span>
             </div>
             <form className="mt-4 space-y-6" ref={formRef} onSubmit={register}>

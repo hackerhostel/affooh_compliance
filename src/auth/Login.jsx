@@ -4,7 +4,6 @@ import useValidation from "../utils/use-validation.jsx";
 import FormInput from "../components/FormInput.jsx";
 import { useToasts } from "react-toast-notifications";
 import { useHistory, Link, useLocation } from "react-router-dom";
-import { doGetCurrentUser } from "../state/slice/authSlice.js";
 import { useDispatch } from "react-redux";
 import LoginImage from '../images/login.png';
 import { LoginSchema } from "../state/domains/authModels.js";
@@ -78,7 +77,7 @@ const Login = () => {
         <div className='flex flex-col pt-24 pl-28' style={{ width: '650px', height: '727px' }}>
           <div className='w-3/4'>
             <div>
-              <h1 className="mb-3 text-4xl font-bold">Log In</h1>
+              <h3 style={{fontWeight:"bold", fontSize:"42px"}} className="mb-3">Log In</h3>
               <span className=" font-light text-lg text-textColor">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore</span>
             </div>
             <form className="mt-4 space-y-6" ref={formRef} onSubmit={login}>

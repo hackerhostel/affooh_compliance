@@ -10,6 +10,7 @@ module.exports = {
         'secondary-pink': '#fdd6db',
         'text-color': 'rgba(116, 122, 136, 1)',
         'card-white': '#FFFFFF',
+        'cancel-button':"rgba(116, 122, 136, 1)",
 
         'dashboard-bgc': '#f4f5fb',
         'secondary-grey': '#747A88',
