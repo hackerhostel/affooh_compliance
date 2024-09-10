@@ -6,110 +6,165 @@ import useValidation from "../../utils/use-validation.jsx";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import {selectSelectedTestPlan} from "../../state/slice/testPlansSlice.js";
 import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
-import {selectReleaseListForProject} from "../../state/slice/releaseSlice.js";
-import {selectTestCaseStatuses} from "../../state/slice/testCaseFormDataSlice.js";
-import {doGetPlatforms, selectPlatformList} from "../../state/slice/platformSlice.js";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import {getSelectOptions, getUserSelectOptions} from "../../utils/commonUtils.js";
 import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
 import SearchBar from "../../components/SearchBar.jsx";
+import useFetchTestSuite from "../../hooks/custom-hooks/test-plan/useFetchTestSuite.jsx";
+import SkeletonLoader from "../../components/SkeletonLoader.jsx";
+import Select from "react-select";
 
-const TestSuiteEditComponent = ({isOpen, onClose}) => {
-        const {addToast} = useToasts();
-        const dispatch = useDispatch();
+const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
+    const {addToast} = useToasts();
+    const dispatch = useDispatch();
 
-        const selectedProject = useSelector(selectSelectedProject);
-        const selectedTestPlan = useSelector(selectSelectedTestPlan);
-        const projectUserList = useSelector(selectProjectUserList);
-        const testCaseStatuses = useSelector(selectTestCaseStatuses);
-        const releases = useSelector(selectReleaseListForProject)
-        const platforms = useSelector(selectPlatformList);
+    const {loading: testSuiteLoading, error: testSuiteError, data: testSuiteResponse} = useFetchTestSuite(testSuiteId)
 
-        useEffect(() => {
-            if (!platforms.length) {
-                dispatch(doGetPlatforms())
-            }
-        }, [platforms]);
+    const selectedProject = useSelector(selectSelectedProject);
+    const selectedTestPlan = useSelector(selectSelectedTestPlan);
+    const projectUserList = useSelector(selectProjectUserList);
+    const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [platforms, setPlatforms] = useState([]);
+    const [testSuite, setTestSuite] = useState([]);
+    const [releases, setReleases] = useState([]);
+    const [testCaseStatuses, setTestCaseStatuses] = useState([]);
+    const [testCases, setTestCases] = useState([]);
+    const [filteredTestCases, setFilteredTestCases] = useState([]);
+    const [formValues, setFormValues] = useState({
+        summary: '',
+        description: '',
+        status: '',
+        assignee: '',
+        releases: [],
+        build: '',
+        platforms: [],
+        testCases: [],
+        projectId: selectedProject.id,
+        testPlanId: selectedTestPlan.id
+    });
+    const [formErrors] = useValidation(TestSuiteCreateSchema, formValues);
 
-        const [formValues, setFormValues] = useState({
+    useEffect(() => {
+        if (testSuiteResponse?.testSuite?.id) {
+            console.log(testSuiteResponse)
+            setPlatforms(testSuiteResponse?.formData?.platforms)
+            setReleases(testSuiteResponse?.formData?.releases)
+            setTestCaseStatuses(testSuiteResponse?.formData?.statuses)
+            setTestCases(testSuiteResponse?.formData?.testCases)
+            setFilteredTestCases(testSuiteResponse?.formData?.testCases)
+            const testSuiteDetails = testSuiteResponse.testSuite
+            setTestSuite(testSuiteDetails)
+            setFormValues({
+                ...formValues,
+                summary: testSuiteDetails.summary,
+                description: testSuiteDetails.description,
+                status: testSuiteDetails?.status?.id,
+                assignee: testSuiteDetails?.assignee?.id,
+                build: testSuiteDetails?.testCycles[0]?.build,
+                platforms: testSuiteDetails.platforms,
+                releases: testSuiteDetails.releases,
+                testCases: testSuiteDetails.testCases.map(testCase => testCase.id)
+            })
+        }
+    }, [testSuiteResponse]);
+
+    const handleFormChange = (name, value, isText) => {
+        setFormValues({...formValues, [name]: isText ? value : value});
+        setIsValidationErrorsShown(false);
+    };
+
+    const handleMultiSelect = (selectedOptions, actionMeta) => {
+        const {name} = actionMeta;
+        if (selectedOptions.length) {
+            setFormValues({...formValues, [name]: selectedOptions.map(sp => (sp.value))})
+        } else {
+            setFormValues({...formValues, [name]: []})
+        }
+        setIsValidationErrorsShown(false);
+    };
+
+    const handleClose = () => {
+        onClose();
+        setFormValues({
             summary: '',
             description: '',
-            status: '',
-            assignee: '',
-            releases: [],
+            status: 0,
+            assignee: 0,
             build: '',
+            releases: [],
             platforms: [],
             testCases: [],
             projectId: selectedProject.id,
             testPlanId: selectedTestPlan.id
         });
+        setIsValidationErrorsShown(false);
+    };
 
-        const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
-        const [isSubmitting, setIsSubmitting] = useState(false);
-        const [formErrors] = useValidation(TestSuiteCreateSchema, formValues);
+    const editTestSuite = async (event) => {
+        event.preventDefault();
+        console.log(formValues)
+        // setIsSubmitting(true);
+        //
+        // if (formErrors && Object.keys(formErrors).length > 0) {
+        //     setIsValidationErrorsShown(true);
+        // } else {
+        //     setIsValidationErrorsShown(false);
+        //     try {
+        //         await axios.post("/test-plans/test-suites", {testSuite:formValues});
+        //         addToast('Test Suite Successfully Created', {appearance: 'success'});
+        //         handleClose();
+        //     } catch (error) {
+        //         addToast('Failed to create Test Suite', {appearance: 'error'});
+        //     }
+        // }
+        // values.id = testSuiteData?.testSuite?.id
+        // delete values.build;
+        //
+        // dispatch(updateTestSuite({updatedTestSuite: values, projectID: project_id}));
+        // setIsSubmitting(false);
+    };
 
-        const handleFormChange = (name, value, isText) => {
-            setFormValues({...formValues, [name]: isText ? value : value});
-            setIsValidationErrorsShown(false);
-        };
+    const isSelected = (id) => {
+        return formValues.testCases.includes(id);
+    };
 
-        const handleClose = () => {
-            onClose();
-            setFormValues({
-                summary: '',
-                description: '',
-                status: '',
-                assignee: '',
-                releases: [],
-                build: '',
-                platforms: [],
-                testCases: [],
-                projectId: selectedProject.id,
-                testPlanId: selectedTestPlan.id
-            });
-            setIsValidationErrorsShown(false);
-        };
+    const handleRowSelection = (id) => {
+        let updatedSelectedRows;
+        if (formValues.testCases.includes(id)) {
+            updatedSelectedRows = formValues.testCases.filter(rowId => rowId !== id);
+        } else {
+            updatedSelectedRows = [...formValues.testCases, id];
+        }
+        console.log(updatedSelectedRows)
+        setFormValues({...formValues, testCases: updatedSelectedRows})
+    };
 
-        const createTestSuite = async (event) => {
-            event.preventDefault();
-            console.log(formValues)
-            // setIsSubmitting(true);
-            //
-            // if (formErrors && Object.keys(formErrors).length > 0) {
-            //     setIsValidationErrorsShown(true);
-            // } else {
-            //     setIsValidationErrorsShown(false);
-            //     try {
-            //         await axios.post("/test-plans/test-suites", {testSuite:formValues});
-            //         addToast('Test Suite Successfully Created', {appearance: 'success'});
-            //         handleClose();
-            //     } catch (error) {
-            //         addToast('Failed to create Test Suite', {appearance: 'error'});
-            //     }
-            // }
-            // setIsSubmitting(false);
-        };
+    const handleTestCaseSearch = (term) => {
+        if (term.trim() === '') {
+            setFilteredTestCases(testCases);
+        } else {
+            const filtered = testCases.filter(tp =>
+                tp?.summary.toLowerCase().includes(term.toLowerCase())
+            );
+            setFilteredTestCases(filtered);
+        }
+    };
 
-        const handleTestCaseSearch = (term) => {
-            // if (term.trim() === '') {
-            //     setFilteredTestPlans(testPlans);
-            // } else {
-            //     const filtered = testPlans.filter(tp =>
-            //         tp?.name.toLowerCase().includes(term.toLowerCase())
-            //     );
-            //     setFilteredTestPlans(filtered);
-            // }
-        };
-
-        return (
-            <>
-                {isOpen && (
-                    <form className="flex-col">
-                        <div className="flex-col mb-8">
-                            <div className={"flex justify-between items-center mb-4"}>
-                                <p className={"text-secondary-grey font-bold text-lg"}>Test Suite Edit</p>
+    return (
+        testSuiteId > 0 ? (
+            testSuiteLoading ? (
+                <div className="m-10">
+                    <SkeletonLoader/>
+                </div>
+            ) : (
+                <form className="flex-col" onSubmit={editTestSuite}>
+                    <div className="flex-col mb-8">
+                        <div className="flex justify-between items-center mb-4">
+                            <p className="text-secondary-grey font-bold text-lg">Test Suite Edit</p>
+                            <div className="flex space-x-4 mt-6 self-end">
                                 <button
                                     type="submit"
                                     className="px-8 py-2 bg-primary-pink text-white rounded hover:bg-pink-600 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
@@ -117,107 +172,165 @@ const TestSuiteEditComponent = ({isOpen, onClose}) => {
                                 >
                                     Save
                                 </button>
-                            </div>
-                            <div className="space-y-4 flex-col bg-white p-4 rounded-md">
-                                <div className={"flex-col"}>
-                                    <p className={"text-secondary-grey"}>Summary</p>
-                                    <FormInput
-                                        type="text"
-                                        name="summary"
-                                        formValues={formValues}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-                                <div className={"flex-col"}>
-                                    <p className={"text-secondary-grey"}>Description</p>
-                                    <FormTextArea
-                                        name="description"
-                                        formValues={formValues}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-                                <div className={"flex w-full justify-between gap-10"}>
-                                    <div className={"flex-col w-1/4"}>
-                                        <p className={"text-secondary-grey"}>Assignee</p>
-                                        <FormSelect
-                                            name="assignee"
-                                            formValues={formValues}
-                                            options={getUserSelectOptions(projectUserList)}
-                                            onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
-                                            formErrors={formErrors}
-                                            showErrors={isValidationErrorsShown}
-                                        />
-                                    </div>
-                                    <div className={"flex-col w-1/4"}>
-                                        <p className={"text-secondary-grey"}>Status</p>
-                                        <FormSelect
-                                            name="status"
-                                            formValues={formValues}
-                                            options={getSelectOptions(testCaseStatuses)}
-                                            onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
-                                            formErrors={formErrors}
-                                            showErrors={isValidationErrorsShown}
-                                        />
-                                    </div>
-                                    <div className={"flex-col w-2/4"}>
-                                        <p className={"text-secondary-grey"}>Build Name</p>
-                                        <FormInput
-                                            type="text"
-                                            name="build"
-                                            formValues={formValues}
-                                            onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
-                                            formErrors={formErrors}
-                                            showErrors={isValidationErrorsShown}
-                                        />
-                                    </div>
-                                </div>
+                                <button
+                                    type="button"
+                                    className="px-4 py-2 border border-black rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                                    onClick={handleClose}
+                                    disabled={isSubmitting}
+                                >
+                                    Cancel
+                                </button>
                             </div>
                         </div>
-                        <div className="flex-col mb-8">
-                            <div className={"flex gap-10 items-center mb-4"}>
-                                <p className={"text-secondary-grey font-bold text-lg"}>Platform</p>
-                                <div className={"flex gap-1 items-center mr-5 cursor-pointer"}>
-                                    <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
-                                    <span className="font-thin text-xs text-gray-600">Add New</span>
-                                </div>
+                        <div className="space-y-4 flex-col bg-white p-4 rounded-md">
+                            <div className="flex-col">
+                                <p className="text-secondary-grey">Summary</p>
+                                <FormInput
+                                    type="text"
+                                    name="summary"
+                                    formValues={formValues}
+                                    onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                    formErrors={formErrors}
+                                    showErrors={isValidationErrorsShown}
+                                />
                             </div>
-                            <div className="py-4 flex-col bg-white p-4 rounded-md">
-                                <div className={"flex-col"}>
-                                    <p className={"text-secondary-grey"}>Platforms</p>
+                            <div className="flex-col">
+                                <p className="text-secondary-grey">Description</p>
+                                <FormTextArea
+                                    name="description"
+                                    formValues={formValues}
+                                    onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                    formErrors={formErrors}
+                                    showErrors={isValidationErrorsShown}
+                                />
+                            </div>
+                            <div className="flex w-full justify-between gap-10">
+                                <div className="flex-col w-1/4">
+                                    <p className="text-secondary-grey">Assignee</p>
                                     <FormSelect
-                                        name="platforms"
+                                        name="assignee"
                                         formValues={formValues}
-                                        options={getSelectOptions(platforms)}
+                                        options={getUserSelectOptions(projectUserList)}
                                         onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                         formErrors={formErrors}
                                         showErrors={isValidationErrorsShown}
                                     />
                                 </div>
-                            </div>
-                        </div>
-                        <div className="flex-col mb-8">
-                            <div className={"flex gap-5 items-center mb-4"}>
-                                <p className={"text-secondary-grey font-bold text-lg"}>Test Cases</p>
-                                <div className={"flex gap-1 items-center mr-5 cursor-pointer"}>
-                                    <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
-                                    <span className="font-thin text-xs text-gray-600">Add New</span>
+                                <div className="flex-col w-1/4">
+                                    <p className="text-secondary-grey">Status</p>
+                                    <FormSelect
+                                        name="status"
+                                        formValues={formValues}
+                                        options={getSelectOptions(testCaseStatuses)}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
                                 </div>
-                                <SearchBar onSearch={handleTestCaseSearch}/>
-                            </div>
-                            <div className="py-4 flex-col bg-white p-4 rounded-md">
+                                <div className="flex-col w-2/4">
+                                    <p className="text-secondary-grey">Build Name</p>
+                                    <FormInput
+                                        disabled={true}
+                                        type="text"
+                                        name="build"
+                                        formValues={formValues}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </form>
-                )
-                }
-            </>
+                    </div>
+
+                    <div className="flex-col mb-8">
+                        <div className="flex gap-10 items-center mb-4">
+                            <p className="text-secondary-grey font-bold text-lg">Platform</p>
+                            <div className="flex gap-1 items-center mr-5 cursor-pointer">
+                                <PlusCircleIcon className="w-6 h-6 text-pink-500"/>
+                                <span className="font-thin text-xs text-gray-600">Add New</span>
+                            </div>
+                        </div>
+                        <div className="py-4 flex-col bg-white p-4 rounded-md">
+                            <div className="flex-col">
+                                <p className="text-secondary-grey mb-2">Platforms</p>
+                                <Select
+                                    name="platforms"
+                                    defaultValue={formValues.platforms ? getSelectOptions(formValues.platforms) : []}
+                                    onChange={handleMultiSelect}
+                                    options={platforms && platforms.length ? getSelectOptions(platforms) : []}
+                                    isMulti
+                                    menuPlacement='top'
+                                />
+                            </div>
+                        </div>
+                        <div className="py-4 flex-col bg-white p-4 rounded-md">
+                            <div className="flex-col">
+                                <p className="text-secondary-grey mb-2">Releases</p>
+                                <Select
+                                    name="releases"
+                                    defaultValue={formValues.releases ? getSelectOptions(formValues.releases) : []}
+                                    onChange={handleMultiSelect}
+                                    options={releases && releases.length ? getSelectOptions(releases) : []}
+                                    isMulti
+                                    menuPlacement='top'
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex-col mb-8">
+                        <div className="flex gap-5 items-center mb-4">
+                            <p className="text-secondary-grey font-bold text-lg">Test Cases</p>
+                            <div className="flex gap-1 items-center mr-5 cursor-pointer">
+                                <PlusCircleIcon className="w-6 h-6 text-pink-500"/>
+                                <span className="font-thin text-xs text-gray-600">Add New</span>
+                            </div>
+                            <SearchBar onSearch={handleTestCaseSearch}/>
+                        </div>
+                        <div className="py-4 flex-col bg-white p-4 rounded-md">
+                            <table className="min-w-full border-collapse border border-gray-300">
+                                <thead>
+                                <tr className="w-full">
+                                    <th className="p-2"></th>
+                                    <th className="p-2">Summary</th>
+                                    <th className="p-2">Priority</th>
+                                    <th className="p-2">Type</th>
+                                    <th className="p-2">Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {filteredTestCases.map(row => (
+                                    <tr key={row.id} className={`${isSelected(row.id) ? 'bg-secondary-pink' : ''} w-full`}>
+                                        <td className="border border-gray-300 p-2 text-center">
+                                            <input
+                                                className="cursor-pointer mt-2"
+                                                type="checkbox"
+                                                checked={isSelected(row.id)}
+                                                onChange={() => handleRowSelection(row.id)}
+                                            />
+                                        </td>
+                                        <td className="border border-gray-300 p-2 w-3/6">{row.summary}</td>
+                                        <td className="border border-gray-300 p-2 w-1/6">
+                                            <span
+                                                className={`px-2 py-1 rounded`}>
+                                                {row.priority.value}
+                                            </span>
+                                        </td>
+                                        <td className="border border-gray-300 p-2 w-1/6">{row.category.value}</td>
+                                        <td className="border border-gray-300 p-2 w-1/6">{row.status.value}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            )
+        ) : (
+            <></>
         )
-            ;
-    }
-;
+    );
+};
 
 export default TestSuiteEditComponent;
