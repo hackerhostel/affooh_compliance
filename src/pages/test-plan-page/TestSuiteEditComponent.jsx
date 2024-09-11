@@ -1,34 +1,29 @@
 import React, {useEffect, useState} from 'react';
 import {useToasts} from "react-toast-notifications";
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 import {TestSuiteCreateSchema} from "../../utils/validationSchemas.js";
 import useValidation from "../../utils/use-validation.jsx";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
-import {selectSelectedTestPlan} from "../../state/slice/testPlansSlice.js";
 import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import FormTextArea from "../../components/FormTextArea.jsx";
-import {getSelectOptions, getUserSelectOptions} from "../../utils/commonUtils.js";
+import {getMultiSelectOptions, getSelectOptions, getUserSelectOptions} from "../../utils/commonUtils.js";
 import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
 import SearchBar from "../../components/SearchBar.jsx";
 import useFetchTestSuite from "../../hooks/custom-hooks/test-plan/useFetchTestSuite.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import Select from "react-select";
+import axios from "axios";
 
 const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
     const {addToast} = useToasts();
-    const dispatch = useDispatch();
 
     const {loading: testSuiteLoading, error: testSuiteError, data: testSuiteResponse} = useFetchTestSuite(testSuiteId)
 
-    const selectedProject = useSelector(selectSelectedProject);
-    const selectedTestPlan = useSelector(selectSelectedTestPlan);
     const projectUserList = useSelector(selectProjectUserList);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [platforms, setPlatforms] = useState([]);
-    const [testSuite, setTestSuite] = useState([]);
     const [releases, setReleases] = useState([]);
     const [testCaseStatuses, setTestCaseStatuses] = useState([]);
     const [testCases, setTestCases] = useState([]);
@@ -42,31 +37,30 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
         build: '',
         platforms: [],
         testCases: [],
-        projectId: selectedProject.id,
-        testPlanId: selectedTestPlan.id
     });
     const [formErrors] = useValidation(TestSuiteCreateSchema, formValues);
 
     useEffect(() => {
         if (testSuiteResponse?.testSuite?.id) {
-            console.log(testSuiteResponse)
-            setPlatforms(testSuiteResponse?.formData?.platforms)
-            setReleases(testSuiteResponse?.formData?.releases)
+            const testSuiteDetails = testSuiteResponse.testSuite
+            const platformOptions = testSuiteResponse?.formData?.platforms.length ? getSelectOptions(testSuiteResponse?.formData?.platforms) : []
+            setPlatforms(platformOptions)
+            const releaseOptions = testSuiteResponse?.formData?.releases.length ? getSelectOptions(testSuiteResponse?.formData?.releases) : []
+            setReleases(releaseOptions)
             setTestCaseStatuses(testSuiteResponse?.formData?.statuses)
             setTestCases(testSuiteResponse?.formData?.testCases)
             setFilteredTestCases(testSuiteResponse?.formData?.testCases)
-            const testSuiteDetails = testSuiteResponse.testSuite
-            setTestSuite(testSuiteDetails)
+
             setFormValues({
                 ...formValues,
-                summary: testSuiteDetails.summary,
-                description: testSuiteDetails.description,
+                summary: testSuiteDetails?.summary,
+                description: testSuiteDetails?.description,
                 status: testSuiteDetails?.status?.id,
                 assignee: testSuiteDetails?.assignee?.id,
                 build: testSuiteDetails?.testCycles[0]?.build,
-                platforms: testSuiteDetails.platforms,
-                releases: testSuiteDetails.releases,
-                testCases: testSuiteDetails.testCases.map(testCase => testCase.id)
+                platforms: testSuiteDetails?.platforms.length ? getMultiSelectOptions(platformOptions, testSuiteDetails.platforms.map(p => p.id)) : [],
+                releases: testSuiteDetails?.releases?.length ? getMultiSelectOptions(releaseOptions, testSuiteDetails.releases.map(p => p.id)) : [],
+                testCases: testSuiteDetails?.testCases?.length ? testSuiteDetails.testCases.map(testCase => testCase.id) : []
             })
         }
     }, [testSuiteResponse]);
@@ -79,15 +73,15 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
     const handleMultiSelect = (selectedOptions, actionMeta) => {
         const {name} = actionMeta;
         if (selectedOptions.length) {
-            setFormValues({...formValues, [name]: selectedOptions.map(sp => (sp.value))})
+            setFormValues({...formValues, [name]: selectedOptions})
         } else {
             setFormValues({...formValues, [name]: []})
         }
         setIsValidationErrorsShown(false);
     };
 
-    const handleClose = () => {
-        onClose();
+    const handleClose = (updated = false) => {
+        onClose(updated);
         setFormValues({
             summary: '',
             description: '',
@@ -97,35 +91,49 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
             releases: [],
             platforms: [],
             testCases: [],
-            projectId: selectedProject.id,
-            testPlanId: selectedTestPlan.id
         });
         setIsValidationErrorsShown(false);
     };
 
     const editTestSuite = async (event) => {
         event.preventDefault();
-        console.log(formValues)
-        // setIsSubmitting(true);
-        //
-        // if (formErrors && Object.keys(formErrors).length > 0) {
-        //     setIsValidationErrorsShown(true);
-        // } else {
-        //     setIsValidationErrorsShown(false);
-        //     try {
-        //         await axios.post("/test-plans/test-suites", {testSuite:formValues});
-        //         addToast('Test Suite Successfully Created', {appearance: 'success'});
-        //         handleClose();
-        //     } catch (error) {
-        //         addToast('Failed to create Test Suite', {appearance: 'error'});
-        //     }
-        // }
-        // values.id = testSuiteData?.testSuite?.id
-        // delete values.build;
-        //
-        // dispatch(updateTestSuite({updatedTestSuite: values, projectID: project_id}));
-        // setIsSubmitting(false);
-    };
+        setIsSubmitting(true);
+
+        if (formErrors && Object.keys(formErrors).length > 0) {
+            setIsValidationErrorsShown(true);
+            let warningMsg = '';
+
+            if (formErrors?.releases && formErrors.releases.length > 0) {
+                warningMsg += '\n' + formErrors.releases[0];
+            }
+            if (formErrors?.platforms && formErrors.platforms.length > 0) {
+                warningMsg += '\n' + formErrors.platforms[0];
+            }
+            if (formErrors?.testCases && formErrors.testCases.length > 0) {
+                warningMsg += '\n' + formErrors.testCases[0];
+            }
+
+            if (warningMsg.trim() !== '') {
+                addToast(warningMsg.trim(), {appearance: 'warning', placement: 'top-right'});
+            }
+        } else {
+            setIsValidationErrorsShown(false);
+            const values = {...formValues}
+            values.releases = formValues.releases.map(p => p.value)
+            values.platforms = formValues.platforms.map(p => p.value)
+            delete values.build;
+
+            try {
+                await axios.put(`/test-plans/test-suites/${testSuiteId}`, {testSuite: values});
+                addToast('Test Suite Successfully Updated', {appearance: 'success'});
+                handleClose(true);
+            } catch (error) {
+                console.log(error)
+                addToast('Failed to update the test suite', {appearance: 'error'});
+            }
+        }
+        setIsSubmitting(false);
+    }
 
     const isSelected = (id) => {
         return formValues.testCases.includes(id);
@@ -138,7 +146,6 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
         } else {
             updatedSelectedRows = [...formValues.testCases, id];
         }
-        console.log(updatedSelectedRows)
         setFormValues({...formValues, testCases: updatedSelectedRows})
     };
 
@@ -256,9 +263,9 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
                                 <p className="text-secondary-grey mb-2">Platforms</p>
                                 <Select
                                     name="platforms"
-                                    defaultValue={formValues.platforms ? getSelectOptions(formValues.platforms) : []}
+                                    value={formValues.platforms}
                                     onChange={handleMultiSelect}
-                                    options={platforms && platforms.length ? getSelectOptions(platforms) : []}
+                                    options={platforms}
                                     isMulti
                                     menuPlacement='top'
                                 />
@@ -269,9 +276,9 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
                                 <p className="text-secondary-grey mb-2">Releases</p>
                                 <Select
                                     name="releases"
-                                    defaultValue={formValues.releases ? getSelectOptions(formValues.releases) : []}
+                                    value={formValues.releases}
                                     onChange={handleMultiSelect}
-                                    options={releases && releases.length ? getSelectOptions(releases) : []}
+                                    options={releases}
                                     isMulti
                                     menuPlacement='top'
                                 />

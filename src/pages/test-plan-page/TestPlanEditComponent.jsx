@@ -16,14 +16,12 @@ import {
     selectIsReleaseListForProjectLoading,
     selectReleaseListForProject
 } from "../../state/slice/releaseSlice.js";
-import {useHistory} from "react-router-dom";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import TestSuiteEditComponent from "./TestSuiteEditComponent.jsx";
 import TestSuiteCreateComponent from "./TestSuiteCreateComponent.jsx";
 
 const TestPlanEditComponent = ({test_plan_id}) => {
     const dispatch = useDispatch();
-    const history = useHistory();
 
     const selectedProject = useSelector(selectSelectedProject);
     const projects = useSelector(selectProjectList);
@@ -82,8 +80,11 @@ const TestPlanEditComponent = ({test_plan_id}) => {
         setIsTestSuiteCreateOpen(true)
     }
 
-    const handleTestSuiteEditClose = () => {
+    const handleTestSuiteEditClose = (updated) => {
         setTestSuiteId(0)
+        if (updated === true) {
+            reFetchTestPlan()
+        }
     };
 
     const handleTestSuiteCreateClose = (created) => {
