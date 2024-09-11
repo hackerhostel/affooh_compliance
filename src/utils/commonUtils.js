@@ -32,3 +32,7 @@ export const getSelectOptions = (options) => {
 export const getUserSelectOptions = (options) => {
   return options.map(o => ({value: Number(o.id), label: `${o.firstName} ${o.lastName}`}));
 };
+
+export const getMultiSelectOptions = (options, ids) => {
+  return options.filter(item => ids.includes(item.value));
+};
