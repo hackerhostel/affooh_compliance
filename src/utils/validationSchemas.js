@@ -15,3 +15,14 @@ export const TestSuiteCreateSchema = yup.object().shape({
     platforms: yup.array().min(1, 'Please select at-least one platform option'),
     testCases: yup.array().min(1, 'Please select at-least one test case option'),
 });
+
+export const TestCaseCreateSchema = yup.object().shape({
+    summary: yup.string().required('Summary is required'),
+    status: yup.number().typeError('Status is required').required('Status is required').min(1, 'Status is required'),
+    priority: yup.number().typeError('Priority is required').required('Priority is required').min(1, 'Priority is required'),
+    category: yup.number().typeError('Category is required').required('Category is required').min(1, 'Category is required'),
+    estimate: yup.string().required('Estimate is required'),
+    releases: yup.array().min(1, 'Please select at-least one release option'),
+    requirements: yup.array().min(1, 'Please select at-least one requirement'),
+    steps: yup.array().min(1, 'Please add at-least one test step'),
+});
