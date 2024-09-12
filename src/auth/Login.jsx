@@ -30,7 +30,6 @@ const Login = () => {
 
   const login = async (event) => {
     event.preventDefault();
-    console.log('Login details:', loginDetails); // Added console log for login details
 
     if (formErrors) {
       setIsValidationErrorsShown(true);
@@ -47,7 +46,6 @@ const Login = () => {
       const response = await signIn(loginDetails)
 
       dispatch(doGetWhoAmI())
-      // TODO: handle challenges like NEW_PASSWORD_REQUIRED
       addToast('logged in Successfully', { appearance: 'success', autoDismiss: true });
       formRef.current.reset();
       history.push('/dashboard');

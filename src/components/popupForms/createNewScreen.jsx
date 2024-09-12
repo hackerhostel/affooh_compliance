@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import FormInput from "../FormInput.jsx";
 import FormSelect from "../FormSelect.jsx";
 import { doSwitchProject, selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
+import {XMarkIcon} from '@heroicons/react/24/outline';
 
 const CreateNewScreenPopup = ({
     screenDetails = {},
@@ -40,7 +41,9 @@ const CreateNewScreenPopup = ({
 
     return (
         <div style={popupStyles}>
-            <button onClick={handleClosePopup} style={closeButtonStyles}>Close</button>
+            <button onClick={handleClosePopup} style={closeButtonStyles}>
+        <XMarkIcon className='w-6 h-6'/>
+            </button>
             <span className='text-3xl'>Create New Screen</span>
             <form onSubmit={handleFormSubmit}>
                 <div className='ml-2 mt-5'>

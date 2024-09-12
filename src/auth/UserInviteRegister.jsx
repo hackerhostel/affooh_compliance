@@ -25,7 +25,7 @@ const RegisterForm = () => {
     }
 
     setIsValidationErrorsShown(false);
-    // Handle form submission here
+    // Handle form submission 
   };
 
   return (

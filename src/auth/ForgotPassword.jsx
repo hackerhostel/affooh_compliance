@@ -23,7 +23,7 @@ const ForgotPassword = () => {
     }
 
     setIsValidationErrorsShown(false);
-    // Handle form submission here (e.g., send email)
+    // Handle form submission 
   };
 
   return (

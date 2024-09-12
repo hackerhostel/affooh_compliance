@@ -1,5 +1,7 @@
 import React from 'react';
 import FormInput from "../../components/FormInput.jsx";
+import {XMarkIcon} from '@heroicons/react/24/outline';
+
 
 const CreateSprintPopup = ({
   createSprintDetails,
@@ -11,7 +13,9 @@ const CreateSprintPopup = ({
 }) => {
   return (
     <div style={popupStyles}>
-      <button onClick={handleClosePopup} style={closeButtonStyles}>Close</button>
+      <button onClick={handleClosePopup} style={closeButtonStyles}>
+        <XMarkIcon className='w-6 h-6'/>
+      </button>
       <span className='text-3xl'>Create New Sprint</span>
       <form onSubmit={handleFormSubmit}>
         <div className='ml-2, mt-4'>

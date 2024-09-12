@@ -1,5 +1,6 @@
 import React from 'react';
 import FormInput from "../FormInput.jsx";
+import {XMarkIcon} from '@heroicons/react/24/outline';
 
 const CreateCustomFieldPopup = ({
   customFieldDetails = {},
@@ -13,7 +14,9 @@ const CreateCustomFieldPopup = ({
 }) => {
   return (
     <div style={popupStyles}>
-      <button onClick={handleClosePopup} style={closeButtonStyles}>Close</button>
+      <button onClick={handleClosePopup} style={closeButtonStyles}>
+      <XMarkIcon className='w-6 h-6'/>
+      </button>
       <span className='text-3xl'>Create New Custom Field</span>
       <form onSubmit={handleFormSubmit}>
         <div className='ml-2 mt-5'>
