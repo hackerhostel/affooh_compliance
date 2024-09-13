@@ -22,7 +22,6 @@ export const TestCaseCreateSchema = yup.object().shape({
     priority: yup.number().typeError('Priority is required').required('Priority is required').min(1, 'Priority is required'),
     category: yup.number().typeError('Category is required').required('Category is required').min(1, 'Category is required'),
     estimate: yup.string().required('Estimate is required'),
-    releases: yup.array().min(1, 'Please select at-least one release option'),
     requirements: yup.array().min(1, 'Please select at-least one requirement'),
     steps: yup.array().min(1, 'Please add at-least one test step'),
 });

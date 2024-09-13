@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useToasts} from "react-toast-notifications";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {TestSuiteCreateSchema} from "../../utils/validationSchemas.js";
 import useValidation from "../../utils/use-validation.jsx";
 import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
@@ -15,13 +15,19 @@ import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import Select from "react-select";
 import axios from "axios";
 import TestCaseCreateComponent from "./TestCaseCreateComponent.jsx";
+import {doGetTestCases, selectTestCasesForProject} from "../../state/slice/testCaseSlice.js";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 
 const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
     const {addToast} = useToasts();
+    const dispatch = useDispatch();
 
     const {loading: testSuiteLoading, data: testSuiteResponse} = useFetchTestSuite(testSuiteId)
 
     const projectUserList = useSelector(selectProjectUserList);
+    const selectedProject = useSelector(selectSelectedProject);
+    const testCasesForProject = useSelector(selectTestCasesForProject)
+
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [platforms, setPlatforms] = useState([]);
@@ -50,8 +56,6 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
             const releaseOptions = testSuiteResponse?.formData?.releases.length ? getSelectOptions(testSuiteResponse?.formData?.releases) : []
             setReleases(releaseOptions)
             setTestCaseStatuses(testSuiteResponse?.formData?.statuses)
-            setTestCases(testSuiteResponse?.formData?.testCases)
-            setFilteredTestCases(testSuiteResponse?.formData?.testCases)
 
             setFormValues({
                 ...formValues,
@@ -66,6 +70,15 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
             })
         }
     }, [testSuiteResponse]);
+
+    useEffect(() => {
+        if (testCasesForProject.length) {
+            setTestCases(testCasesForProject)
+            setFilteredTestCases(testCasesForProject)
+        } else {
+            dispatch(doGetTestCases(selectedProject.id))
+        }
+    }, [testCasesForProject]);
 
     const handleFormChange = (name, value, isText) => {
         setFormValues({...formValues, [name]: isText ? value : value});
@@ -169,7 +182,7 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
     const handleTestCaseCreateClose = (created) => {
         setIsTestCaseCreateOpen(false);
         if (created === true) {
-            // reFetchTestPlan()
+            dispatch(doGetTestCases(selectedProject.id))
         }
     };
 
