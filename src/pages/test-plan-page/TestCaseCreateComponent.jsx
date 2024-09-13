@@ -17,6 +17,8 @@ import FormTextArea from "../../components/FormTextArea.jsx";
 import Select from 'react-select';
 import useFetchFlatTasks from "../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
+import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
+import axios from "axios";
 
 const TestCaseCreateComponent = ({isOpen, onClose}) => {
     const {addToast} = useToasts();
@@ -32,10 +34,10 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
     const [formValues, setFormValues] = useState({
         summary: '',
         description: '',
-        status: '',
+        status: testCaseStatuses.filter(ts => ts.value === 'Open')[0]?.id || 1,
         projectId: selectedProject.id,
-        priority: 0,
-        category: 0,
+        priority: '',
+        category: '',
         estimate: '',
         steps: [],
         requirements: []
@@ -67,8 +69,8 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
             description: '',
             status: '',
             projectId: selectedProject.id,
-            priority: 0,
-            category: 0,
+            priority: '',
+            category: '',
             estimate: '',
             steps: [],
             requirements: []
@@ -78,40 +80,66 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
 
     const createTestCase = async (event) => {
         event.preventDefault();
-        console.log(formValues);
-        // setIsSubmitting(true);
-        //
-        // if (formErrors && Object.keys(formErrors).length > 0) {
-        //     setIsValidationErrorsShown(true);
-        //     let warningMsg = '';
-        //
-        //     if (formErrors?.releases && formErrors.releases.length > 0) {
-        //         warningMsg += '\n' + formErrors.releases[0];
-        //     }
-        //     if (formErrors?.platforms && formErrors.platforms.length > 0) {
-        //         warningMsg += '\n' + formErrors.platforms[0];
-        //     }
-        //     if (formErrors?.testCases && formErrors.testCases.length > 0) {
-        //         warningMsg += '\n' + formErrors.testCases[0];
-        //     }
-        //
-        //     if (warningMsg.trim() !== '') {
-        //         addToast(warningMsg.trim(), {appearance: 'warning', placement: 'top-right'});
-        //     }
-        // } else {
-        //     setIsValidationErrorsShown(false);
-        //     try {
-        //         formValues.testPlanId = selectedTestPlan.id
-        //         await axios.post("/test-plans/test-suites", {testSuite: formValues});
-        //         addToast('Test Suite Successfully Created', {appearance: 'success'});
-        //         handleClose(true);
-        //     } catch (error) {
-        //         console.log(error)
-        //         addToast('Failed to create Test Suite', {appearance: 'error'});
-        //     }
-        // }
+        setIsSubmitting(true);
 
-        // setIsSubmitting(false);
+        if (formErrors && Object.keys(formErrors).length > 0) {
+            setIsValidationErrorsShown(true);
+            let warningMsg = '';
+
+            if (formErrors?.requirements && formErrors.requirements.length > 0) {
+                warningMsg += '\n' + formErrors.requirements[0];
+            }
+            if (formErrors?.steps && formErrors.steps.length > 0) {
+                warningMsg += '\n' + formErrors.steps[0];
+            }
+
+            if (warningMsg.trim() !== '') {
+                addToast(warningMsg.trim(), {appearance: 'warning'});
+            }
+        } else {
+            setIsValidationErrorsShown(false);
+            try {
+                await axios.post("/test-plans/test-cases", {testCase: formValues});
+                addToast('Test Case Successfully Created', {appearance: 'success'});
+                handleClose(true);
+            } catch (error) {
+                console.log(error)
+                addToast('Failed to create Test Case', {appearance: 'error'});
+            }
+        }
+
+        setIsSubmitting(false);
+    };
+
+    const addStep = () => {
+        setIsValidationErrorsShown(false);
+        setFormValues({
+            ...formValues,
+            steps: [...formValues.steps, {
+                id: formValues.steps.length + 1,
+                description: '',
+                inputData: '',
+                expectedOutcome: ''
+            }]
+        });
+    };
+
+    const handleTableInputChange = (id, field, value) => {
+        setIsValidationErrorsShown(false);
+        const updatedSteps = formValues.steps.map(step =>
+            step.id === id ? {...step, [field]: value} : step
+        );
+        setFormValues({
+            ...formValues,
+            steps: updatedSteps
+        });
+    };
+
+    const removeStep = (id) => {
+        setFormValues({
+            ...formValues,
+            steps: formValues.steps.filter(step => step.id !== id)
+        });
     };
 
     return (
@@ -203,8 +231,74 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
                                                 isSearchable={true}
                                             />
                                         </div>
+                                        <div className={"flex-col"}>
+                                            <div className={"flex gap-8 mt-7 mb-3"}>
+                                                <p className={"text-secondary-grey font-bold text-lg"}>Test Suites</p>
+                                                <div className={"flex gap-1 items-center mr-5 cursor-pointer"}
+                                                     onClick={addStep}>
+                                                    <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
+                                                    <span className="font-thin text-xs text-gray-600">Add New</span>
+                                                </div>
+                                            </div>
+                                            <table
+                                                className="min-w-full bg-white shadow-md overflow-hidden border-t border">
+                                                <thead>
+                                                <tr>
+                                                    <th className="text-left p-4">Description</th>
+                                                    <th className="text-left p-4">Input Data</th>
+                                                    <th className="text-left p-4">Expected Outcome</th>
+                                                    <th className="text-left p-4">Actions</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {
+                                                    formValues.steps.length === 0 ? (
+                                                        <tr>
+                                                            <td colSpan="4"
+                                                                className="border-t text-center py-4 text-gray-400 h-100">
+                                                                No Rows
+                                                            </td>
+                                                        </tr>
+                                                    ) : (
+                                                        formValues.steps.map((step, index) => (
+                                                            <tr key={step.id} className="border-t">
+                                                                <td className="p-4">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={step.description}
+                                                                        onChange={(e) => handleTableInputChange(step.id, 'description', e.target.value)}
+                                                                        className="border border-gray-300 rounded w-full p-2"
+                                                                    />
+                                                                </td>
+                                                                <td className="p-4">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={step.inputData}
+                                                                        onChange={(e) => handleTableInputChange(step.id, 'inputData', e.target.value)}
+                                                                        className="border border-gray-300 rounded w-full p-2"
+                                                                    />
+                                                                </td>
+                                                                <td className="p-4">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={step.expectedOutcome}
+                                                                        onChange={(e) => handleTableInputChange(step.id, 'expectedOutcome', e.target.value)}
+                                                                        className="border border-gray-300 rounded w-full p-2"
+                                                                    />
+                                                                </td>
+                                                                <td className="p-4">
+                                                                    <div className="cursor-pointer justify-center flex"
+                                                                         onClick={() => removeStep(step.id)}>
+                                                                        <XMarkIcon className="w-6 h-6 text-gray-500"/>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        )))}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
-                                    <div className="flex space-x-4 mt-6 self-end w-full">
+                                    <div className="flex space-x-4 mt-10 self-end w-full">
                                         <button
                                             onClick={handleClose}
                                             className="px-4 py-2 text-gray-700 rounded w-1/4 border border-black cursor-pointer disabled:cursor-not-allowed"
