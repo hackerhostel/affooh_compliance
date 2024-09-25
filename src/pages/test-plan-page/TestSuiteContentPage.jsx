@@ -53,6 +53,9 @@ const TestSuiteContentPage = () => {
         if (selectedTestPlanId !== 0 && testPlan?.id !== selectedTestPlanId) {
             setTestPlanId(selectedTestPlanId)
         }
+        if (selectedTestPlanId === 0) {
+            setTestPlan({})
+        }
     }, [selectedTestPlanId]);
 
     useEffect(() => {

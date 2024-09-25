@@ -1,5 +1,5 @@
 import {useDispatch, useSelector} from "react-redux";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
@@ -7,7 +7,7 @@ import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
 import {doGetTestCaseFormData, selectTestCaseStatuses} from "../../state/slice/testCaseFormDataSlice.js";
 import {selectSprintListForProject} from "../../state/slice/sprintSlice.js";
 import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
-import {setSelectedTestPlan} from "../../state/slice/testPlansSlice.js";
+import {doGetTestPlans, setSelectedTestPlan} from "../../state/slice/testPlansSlice.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import {
@@ -19,9 +19,14 @@ import {
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import TestSuiteEditComponent from "./TestSuiteEditComponent.jsx";
 import TestSuiteCreateComponent from "./TestSuiteCreateComponent.jsx";
+import useValidation from "../../utils/use-validation.jsx";
+import {TestPlanEditSchema} from "../../utils/validationSchemas.js";
+import {useToasts} from "react-toast-notifications";
+import axios from "axios";
 
 const TestPlanEditComponent = ({test_plan_id}) => {
     const dispatch = useDispatch();
+    const {addToast} = useToasts();
 
     const selectedProject = useSelector(selectSelectedProject);
     const projects = useSelector(selectProjectList);
@@ -32,13 +37,13 @@ const TestPlanEditComponent = ({test_plan_id}) => {
     const releaseLoading = useSelector(selectIsReleaseListForProjectLoading)
     const releaseError = useSelector(selectIsReleaseListForProjectError)
 
-    const formRef = useRef(null);
     const [testPlanId, setTestPlanId] = useState(0);
     const [testSuiteId, setTestSuiteId] = useState(0);
-    const [formValues, setFormValues] = useState({id: 0, name: '', sprint: 0, project: 0, release: 0});
-    const [formErrors, setFormErrors] = useState({});
+    const [formValues, setFormValues] = useState({name: '', sprintId: 0, projectId: selectedProject.id, releaseId: 0});
+    const [formErrors] = useValidation(TestPlanEditSchema, formValues);
     const [isTestSuiteCreateOpen, setIsTestSuiteCreateOpen] = useState(false);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const {loading, error, data: testPlan, refetch: reFetchTestPlan} = useFetchTestPlan(testPlanId)
 
@@ -58,11 +63,10 @@ const TestPlanEditComponent = ({test_plan_id}) => {
     useEffect(() => {
         if (testPlan?.id) {
             setFormValues({
-                id: testPlan.id,
                 name: testPlan.name,
-                sprint: testPlan.sprintID,
-                project: testPlan.projectID,
-                release: testPlan.releaseID
+                sprintId: testPlan.sprintID,
+                projectId: testPlan.projectID,
+                releaseId: testPlan.releaseID
             })
             dispatch(setSelectedTestPlan(testPlan))
         }
@@ -72,8 +76,9 @@ const TestPlanEditComponent = ({test_plan_id}) => {
         return options.map(o => ({value: Number(o.id), label: o.name}));
     };
 
-    const handleFormChange = (name, value) => {
-        setFormValues({...formValues, [name]: value});
+    const handleFormChange = (name, value, isText) => {
+        setFormValues({...formValues, [name]: isText ? value : Number(value)});
+        setIsValidationErrorsShown(false)
     };
 
     const onTestSuiteAddNew = () => {
@@ -94,6 +99,32 @@ const TestPlanEditComponent = ({test_plan_id}) => {
         }
     };
 
+    const updateTestPlan = async (event) => {
+        setIsSubmitting(true)
+        event.preventDefault();
+
+        if (formErrors && Object.keys(formErrors).length > 0) {
+            setIsValidationErrorsShown(true);
+        } else {
+            setIsValidationErrorsShown(false);
+            try {
+                const response = await axios.put(`/test-plans/${test_plan_id}`, {testPlan: formValues})
+                const updated = response?.data?.status
+
+                if (updated) {
+                    addToast('Test Plan Successfully Updated', {appearance: 'success'});
+                    dispatch(doGetTestPlans(selectedProject?.id));
+                    await reFetchTestPlan()
+                } else {
+                    addToast('Failed To Updated The Test Plan ', {appearance: 'error'});
+                }
+            } catch (error) {
+                addToast('Failed To Updated The Test Plan ', {appearance: 'error'});
+            }
+        }
+        setIsSubmitting(false)
+    }
+
     if (loading || releaseLoading) {
         return <div className="m-10"><SkeletonLoader/></div>;
     }
@@ -111,46 +142,52 @@ const TestPlanEditComponent = ({test_plan_id}) => {
                 <>
                     <div className={"flex-col"}>
                         <div className={"bg-white p-4 rounded-md"}>
-                            <form className="flex justify-between" ref={formRef}>
-                                <div className={"flex-col w-1/4"}>
-                                    <p className={"text-secondary-grey"}>Name</p>
-                                    <FormInput
-                                        type="text"
-                                        name="name"
-                                        formValues={formValues}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
+                            <form className="flex flex-col items-end" onSubmit={updateTestPlan}>
+                                <div className="flex justify-between w-full">
+                                    <div className={"flex-col w-1/4"}>
+                                        <p className={"text-secondary-grey"}>Name</p>
+                                        <FormInput
+                                            type="text"
+                                            name="name"
+                                            formValues={formValues}
+                                            onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                            formErrors={formErrors}
+                                            showErrors={isValidationErrorsShown}
+                                        />
+                                    </div>
+                                    <div className={"flex-col w-1/4"}>
+                                        <p className={"text-secondary-grey"}>Sprint</p>
+                                        <FormSelect
+                                            name="sprintId"
+                                            formValues={formValues}
+                                            options={sprintListForProject.length ? getOptions(sprintListForProject) : []}
+                                            onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                                        />
+                                    </div>
+                                    <div className={"flex-col w-1/4"}>
+                                        <p className={"text-secondary-grey"}>Project</p>
+                                        <FormSelect
+                                            name="projectId"
+                                            formValues={formValues}
+                                            options={projects.length ? getOptions(projects) : []}
+                                            onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                                            disabled={true}
+                                        />
+                                    </div>
+                                    <div className={"flex-col w-1/5"}>
+                                        <p className={"text-secondary-grey"}>Release</p>
+                                        <FormSelect
+                                            name="releaseId"
+                                            formValues={formValues}
+                                            options={releases.length ? getOptions(releases) : []}
+                                            onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                                        />
+                                    </div>
                                 </div>
-                                <div className={"flex-col w-1/4"}>
-                                    <p className={"text-secondary-grey"}>Sprint</p>
-                                    <FormSelect
-                                        name="sprint"
-                                        formValues={formValues}
-                                        options={sprintListForProject.length ? getOptions(sprintListForProject) : []}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                    />
-                                </div>
-                                <div className={"flex-col w-1/4"}>
-                                    <p className={"text-secondary-grey"}>Project</p>
-                                    <FormSelect
-                                        name="project"
-                                        formValues={formValues}
-                                        options={projects.length ? getOptions(projects) : []}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                        disabled={true}
-                                    />
-                                </div>
-                                <div className={"flex-col w-1/5"}>
-                                    <p className={"text-secondary-grey"}>Release</p>
-                                    <FormSelect
-                                        name="release"
-                                        formValues={formValues}
-                                        options={releases.length ? getOptions(releases) : []}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                    />
-                                </div>
+                                <button type="submit"
+                                        className="px-8 py-2 mt-2 bg-primary-pink text-white rounded hover:bg-pink-600 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                        disabled={isSubmitting}>Update
+                                </button>
                             </form>
                         </div>
                         <div className={"flex gap-8 mt-7 mb-3"}>
