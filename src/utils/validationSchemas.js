@@ -6,6 +6,10 @@ export const TestPlanCreateSchema = yup.object({
     releaseId: yup.number().required().moreThan(0, 'Select an Release'),
 });
 
+export const TestPlanEditSchema = yup.object({
+    name: yup.string().required('Name is required'),
+});
+
 export const TestSuiteCreateSchema = yup.object().shape({
     summary: yup.string().required('Summary is required'),
     status: yup.number().typeError('Status is required').required('Status is required').min(1, 'Status is required'),
