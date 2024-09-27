@@ -9,11 +9,11 @@ const ProjectListPage = () => {
   const [selectedProject, setSelectedProject] = useState("");
   const dispatch = useDispatch();
 
-  // Get the project list from Redux
+ 
   const projectList = useSelector(selectProjectList);
   const [filteredProjectList, setFilteredProjectList] = useState([]);
 
-  // Filter the projects based on the active tab and search term
+ 
   useEffect(() => {
     if (projectList && Array.isArray(projectList)) {
       const filtered = projectList.filter(
@@ -25,13 +25,13 @@ const ProjectListPage = () => {
     }
   }, [projectList, searchTerm, activeTab]);
 
-  // Handle the project selection change
+  
   const handleProjectSelection = (e) => {
     const selected = e.target.value;
     setSelectedProject(selected);
     const projectIndex = projectList.findIndex(project => project.name === selected);
     if (projectIndex >= 0) {
-      dispatch(setSelectedProjectFromList(projectIndex)); // Dispatch the selected project
+      dispatch(setSelectedProjectFromList(projectIndex)); 
     }
   };
 
@@ -53,7 +53,7 @@ const ProjectListPage = () => {
         />
       </div>
 
-      {/* Dropdown for project selection */}
+    
       <div className="mb-4">
         <select
           className="border rounded-lg p-2 w-full"
@@ -68,7 +68,7 @@ const ProjectListPage = () => {
         </select>
       </div>
 
-      {/* Tabs for project status */}
+  
       <div  className="flex space-x-2 mb-4">
         {["Active", "On Hold", "Closed"].map((status) => (
           <button
@@ -86,7 +86,7 @@ const ProjectListPage = () => {
         ))}
       </div>
 
-      {/* Project List */}
+     
       <div>
         {filteredProjectList.map((project, index) => (
           <div
