@@ -8,6 +8,15 @@ module.exports = {
       colors: {
         'primary-pink': '#EB5A84',
         'secondary-pink': '#fdd6db',
+        'text-color': 'rgba(116, 122, 136, 1)',
+        'card-white': '#FFFFFF',
+        'cancel-button':"rgba(116, 122, 136, 1)",
+        'priority-button-high':"rgba(219, 93, 93, 1)",
+        'priority-button-medium':"rgba(201, 246, 191, 1)",
+        'priority-button-low': "rgba(251, 242, 173, 1)",
+
+        
+
         'dashboard-bgc': '#f4f5fb',
         'secondary-grey': '#747A88',
         'dark-white': '#fbfbfb',

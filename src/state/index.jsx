@@ -1,3 +1,5 @@
+
+import registerReducer from './slice/registerSlice.js';
 import {configureStore} from '@reduxjs/toolkit'
 import appReducer from './slice/appSlice.js'
 import authReducer from './slice/authSlice.js'
@@ -15,6 +17,7 @@ export const store = configureStore({
     app: appReducer,
     auth: authReducer,
     project: projectReducer,
+    register: registerReducer,
     sprint: sprintReducer,
     testPlans: testPlansReducer,
     testCaseFormData: testCaseFormDataReducer,
@@ -23,4 +26,4 @@ export const store = configureStore({
     platform: platformReducer,
     testCase: testCaseReducer
   },
-})
+});

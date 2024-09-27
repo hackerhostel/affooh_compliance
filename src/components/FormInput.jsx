@@ -46,7 +46,7 @@ function FormInput(
           'shadow-sm': showShadow,
         })}
       >
-        <label htmlFor={name} className="block text-sm text-gray-700 mb-1">
+        <label htmlFor={name} className="block text-sm text-text-color mb-1">
           {showLabel && <span className="capitalize">{placeholder}</span>}
           <input
             aria-label={ariaLabel}
