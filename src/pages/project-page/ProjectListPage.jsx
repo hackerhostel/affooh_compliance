@@ -1,53 +1,100 @@
-import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from "react-redux";
-import {selectProjectList, setSelectedProjectFromList} from "../../state/slice/projectSlice.js";
-import SearchBar from "../../components/SearchBar.jsx";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { selectProjectList, setSelectedProjectFromList } from "../../state/slice/projectSlice.js";
 
 const ProjectListPage = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("Active");
+  const [selectedProject, setSelectedProject] = useState("");
   const dispatch = useDispatch();
 
-  // TODO: need to have a separate API to fetch project list
+  // Get the project list from Redux
   const projectList = useSelector(selectProjectList);
-
   const [filteredProjectList, setFilteredProjectList] = useState([]);
 
+  // Filter the projects based on the active tab and search term
   useEffect(() => {
     if (projectList && Array.isArray(projectList)) {
-      setFilteredProjectList(projectList)
-    }
-  }, [projectList]);
-
-  const handleSearch = (term) => {
-    if (term.trim() === '') {
-      setFilteredProjectList(projectList);
-    } else {
-      const filtered = projectList.filter(project =>
-        project.name.toLowerCase().includes(term.toLowerCase())
+      const filtered = projectList.filter(
+        (project) =>
+          project.status === activeTab &&
+          project.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredProjectList(filtered);
     }
+  }, [projectList, searchTerm, activeTab]);
+
+  // Handle the project selection change
+  const handleProjectSelection = (e) => {
+    const selected = e.target.value;
+    setSelectedProject(selected);
+    const projectIndex = projectList.findIndex(project => project.name === selected);
+    if (projectIndex >= 0) {
+      dispatch(setSelectedProjectFromList(projectIndex)); // Dispatch the selected project
+    }
   };
 
+  useEffect(() => {
+    console.log("Project list fetched:", projectList);
+  }, [projectList]);
+
   return (
-    <div className="h-list-screen overflow-y-auto w-full">
-      <div className="flex flex-col gap-3 p-3">
-        <div className="py-3">
-          <SearchBar onSearch={handleSearch}/>
-        </div>
-        {filteredProjectList.map((element, index) => (
+    <div className="p-4">
+      {/* Search Bar */}
+      <div className="mb-4 relative">
+        <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-2.5 text-gray-400" />
+        <input
+          type="text"
+          className="border rounded-lg p-2 pl-10 w-full"
+          placeholder="Search Projects"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {/* Dropdown for project selection */}
+      <div className="mb-4">
+        <select
+          className="border rounded-lg p-2 w-full"
+          value={selectedProject}
+          onChange={handleProjectSelection}
+        >
+          {projectList.map((project, index) => (
+            <option key={index} value={project.name}>
+              {project.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Tabs for project status */}
+      <div  className="flex space-x-2 mb-4">
+        {["Active", "On Hold", "Closed"].map((status) => (
           <button
-            key={index}
-            className="items-center p-3 border border-gray-200 rounded-md w-full grid grid-cols-3 gap-2 hover:bg-gray-100"
-            onClick={() => {
-              dispatch(setSelectedProjectFromList(index))
-            }}
+            style={{width:"105px", height:"37px"}}
+            key={status}
+            className={`rounded-full ${
+              activeTab === status
+                ? "bg-black text-white"
+                : "bg-gray-200 text-black"
+            }`}
+            onClick={() => setActiveTab(status)}
           >
-            <div className="col-span-2 text-left">
-              <div className="font-bold">{element?.name}</div>
-              <div className="text-sm text-gray-600">Website<span className="mx-1">&#8226;</span>Development</div>
-            </div>
-            <div className="text-right">{`>`}</div>
+            {status} ({projectList.filter((p) => p.status === status).length})
           </button>
+        ))}
+      </div>
+
+      {/* Project List */}
+      <div>
+        {filteredProjectList.map((project, index) => (
+          <div
+            key={index}
+            className="border rounded-lg p-4 mb-4 flex justify-between items-center"
+          >
+            <span>{project.name}</span>
+          </div>
         ))}
       </div>
     </div>
