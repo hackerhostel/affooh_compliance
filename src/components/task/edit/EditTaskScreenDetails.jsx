@@ -1,19 +1,22 @@
 import {Tab, TabGroup, TabList, TabPanel, TabPanels} from '@headlessui/react'
 import React from "react";
-import ScreenTabField from "./ScreenTabField.jsx";
+import EditScreenTabField from "./EditScreenTabField.jsx";
 
-const TaskAdditionalDetails =
+const EditTaskScreenDetails =
   ({
+     isEditing,
+     initialTaskData,
      taskFormData,
      handleFormChange,
      isValidationErrorsShown,
-     screenDetails
+     screenDetails,
+     updateTaskAttribute
    }) => {
     return (
       <div className="w-full">
         <TabGroup>
           <TabList className="flex gap-4 mt-5">
-            {screenDetails.tabs.map(({id, name}) => (
+            {screenDetails?.tabs.map(({id, name}) => (
               <Tab
                 key={id}
                 className="rounded-full py-1 px-3 text-sm/6 font-semibold bg-gray-900 text-white focus:outline-none data-[selected]:bg-primary-pink data-[hover]:bg-secondary-grey data-[selected]:data-[hover]:bg-primary-pink data-[focus]:outline-1 data-[focus]:outline-white"
@@ -23,15 +26,18 @@ const TaskAdditionalDetails =
             ))}
           </TabList>
           <TabPanels className="mt-5 rounded-md">
-            {screenDetails.tabs.map(({id, fields}) => (
+            {screenDetails?.tabs.map(({id, fields}) => (
               <TabPanel key={id} className="rounded-xl bg-white/5">
                 <div className="grid grid-cols-3 gap-4">
                   {fields.map((field) => (
-                    <ScreenTabField
+                    <EditScreenTabField
+                      isEditing={isEditing}
                       field={field}
                       onChange={handleFormChange}
+                      initialTaskData={initialTaskData}
                       formValues={taskFormData}
                       isValidationErrorsShown={isValidationErrorsShown}
+                      updateTaskAttribute={updateTaskAttribute}
                     />
                   ))}
                 </div>
@@ -43,4 +49,4 @@ const TaskAdditionalDetails =
     )
   }
 
-export default TaskAdditionalDetails;
+export default EditTaskScreenDetails;

@@ -7,21 +7,59 @@ import {useParams} from "react-router-dom";
 import axios from "axios";
 import SkeletonLoader from "../../SkeletonLoader.jsx";
 import ErrorAlert from "../../ErrorAlert.jsx";
+import {getUserSelectOptions} from "../../../utils/commonUtils.js";
+import FormSelect from "../../FormSelect.jsx";
+import {useSelector} from "react-redux";
+import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
+import FormInputWrapper from "./FormEditInputWrapper.jsx";
+import EditTaskScreenDetails from "./EditTaskScreenDetails.jsx";
+import {useToasts} from "react-toast-notifications";
 
 const EditTaskPage = () => {
   const {code} = useParams();
+  const {addToast} = useToasts();
+
+  const [initialTaskData, setInitialTaskData] = useState({});
   const [taskData, setTaskData] = useState({});
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const formRef = useRef(null);
   const [formErrors] = useValidation(LoginSchema, taskData);
 
+  const projectUserList = useSelector(selectProjectUserList);
+
   const [loading, setLoading] = useState(false);
   const [apiError, setAPIError] = useState(false);
+
+  const [isEditing, setIsEditing] = useState(false)
+  const [additionalFormValues, setAdditionalFormValues] = useState({});
+  const [initialAdditionalFormValues, setInitialAdditionalFormValues] = useState({});
 
   const handleFormChange = (name, value) => {
     const newForm = {...taskData, [name]: value};
     setTaskData(newForm);
   };
+
+  const handleAdditionalFieldChange = (fieldData) => {
+    setAdditionalFormValues(prevValues => ({
+      ...prevValues,
+      [fieldData.taskFieldID]: fieldData
+    }));
+  };
+
+  function attributesToMap(attributes) {
+    if (!attributes && attributes === null) {
+      return {};
+    }
+
+    return attributes.reduce((map, fieldData) => {
+      map[fieldData.taskFieldID] = {
+        fieldTypeName: fieldData.fieldTypeName,
+        fieldValue: fieldData.values,
+        taskFieldID: fieldData.id
+      };
+      return map;
+    }, {});
+  }
 
   useEffect(() => {
     const fetchTaskDetails = async () => {
@@ -29,7 +67,12 @@ const EditTaskPage = () => {
       try {
         const response = await axios.get(`tasks/by-code/${code}`)
         if (response.data.body.task) {
-          setTaskData(response.data.body.task)
+          const taskDetails = response.data.body.task
+          setTaskData(taskDetails)
+          setInitialTaskData(taskDetails)
+
+          setAdditionalFormValues(attributesToMap(taskDetails.attributes))
+          setInitialAdditionalFormValues(attributesToMap(taskDetails.attributes))
         }
         setAPIError(false)
       } catch (e) {
@@ -50,19 +93,90 @@ const EditTaskPage = () => {
     return <div className="p-10"><ErrorAlert message="Cannot get task additional details at the moment"/></div>
   }
 
+  const updateTaskDetails = async (attributeKey, attributeValue) => {
+    setIsEditing(true)
+    const payload = {
+      "taskID": initialTaskData.id,
+      "type": "TASK",
+      "attributeDetails": {
+        attributeKey,
+        attributeValue
+      }
+    }
+
+    try {
+      const updatedTask = await axios.put(`/tasks/${initialTaskData.id}`, payload)
+
+      addToast(`task ${attributeKey} updated!`, {appearance: 'success', autoDismiss: true});
+      if (updatedTask.data.body.task) {
+        setTaskData(updatedTask.data.body.task)
+        setInitialTaskData(updatedTask.data.body.task)
+      }
+    } catch (e) {
+      setTaskData(initialTaskData)
+      addToast(e.message, {appearance: 'error'});
+    } finally {
+      setIsEditing(false);
+    }
+  }
+
+  const updateTaskAttribute = async (attributeKey, taskFieldID, attributeValue) => {
+    setIsEditing(true)
+    const payload = {
+      "taskID": initialTaskData.id,
+      "type": "TASK_ATTRIBUTE",
+      "attributeDetails": {
+        attributeKey,
+        taskFieldID,
+        attributeValue
+      }
+    }
+
+    try {
+      const updatedTask = await axios.put(`/tasks/${initialTaskData.id}`, payload)
+
+      addToast(`task ${attributeKey} updated!`, {appearance: 'success', autoDismiss: true});
+      if (updatedTask.data.body.task) {
+        const updatedTaskDetails = updatedTask.data.body.task
+        setTaskData(updatedTaskDetails)
+        setInitialTaskData(updatedTaskDetails)
+
+        setAdditionalFormValues(attributesToMap(updatedTaskDetails.attributes))
+        setInitialAdditionalFormValues(attributesToMap(updatedTaskDetails.attributes))
+      }
+    } catch (e) {
+      setAdditionalFormValues(initialAdditionalFormValues)
+      addToast(e.message, {appearance: 'error'});
+    } finally {
+      setIsEditing(false);
+    }
+  }
+
   return (
     <div className="flex">
-      <div className="w-2/3 p-5">
+      <div className="w-3/5 p-5">
         <div className="mb-6">
-          <FormInput
-            type="text"
-            name="name"
-            formValues={taskData}
-            placeholder="Task Title"
-            onChange={({target: {name, value}}) => handleFormChange(name, value)}
-            formErrors={formErrors}
-            showErrors={isValidationErrorsShown}
-          />
+          <FormInputWrapper
+            isEditing={isEditing}
+            initialData={initialTaskData}
+            currentData={taskData}
+            onAccept={() => {
+              updateTaskDetails("Name", taskData.name);
+            }}
+            onReject={() => {
+              handleFormChange('name', initialTaskData.name);
+            }}
+          >
+            <FormInput
+              type="text"
+              name="name"
+              formValues={taskData}
+              placeholder="Task Title"
+              onChange={({target: {name, value}}) => handleFormChange(name, value)}
+              formErrors={formErrors}
+              showErrors={isValidationErrorsShown}
+            />
+          </FormInputWrapper>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -77,29 +191,45 @@ const EditTaskPage = () => {
               {/* Add more formatting buttons here */}
             </div>
             <div className="mb-6">
-              <FormInput
-                type="text"
-                name="description"
-                formValues={taskData}
-                onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                formErrors={formErrors}
-                showErrors={isValidationErrorsShown}
-              />
+              <FormInputWrapper
+                isEditing={isEditing}
+                initialData={initialTaskData}
+                currentData={taskData}
+                onAccept={() => {
+                  updateTaskDetails("Description", taskData.description);
+                }}
+                onReject={() => {
+                  handleFormChange('description', initialTaskData.description);
+                }}
+              >
+                <FormInput
+                  type="text"
+                  name="description"
+                  formValues={taskData}
+                  onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                  formErrors={formErrors}
+                  showErrors={isValidationErrorsShown}
+                />
+              </FormInputWrapper>
             </div>
           </div>
         </div>
 
         <EditTaskAdditionalDetails/>
       </div>
-      <div className="w-1/3 p-5">
+      <div className="w-2/5 p-5">
         <div className="">
           <div className="mb-6">
-            <FormInput
-              type="text"
-              name="name"
-              formValues={taskData}
+            <FormSelect
+              name="assignee"
+              disabled={isEditing}
               placeholder="Assignee"
-              onChange={({target: {name, value}}) => handleFormChange(name, value)}
+              formValues={taskData}
+              options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
+              onChange={({target: {name, value}}) => {
+                handleFormChange(name, value);
+                updateTaskDetails("Assignee", value)
+              }}
               formErrors={formErrors}
               showErrors={isValidationErrorsShown}
             />
@@ -126,6 +256,16 @@ const EditTaskPage = () => {
               showErrors={isValidationErrorsShown}
             />
           </div>
+
+          <EditTaskScreenDetails
+            isEditing={isEditing}
+            initialTaskData={initialAdditionalFormValues}
+            taskFormData={additionalFormValues}
+            handleFormChange={handleAdditionalFieldChange}
+            isValidationErrorsShown={isValidationErrorsShown}
+            screenDetails={taskData.screen}
+            updateTaskAttribute={updateTaskAttribute}
+          />
         </div>
       </div>
     </div>

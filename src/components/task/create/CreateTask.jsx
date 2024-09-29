@@ -4,7 +4,7 @@ import FormInput from "../../FormInput.jsx";
 import useValidation from "../../../utils/use-validation.jsx";
 import {TaskCreateSchema} from "../../../state/domains/authModels.js";
 import FormSelect from "../../FormSelect.jsx";
-import TaskAdditionalDetails from "./TaskAdditionalDetails.jsx";
+import TaskScreenDetails from "./TaskScreenDetails.jsx";
 import axios from "axios";
 import {useSelector} from "react-redux";
 import {selectAppConfig} from "../../../state/slice/appSlice.js";
@@ -141,7 +141,7 @@ const TaskForm = ({sprintId, onClose}) => {
       return <></>
     }
 
-    return <TaskAdditionalDetails
+    return <TaskScreenDetails
       taskFormData={additionalFormValues}
       handleFormChange={handleAdditionalFieldChange}
       isValidationErrorsShown={isValidationErrorsShown}
