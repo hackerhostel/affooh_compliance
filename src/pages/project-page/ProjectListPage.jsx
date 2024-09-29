@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from "react-redux";
-import {selectProjectList, setSelectedProjectFromList} from "../../state/slice/projectSlice.js";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from "react-redux";
+import { selectProjectList, setSelectedProjectFromList } from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
+import { TrashIcon } from '@heroicons/react/24/solid';
 
 const ProjectListPage = () => {
   const dispatch = useDispatch();
@@ -32,7 +33,7 @@ const ProjectListPage = () => {
     <div className="h-list-screen overflow-y-auto w-full">
       <div className="flex flex-col gap-3 p-3">
         <div className="py-3">
-          <SearchBar onSearch={handleSearch}/>
+          <SearchBar onSearch={handleSearch} />
         </div>
         {filteredProjectList.map((element, index) => (
           <button
@@ -44,9 +45,17 @@ const ProjectListPage = () => {
           >
             <div className="col-span-2 text-left">
               <div className="font-bold">{element?.name}</div>
-              <div className="text-sm text-gray-600">Website<span className="mx-1">&#8226;</span>Development</div>
+              <div className="text-sm text-gray-600">
+                Website<span className="mx-1">&#8226;</span>Development
+              </div>
             </div>
-            <div className="text-right">{`>`}</div>
+
+            <div className="text-right flex items-center">
+              {/* Trash Icon */}
+              <TrashIcon className="h-5 w-5 text-orange-400 mr-2 ml-6 cursor-pointer" />
+              {`>`}
+            </div>
+
           </button>
         ))}
       </div>
