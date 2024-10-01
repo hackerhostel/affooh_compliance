@@ -67,7 +67,7 @@ export const listUserInvitesByOrganization = /* GraphQL */ `
       invitedAt
       invitedBy {
         id
-        firstName
+        firstName 
         email
       }
       organization {
