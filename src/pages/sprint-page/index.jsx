@@ -70,7 +70,7 @@ const SprintLayout = () => {
       title={
         <div style={{ display: 'flex', gap: '96px', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Sprints</span>
-          <div className={"flex gap-1 items-center mr-5"}>
+          <div className={"flex gap-1 items-center mr-5 cursor-pointer"}>
             <PlusCircleIcon onClick={handleAddNewClick} className={"w-6 h-6 text-pink-500"} />
             <button className="font-thin text-xs text-gray-600">Add New</button>
           </div>
@@ -79,7 +79,7 @@ const SprintLayout = () => {
       
       leftColumn={<SprintListPage />}
       rightColumn={
-        <div>
+        <div className={"bg-dashboard-bgc"}>
           <SprintContentPage />
           {isPopupVisible && (
             <CreateSprintPopup
