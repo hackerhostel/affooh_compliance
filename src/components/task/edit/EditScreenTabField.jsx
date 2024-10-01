@@ -61,10 +61,11 @@ const EditScreenTabField = ({
             isMulti={field.fieldType.canSelectMultiValues === 1}
             onChange={({target: {name, value}}) => {
               handleChange(name, value)
+              const fieldDetails = formValues[field.id]
               updateTaskAttribute(
-                field.fieldType.name,
+                fieldDetails.taskFieldID,
                 field.id,
-                formValues[field.id].fieldValue
+                formValues[field.id].fieldValue[0]
               );
             }}
           />
@@ -80,10 +81,11 @@ const EditScreenTabField = ({
             options={userListForProject.map(fv => ({value: fv.id, label: `${fv.firstName} ${fv.lastName}`}))}
             isMulti={field.fieldType.canSelectMultiValues === 1}
             onChange={({target: {name, value}}) => {
+              const fieldDetails = formValues[field.id]
               updateTaskAttribute(
-                field.fieldType.name,
+                fieldDetails.taskFieldID,
                 field.id,
-                formValues[field.id].fieldValue
+                formValues[field.id].fieldValue[0]
               );
               handleChange(name, value)
             }}
@@ -97,8 +99,9 @@ const EditScreenTabField = ({
             currentData={formValues}
             fieldId={field.id}
             onAccept={() => {
+              const fieldDetails = formValues[field.id]
               updateTaskAttribute(
-                field.fieldType.name,
+                fieldDetails.taskFieldID,
                 field.id,
                 formValues[field.id].fieldValue[0]
               );
@@ -125,8 +128,9 @@ const EditScreenTabField = ({
             currentData={formValues}
             fieldId={field.id}
             onAccept={() => {
+              const fieldDetails = formValues[field.id]
               updateTaskAttribute(
-                field.fieldType.name,
+                fieldDetails.taskFieldID,
                 field.id,
                 formValues[field.id].fieldValue[0]
               );
