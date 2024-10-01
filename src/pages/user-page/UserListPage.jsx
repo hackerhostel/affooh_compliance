@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSelectedProjectFromList } from "../../state/slice/projectSlice.js";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import SearchBar from "../../components/SearchBar.jsx";
-import { TrashIcon } from '@heroicons/react/24/solid';
+import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import {
   selectIsProjectUsersError,
   selectIsProjectUsersLoading,
@@ -104,10 +104,10 @@ const UserListPage = () => {
               <div className="font-bold">{`${element?.firstName} ${element?.lastName}`}</div>
               <div className="text-sm text-primary-pink">{element.email}</div>
             </div>
-            <div className="text-right flex items-center justify-end gap-2">
-              <TrashIcon className="h-5 w-5 text-red-300 cursor-pointer" />
-              {`>`}
-            </div>
+            <div className="flex gap-1 ml-6">
+                            <TrashIcon className="w-4 h-4 text-pink-700"/>
+                            <ChevronRightIcon className="w-4 h-4 text-black"/>
+                          </div>
 
           </button>
         ))}
