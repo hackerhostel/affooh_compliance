@@ -14,14 +14,14 @@ module.exports = {
         'priority-button-high':"rgba(219, 93, 93, 1)",
         'priority-button-medium':"rgba(201, 246, 191, 1)",
         'priority-button-low': "rgba(251, 242, 173, 1)",
-
-        
-
         'dashboard-bgc': '#f4f5fb',
         'secondary-grey': '#747A88',
         'dark-white': '#fbfbfb',
         'in-progress': '#cafafa',
-        'secondary-bgc': '#E8E8E85C'
+        'secondary-bgc': '#E8E8E85C',
+        'status-todo': '#C9232F',
+        'status-in-progress': '#E4AF00',
+        'status-done': '#7DB67F'
       },
       height: {
         'list-screen': 'calc(100vh - 148px)',

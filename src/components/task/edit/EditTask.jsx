@@ -228,7 +228,7 @@ const EditTaskPage = () => {
               options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
               onChange={({target: {name, value}}) => {
                 handleFormChange(name, value);
-                updateTaskDetails("Assignee", value)
+                updateTaskDetails("assigneeID", value)
               }}
               formErrors={formErrors}
               showErrors={isValidationErrorsShown}

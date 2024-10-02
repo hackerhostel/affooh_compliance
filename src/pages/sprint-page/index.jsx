@@ -79,7 +79,7 @@ const SprintLayout = () => {
       
       leftColumn={<SprintListPage />}
       rightColumn={
-        <div>
+        <div className={"bg-dashboard-bgc"}>
           <SprintContentPage />
           {isPopupVisible && (
             <CreateSprintPopup
