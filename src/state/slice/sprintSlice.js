@@ -1,7 +1,4 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {generateClient} from "aws-amplify/api";
-import {fetchAuthSession} from "aws-amplify/auth";
-import {listSprintsByProject} from "../../graphql/sprintQueries/queries.js";
 import axios from "axios";
 
 const initialState = {

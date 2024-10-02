@@ -4,21 +4,26 @@ import SearchBar from "../../components/SearchBar.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import {
+  doGetSprintBreakdown,
   selectIsSprintListForProjectError,
   selectIsSprintListForProjectLoading,
   selectSprintListForProject,
   setSelectedSprint
 } from "../../state/slice/sprintSlice.js";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
+import SprintDeleteComponent from "./SprintDeleteComponent.jsx";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 
 const SprintListPage = () => {
   const dispatch = useDispatch();
   const sprintListError = useSelector(selectIsSprintListForProjectError);
   const sprintListForLoading = useSelector(selectIsSprintListForProjectLoading);
   const sprintListForProject = useSelector(selectSprintListForProject);
+  const selectedProject = useSelector(selectSelectedProject);
 
   const [sprintList, setSprintList] = useState([]);
   const [filteredSprintList, setFilteredSprintList] = useState([]);
+  const [toDeleteSprint, setToDeleteSprint] = useState({});
   const [selectedFilters, setSelectedFilters] = useState({
     inProgress: true,
     toDo: true,
@@ -81,6 +86,13 @@ const SprintListPage = () => {
     }));
   };
 
+  const handleSprintDeleteClose = (deleted = false) => {
+    setToDeleteSprint({})
+    if (deleted) {
+      dispatch(doGetSprintBreakdown(selectedProject?.id))
+    }
+  };
+
   useEffect(() => {
     handleSearch('');
   }, [selectedFilters]);
@@ -121,26 +133,37 @@ const SprintListPage = () => {
                     <div className="text-center text-gray-600">No sprints found</div>
                 ) : (
                     filteredSprintList.map((element, index) => (
-                        <button
+                        <div
                             key={index}
-                            className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100"
-                            onClick={() => dispatch(setSelectedSprint(element))}
+                            className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer"
                         >
-                          <div className="col-span-2 text-left">
-                            <div className="font-bold">{element?.name}</div>
-                            <div className="text-sm text-gray-600">Website<span className="mx-1">&#8226;</span>Development
+                          <div className="col-span-2 text-left flex gap-2"
+                               onClick={() => dispatch(setSelectedSprint(element))}>
+                            <div
+                                className={`min-w-1 rounded-md ${element?.status?.value === 'Open' ? 'bg-status-todo' : element?.status?.value === 'Done' ? 'bg-status-done' : 'bg-status-in-progress'}`}></div>
+                            <div className="flex flex-col gap-2 justify-center">
+                              <div className="font-bold">{element?.name}</div>
+                              <div className="text-xs text-gray-600">Website<span className="mx-1">&#8226;</span>Development
+                              </div>
                             </div>
                           </div>
-                          <div className="flex gap-1">
-                            <TrashIcon className="w-4 h-4 text-pink-700"/>
-                            <ChevronRightIcon className="w-4 h-4 text-black"/>
+                          <div className="gap-1 flex">
+                            <div className={`${element?.name === 'BACKLOG' ? 'hidden' : 'flex'}`} onClick={() => {
+                              setToDeleteSprint(element)
+                            }}>
+                              <TrashIcon className="w-4 h-4 text-pink-700"/>
+                            </div>
+                            <div onClick={() => dispatch(setSelectedSprint(element))}>
+                              <ChevronRightIcon className="w-4 h-4 text-black"/>
+                            </div>
                           </div>
-                        </button>
+                        </div>
                     ))
                 )}
               </div>
             </div>
         )}
+        <SprintDeleteComponent onClose={handleSprintDeleteClose} sprint={toDeleteSprint}/>
       </div>
   );
 };

@@ -22,7 +22,10 @@ module.exports = {
         'secondary-grey': '#747A88',
         'dark-white': '#fbfbfb',
         'in-progress': '#cafafa',
-        'secondary-bgc': '#E8E8E85C'
+        'secondary-bgc': '#E8E8E85C',
+        'status-todo': '#C9232F',
+        'status-in-progress': '#E4AF00',
+        'status-done': '#7DB67F'
       },
       height: {
         'list-screen': 'calc(100vh - 148px)',
