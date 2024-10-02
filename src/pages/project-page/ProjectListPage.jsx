@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { selectProjectList, setSelectedProjectFromList } from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
-import { TrashIcon } from '@heroicons/react/24/solid';
+import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
 
 const ProjectListPage = () => {
   const dispatch = useDispatch();
@@ -50,10 +50,9 @@ const ProjectListPage = () => {
               </div>
             </div>
 
-            <div className="text-right flex items-center">
-              {/* Trash Icon */}
-              <TrashIcon className="h-5 w-5 text-orange-400 mr-2 ml-6 cursor-pointer" />
-              {`>`}
+            <div className="flex gap-1 ml-5">
+              <TrashIcon className="w-4 h-4 text-pink-700" />
+              <ChevronRightIcon className="w-4 h-4 text-black" />
             </div>
 
           </button>
