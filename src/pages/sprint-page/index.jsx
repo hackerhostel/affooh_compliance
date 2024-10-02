@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import MainPageLayout from '../../layouts/MainPageLayout.jsx';
 import SprintListPage from "./SprintListPage.jsx";
 import SprintContentPage from "./SprintContentPage.jsx";
-import CreateSprintPopup from '../../components/popupForms/createNewScreen.jsx';
+import CreateSprintPopup from '../../components/popupForms/createSprint.jsx';
 import { SprintSchema } from '../../state/domains/authModels.js';
 import { PlusCircleIcon } from "@heroicons/react/24/outline/index.js";
 
@@ -71,7 +71,7 @@ const SprintLayout = () => {
         <div style={{ display: 'flex', gap: '96px', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Sprints</span>
           <div className={"flex gap-1 items-center mr-5"}>
-            <PlusCircleIcon onClick={handleAddNewClick} className={"w-6 h-6 text-pink-500"} />
+            <PlusCircleIcon onClick={handleAddNewClick} className={"w-6 h-6 text-pink-500 cursor-pointer"} />
             <button className="font-thin text-xs text-gray-600">Add New</button>
           </div>
         </div>
