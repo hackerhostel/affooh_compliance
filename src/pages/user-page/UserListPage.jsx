@@ -41,8 +41,6 @@ const UserListPage = () => {
       alert('Please enter an email to invite.');
       return;
     }
-
-    console.log(`Inviting ${inviteEmail} with role ${selectedRole}`);
     setInviteEmail("");
   };
 
