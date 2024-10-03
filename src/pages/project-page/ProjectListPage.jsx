@@ -37,9 +37,6 @@ const ProjectListPage = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("Project list fetched:", projectList);
-  }, [projectList]);
 
   return (
     <div className="p-4">
