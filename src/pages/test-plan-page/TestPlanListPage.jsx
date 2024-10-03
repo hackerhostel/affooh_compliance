@@ -9,19 +9,24 @@ import {
     doGetTestPlans,
     selectIsTestPlanListForProjectError,
     selectIsTestPlanListForProjectLoading,
+    selectSelectedTestPlanId,
     selectTestPlanListForProject,
     setSelectedTestPlanId
 } from "../../state/slice/testPlansSlice.js";
 import {useHistory} from "react-router-dom";
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
 
 const TestPlanListPage = () => {
     const dispatch = useDispatch();
     const history = useHistory();
+    const {addToast} = useToasts();
 
     const selectedProject = useSelector(selectSelectedProject);
     const testPlansError = useSelector(selectIsTestPlanListForProjectError);
     const testPlansLoading = useSelector(selectIsTestPlanListForProjectLoading);
     const testPlans = useSelector(selectTestPlanListForProject);
+    const selectedTestPlanId = useSelector(selectSelectedTestPlanId);
 
     useEffect(() => {
         if (selectedProject?.id && !testPlans.length) {
@@ -57,33 +62,55 @@ const TestPlanListPage = () => {
         history.push(`/test-plans`);
     };
 
-    if (testPlansLoading) return <div className="p-2"><SkeletonLoader/></div>;
+    const deleteTestPlan = async (test_plan_id) => {
+        try {
+            const response = await axios.delete(`/test-plans/${test_plan_id}`)
+            const deleted = response?.data?.status
+
+            if (deleted) {
+                addToast('Test Plan Successfully Deleted', {appearance: 'success'});
+                dispatch(doGetTestPlans(selectedProject?.id));
+                if (test_plan_id === selectedTestPlanId) {
+                    handleTestPlanClick(0)
+                }
+            } else {
+                addToast('Failed To Deleted The Test Plan ', {appearance: 'error'});
+            }
+        } catch (error) {
+            addToast('Failed To Deleted The Test Plan ', {appearance: 'error'});
+        }
+    }
+
     if (testPlansError) return <ErrorAlert message={testPlansError.message}/>;
 
     return (
         <div className="h-list-screen overflow-y-auto w-full">
-            <div className="flex flex-col gap-3 p-3">
-                <div className="py-3">
-                    <SearchBar onSearch={handleSearch}/>
-                </div>
-                {filteredTestPlans.map((element, index) => (
-                    <div
-                        key={element?.id}
-                        className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100">
-                        <div className="text-left cursor-pointer" onClick={() => handleTestPlanClick(element?.id)}>
-                            <div className="font-bold mb-1">{element?.name}</div>
-                            <div className="text-sm text-gray-600 flex items-center">{element?.sprintName}<span
-                                className="mx-1 text-black text-2xl ">&#8226;</span>{element?.releaseName}</div>
-                        </div>
-                        <div className={"flex gap-1"}>
-                            <div><TrashIcon className={"w-4 h-4 text-pink-700"}/></div>
-                            <div onClick={() => handleTestPlanEditClick(element?.id)} className={"cursor-pointer"}>
-                                <PencilSquareIcon className={"w-4 h-4 text-black"}/>
+            {testPlansLoading ? (<div className="p-2"><SkeletonLoader/></div>) : (
+                <div className="flex flex-col gap-3 p-3">
+                    <div className="py-3">
+                        <SearchBar onSearch={handleSearch}/>
+                    </div>
+                    {filteredTestPlans.map((element, index) => (
+                        <div
+                            key={element?.id}
+                            className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100">
+                            <div className="text-left cursor-pointer" onClick={() => handleTestPlanClick(element?.id)}>
+                                <div className="font-bold mb-1">{element?.name}</div>
+                                <div className="text-sm text-gray-600 flex items-center">{element?.sprintName}<span
+                                    className="mx-1 text-black text-2xl ">&#8226;</span>{element?.releaseName}</div>
+                            </div>
+                            <div className={"flex gap-1"}>
+                                <div onClick={() => deleteTestPlan(element?.id)} className={"cursor-pointer"}>
+                                    < TrashIcon className={"w-4 h-4 text-pink-700"}/>
+                                </div>
+                                <div onClick={() => handleTestPlanEditClick(element?.id)} className={"cursor-pointer"}>
+                                    <PencilSquareIcon className={"w-4 h-4 text-black"}/>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { selectProjectList, setSelectedProjectFromList } from "../../state/slice/projectSlice.js";
+import SearchBar from "../../components/SearchBar.jsx";
+import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
 
 const ProjectListPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -81,7 +83,18 @@ const ProjectListPage = () => {
             }`}
             onClick={() => setActiveTab(status)}
           >
-            {status} ({projectList.filter((p) => p.status === status).length})
+            <div className="col-span-2 text-left">
+              <div className="font-bold">{element?.name}</div>
+              <div className="text-sm text-gray-600">
+                Website<span className="mx-1">&#8226;</span>Development
+              </div>
+            </div>
+
+            <div className="flex gap-1 ml-5">
+              <TrashIcon className="w-4 h-4 text-pink-700" />
+              <ChevronRightIcon className="w-4 h-4 text-black" />
+            </div>
+
           </button>
         ))}
       </div>

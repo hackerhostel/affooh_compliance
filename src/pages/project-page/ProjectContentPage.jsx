@@ -1,11 +1,44 @@
 import { useSelector } from "react-redux";
-import { selectSelectedProjectFromList } from "../../state/slice/projectSlice.js";
+import { useState, useEffect } from "react";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
+import FormInput from "../../components/FormInput.jsx";
+import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 
 const ProjectContentPage = () => {
-  const selectedProject = useSelector(selectSelectedProjectFromList);
+  const selectedProject = useSelector(selectSelectedProject);
+  const [activeButton, setActiveButton] = useState("Details"); 
+  const [formValues, setFormValues] = useState({ name: "", key: "", type: "", createdBy: "" });
 
-  // Console log to check the selected project's name
-  console.log("Selected Project Name:", selectedProject);
+  
+  useEffect(() => {
+    console.log("Selected project updated:", selectedProject);
+  }, [selectedProject]);
+
+  
+  const handleButtonClick = (buttonName) => {
+    setActiveButton(buttonName);
+  };
+
+  // Handle form input changes
+  const handleFormChange = (name, value) => {
+    setFormValues({ ...formValues, [name]: value });
+  };
+
+  const [issueFormValues, setIssueFormValues] = useState({
+    issueType: "",
+    priority: "",
+    severity: "",
+    status: ""
+  });
+
+
+  const handleIssueFormChange = (name, value) => {
+    setIssueFormValues({
+      ...issueFormValues,
+      [name]: value
+    });
+  };
+
 
   return (
     <>

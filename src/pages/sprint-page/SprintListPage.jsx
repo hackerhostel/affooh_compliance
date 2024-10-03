@@ -1,68 +1,170 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
-import useGraphQL from "../../hooks/useGraphQL.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import {listSprintsByProject} from "../../graphql/sprintQueries/queries.js";
 import {
+  doGetSprintBreakdown,
   selectIsSprintListForProjectError,
   selectIsSprintListForProjectLoading,
   selectSprintListForProject,
   setSelectedSprint
 } from "../../state/slice/sprintSlice.js";
+import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
+import SprintDeleteComponent from "./SprintDeleteComponent.jsx";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 
 const SprintListPage = () => {
   const dispatch = useDispatch();
   const sprintListError = useSelector(selectIsSprintListForProjectError);
   const sprintListForLoading = useSelector(selectIsSprintListForProjectLoading);
   const sprintListForProject = useSelector(selectSprintListForProject);
+  const selectedProject = useSelector(selectSelectedProject);
 
   const [sprintList, setSprintList] = useState([]);
   const [filteredSprintList, setFilteredSprintList] = useState([]);
+  const [toDeleteSprint, setToDeleteSprint] = useState({});
+  const [selectedFilters, setSelectedFilters] = useState({
+    inProgress: true,
+    toDo: true,
+    done: true,
+  });
+
+  const [filterCounts, setFilterCounts] = useState({
+    inProgress: 0,
+    toDo: 0,
+    done: 0,
+  });
 
   useEffect(() => {
-    setFilteredSprintList(sprintListForProject)
+    if (sprintListForProject.length) {
+      setSprintList([...sprintListForProject]);
+
+      const inProgressCount = sprintListForProject.filter(sprint => sprint.status.value === "In Progress").length;
+      const toDoCount = sprintListForProject.filter(sprint => sprint.status.value === "Open").length;
+      const doneCount = sprintListForProject.filter(sprint => sprint.status.value === "Done").length;
+
+      setFilterCounts({
+        inProgress: inProgressCount,
+        toDo: toDoCount,
+        done: doneCount,
+      });
+
+      handleSearch('');
+    }
   }, [sprintListForProject]);
 
+  useEffect(() => {
+    if (sprintList.length) {
+      setFilteredSprintList([...sprintList]);
+    }
+  }, [sprintList]);
+
   const handleSearch = (term) => {
-    if (term.trim() === '') {
-      setFilteredSprintList(sprintList);
-    } else {
-      const filtered = sprintList.filter(user =>
-        `${user?.firstName} ${user?.lastName}`.toLowerCase().includes(term.toLowerCase())
+    let filtered = sprintList;
+
+    if (term.trim() !== '') {
+      filtered = filtered.filter(sprint =>
+          sprint.name.toLowerCase().includes(term.toLowerCase())
       );
-      setFilteredSprintList(filtered);
+    }
+
+    filtered = filtered.filter(sprint => {
+      if (selectedFilters.inProgress && sprint.status.value === "In Progress") return true;
+      if (selectedFilters.toDo && sprint.status.value === "Open") return true;
+      if (selectedFilters.done && sprint.status.value === "Done") return true;
+      return false;
+    });
+
+    setFilteredSprintList(filtered);
+  };
+
+  const handleFilterChange = (filterName) => {
+    setSelectedFilters(prevState => ({
+      ...prevState,
+      [filterName]: !prevState[filterName]
+    }));
+  };
+
+  const handleSprintDeleteClose = (deleted = false) => {
+    setToDeleteSprint({})
+    if (deleted) {
+      dispatch(doGetSprintBreakdown(selectedProject?.id))
     }
   };
 
-  if (sprintListForLoading) return <div className="p-2"><SkeletonLoader/></div>;
-  if (sprintListError) return <ErrorAlert message="failed to fetch sprints at the moment"/>;
+  useEffect(() => {
+    handleSearch('');
+  }, [selectedFilters]);
+
+  if (sprintListError) return <ErrorAlert message="Failed to fetch sprints at the moment"/>;
 
   return (
-    <div className="h-list-screen overflow-y-auto w-full">
-      <div className="flex flex-col gap-3 p-3">
-        <div className="py-3">
-          <SearchBar onSearch={handleSearch}/>
-        </div>
-        {filteredSprintList.map((element, index) => (
-          <button
-            key={index}
-            className="items-center p-3 border border-gray-200 rounded-md w-full grid grid-cols-3 gap-2 hover:bg-gray-100"
-            onClick={() => {
-              dispatch(setSelectedSprint(element))
-            }}
-          >
-            <div className="col-span-2 text-left">
-              <div className="font-bold">{element?.name}</div>
-              <div className="text-sm text-gray-600">Website<span className="mx-1">&#8226;</span>Development</div>
+      <div className="h-list-screen w-full">
+        {sprintListForLoading ? (
+            <div className="p-2"><SkeletonLoader/></div>
+        ) : (
+            <div className="flex-col gap-4">
+              <div className="flex flex-col gap-4 w-full pl-3">
+                <SearchBar onSearch={handleSearch}/>
+                <div className="flex justify-between w-full">
+                  <button
+                      className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.inProgress ? 'bg-black text-white' : 'bg-gray-200'}`}
+                      onClick={() => handleFilterChange('inProgress')}
+                  >
+                    In Progress ({filterCounts.inProgress})
+                  </button>
+                  <button
+                      className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.toDo ? 'bg-black text-white' : 'bg-gray-200'}`}
+                      onClick={() => handleFilterChange('toDo')}
+                  >
+                    To Do ({filterCounts.toDo})
+                  </button>
+                  <button
+                      className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.done ? 'bg-black text-white' : 'bg-gray-200'}`}
+                      onClick={() => handleFilterChange('done')}
+                  >
+                    Done ({filterCounts.done})
+                  </button>
+                </div>
+              </div>
+              <div className={"h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-2 mt-6"}>
+                {filteredSprintList.length === 0 ? (
+                    <div className="text-center text-gray-600">No sprints found</div>
+                ) : (
+                    filteredSprintList.map((element, index) => (
+                        <div
+                            key={index}
+                            className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                          <div className="col-span-2 text-left flex gap-2"
+                               onClick={() => dispatch(setSelectedSprint(element))}>
+                            <div
+                                className={`min-w-1 rounded-md ${element?.status?.value === 'Open' ? 'bg-status-todo' : element?.status?.value === 'Done' ? 'bg-status-done' : 'bg-status-in-progress'}`}></div>
+                            <div className="flex flex-col gap-2 justify-center">
+                              <div className="font-bold">{element?.name}</div>
+                              <div className="text-xs text-gray-600">Website<span className="mx-1">&#8226;</span>Development
+                              </div>
+                            </div>
+                          </div>
+                          <div className="gap-1 flex">
+                            <div className={`${element?.name === 'BACKLOG' ? 'hidden' : 'flex'}`} onClick={() => {
+                              setToDeleteSprint(element)
+                            }}>
+                              <TrashIcon className="w-4 h-4 text-pink-700"/>
+                            </div>
+                            <div onClick={() => dispatch(setSelectedSprint(element))}>
+                              <ChevronRightIcon className="w-4 h-4 text-black"/>
+                            </div>
+                          </div>
+                        </div>
+                    ))
+                )}
+              </div>
             </div>
-            <div className="text-right">{`>`}</div>
-          </button>
-        ))}
+        )}
+        <SprintDeleteComponent onClose={handleSprintDeleteClose} sprint={toDeleteSprint}/>
       </div>
-    </div>
   );
 };
 

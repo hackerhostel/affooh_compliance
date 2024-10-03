@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {XMarkIcon} from "@heroicons/react/24/outline/index.js";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
@@ -7,7 +7,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {selectSprintListForProject} from "../../state/slice/sprintSlice.js";
 import useValidation from "../../utils/use-validation.jsx";
 import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
-import {selectReleaseListForProject} from "../../state/slice/releaseSlice.js";
+import {doGetReleases, selectReleaseListForProject} from "../../state/slice/releaseSlice.js";
 import {useToasts} from "react-toast-notifications";
 import axios from "axios";
 import {TestPlanCreateSchema} from "../../utils/validationSchemas.js";
@@ -21,6 +21,12 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
     const projects = useSelector(selectProjectList);
     const releases = useSelector(selectReleaseListForProject)
     const selectedProject = useSelector(selectSelectedProject);
+
+    useEffect(() => {
+        if (selectedProject?.id && !releases.length) {
+            dispatch(doGetReleases(selectedProject?.id));
+        }
+    }, [selectedProject]);
 
     const [formValues, setFormValues] = useState({name: '', sprintId: 0, projectId: selectedProject.id, releaseId: 0});
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);

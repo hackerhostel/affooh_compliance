@@ -26,7 +26,7 @@ function FormSelect({
       <div className={classNames('relative rounded-md', {
         'shadow-sm': showShadow,
       })}>
-        <label htmlFor={name} className="block text-sm text-gray-700 mb-1">
+        <label htmlFor={name} className="block text-sm text-gray-500 mb-1">
           {showLabel && <span className="capitalize">{placeholder}</span>}
           <div className="relative">
             <select
