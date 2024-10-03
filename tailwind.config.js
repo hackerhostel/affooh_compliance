@@ -14,6 +14,10 @@ module.exports = {
         'priority-button-high':"rgba(219, 93, 93, 1)",
         'priority-button-medium':"rgba(201, 246, 191, 1)",
         'priority-button-low': "rgba(251, 242, 173, 1)",
+        'user-invite-button' : "rgba(65, 169, 54, 1);",
+
+        
+
         'dashboard-bgc': '#f4f5fb',
         'secondary-grey': '#747A88',
         'dark-white': '#fbfbfb',
