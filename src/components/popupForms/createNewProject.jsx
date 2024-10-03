@@ -1,5 +1,4 @@
-import React, { useCallback, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useCallback } from 'react';
 import FormInput from "../FormInput.jsx";
 import FormSelect from "../FormSelect.jsx";
 import { XMarkIcon } from '@heroicons/react/24/outline';
@@ -12,13 +11,11 @@ const CreateNewScreenPopup = ({
     handleFormSubmit,
     handleClosePopup
 }) => {
-
     const handleProjectChange = (name, value) => {
         handleFormChange(name, value);
     };
 
     const getProjectOptions = useCallback(() => {
-        // Provide a list of project types instead of actual projects
         return [
             { value: 'webApp', label: 'Web Application' },
             { value: 'mobileApp', label: 'Mobile Application' },
@@ -28,13 +25,16 @@ const CreateNewScreenPopup = ({
     }, []);
 
     return (
-        <div style={popupStyles}>
-            <button onClick={handleClosePopup} style={closeButtonStyles}>
+        <div className="fixed inset-y-0 right-0 w-[697px] h-full p-8 bg-white shadow-lg rounded-l-xl z-50">
+            <button 
+                onClick={handleClosePopup} 
+                className="absolute top-5 right-5 text-gray-500 hover:text-gray-700"
+            >
                 <XMarkIcon className='w-6 h-6'/>
             </button>
-            <span className='text-2xl mb-6 block'>New Project</span>
+            <span className="text-2xl mb-6 block">New Project</span>
             <form onSubmit={handleFormSubmit}>
-                <div className='mt-14'>
+                <div className="mt-10">
                     <FormInput
                         type="text"
                         name="prefix"
@@ -43,11 +43,11 @@ const CreateNewScreenPopup = ({
                         onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                         formErrors={formErrors}
                         showErrors={isValidationErrorsShown}
-                        style={inputStyle}
+                        className="w-full h-10 p-3 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
                     />
                 </div>
 
-                <div className='mt-6'>
+                <div className="mt-8">
                     <FormInput
                         type="text"
                         name="name"
@@ -56,32 +56,32 @@ const CreateNewScreenPopup = ({
                         onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                         formErrors={formErrors}
                         showErrors={isValidationErrorsShown}
-                        style={inputStyle}
+                        className="w-full h-10 p-3 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
                     />
                 </div>
 
-                <div className='mt-6 relative'>
+                <div className="mt-8 relative">
                     <FormSelect
                         name="projectType"
                         placeholder="Project Type"
                         formValues={screenDetails}
                         options={getProjectOptions()}
                         onChange={handleProjectChange}
-                        style={{ ...inputStyle, paddingRight: '40px' }}  // Adjust padding for icon
+                        className="w-full h-10 p-3 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
                     />
                 </div>
 
-                <div className='flex justify-between mt-64'>
+                <div className="flex justify-between gap-2 mt-72">
                     <button
                         type="button"
                         onClick={handleClosePopup}
-                        style={cancelButtonStyle}
+                        className="bg-white text-gray-600 py-2 px-16 border border-gray-400 rounded-lg hover:bg-gray-50"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
-                        style={createButtonStyle}
+                        className="bg-create-button text-white py-2 px-52 rounded-lg"
                     >
                         Create
                     </button>
@@ -89,56 +89,6 @@ const CreateNewScreenPopup = ({
             </form>
         </div>
     );
-};
-
-// Updated styles to match the design and position the popup on the right
-const popupStyles = {
-    position: 'fixed',
-    top: '0',
-    right: '0',  // Aligns the popup to the right
-    width: '697px',  // Adjust the width as per your layout
-    height: '100%',  // Makes the popup full height
-    padding: '30px',
-    backgroundColor: '#fff',
-    boxShadow: '-4px 0 10px rgba(0, 0, 0, 0.1)',  // Slight shadow to indicate depth
-    borderRadius: '0 8px 8px 0',
-    zIndex: 1000
-};
-
-const closeButtonStyles = {
-    position: 'absolute',
-    top: '20px',
-    right: '20px',
-    background: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    color: 'rgba(116, 122, 136, 1)'
-};
-
-const inputStyle = {
-    width: '100%',
-    height: '40px',
-    padding: '12px',
-    borderRadius: '8px',
-    border: '1px solid rgba(230, 230, 230, 1)',
-};
-
-const cancelButtonStyle = {
-    backgroundColor: '#fff',
-    color: 'rgba(116, 122, 136, 1)',
-    padding: '12px 50px',
-    borderRadius: '6px',
-    border: '1px solid rgba(116, 122, 136, 1)',
-    cursor: 'pointer'
-};
-
-const createButtonStyle = {
-    backgroundColor: '#EB5A84',
-    color: '#fff',
-    padding: '12px 220px',
-    borderRadius: '6px',
-    border: 'none',
-    cursor: 'pointer'
 };
 
 export default CreateNewScreenPopup;

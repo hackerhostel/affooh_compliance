@@ -21,7 +21,8 @@ module.exports = {
         'secondary-bgc': '#E8E8E85C',
         'status-todo': '#C9232F',
         'status-in-progress': '#E4AF00',
-        'status-done': '#7DB67F'
+        'status-done': '#7DB67F',
+        'create-button': 'rgba(235, 90, 132, 1)',
       },
       height: {
         'list-screen': 'calc(100vh - 148px)',
