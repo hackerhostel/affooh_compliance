@@ -8,6 +8,8 @@ import {
   selectProjectList,
   selectSelectedProject,
 } from "../../state/slice/projectSlice.js";
+import FormTextArea from "../../components/FormTextArea.jsx";
+// import dayjs from 'dayjs';
 
 const ReleaseCreate = ({
   screenDetails = {},
@@ -44,7 +46,7 @@ const ReleaseCreate = ({
   };
 
   const [formData, setFormData] = useState({
-    releaseDate: null,
+    releaseDate: "MM/DD/YYYY",
     type: "",
     version: "",
   });
@@ -66,7 +68,9 @@ const ReleaseCreate = ({
         <XMarkIcon className="w-6 h-6" />
       </button>
       <div className="p-2">
-        <span className="text-3xl">New Release</span>
+        <div className="text-3xl border-b border-gray-300/40 pb-2">
+          New Release
+        </div>
         <div className=" mt-5">
           <FormInput
             type="text"
@@ -82,73 +86,57 @@ const ReleaseCreate = ({
           />
         </div>
 
-        <div className=" mt-5">
-          <label>Description</label>
-          <textarea
+        <div className="mt-5">
+          <label className="block text-sm text-text-color">Description</label>
+          <FormTextArea
             name="description"
-            value={screenDetails.description || ""}
-            placeholder="Description"
+            showShadow={false}
+            formValues={"Description"}
             onChange={({ target: { name, value } }) =>
-              handleFormChange(name, value)
+              handleFormChange(name, value, true)
             }
-            style={{
-              width: "100%",
-              height: "152px",
-              padding: "10px",
-              borderRadius: "10px",
-              borderColor: "#ccc",
-              borderWidth: "1px",
-              borderStyle: "solid",
-              resize: "none",
-              fontSize: "14px",
-              marginTop: "8px",
-            }}
+            rows={6}
           />
           {isValidationErrorsShown && formErrors.description && (
             <span className="text-red-500">{formErrors.description}</span>
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
           <div>
-            <label for="release-date" class="block mb-1">
-              Release Date
-            </label>
-            <input
+            <FormInput
               type="date"
-              id="release-date"
               name="releaseDate"
-              class="w-full border border-gray-300 rounded-lg p-2"
+              formValues={formData.releaseDate}
+              placeholder="Release Date"
+              onChange={({ target: { name, value } }) =>
+                handleFormChange(name, value)
+              }
             />
           </div>
 
           <div>
-            <label for="type" class="block mb-1">
-              Type
-            </label>
-            <select
-              id="type"
-              name="type"
-              class="w-full border border-gray-300 rounded-lg p-2"
-            >
-              <option value="alpha">Alpha</option>
-              <option value="beta">Beta</option>
-              <option value="release">Release</option>
-            </select>
+            <FormSelect
+              formValues=""
+              name="Type"
+              placeholder="Type"
+              options={[{ value: "alpha", label: "Alpha" }]}
+            />
           </div>
-
-          <FormInput
-            type="text"
-            name="version"
-            formValues={screenDetails}
-            placeholder="Version"
-            onChange={({ target: { name, value } }) =>
-              handleFormChange(name, value)
-            }
-            formErrors={formErrors}
-            showErrors={isValidationErrorsShown}
-            style={{ marginTop: "8px" }}
-          />
+          <div>
+            <FormInput
+              type="text"
+              name="version"
+              formValues={screenDetails}
+              placeholder="Version"
+              onChange={({ target: { name, value } }) =>
+                handleFormChange(name, value)
+              }
+              formErrors={formErrors}
+              showErrors={isValidationErrorsShown}
+              style={{ marginTop: "8px" }}
+            />
+          </div>
         </div>
 
         <div className="flex gap-5 mt-5">
