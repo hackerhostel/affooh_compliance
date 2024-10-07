@@ -49,7 +49,7 @@ const ReleaseListPage = () => {
     return (
         <div className="h-list-screen overflow-y-auto w-full">
             {releaseLoading ? (<div className="p-2"><SkeletonLoader/></div>) : (
-                <div className="flex flex-col gap-3 p-3">
+                <div className="flex flex-col gap-3 ">
                     <div className="py-3">
                         <SearchBar onSearch={handleSearch}/>
                     </div>
