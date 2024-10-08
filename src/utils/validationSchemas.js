@@ -29,3 +29,11 @@ export const TestCaseCreateSchema = yup.object().shape({
     requirements: yup.array().min(1, 'Please select at-least one requirement'),
     steps: yup.array().min(1, 'Please add at-least one test step'),
 });
+
+export const ReleaseCreateSchema = yup.object({
+    name: yup.string().required('Name is required'),
+    releaseDate: yup.string(),
+    description: yup.string(),
+    type: yup.string(),
+    version: yup.string(),
+});

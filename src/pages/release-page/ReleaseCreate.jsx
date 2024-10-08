@@ -9,14 +9,11 @@ import {
   selectSelectedProject,
 } from "../../state/slice/projectSlice.js";
 import FormTextArea from "../../components/FormTextArea.jsx";
-// import dayjs from 'dayjs';
+import useValidation from "../../utils/use-validation.jsx";
+import { ReleaseCreateSchema } from "../../utils/validationSchemas.js";
 
 const ReleaseCreate = ({
   screenDetails = {},
-  handleFormChange,
-  formErrors,
-  isValidationErrorsShown,
-  handleFormSubmit,
   handleClosePopup,
   handleDeleteStoryPoint,
 }) => {
@@ -29,6 +26,10 @@ const ReleaseCreate = ({
     handleFormChange(name, value);
     dispatch(doSwitchProject(value));
   };
+
+  const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+  const [formValues, setFormValues] = useState({name: '', releaseDate: 'MM/DD/YYYY', type: '', version: ''});
+  const [formErrors] = useValidation(ReleaseCreateSchema, formValues);
 
   const getProjectOptions = useCallback(() => {
     return projectList.map((project) => ({
@@ -63,8 +64,18 @@ const ReleaseCreate = ({
   };
 
   return (
-    <div style={popupStyles}>
-      <button onClick={handleClosePopup} style={closeButtonStyles}>
+    <div
+      className="fixed top-[420px] right-0 transform -translate-y-1/2 
+  w-[797px] h-[840px] p-5 bg-white shadow-md 
+  z-[1000] rounded-l-lg"
+    >
+      <button
+        onClick={handleClosePopup}
+        className="
+  absolute top-2.5 right-2.5 bg-transparent border-none 
+  text-[16px] cursor-pointer
+"
+      >
         <XMarkIcon className="w-6 h-6" />
       </button>
       <div className="p-2">
@@ -82,7 +93,6 @@ const ReleaseCreate = ({
             }
             formErrors={formErrors}
             showErrors={isValidationErrorsShown}
-            style={{ marginTop: "8px" }}
           />
         </div>
 
@@ -118,7 +128,7 @@ const ReleaseCreate = ({
           <div>
             <FormSelect
               formValues=""
-              name="Type"
+              name="type"
               placeholder="Type"
               options={[{ value: "alpha", label: "Alpha" }]}
             />
@@ -134,7 +144,6 @@ const ReleaseCreate = ({
               }
               formErrors={formErrors}
               showErrors={isValidationErrorsShown}
-              style={{ marginTop: "8px" }}
             />
           </div>
         </div>
@@ -143,51 +152,19 @@ const ReleaseCreate = ({
           <input
             type="button"
             value="Cancel"
-            className="w-full py-3 rounded-lg text-black font-bold cursor-pointer"
-            style={{
-              width: "205px",
-              borderColor: "rgba(116, 122, 136, 1)",
-              borderWidth: "2px",
-              borderStyle: "solid",
-              color: "rgba(116, 122, 136, 1)",
-            }}
+            className="w-full py-3 rounded-lg  font-bold cursor-pointer w-[205px] border-2 border-[#747A88] text-[#747A88]"
             onClick={handleClosePopup}
           />
 
           <input
             type="submit"
             value="Create"
-            className="py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
-            style={{ width: "100%" }}
+            className="py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer w-full"
           />
         </div>
       </div>
     </div>
   );
-};
-
-const popupStyles = {
-  position: "fixed",
-  top: "420px",
-  right: "0",
-  transform: "translateY(-50%)",
-  width: "797px",
-  height: "840px",
-  padding: "20px",
-  backgroundColor: "#fff",
-  boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-  zIndex: 1000,
-  borderRadius: "8px 0 0 8px",
-};
-
-const closeButtonStyles = {
-  position: "absolute",
-  top: "10px",
-  right: "10px",
-  background: "transparent",
-  border: "none",
-  fontSize: "16px",
-  cursor: "pointer",
 };
 
 export default ReleaseCreate;
