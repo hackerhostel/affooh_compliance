@@ -6,16 +6,15 @@ import { PlusCircleIcon } from "@heroicons/react/20/solid";
 import MainPageLayout from "../../layouts/MainPageLayout.jsx";
 
 const ReleaseLayout = () => {
-  const [isPopupVisible, setPopupVisible] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleAddNewClick = () => {
-    setPopupVisible(true);
+  const onAddNew = () => {
+    setIsOpen(true);
   };
 
-  const handleClosePopup = () => {
-    setPopupVisible(false);
+  const handleClose = () => {
+    setIsOpen(false);
   };
-  console.log(isPopupVisible);
 
   return (
     <MainPageLayout
@@ -24,7 +23,7 @@ const ReleaseLayout = () => {
           <div>Releases</div>
           <div>
             <div
-              onClick={handleAddNewClick}
+              onClick={onAddNew}
               className={"flex items-center cursor-pointer"}
             >
               <PlusCircleIcon className={"w-6 h-6 text-pink-500"} />
@@ -39,9 +38,8 @@ const ReleaseLayout = () => {
       rightColumn={
         <div className={"bg-dashboard-bgc"}>
           <ReleaseContentPage />
-          {isPopupVisible && (
-            <ReleaseCreate handleClosePopup={handleClosePopup} />
-          )}
+
+          <ReleaseCreate onClose={handleClose} isOpen={isOpen} />
         </div>
       }
     />
