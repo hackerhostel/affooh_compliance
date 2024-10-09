@@ -9,10 +9,6 @@ const ReleaseContentPage = () => {
   const [activeButton, setActiveButton] = useState("Details"); 
   const [formValues, setFormValues] = useState({ name: "", key: "", type: "", createdBy: "" });
 
-  
-  useEffect(() => {
-    console.log("Selected project updated:", selectedProject);
-  }, [selectedProject]);
 
   
   const handleButtonClick = (buttonName) => {

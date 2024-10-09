@@ -1,94 +1,149 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import FormInput from "../FormInput.jsx";
 import FormSelect from "../FormSelect.jsx";
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { getSelectOptions } from "../../utils/commonUtils.js";
+import { selectProjectList } from "../../state/slice/projectSlice.js";
+import useValidation from "../../utils/use-validation.jsx";
+import axios from 'axios';
+import { ProjectCreateSchema } from '../../utils/validationSchemas.js'; 
+import { useToasts } from 'react-toast-notifications';
 
-const CreateNewScreenPopup = ({
-    screenDetails = {},
-    handleFormChange,
-    formErrors,
-    isValidationErrorsShown,
-    handleFormSubmit,
-    handleClosePopup
-}) => {
-    const handleProjectChange = (name, value) => {
-        handleFormChange(name, value);
-    };
+const CreateNewProjectPopup = ({ isOpen, onClose }) => {
+    const dispatch = useDispatch();
+    const { addToast } = useToasts();
+    
+    const projects = useSelector(selectProjectList);
 
-    const getProjectOptions = useCallback(() => {
-        return [
-            { value: 'webApp', label: 'Web Application' },
-            { value: 'mobileApp', label: 'Mobile Application' },
-            { value: 'desktopApp', label: 'Desktop Application' },
-            { value: 'api', label: 'API' },
-        ];
+    // Initial form values
+    const [formValues, setFormValues] = useState({
+        prefix: '',
+        name: '',
+        projectType: ''
+    });
+    
+    const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formErrors] = useValidation(ProjectCreateSchema, formValues); // Assuming a validation schema exists.
+
+    useEffect(() => {
+        // Any necessary effect when the popup opens
     }, []);
 
+    const handleFormChange = (name, value) => {
+        setFormValues({ ...formValues, [name]: value });
+        setIsValidationErrorsShown(false);
+    };
+
+    const handleClose = () => {
+        onClose();
+        setFormValues({ prefix: '', name: '', projectType: '' });
+        setIsValidationErrorsShown(false);
+    };
+
+    const createNewProject = async (event) => {
+        event.preventDefault();
+        setIsSubmitting(true);
+
+        if (formErrors && Object.keys(formErrors).length > 0) {
+            setIsValidationErrorsShown(true);
+        } else {
+            setIsValidationErrorsShown(false);
+            try {
+                const response = await axios.post("/projects", { project: formValues });
+                const projectId = response?.data?.body?.projectId;
+
+                if (projectId > 0) {
+                    addToast('Project Successfully Created', { appearance: 'success' });
+                    // Dispatch any necessary action to update the state after creation
+                    handleClose();
+                } else {
+                    addToast('Failed To Create The Project', { appearance: 'error' });
+                }
+            } catch (error) {
+                addToast('Failed To Create The Project', { appearance: 'error' });
+            }
+        }
+        setIsSubmitting(false);
+    };
+
+    const getProjectOptions = useCallback(() => [
+        { value: 'webApp', label: 'Web Application' },
+        { value: 'mobileApp', label: 'Mobile Application' },
+        { value: 'desktopApp', label: 'Desktop Application' },
+        { value: 'api', label: 'API' }
+    ], []);
+
     return (
-        <div className="fixed inset-y-0 right-0 w-[697px] h-full p-8 bg-white shadow-lg rounded-l-xl z-50">
-            <button 
-                onClick={handleClosePopup} 
-                className="absolute top-5 right-5 text-gray-500 hover:text-gray-700"
-            >
-                <XMarkIcon className='w-6 h-6'/>
-            </button>
-            <span className="text-2xl mb-6 block">New Project</span>
-            <form onSubmit={handleFormSubmit}>
-                <div className="mt-10">
-                    <FormInput
-                        type="text"
-                        name="prefix"
-                        formValues={screenDetails}
-                        placeholder="Prefix"
-                        onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                        formErrors={formErrors}
-                        showErrors={isValidationErrorsShown}
-                        className="w-full h-10 p-3 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    />
+        <>
+            {isOpen && (
+                <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
+                    <div className="bg-white p-6 shadow-lg w-1/3">
+                        <div className="flex justify-between items-center mb-4">
+                            <p className="font-bold text-2xl">New Project</p>
+                            <div className={"cursor-pointer"} onClick={handleClose}>
+                                <XMarkIcon className={"w-6 h-6 text-gray-500"} />
+                            </div>
+                        </div>
+                        <form className={"flex flex-col justify-between h-5/6 mt-10"} onSubmit={createNewProject}>
+                            <div className="space-y-4">
+                                <div className="flex-col">
+                                    <p className="text-secondary-grey">Prefix</p>
+                                    <FormInput
+                                        type="text"
+                                        name="prefix"
+                                        formValues={formValues}
+                                        onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
+                                </div>
+                                <div className="flex-col">
+                                    <p className="text-secondary-grey">Project Name</p>
+                                    <FormInput
+                                        type="text"
+                                        name="name"
+                                        formValues={formValues}
+                                        onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
+                                </div>
+                                <div className="flex-col">
+                                    <p className="text-secondary-grey">Project Type</p>
+                                    <FormSelect
+                                        name="projectType"
+                                        formValues={formValues}
+                                        options={getSelectOptions(getProjectOptions())}
+                                        onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex space-x-4 mt-6 self-end w-full">
+                                <button
+                                    onClick={handleClose}
+                                    className="px-4 py-2 text-gray-700 rounded w-1/4 border border-black cursor-pointer disabled:cursor-not-allowed"
+                                    disabled={isSubmitting}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-primary-pink text-white rounded hover:bg-pink-600 w-3/4 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                    disabled={isSubmitting}
+                                >
+                                    Create
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-
-                <div className="mt-8">
-                    <FormInput
-                        type="text"
-                        name="name"
-                        formValues={screenDetails}
-                        placeholder="Project Name"
-                        onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                        formErrors={formErrors}
-                        showErrors={isValidationErrorsShown}
-                        className="w-full h-10 p-3 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    />
-                </div>
-
-                <div className="mt-8 relative">
-                    <FormSelect
-                        name="projectType"
-                        placeholder="Project Type"
-                        formValues={screenDetails}
-                        options={getProjectOptions()}
-                        onChange={handleProjectChange}
-                        className="w-full h-10 p-3 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    />
-                </div>
-
-                <div className="flex justify-between gap-2 mt-72">
-                    <button
-                        type="button"
-                        onClick={handleClosePopup}
-                        className="bg-white text-gray-600 py-2 px-16 border border-gray-400 rounded-lg hover:bg-gray-50"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        className="bg-create-button text-white py-2 px-52 rounded-lg"
-                    >
-                        Create
-                    </button>
-                </div>
-            </form>
-        </div>
+            )}
+        </>
     );
 };
 
-export default CreateNewScreenPopup;
+export default CreateNewProjectPopup;
