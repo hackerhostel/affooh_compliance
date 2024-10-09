@@ -30,6 +30,12 @@ export const TestCaseCreateSchema = yup.object().shape({
     steps: yup.array().min(1, 'Please add at-least one test step'),
 });
 
+export const ProjectCreateSchema = yup.object().shape({
+    prefix: yup.string().required('Prefix is required').max(5, 'Prefix must be at most 5 characters long'),
+    name: yup.string().required('Project name is required').min(3, 'Project name must be at least 3 characters long').max(50, 'Project name must be at most 50 characters long'),
+    projectType: yup.string().required('Project type is required'),
+});
+
 export const ReleaseCreateSchema = yup.object({
     name: yup.string().required('Name is required'),
     releaseDate: yup.string(),

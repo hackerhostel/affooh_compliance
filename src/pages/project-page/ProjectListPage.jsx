@@ -81,7 +81,7 @@ const ProjectListPage = () => {
             onClick={() => setActiveTab(status)}
           >
             <div className="col-span-2 text-left">
-              <div className="font-bold">{element?.name}</div>
+              <div className="font-bold">{status}</div>
               <div className="text-sm text-gray-600">
                 Website<span className="mx-1">&#8226;</span>Development
               </div>
