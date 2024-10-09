@@ -36,3 +36,10 @@ export const ProjectCreateSchema = yup.object().shape({
     projectType: yup.string().required('Project type is required'),
 });
 
+export const ReleaseCreateSchema = yup.object({
+    name: yup.string().required('Name is required'),
+    releaseDate: yup.string(),
+    description: yup.string(),
+    type: yup.string(),
+    version: yup.string(),
+});
