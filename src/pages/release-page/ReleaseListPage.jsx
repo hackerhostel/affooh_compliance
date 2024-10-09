@@ -11,13 +11,19 @@ import {
     selectIsReleaseListForProjectLoading,
     selectReleaseListForProject
 } from "../../state/slice/releaseSlice.js";
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
+import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 
 const ReleaseListPage = () => {
+    const {addToast} = useToasts();
     const dispatch = useDispatch();
     const selectedProject = useSelector(selectSelectedProject);
     const releases = useSelector(selectReleaseListForProject)
     const releaseLoading = useSelector(selectIsReleaseListForProjectLoading)
     const releaseError = useSelector(selectIsReleaseListForProjectError)
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedRelease, setSelectedRelease] = useState(null);
 
     const [filteredReleases, setFilteredReleases] = useState([]);
 
@@ -44,6 +50,32 @@ const ReleaseListPage = () => {
         }
     };
 
+    const handleDeleteClick = (release) => {
+        setSelectedRelease(release);
+        setIsDialogOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (selectedRelease) {
+            axios.delete(`/releases/${selectedRelease.id}`)
+                .then(response => {
+                const deleted = response?.data?.status
+
+                if (deleted) {
+                    addToast('Release Successfully Deleted', {appearance: 'success'});
+                    dispatch(doGetReleases(selectedProject?.id));
+                } else {
+                    addToast('Failed to delete release ', {appearance: 'error'});
+                }
+            }).catch(() => {
+                addToast('Release delete request failed ', {appearance: 'error'});
+            });
+        }
+        setIsDialogOpen(false);
+        setSelectedRelease(null);
+    };
+
+    if (releaseLoading) return <div className="p-2"><SkeletonLoader/></div>;
     if (releaseError) return <ErrorAlert message={error.message}/>;
 
     return (
@@ -66,13 +98,25 @@ const ReleaseListPage = () => {
                                 <div className="flex text-xs text-gray-600 items-center">{element?.type?.name}</div>
                             </div>
                             <div className={"flex gap-1"}>
-                                <TrashIcon className={"w-4 h-4 text-pink-700"}/>
+                                <div onClick={() => handleDeleteClick(element)} className={"cursor-pointer"}>
+                                    <TrashIcon className={"w-4 h-4 text-pink-700"}/>
+                                </div>
                                 <ChevronRightIcon className={"w-4 h-4 text-black"}/>
                             </div>
                         </button>
                     ))}
                 </div>
             )}
+
+            <ConfirmationDialog
+                isOpen={isDialogOpen}
+                onClose={() => {
+                    setIsDialogOpen(false);
+                    setSelectedRelease(null);
+                }}
+                onConfirm={handleConfirmDelete}
+                message={selectedRelease ? `To delete release - ${selectedRelease.name} ?` : ''}
+            />
         </div>
     );
 };
