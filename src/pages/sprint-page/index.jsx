@@ -67,16 +67,9 @@ const SprintLayout = () => {
 
   return (
     <MainPageLayout
-      title={
-        <div style={{ display: 'flex', gap: '96px', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>Sprints</span>
-          <div className={"flex gap-1 items-center mr-5"}>
-            <PlusCircleIcon onClick={handleAddNewClick} className={"w-6 h-6 text-pink-500 cursor-pointer"} />
-            <button className="font-thin text-xs text-gray-600">Add New</button>
-          </div>
-        </div>
-      }
-      
+      title={"Sprints"}
+      onAction={handleAddNewClick}
+      subText={"Add New"}
       leftColumn={<SprintListPage />}
       rightColumn={
         <div className={"bg-dashboard-bgc"}>
