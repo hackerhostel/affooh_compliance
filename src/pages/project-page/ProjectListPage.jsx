@@ -1,87 +1,107 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { selectProjectList, setSelectedProjectFromList } from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
 import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
 
 const ProjectListPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("Active");
-  const [selectedProject, setSelectedProject] = useState("");
   const dispatch = useDispatch();
-
- 
   const projectList = useSelector(selectProjectList);
-  const [filteredProjectList, setFilteredProjectList] = useState([]);
 
- 
+  const [filteredProjectList, setFilteredProjectList] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState({
+    active: true,
+    onHold: true,
+    closed: true,
+  });
+
+  const [filterCounts, setFilterCounts] = useState({
+    active: 0,
+    onHold: 0,
+    closed: 0,
+  });
+
   useEffect(() => {
     if (projectList && Array.isArray(projectList)) {
-      const filtered = projectList.filter(
-        (project) =>
-          project.status === activeTab &&
-          project.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredProjectList(filtered);
-    }
-  }, [projectList, searchTerm, activeTab]);
+      const activeCount = projectList.filter(project => project.status === "Active").length;
+      const onHoldCount = projectList.filter(project => project.status === "On Hold").length;
+      const closedCount = projectList.filter(project => project.status === "Closed").length;
 
-  
-  const handleProjectSelection = (e) => {
-    const selected = e.target.value;
-    setSelectedProject(selected);
-    const projectIndex = projectList.findIndex(project => project.name === selected);
-    if (projectIndex >= 0) {
-      dispatch(setSelectedProjectFromList(projectIndex)); 
+      setFilterCounts({
+        active: activeCount,
+        onHold: onHoldCount,
+        closed: closedCount,
+      });
+
+      setFilteredProjectList(projectList);
     }
+  }, [projectList]);
+
+  const handleSearch = (term) => {
+    let filtered = projectList;
+
+    if (term.trim() !== '') {
+      filtered = filtered.filter(project =>
+        project.name.toLowerCase().includes(term.toLowerCase())
+      );
+    }
+
+    filtered = filtered.filter(project => {
+      if (selectedFilters.active && project.status === "Active") return true;
+      if (selectedFilters.onHold && project.status === "On Hold") return true;
+      if (selectedFilters.closed && project.status === "Closed") return true;
+      return false;
+    });
+
+    setFilteredProjectList(filtered);
   };
 
+  const handleFilterChange = (filterName) => {
+    setSelectedFilters(prevState => ({
+      ...prevState,
+      [filterName]: !prevState[filterName]
+    }));
+  };
 
   return (
-    <div className="p-4">
-      {/* Search Bar */}
-      <div className="mb-4 relative">
-        <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-2.5 text-gray-400" />
-        <input
-          type="text"
-          className="border rounded-lg p-2 pl-10 w-full"
-          placeholder="Search Projects"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+    <div className="h-list-screen overflow-y-auto w-full">
+      <div className="flex flex-col gap-3 p-3">
+        <div className="py-3">
+          <SearchBar onSearch={handleSearch} />
+        </div>
 
-    
-      <div className="mb-4">
-        <select
-          className="border rounded-lg p-2 w-full"
-          value={selectedProject}
-          onChange={handleProjectSelection}
-        >
-          {projectList.map((project, index) => (
-            <option key={index} value={project.name}>
-              {project.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-  
-      <div  className="flex space-x-2 mb-4">
-        {["Active", "On Hold", "Closed"].map((status) => (
+        {/* Filter Buttons */}
+        <div className="flex justify-between w-full mb-4">
           <button
-            style={{width:"105px", height:"37px"}}
-            key={status}
-            className={`rounded-full ${
-              activeTab === status
-                ? "bg-black text-white"
-                : "bg-gray-200 text-black"
-            }`}
-            onClick={() => setActiveTab(status)}
+            className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.active ? 'bg-black text-white' : 'bg-gray-200'}`}
+            onClick={() => handleFilterChange('active')}
+          >
+            Active ({filterCounts.active})
+          </button>
+          <button
+            className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.onHold ? 'bg-black text-white' : 'bg-gray-200'}`}
+            onClick={() => handleFilterChange('onHold')}
+          >
+            On Hold ({filterCounts.onHold})
+          </button>
+          <button
+            className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.closed ? 'bg-black text-white' : 'bg-gray-200'}`}
+            onClick={() => handleFilterChange('closed')}
+          >
+            Closed ({filterCounts.closed})
+          </button>
+        </div>
+
+        {filteredProjectList.map((element, index) => (
+          <button
+            key={index}
+            className="items-center p-3 border border-gray-200 rounded-md w-full grid grid-cols-3 gap-2 hover:bg-gray-100"
+            onClick={() => {
+              dispatch(setSelectedProjectFromList(index))
+            }}
           >
             <div className="col-span-2 text-left">
-              <div className="font-bold">{status}</div>
+              <div className="font-bold">{element?.name}</div>
               <div className="text-sm text-gray-600">
                 Website<span className="mx-1">&#8226;</span>Development
               </div>
@@ -91,20 +111,7 @@ const ProjectListPage = () => {
               <TrashIcon className="w-4 h-4 text-pink-700" />
               <ChevronRightIcon className="w-4 h-4 text-black" />
             </div>
-
           </button>
-        ))}
-      </div>
-
-     
-      <div>
-        {filteredProjectList.map((project, index) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 mb-4 flex justify-between items-center"
-          >
-            <span>{project.name}</span>
-          </div>
         ))}
       </div>
     </div>
