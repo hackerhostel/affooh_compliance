@@ -70,7 +70,7 @@ const ProjectListPage = () => {
           <SearchBar onSearch={handleSearch} />
         </div>
 
-        {/* Filter Buttons */}
+        
         <div className="flex justify-between w-full mb-4">
           <button
             className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.active ? 'bg-black text-white' : 'bg-gray-200'}`}
