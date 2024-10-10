@@ -1,69 +1,110 @@
 import React, {useState} from 'react'
-import Modal from "../../components/Modal.jsx";
 import TaskForm from "../../components/task/create/CreateTask.jsx";
-import SampleModalContent from "../../components/SampleModalContent.jsx";
+import timeCalender from '../../assets/Time_Calender.png'
+import EditIcon from '../../assets/Edit_Icon.png'
+import {formatShortDate} from "../../utils/commonUtils.js";
+import ToggleButton from "../../components/ToggleButton.jsx";
+import FormSelect from "../../components/FormSelect.jsx";
+import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
 
 const SprintHeader = ({sprintDetails}) => {
   const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
 
-  const filterGroupChanged = true;
-  const showSprintMangeBtn = true;
-  const data = [{id: 1}]; // Mock data array
-  const disableSprintMange = false;
-
   const closeCreateTaskModal = () => setNewTaskModalOpen(false)
 
   return (
-    <>
-      <div className="p-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="flex items-center mb-2">
-              <h2 className="text-xl font-bold mr-2">{sprintDetails?.name}</h2>
-              <span className="bg-primary-pink text-white px-2 py-1 rounded-full text-xs">
-              {sprintDetails?.status?.value}
-            </span>
+      <>
+        <div className="flex flex-col p-4 gap-4">
+          <div className="flex w-full bg-white h-12 rounded-lg justify-between">
+            <div className="flex justify-start items-center">
+              <div
+                  className=" flex text-white text-center bg-primary-pink pl-5 pr-14 rounded-l-lg font-semibold h-12 items-center">
+                <p>{sprintDetails?.name}</p>
+              </div>
+              <div className="flex text-status-done font-medium pl-4 pr-5 gap-2">
+                <div className={"min-w-1 rounded-md bg-status-done"}></div>
+                <p>{sprintDetails?.status?.value || "OPEN"}</p></div>
+              <div className="flex items-center">
+                <div className="h-7 w-px bg-gray-500 mr-4"></div>
+                <img
+                    src={timeCalender}
+                    alt="Time Calender"
+                    className="max-w-5"
+                />
+                <p className="ml-3 text-text-color mr-2.5">{formatShortDate(sprintDetails?.startDate)} - {formatShortDate(sprintDetails?.endDate)}</p>
+                <img
+                    src={EditIcon}
+                    alt="Edit Icon"
+                    className="max-w-4 cursor-pointer"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end h-12 items-center gap-8 pr-2">
+              <ToggleButton label={"Epics"}/>
+              <ToggleButton label={"Completed Tasks"}/>
+              <ToggleButton label={"Sub Tasks"}/>
             </div>
           </div>
-          <div>
-            <div className="flex justify-end mb-4">
-              {filterGroupChanged && (
-                <button
-                  className="bg-secondary-grey text-white px-4 py-2 rounded mr-2"
-                  onClick={() => {}}
-                >
-                  View
-                </button>
-              )}
-              {showSprintMangeBtn && data.length > 0 && (
-                <button
-                  className="bg-primary-pink text-white px-4 py-2 rounded mr-2"
-                  onClick={() => {}}
-                  disabled={() => {}}
-                >
-                  Manage Sprint
-                </button>
-              )}
+
+          <div className="flex w-full h-12 justify-between">
+            <div className="flex items-center">
+              <div className={"flex-col w-36"}>
+                <FormSelect
+                    name="assignee"
+                    formValues={{assignee: 1}}
+                    options={[{value: 1, label: "Assignee"}]}
+                    // onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                />
+              </div>
+              <div className={"flex-col ml-3 w-28"}>
+                <FormSelect
+                    name="status"
+                    formValues={{status: 1}}
+                    options={[{value: 1, label: "Status"}]}
+                    // onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2 ml-10 border border-gray-300 p rounded-full">
+                <div className="avatar-group flex -space-x-5">
+                  <img src="https://via.placeholder.com/24"
+                       className="w-8 h-8 rounded-full border-2 border-white"
+                       alt="User Avatar"/>
+                  <img src="https://via.placeholder.com/24"
+                       className="w-8 h-8 rounded-full border-2 border-white"
+                       alt="User Avatar"/>
+                  <span
+                      className="bg-white w-8 h-8 rounded-full flex items-center justify-center text-primary-pink text-xs border-2 border-white">+11</span>
+                </div>
+                <div className="h-7 w-px bg-gray-300 mr-4"></div>
+                <div className={"flex items-center mr-5"}>
+                  <PlusCircleIcon className={"w-9 h-9 text-pink-500 cursor-pointer"}/>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center space-x-4">
               <button
-                className="bg-primary-pink text-white px-4 py-2 rounded"
-                onClick={() => setNewTaskModalOpen(true)}
-              >
+                  className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
+                  disabled={true}
+              >Save
+              </button>
+              <button
+                  className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300">
+                Complete Sprint
+              </button>
+              <button
+                  className="px-6 py-3 text-white rounded-lg border border-primary-pink bg-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
+                  onClick={() => setNewTaskModalOpen(true)}>
                 New Task
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      <Modal
-        title={'Create New Task'}
-        isOpen={newTaskModalOpen}
-        onClose={closeCreateTaskModal}
-        type='side'
-      >
-        <TaskForm sprintId={sprintDetails?.id} onClose={closeCreateTaskModal} />
-      </Modal>
-    </>
+        <TaskForm sprintId={sprintDetails?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}/>
+      </>
   );
 }
 

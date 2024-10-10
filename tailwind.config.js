@@ -15,9 +15,6 @@ module.exports = {
         'priority-button-medium':"rgba(201, 246, 191, 1)",
         'priority-button-low': "rgba(251, 242, 173, 1)",
         'user-invite-button' : "rgba(65, 169, 54, 1);",
-
-        
-
         'dashboard-bgc': '#f4f5fb',
         'secondary-grey': '#747A88',
         'dark-white': '#fbfbfb',
@@ -31,6 +28,15 @@ module.exports = {
       height: {
         'list-screen': 'calc(100vh - 148px)',
         'content-screen': 'calc(100vh - 90px)',
+        '21-5-px': '21.5px'
+      },
+      translate: {
+        '4.2': '1.1rem',
+      },
+      spacing: {
+        '3px': '3px',
+        '25px': '25px',
+        '29.5px': '29.5px'
       },
     },
   },
