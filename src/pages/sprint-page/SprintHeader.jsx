@@ -6,11 +6,14 @@ import {formatShortDate} from "../../utils/commonUtils.js";
 import ToggleButton from "../../components/ToggleButton.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
+import DateRangeSelector from "../../components/DateRangeSelector.jsx";
 
 const SprintHeader = ({sprintDetails}) => {
   const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
+  const [dateRangelOpen, setDateRangelOpen] = useState(false);
 
   const closeCreateTaskModal = () => setNewTaskModalOpen(false)
+  const closeDateRange = () => setDateRangelOpen(false)
 
   return (
       <>
@@ -36,6 +39,7 @@ const SprintHeader = ({sprintDetails}) => {
                     src={EditIcon}
                     alt="Edit Icon"
                     className="max-w-4 cursor-pointer"
+                    onClick={() => setDateRangelOpen(true)}
                 />
               </div>
             </div>
@@ -104,6 +108,7 @@ const SprintHeader = ({sprintDetails}) => {
         </div>
 
         <TaskForm sprintId={sprintDetails?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}/>
+        <DateRangeSelector isOpen={dateRangelOpen} onClose={closeDateRange}/>
       </>
   );
 }
