@@ -42,7 +42,6 @@ const SprintContentPage = () => {
         // TODO: wrong response structure
         if (data.data) {
           const details = data.data
-          console.log(details)
           const taskListResponse = details?.tasks
           const taskListConverted = []
 

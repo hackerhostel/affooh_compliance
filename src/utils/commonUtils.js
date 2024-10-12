@@ -36,3 +36,13 @@ export const getUserSelectOptions = (options) => {
 export const getMultiSelectOptions = (options, ids) => {
   return options.filter(item => ids.includes(item.value));
 };
+
+export const formatShortDate = (dateString) => {
+  if (dateString) {
+    const date = new Date(dateString);
+    const options = {month: 'short', day: 'numeric'};
+    return date.toLocaleDateString('en-US', options);
+  } else {
+    return "N/A"
+  }
+}
