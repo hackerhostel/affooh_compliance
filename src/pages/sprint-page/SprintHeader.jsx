@@ -7,13 +7,46 @@ import ToggleButton from "../../components/ToggleButton.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
 import DateRangeSelector from "../../components/DateRangeSelector.jsx";
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
+import moment from "moment";
 
-const SprintHeader = ({sprintDetails}) => {
+const SprintHeader = ({sprint, isBacklog, refetchSprint}) => {
+  const {addToast} = useToasts();
   const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
   const [dateRangelOpen, setDateRangelOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const updateSprint = async (payload, toUpdate) => {
+    setIsSubmitting(true)
+    try {
+      const response = await axios.put(`/sprints/${sprint?.id}`, {sprint: payload})
+      const updated = response?.data?.body
+
+      if (updated) {
+        addToast(`${toUpdate} Successfully Updated`, {appearance: 'success'});
+        await refetchSprint()
+      } else {
+        addToast(`Failed To Updated The ${toUpdate}`, {appearance: 'error'});
+      }
+    } catch (error) {
+      addToast(`Failed To Updated The ${toUpdate}`, {appearance: 'error'});
+    }
+
+    setIsSubmitting(false)
+  }
 
   const closeCreateTaskModal = () => setNewTaskModalOpen(false)
   const closeDateRange = () => setDateRangelOpen(false)
+
+  const updateDateRange = async (dateRange) => {
+    closeDateRange()
+    await updateSprint({
+      sprintID: sprint?.id,
+      startDate: moment(dateRange?.startDate).format('YYYY-MM-DD'),
+      endDate: moment(dateRange?.endDate).format('YYYY-MM-DD'),
+    }, "Sprint Dates")
+  }
 
   return (
       <>
@@ -22,11 +55,11 @@ const SprintHeader = ({sprintDetails}) => {
             <div className="flex justify-start items-center">
               <div
                   className=" flex text-white text-center bg-primary-pink pl-5 pr-14 rounded-l-lg font-semibold h-12 items-center">
-                <p>{sprintDetails?.name}</p>
+                <p>{sprint?.name}</p>
               </div>
               <div className="flex text-status-done font-medium pl-4 pr-5 gap-2">
                 <div className={"min-w-1 rounded-md bg-status-done"}></div>
-                <p>{sprintDetails?.status?.value || "OPEN"}</p></div>
+                <p>{sprint?.status?.value || "OPEN"}</p></div>
               <div className="flex items-center">
                 <div className="h-7 w-px bg-gray-500 mr-4"></div>
                 <img
@@ -34,12 +67,16 @@ const SprintHeader = ({sprintDetails}) => {
                     alt="Time Calender"
                     className="max-w-5"
                 />
-                <p className="ml-3 text-text-color mr-2.5">{formatShortDate(sprintDetails?.startDate)} - {formatShortDate(sprintDetails?.endDate)}</p>
+                <p className="ml-3 text-text-color mr-2.5">{formatShortDate(sprint?.startDate)} - {formatShortDate(sprint?.endDate)}</p>
                 <img
                     src={EditIcon}
                     alt="Edit Icon"
-                    className="max-w-4 cursor-pointer"
-                    onClick={() => setDateRangelOpen(true)}
+                    className={`max-w-4 ${isBacklog ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                    onClick={() => {
+                      if (!isBacklog) {
+                        setDateRangelOpen(true);
+                      }
+                    }}
                 />
               </div>
             </div>
@@ -87,7 +124,6 @@ const SprintHeader = ({sprintDetails}) => {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex items-center space-x-4">
               <button
                   className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
@@ -107,8 +143,9 @@ const SprintHeader = ({sprintDetails}) => {
           </div>
         </div>
 
-        <TaskForm sprintId={sprintDetails?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}/>
-        <DateRangeSelector isOpen={dateRangelOpen} onClose={closeDateRange}/>
+        <TaskForm sprintId={sprint?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}/>
+        <DateRangeSelector isOpen={dateRangelOpen} onClose={closeDateRange} startDate={sprint?.startDate}
+                           endDate={sprint?.endDate} onSave={updateDateRange}/>
       </>
   );
 }
