@@ -37,29 +37,16 @@ const SprintHeader = ({sprint, isBacklog, refetchSprint}) => {
   }
 
   const closeCreateTaskModal = () => setNewTaskModalOpen(false)
-
   const closeDateRange = () => setDateRangelOpen(false)
 
   const updateDateRange = async (dateRange) => {
-    console.log(dateRange)
     closeDateRange()
     await updateSprint({
       sprintID: sprint?.id,
       startDate: moment(dateRange?.startDate).format('YYYY-MM-DD'),
       endDate: moment(dateRange?.endDate).format('YYYY-MM-DD'),
     }, "Sprint Dates")
-
-    // moment(new Date()).format('YYYY-MM-DD')
-
-    // {
-    //   "startDate": "2024-10-14T18:30:00.000Z",
-    //     "endDate": "2024-10-30T18:30:00.000Z"
-    //    Tue Oct 22 2024 00:00:00 GMT+0530
-    // }
-
   }
-
-  console.log(sprint)
 
   return (
       <>
