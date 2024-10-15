@@ -1,16 +1,13 @@
 import React, {useEffect, useState} from 'react'
 import {useSelector} from "react-redux";
 import SprintTable from "../../components/sprint-table/index.jsx";
-import {selectSelectedSprint, setSelectedSprint} from "../../state/slice/sprintSlice.js";
-import useGraphQL from "../../hooks/useGraphQL.jsx";
-import {fetchSprintDetails} from "../../graphql/sprintQueries/queries.js";
+import {selectSelectedSprint} from "../../state/slice/sprintSlice.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import SprintHeader from "./SprintHeader.jsx";
-import useFetch from "../../hooks/useFetch.jsx";
-import axios from "axios";
+import useFetchSprint from "../../hooks/custom-hooks/sprint/useFetchSprint.jsx";
 
-function transformTask(task) {
+const transformTask = (task) => {
   return {
     id: task.id,
     status: task.attributes.status?.value || '',
@@ -29,52 +26,40 @@ const SprintContentPage = () => {
   const selectedSprint = useSelector(selectSelectedSprint);
 
   const [taskList, setTaskList] = useState([])
-  const [sprintDetails, setSprintDetails] = useState(null)
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState();
+  const [sprint, setSprint] = useState(null)
+  const [sprintId, setSprintId] = useState(0);
+  const [isBacklog, setIsBacklog] = useState(false);
+
+  const {error, loading, data: sprintResponse, refetch: refetchSprint} = useFetchSprint(sprintId)
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const data = await axios.get(`/sprints/${selectedSprint?.id}`);
+    if (sprintResponse?.sprint) {
+      setSprint(sprintResponse?.sprint)
+      setIsBacklog(sprintResponse?.sprint?.name === 'BACKLOG')
 
-        // TODO: wrong response structure
-        if (data.data) {
-          const details = data.data
-          const taskListResponse = details?.tasks
-          const taskListConverted = []
-
-          if(taskListResponse && Array.isArray(taskListResponse)) {
-            taskListResponse.map(task => {
-              taskListConverted.push(transformTask(task))
-            })
-            setTaskList(taskListConverted)
-          }
-
-          if(details?.sprint) {
-            setSprintDetails(details?.sprint)
-          }
-        }
-
-      } catch (e) {
-        setError(e)
-      } finally {
-        setIsLoading(false);
+      const taskListResponse = sprintResponse?.tasks
+      const taskListConverted = []
+      if (taskListResponse && Array.isArray(taskListResponse)) {
+        taskListResponse.map(task => {
+          taskListConverted.push(transformTask(task))
+        })
+        setTaskList(taskListConverted)
       }
-    };
+    }
+  }, [sprintResponse]);
 
-    if (selectedSprint) {
-      fetchData();
+  useEffect(() => {
+    if (selectedSprint?.id) {
+      setSprintId(selectedSprint?.id)
     }
   }, [selectedSprint]);
 
-  if (isLoading) return <div className="p-2"><SkeletonLoader/></div>;
+  if (loading) return <div className="p-2"><SkeletonLoader/></div>;
   if (error) return <ErrorAlert message={error.message}/>;
 
   return (
     <>
-      <SprintHeader sprintDetails={sprintDetails}/>
+      <SprintHeader sprint={sprint} isBacklog={isBacklog} refetchSprint={refetchSprint}/>
       <SprintTable taskList={taskList}/>
     </>
   );
