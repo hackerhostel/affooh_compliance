@@ -11,7 +11,7 @@ import axios from "axios";
 import {useToasts} from "react-toast-notifications";
 import moment from "moment";
 
-const SprintHeader = ({sprint, isBacklog, refetchSprint}) => {
+const SprintHeader = ({sprint, isBacklog, refetchSprint, filters, onFilterChange, assignees, statusList}) => {
   const {addToast} = useToasts();
   const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
   const [dateRangelOpen, setDateRangelOpen] = useState(false);
@@ -48,6 +48,16 @@ const SprintHeader = ({sprint, isBacklog, refetchSprint}) => {
     }, "Sprint Dates")
   }
 
+  const onToggleFilterChange = (e, name) => {
+    const tempFilters = {...filters, [name]: e?.target?.checked}
+    onFilterChange(tempFilters)
+  }
+
+  const onSelectFilterChange = (value, name) => {
+    const tempFilters = {...filters, [name]: Number(value)}
+    onFilterChange(tempFilters)
+  }
+
   return (
       <>
         <div className="flex flex-col p-4 gap-4">
@@ -81,28 +91,30 @@ const SprintHeader = ({sprint, isBacklog, refetchSprint}) => {
               </div>
             </div>
             <div className="flex justify-end h-12 items-center gap-8 pr-2">
-              <ToggleButton label={"Epics"}/>
-              <ToggleButton label={"Completed Tasks"}/>
-              <ToggleButton label={"Sub Tasks"}/>
+              <ToggleButton label={"Epics"} onChange={e => onToggleFilterChange(e, 'epic')} checked={filters?.epic}/>
+              <ToggleButton label={"Completed Tasks"} onChange={e => onToggleFilterChange(e, 'completed')}
+                            checked={filters?.completed}/>
+              <ToggleButton label={"Sub Tasks"} onChange={e => onToggleFilterChange(e, 'sub')}
+                            checked={filters?.sub}/>
             </div>
           </div>
 
           <div className="flex w-full h-12 justify-between">
             <div className="flex items-center">
-              <div className={"flex-col w-36"}>
+              <div className={"flex-col min-w-44"}>
                 <FormSelect
                     name="assignee"
-                    formValues={{assignee: 1}}
-                    options={[{value: 1, label: "Assignee"}]}
-                    // onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                    formValues={{assignee: filters?.assignee}}
+                    options={assignees}
+                    onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
                 />
               </div>
-              <div className={"flex-col ml-3 w-28"}>
+              <div className={"flex-col ml-3 min-w-32"}>
                 <FormSelect
                     name="status"
-                    formValues={{status: 1}}
-                    options={[{value: 1, label: "Status"}]}
-                    // onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                    formValues={{status: filters?.status}}
+                    options={statusList}
+                    onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
                 />
               </div>
 
