@@ -1,12 +1,12 @@
 import React from 'react';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const ToggleButton = ({label}) => {
+const ToggleButton = ({label, onChange, checked}) => {
     return (
         <div className="flex items-center space-x-2">
             <label htmlFor={label} className="text-secondary-grey mb-0">{label}</label>
             <label htmlFor={label} className="relative cursor-pointer mb-0">
-                <input type="checkbox" id={label} className="sr-only peer"/>
+                <input type="checkbox" id={label} onChange={onChange} className="sr-only peer" checked={checked}/>
                 <div
                     className="w-10 h-25px bg-white rounded-full border-2 border-secondary-grey transition-colors peer-checked:border-green-500"></div>
                 <div className="absolute w-5 h-5 bg-secondary-grey rounded-full shadow top-29.5px translate-x-3px transition-transform
