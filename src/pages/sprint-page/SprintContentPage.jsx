@@ -1,27 +1,27 @@
 import React, {useEffect, useState} from 'react'
 import {useSelector} from "react-redux";
 import SprintTable from "../../components/sprint-table/index.jsx";
-import {selectSelectedSprint, setSelectedSprint} from "../../state/slice/sprintSlice.js";
-import useGraphQL from "../../hooks/useGraphQL.jsx";
-import {fetchSprintDetails} from "../../graphql/sprintQueries/queries.js";
+import {selectSelectedSprint} from "../../state/slice/sprintSlice.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import SprintHeader from "./SprintHeader.jsx";
-import useFetch from "../../hooks/useFetch.jsx";
-import axios from "axios";
+import useFetchSprint from "../../hooks/custom-hooks/sprint/useFetchSprint.jsx";
 
-function transformTask(task) {
+const transformTask = (task) => {
   return {
     id: task.id,
-    status: task.attributes.status?.value || '',
+    statusId: task.attributes.status?.id || 1,
+    status: task.attributes.status?.value || 'To Do',
     title: task.name,
     taskCode: task.code,
-    assignee: task.assignee ? `${task.assignee.firstName} ${task.assignee.lastName}`.trim() : '',
+    assigneeId: task?.assignee?.id ? task?.assignee?.id : 0,
+    assignee: task?.assignee?.firstName ? `${task?.assignee?.firstName} ${task?.assignee?.lastName}` : 'Unassigned',
     epic: task.epicName || '',
     startDate: task.attributes.startDate?.value || null,
     endDate: task.attributes.endDate?.value || null,
     type: task.type,
-    priority: task.attributes.priority?.value || ''
+    priority: task.attributes.priority?.value || '',
+    parentTaskId: task?.parentTaskID || 0
   };
 }
 
@@ -29,53 +29,77 @@ const SprintContentPage = () => {
   const selectedSprint = useSelector(selectSelectedSprint);
 
   const [taskList, setTaskList] = useState([])
-  const [sprintDetails, setSprintDetails] = useState(null)
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState();
+  const [filteredList, setFilteredList] = useState([])
+  const [filters, setFilters] = useState({
+    epic: false,
+    completed: false,
+    sub: false,
+    assignee: -1,
+    status: -1
+  });
+  const [sprint, setSprint] = useState(null)
+  const [sprintId, setSprintId] = useState(0);
+  const [isBacklog, setIsBacklog] = useState(false);
+  const [assigneeList, setAssigneeList] = useState([]);
+  const [statusList, setStatusList] = useState([]);
+
+  const {error, loading, data: sprintResponse, refetch: refetchSprint} = useFetchSprint(sprintId)
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const data = await axios.get(`/sprints/${selectedSprint?.id}`);
+    if (sprintResponse?.sprint) {
+      setSprint(sprintResponse?.sprint)
+      setIsBacklog(sprintResponse?.sprint?.name === 'BACKLOG')
 
-        // TODO: wrong response structure
-        if (data.data) {
-          const details = data.data
-          const taskListResponse = details?.tasks
-          const taskListConverted = []
+      const taskListResponse = sprintResponse?.tasks
+      const taskListConverted = []
+      if (taskListResponse && Array.isArray(taskListResponse)) {
+        const assignees = new Set();
+        assignees.add(JSON.stringify({value: -1, label: "All Assignees"}))
+        const status = new Set();
+        status.add(JSON.stringify({value: -1, label: "All Status"}))
 
-          if(taskListResponse && Array.isArray(taskListResponse)) {
-            taskListResponse.map(task => {
-              taskListConverted.push(transformTask(task))
-            })
-            setTaskList(taskListConverted)
-          }
+        taskListResponse.map(task => {
+          taskListConverted.push(transformTask(task))
+        })
 
-          if(details?.sprint) {
-            setSprintDetails(details?.sprint)
-          }
+        setTaskList(taskListConverted)
+
+        for (const tlc of taskListConverted) {
+          assignees.add(JSON.stringify({value: tlc.assigneeId, label: tlc.assignee}))
+          status.add(JSON.stringify({value: tlc.statusId, label: tlc.status}))
         }
-
-      } catch (e) {
-        setError(e)
-      } finally {
-        setIsLoading(false);
+        setAssigneeList(Array.from(assignees).map(item => JSON.parse(item)))
+        setStatusList(Array.from(status).map(item => JSON.parse(item)))
       }
-    };
+    }
+  }, [sprintResponse]);
 
-    if (selectedSprint) {
-      fetchData();
+  useEffect(() => {
+    if (selectedSprint?.id) {
+      setSprintId(selectedSprint?.id)
     }
   }, [selectedSprint]);
 
-  if (isLoading) return <div className="p-2"><SkeletonLoader/></div>;
+  useEffect(() => {
+    if (taskList.length) {
+      const epicFilteredTasks = taskList.filter(tl => filters.epic || tl?.type !== 'Epic');
+      const completedFilteredTasks = epicFilteredTasks.filter(tl => (filters.completed || tl?.status !== 'Done'));
+      const subFilteredTasks = completedFilteredTasks.filter(tl => (filters.sub || tl?.parentTaskId === 0));
+      const assigneeFilteredTasks = subFilteredTasks.filter(tl => (filters?.assignee === -1 ? true : tl?.assigneeId === filters.assignee));
+      const statusFilteredTasks = assigneeFilteredTasks.filter(tl => (filters?.status === -1 ? true : tl?.statusId === filters.status));
+
+      setFilteredList(statusFilteredTasks)
+    }
+  }, [taskList, filters]);
+
+  if (loading) return <div className="p-2"><SkeletonLoader/></div>;
   if (error) return <ErrorAlert message={error.message}/>;
 
   return (
     <>
-      <SprintHeader sprintDetails={sprintDetails}/>
-      <SprintTable taskList={taskList}/>
+      <SprintHeader sprint={sprint} isBacklog={isBacklog} refetchSprint={refetchSprint} filters={filters}
+                    onFilterChange={setFilters} assignees={assigneeList} statusList={statusList}/>
+      <SprintTable taskList={filteredList}/>
     </>
   );
 }
