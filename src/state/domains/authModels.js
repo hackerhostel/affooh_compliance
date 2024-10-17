@@ -19,6 +19,7 @@ export const SprintSchema = yup.object({
 });
 
 export const RegisterSchema = yup.object({
+  username: yup.string().email('Email must be valid').required('Email is required'),
   organization: yup.string().required('Organization is required'),
   firstName: yup.string().required('First Name is required'),
   lastName: yup.string().required('Last Name is required'),

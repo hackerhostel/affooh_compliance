@@ -10,7 +10,7 @@ import { doRegisterUser, selectRegisterState } from '../state/slice/registerSlic
 const RegisterForm = () => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector(selectRegisterState);
-  const [registerDetails, setRegisterDetails] = useState({ organization: '', firstName: '', lastName: '', password: '', confirmPassword: '' });
+  const [registerDetails, setRegisterDetails] = useState({ username: '', organization: '', firstName: '', lastName: '', password: '', confirmPassword: '' });
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const formRef = useRef(null);
   const [formErrors] = useValidation(RegisterSchema, registerDetails);
@@ -56,75 +56,86 @@ const RegisterForm = () => {
             <form className="mt-4 space-y-6" ref={formRef} onSubmit={register}>
               <div className="mb-6">
                 <FormInput
-                  type="text"
-                  name="organization"
-                  formValues={registerDetails}
-                  placeholder="Organization"
-                  onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                  formErrors={formErrors}
-                  showErrors={isValidationErrorsShown}
+                    type="text"
+                    name="organization"
+                    formValues={registerDetails}
+                    placeholder="Organization"
+                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
                 />
               </div>
               <div className="mb-6 flex">
                 <div className="mr-4 w-1/2">
                   <FormInput
-                    type="text"
-                    name="firstName"
-                    formValues={registerDetails}
-                    placeholder="First Name"
-                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                    formErrors={formErrors}
-                    showErrors={isValidationErrorsShown}
+                      type="text"
+                      name="firstName"
+                      formValues={registerDetails}
+                      placeholder="First Name"
+                      onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
                 <div className="w-1/2">
                   <FormInput
-                    type="text"
-                    name="lastName"
-                    formValues={registerDetails}
-                    placeholder="Last Name"
-                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                    formErrors={formErrors}
-                    showErrors={isValidationErrorsShown}
+                      type="text"
+                      name="lastName"
+                      formValues={registerDetails}
+                      placeholder="Last Name"
+                      onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
               </div>
               <div className="mb-6">
                 <FormInput
-                  type="password"
-                  name="password"
-                  formValues={registerDetails}
-                  placeholder="Password"
-                  onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                  formErrors={formErrors}
-                  showErrors={isValidationErrorsShown}
+                    type="text"
+                    name="username"
+                    formValues={registerDetails}
+                    placeholder="Email"
+                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
+                />
+              </div>
+              <div className="mb-6">
+                <FormInput
+                    type="password"
+                    name="password"
+                    formValues={registerDetails}
+                    placeholder="Password"
+                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
                 />
               </div>
               <div className="mb-6 ">
                 <FormInput
-                  type="password"
-                  name="confirmPassword"
-                  formValues={registerDetails}
-                  placeholder="Confirm Password"
-                  onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                  formErrors={formErrors}
-                  showErrors={isValidationErrorsShown}
+                    type="password"
+                    name="confirmPassword"
+                    formValues={registerDetails}
+                    placeholder="Confirm Password"
+                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
                 />
               </div>
               <input
-                type="submit"
-                value="Sign Up"
-                className="w-full py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
+                  type="submit"
+                  value="Sign Up"
+                  className="w-full py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
               />
             </form>
             <div className="text-center mt-5 text-text-color">
               Already have an account?
-              <Link 
-                to={{
-                  pathname: "/login",
-                  state: { from: location }
-                }} 
-                className="text-primary-pink ml-2"
+              <Link
+                  to={{
+                    pathname: "/login",
+                    state: {from: location}
+                  }}
+                  className="text-primary-pink ml-2"
               >
                 Login
               </Link>
