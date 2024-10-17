@@ -16,15 +16,7 @@ import {ChevronRightIcon} from "@heroicons/react/24/outline/index.js";
 
 const ReleaseEdit = ({ releaseId }) => {
   const { addToast } = useToasts();
-  const dispatch = useDispatch();
-  const selectedProject = useSelector(selectSelectedProject);
-  const projectList = useSelector(selectProjectList);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleProjectChange = (name, value) => {
-    handleFormChange(name, value);
-    dispatch(doSwitchProject(value));
-  };
 
   const handleFormChange = (name, value, isText) => {
     setFormValues({ ...formValues, [name]: isText ? value : Number(value) });
