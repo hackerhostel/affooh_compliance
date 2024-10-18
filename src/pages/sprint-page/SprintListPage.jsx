@@ -8,6 +8,7 @@ import {
   selectIsSprintListForProjectError,
   selectIsSprintListForProjectLoading,
   selectSprintListForProject,
+  setRedirectSprint,
   setSelectedSprint
 } from "../../state/slice/sprintSlice.js";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
@@ -90,6 +91,7 @@ const SprintListPage = () => {
     setToDeleteSprint({})
     if (deleted) {
       dispatch(doGetSprintBreakdown(selectedProject?.id))
+      dispatch(setRedirectSprint(0));
     }
   };
 
