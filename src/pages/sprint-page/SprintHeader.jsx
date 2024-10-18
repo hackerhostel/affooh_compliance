@@ -10,27 +10,48 @@ import DateRangeSelector from "../../components/DateRangeSelector.jsx";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
 import moment from "moment";
+import {useDispatch, useSelector} from "react-redux";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {doGetSprintBreakdown, setRedirectSprint} from "../../state/slice/sprintSlice.js";
 
-const SprintHeader = ({sprint, isBacklog, refetchSprint, filters, onFilterChange, assignees, statusList}) => {
+const SprintHeader = ({
+                        sprint,
+                        isBacklog,
+                        refetchSprint,
+                        filters,
+                        onFilterChange,
+                        assignees,
+                        statusList,
+                        sprintStatusList
+                      }) => {
   const {addToast} = useToasts();
+  const selectedProject = useSelector(selectSelectedProject);
+  const dispatch = useDispatch();
+
   const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
   const [dateRangelOpen, setDateRangelOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const updateSprint = async (payload, toUpdate) => {
+  let sprintStatus = sprint?.status?.value || "OPEN"
+
+  const updateSprint = async (payload, successMessage, errorMessage, pullSprints = false) => {
     setIsSubmitting(true)
     try {
       const response = await axios.put(`/sprints/${sprint?.id}`, {sprint: payload})
       const updated = response?.data?.body
 
       if (updated) {
-        addToast(`${toUpdate} Successfully Updated`, {appearance: 'success'});
+        addToast(successMessage, {appearance: 'success'});
+        if (pullSprints) {
+          dispatch(setRedirectSprint(sprint?.id));
+          dispatch(doGetSprintBreakdown(selectedProject?.id))
+        }
         await refetchSprint()
       } else {
-        addToast(`Failed To Updated The ${toUpdate}`, {appearance: 'error'});
+        addToast(errorMessage, {appearance: 'error'});
       }
     } catch (error) {
-      addToast(`Failed To Updated The ${toUpdate}`, {appearance: 'error'});
+      addToast(errorMessage, {appearance: 'error'});
     }
 
     setIsSubmitting(false)
@@ -45,7 +66,20 @@ const SprintHeader = ({sprint, isBacklog, refetchSprint, filters, onFilterChange
       sprintID: sprint?.id,
       startDate: moment(dateRange?.startDate).format('YYYY-MM-DD'),
       endDate: moment(dateRange?.endDate).format('YYYY-MM-DD'),
-    }, "Sprint Dates")
+    }, "Sprint Dates Successfully Updated", "Failed To Updated The Sprint Dates")
+  }
+
+  const updateSprintStatus = async () => {
+    const statusID = (() => {
+      const targetValue = sprintStatus === "Open" ? "In Progress" : "Done";
+      const status = sprintStatusList?.find(sl => sl.value === targetValue);
+      return status?.id;
+    })();
+
+    await updateSprint({
+      sprintID: sprint?.id,
+      statusID: statusID
+    }, sprintStatus === "Open" ? "Sprint Started" : "Sprint Completed", sprintStatus === "Open" ? "Failed To Start The Sprint" : "Failed To Complete The Sprint", true)
   }
 
   const onToggleFilterChange = (e, name) => {
@@ -69,7 +103,7 @@ const SprintHeader = ({sprint, isBacklog, refetchSprint, filters, onFilterChange
               </div>
               <div className="flex text-status-done font-medium pl-4 pr-5 gap-2">
                 <div className={"min-w-1 rounded-md bg-status-done"}></div>
-                <p>{sprint?.status?.value || "OPEN"}</p></div>
+                <p>{sprintStatus}</p></div>
               <div className="flex items-center">
                 <div className="h-7 w-px bg-gray-500 mr-4"></div>
                 <img
@@ -143,8 +177,11 @@ const SprintHeader = ({sprint, isBacklog, refetchSprint, filters, onFilterChange
               >Save
               </button>
               <button
-                  className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300">
-                Complete Sprint
+                  className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
+                  disabled={isBacklog || sprintStatus === "Done" || isSubmitting}
+                  onClick={updateSprintStatus}
+              >
+                {sprintStatus === "Open" ? 'Start Sprint' : 'Complete Sprint'}
               </button>
               <button
                   className="px-6 py-3 text-white rounded-lg border border-primary-pink bg-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"

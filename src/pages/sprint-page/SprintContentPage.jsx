@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {useSelector} from "react-redux";
 import SprintTable from "../../components/sprint-table/index.jsx";
-import {selectSelectedSprint} from "../../state/slice/sprintSlice.js";
+import {selectSelectedSprint, selectSprintFormData} from "../../state/slice/sprintSlice.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import SprintHeader from "./SprintHeader.jsx";
@@ -27,6 +27,7 @@ const transformTask = (task) => {
 
 const SprintContentPage = () => {
   const selectedSprint = useSelector(selectSelectedSprint);
+  const sprintStatusList = useSelector(selectSprintFormData);
 
   const [taskList, setTaskList] = useState([])
   const [filteredList, setFilteredList] = useState([])
@@ -98,7 +99,8 @@ const SprintContentPage = () => {
   return (
     <>
       <SprintHeader sprint={sprint} isBacklog={isBacklog} refetchSprint={refetchSprint} filters={filters}
-                    onFilterChange={setFilters} assignees={assigneeList} statusList={statusList}/>
+                    onFilterChange={setFilters} assignees={assigneeList} statusList={statusList}
+                    sprintStatusList={sprintStatusList}/>
       <SprintTable taskList={filteredList}/>
     </>
   );
