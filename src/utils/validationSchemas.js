@@ -43,3 +43,11 @@ export const ReleaseCreateSchema = yup.object({
     type: yup.string(),
     version: yup.string(),
 });
+
+export const ReleaseEditSchema = yup.object({
+    name: yup.string().required('Name is required'),
+    releaseDate: yup.string(),
+    description: yup.string(),
+    type: yup.string(),
+    version: yup.string(),
+});
