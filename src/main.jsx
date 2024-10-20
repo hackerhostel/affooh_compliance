@@ -1,28 +1,48 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
-import {Amplify} from "aws-amplify";
-import {AwsConfigAuth} from "./auth/auth.js";
-import {Provider} from "react-redux";
-import {store} from './state'
-import {ToastProvider} from "react-toast-notifications";
-import axios from "axios";
-import {getAPIBaseURL} from "./utils/commonUtils.js";
+import { Amplify } from 'aws-amplify';
+import axios from 'axios';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { ToastProvider } from 'react-toast-notifications';
+
+import './index.css';
+
+import App from './App';
+import { AwsConfigAuth } from './auth/auth';
+import { getBuildConstant } from './constants/build-constants';
+import { store } from './state';
+import { getAPIBaseURL } from './utils/commonUtils';
 import 'devextreme/dist/css/dx.material.blue.light.css';
-import {getBuildConstant} from "./constants/build-constants.jsx";
 
 axios.defaults.baseURL = getAPIBaseURL();
-axios.defaults.headers.common['x-api-key'] = getBuildConstant('REACT_APP_X_API_KEY');
+axios.defaults.headers.common['x-api-key'] = getBuildConstant(
+  'REACT_APP_X_API_KEY',
+);
 
 Amplify.configure(AwsConfigAuth);
+
+const existingConfig = Amplify.getConfig();
+
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: {
+      ...existingConfig.API?.REST,
+      AffoohAPI: {
+        endpoint: 'https://ippnu5emu4.execute-api.us-east-1.amazonaws.com/dev',
+        region: 'us-east-1',
+      },
+    },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <React.StrictMode>
-      <ToastProvider autoDismiss={true} placement={"bottom-left"}>
-        <App/>
+      <ToastProvider autoDismiss={true} placement={'bottom-left'}>
+        <App />
       </ToastProvider>
     </React.StrictMode>
   </Provider>,
-)
+);
