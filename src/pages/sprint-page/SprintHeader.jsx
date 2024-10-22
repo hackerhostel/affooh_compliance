@@ -19,10 +19,11 @@ const SprintHeader = ({
                         isBacklog,
                         refetchSprint,
                         filters,
-                        onFilterChange,
                         assignees,
                         statusList,
-                        sprintStatusList
+                        sprintStatusList,
+                        onSelectFilterChange,
+                        onToggleFilterChange
                       }) => {
   const {addToast} = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
@@ -80,16 +81,6 @@ const SprintHeader = ({
       sprintID: sprint?.id,
       statusID: statusID
     }, sprintStatus === "Open" ? "Sprint Started" : "Sprint Completed", sprintStatus === "Open" ? "Failed To Start The Sprint" : "Failed To Complete The Sprint", true)
-  }
-
-  const onToggleFilterChange = (e, name) => {
-    const tempFilters = {...filters, [name]: e?.target?.checked}
-    onFilterChange(tempFilters)
-  }
-
-  const onSelectFilterChange = (value, name) => {
-    const tempFilters = {...filters, [name]: Number(value)}
-    onFilterChange(tempFilters)
   }
 
   return (
