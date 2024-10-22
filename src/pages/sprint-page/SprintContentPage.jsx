@@ -36,13 +36,15 @@ const SprintContentPage = () => {
     completed: false,
     sub: false,
     assignee: -1,
-    status: -1
+    status: -1,
+    type: -1,
   });
   const [sprint, setSprint] = useState(null)
   const [sprintId, setSprintId] = useState(0);
   const [isBacklog, setIsBacklog] = useState(false);
   const [assigneeList, setAssigneeList] = useState([]);
   const [statusList, setStatusList] = useState([]);
+  const [typeList, setTypeList] = useState([]);
 
   const {error, loading, data: sprintResponse, refetch: refetchSprint} = useFetchSprint(sprintId)
 
@@ -58,19 +60,33 @@ const SprintContentPage = () => {
         assignees.add(JSON.stringify({value: -1, label: "All Assignees"}))
         const status = new Set();
         status.add(JSON.stringify({value: -1, label: "All Status"}))
+        const types = new Set();
+        types.add(JSON.stringify({value: -1, label: "All Types"}))
+        let typeCounter = 1
+        const typeIdMap = {};
 
         taskListResponse.map(task => {
-          taskListConverted.push(transformTask(task))
+          const transformedTask = transformTask(task)
+
+          assignees.add(JSON.stringify({value: transformedTask.assigneeId, label: transformedTask.assignee}))
+          status.add(JSON.stringify({value: transformedTask.statusId, label: transformedTask.status}))
+
+          if (![...types].some(item => JSON.parse(item).label === transformedTask.type)) {
+            types.add(JSON.stringify({ value: typeCounter, label: transformedTask.type }));
+            typeIdMap[transformedTask.type] = typeCounter;
+            transformedTask["typeId"] = typeCounter++;
+          } else {
+            transformedTask["typeId"] = typeIdMap[transformedTask.type];
+          }
+
+          taskListConverted.push(transformedTask)
         })
 
         setTaskList(taskListConverted)
 
-        for (const tlc of taskListConverted) {
-          assignees.add(JSON.stringify({value: tlc.assigneeId, label: tlc.assignee}))
-          status.add(JSON.stringify({value: tlc.statusId, label: tlc.status}))
-        }
         setAssigneeList(Array.from(assignees).map(item => JSON.parse(item)))
         setStatusList(Array.from(status).map(item => JSON.parse(item)))
+        setTypeList(Array.from(types).map(item => JSON.parse(item)))
       }
     }
   }, [sprintResponse]);
@@ -88,10 +104,21 @@ const SprintContentPage = () => {
       const subFilteredTasks = completedFilteredTasks.filter(tl => (filters.sub || tl?.parentTaskId === 0));
       const assigneeFilteredTasks = subFilteredTasks.filter(tl => (filters?.assignee === -1 ? true : tl?.assigneeId === filters.assignee));
       const statusFilteredTasks = assigneeFilteredTasks.filter(tl => (filters?.status === -1 ? true : tl?.statusId === filters.status));
+      const typeFilteredTasks = statusFilteredTasks.filter(tl => (filters?.type === -1 ? true : tl?.typeId === filters.type));
 
-      setFilteredList(statusFilteredTasks)
+      setFilteredList(typeFilteredTasks)
     }
   }, [taskList, filters]);
+
+  const onSelectFilterChange = (value, name) => {
+    const tempFilters = {...filters, [name]: Number(value)}
+    setFilters(tempFilters)
+  }
+
+  const onToggleFilterChange = (e, name) => {
+    const tempFilters = {...filters, [name]: e?.target?.checked}
+    setFilters(tempFilters)
+  }
 
   if (loading) return <div className="p-2"><SkeletonLoader/></div>;
   if (error) return <ErrorAlert message={error.message}/>;
@@ -100,8 +127,10 @@ const SprintContentPage = () => {
     <>
       <SprintHeader sprint={sprint} isBacklog={isBacklog} refetchSprint={refetchSprint} filters={filters}
                     onFilterChange={setFilters} assignees={assigneeList} statusList={statusList}
-                    sprintStatusList={sprintStatusList}/>
-      <SprintTable taskList={filteredList}/>
+                    sprintStatusList={sprintStatusList} onSelectFilterChange={onSelectFilterChange}
+                    onToggleFilterChange={onToggleFilterChange}/>
+      <SprintTable taskList={filteredList} typeList={typeList} filters={filters}
+                   onSelectFilterChange={onSelectFilterChange}/>
     </>
   );
 }

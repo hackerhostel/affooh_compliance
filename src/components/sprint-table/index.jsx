@@ -5,7 +5,6 @@ import DataGrid, {
   Grouping,
   GroupPanel,
   Paging,
-  Position,
   Scrolling,
   Sorting
 } from 'devextreme-react/data-grid';
@@ -17,7 +16,7 @@ import MenuTabs from '../../assets/menu_tabs.png'
 import FormSelect from "../FormSelect.jsx";
 import SearchBar from "../SearchBar.jsx";
 
-const SprintTable = ({taskList}) => {
+const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
   const history = useHistory();
 
   const [filteredTaskList, setFilteredTaskList] = useState(taskList);
@@ -67,12 +66,12 @@ const SprintTable = ({taskList}) => {
         <div className="mb-2 flex items-center justify-between w-full">
           <div className="flex gap-5 w-1/2 items-center">
             <p className='text-secondary-grey text-lg font-medium'>{`Tasks (${filteredTaskList && filteredTaskList.length})`}</p>
-            <div className={"min-w-20"}>
+            <div className={"min-w-28"}>
               <FormSelect
-                  name="status"
-                  formValues={{status: 1}}
-                  options={[{value: 1, label: 'All'}]}
-                  // onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
+                  name="type"
+                  formValues={{type: filters?.type}}
+                  options={typeList}
+                  onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
               />
             </div>
             <SearchBar onSearch={handleSearch}/>
@@ -91,12 +90,7 @@ const SprintTable = ({taskList}) => {
             showColumnLines={true}
             onToolbarPreparing={onToolbarPreparing}
         >
-          <ColumnChooser enabled={true} mode="select">
-            <Position
-                my="right top"
-                of=".dx-toolbar-item-content"
-            />
-          </ColumnChooser>
+          <ColumnChooser enabled={true} mode="select"/>
           <GroupPanel visible/>
           <Grouping autoExpandAll/>
           <Paging enabled={false}/>
