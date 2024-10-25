@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useLocation, Link } from 'react-router-dom';
+import {useLocation, Link, useHistory} from 'react-router-dom';
 
 import FormInput from '../components/FormInput';
 import LoginImage from '../images/register.jpg';
@@ -8,8 +8,9 @@ import { RegisterSchema } from '../state/domains/authModels';
 import { doRegisterUser } from '../state/slice/registerSlice';
 import useValidation from '../utils/use-validation';
 
-function RegisterForm() {
+function Register() {
   const dispatch = useDispatch();
+  const history = useHistory();
   const [registerDetails, setRegisterDetails] = useState({
     username: '',
     organization: '',
@@ -43,6 +44,8 @@ function RegisterForm() {
 
     setIsValidationErrorsShown(false);
     dispatch(doRegisterUser(registerDetails));
+
+    history.push('/otpVerification', {email: registerDetails.username});
   };
 
   return (
@@ -180,4 +183,4 @@ function RegisterForm() {
   );
 }
 
-export default RegisterForm;
+export default Register;

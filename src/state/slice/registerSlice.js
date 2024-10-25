@@ -1,5 +1,6 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+﻿import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { post } from 'aws-amplify/api';
+import { confirmSignUp } from 'aws-amplify/auth';
 
 const initialState = {
   user: null,
@@ -34,7 +35,7 @@ export const doRegisterUser = createAsyncThunk(
       });
 
       if (response) {
-        return response;
+        return response.resolve();
       } else {
         return thunkApi.rejectWithValue('Registration failed');
       }
@@ -42,6 +43,26 @@ export const doRegisterUser = createAsyncThunk(
       return thunkApi.rejectWithValue(error.message);
     }
   },
+);
+
+export const doVerifyOTP = createAsyncThunk(
+    'register/doVerifyOTP',
+    async (verificationDetails, thunkApi) => {
+      const { username, otp } = verificationDetails;
+
+      try {
+        const verificationResult = await confirmSignUp({
+          username,
+          confirmationCode: otp
+        });
+
+        if (!verificationResult.isSignUpComplete) {
+          return thunkApi.rejectWithValue('OTP verification failed');
+        }
+      } catch (error) {
+        return thunkApi.rejectWithValue(error.message);
+      }
+    }
 );
 
 const registerSlice = createSlice({

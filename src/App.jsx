@@ -8,6 +8,7 @@ import ForgotPassword from './auth/ForgotPassword.jsx'
 import PublicGuard from "./auth/PublicGuard.jsx";
 import AuthGuard from "./auth/AuthGuard.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import OTPVerification from "./auth/OTPVerification.jsx";
 
 function App() {
   return (
@@ -22,6 +23,12 @@ function App() {
           <Route path="/register">
             <PublicGuard>
               <Register />
+            </PublicGuard>
+          </Route>
+
+          <Route path="/otpVerification">
+            <PublicGuard>
+              <OTPVerification />
             </PublicGuard>
           </Route>
 
