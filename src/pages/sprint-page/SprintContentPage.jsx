@@ -120,7 +120,13 @@ const SprintContentPage = () => {
     setFilters(tempFilters)
   }
 
-  if (loading) return <div className="p-2"><SkeletonLoader/></div>;
+  if (loading) {
+    return (
+        <div className="px-2 pt-4 h-content-screen">
+          <SkeletonLoader bars={6}/>
+        </div>
+    )
+  }
   if (error) return <ErrorAlert message={error.message}/>;
 
   return (

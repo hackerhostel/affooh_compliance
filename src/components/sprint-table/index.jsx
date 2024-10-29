@@ -8,17 +8,21 @@ import DataGrid, {
   Scrolling,
   Sorting
 } from 'devextreme-react/data-grid';
-import {formatDateIfDate} from "../../utils/commonUtils.js";
 import './custom-style.css';
 import {useHistory} from "react-router-dom";
-import {onToolbarPreparing} from "./utils.jsx";
+import {
+  customCellRender,
+  customHeaderRender,
+  onToolbarPreparing,
+  priorityCellRender,
+  statusCellRender
+} from "./utils.jsx";
 import MenuTabs from '../../assets/menu_tabs.png'
 import FormSelect from "../FormSelect.jsx";
 import SearchBar from "../SearchBar.jsx";
 
 const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
   const history = useHistory();
-
   const [filteredTaskList, setFilteredTaskList] = useState(taskList);
 
   useEffect(() => {
@@ -34,17 +38,6 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
     >
       {data.value}
     </button>
-  };
-
-  const customCellRender = (data) => {
-    if (typeof data.value === 'object') {
-      return <div className="text-sm text-wrap text-start">{formatDateIfDate(data.value)}</div>;
-    }
-    return <div className="text-sm text-wrap text-start">{data.value}</div>;
-  };
-
-  const customHeaderRender = (data) => {
-    return <div className="font-bold text-gray-600">{data.column.caption}</div>;
   };
 
   const handleSearch = (term) => {
@@ -96,17 +89,10 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
           <Paging enabled={false}/>
           <Scrolling columnRenderingMode="virtual"/>
           <Sorting mode="multiple"/>
-
-          <Column
-              dataField="status"
-              caption="Status"
-              headerCellRender={customHeaderRender}
-              cellRender={customCellRender}
-          />
           <Column
               dataField="title"
-              caption="Title"
-              width={400}
+              caption="Task Name"
+              width={350}
               headerCellRender={customHeaderRender}
               cellRender={taskTitleComponent}
           />
@@ -118,10 +104,11 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
               cellRender={customCellRender}
           />
           <Column
-              dataField="epic"
-              caption="Epic"
+              dataField="status"
+              caption="Status"
               headerCellRender={customHeaderRender}
-              cellRender={customCellRender}
+              cellRender={statusCellRender}
+              width={120}
           />
           <Column
               dataField="startDate"
@@ -138,6 +125,12 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
               cellRender={customCellRender}
           />
           <Column
+              dataField="epic"
+              caption="Epic Name"
+              headerCellRender={customHeaderRender}
+              cellRender={customCellRender}
+          />
+          <Column
               dataField="type"
               caption="Type"
               headerCellRender={customHeaderRender}
@@ -147,7 +140,7 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
               dataField="priority"
               caption="Priority"
               headerCellRender={customHeaderRender}
-              cellRender={customCellRender}
+              cellRender={priorityCellRender}
           />
         </DataGrid>
       </div>
