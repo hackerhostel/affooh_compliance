@@ -23,7 +23,8 @@ const SprintHeader = ({
                         statusList,
                         sprintStatusList,
                         onSelectFilterChange,
-                        onToggleFilterChange
+                        onToggleFilterChange,
+                        configChanges
                       }) => {
   const {addToast} = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
@@ -164,7 +165,7 @@ const SprintHeader = ({
             <div className="flex items-center space-x-4">
               <button
                   className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
-                  disabled={true}
+                  disabled={!configChanges}
               >Save
               </button>
               <button

@@ -45,6 +45,7 @@ const SprintContentPage = () => {
   const [assigneeList, setAssigneeList] = useState([]);
   const [statusList, setStatusList] = useState([]);
   const [typeList, setTypeList] = useState([]);
+  const [configChanges, setConfigChanges] = useState(false);
 
   const {error, loading, data: sprintResponse, refetch: refetchSprint} = useFetchSprint(sprintId)
 
@@ -134,9 +135,10 @@ const SprintContentPage = () => {
       <SprintHeader sprint={sprint} isBacklog={isBacklog} refetchSprint={refetchSprint} filters={filters}
                     onFilterChange={setFilters} assignees={assigneeList} statusList={statusList}
                     sprintStatusList={sprintStatusList} onSelectFilterChange={onSelectFilterChange}
-                    onToggleFilterChange={onToggleFilterChange}/>
+                    onToggleFilterChange={onToggleFilterChange} configChanges={configChanges}/>
       <SprintTable taskList={filteredList} typeList={typeList} filters={filters}
-                   onSelectFilterChange={onSelectFilterChange}/>
+                   onSelectFilterChange={onSelectFilterChange} sprintConfig={sprint?.displayConfig || []}
+                   setConfigChanges={setConfigChanges}/>
     </>
   );
 }
