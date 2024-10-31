@@ -11,19 +11,26 @@ import DataGrid, {
 import './custom-style.css';
 import {useHistory} from "react-router-dom";
 import {
+  addObjectsToArrayByIndex,
+  areObjectArraysEqual,
+  columnMap,
   customCellRender,
   customHeaderRender,
+  extractNumberFromSquareBrackets,
+  getGroupIndex,
   onToolbarPreparing,
   priorityCellRender,
+  removeObjectFromArrayByDataField,
   statusCellRender
 } from "./utils.jsx";
 import MenuTabs from '../../assets/menu_tabs.png'
 import FormSelect from "../FormSelect.jsx";
 import SearchBar from "../SearchBar.jsx";
 
-const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
+const SprintTable = ({taskList, typeList, filters, onSelectFilterChange, sprintConfig, setConfigChanges}) => {
   const history = useHistory();
   const [filteredTaskList, setFilteredTaskList] = useState(taskList);
+  const [config, setConfig] = useState(sprintConfig);
 
   useEffect(() => {
     setFilteredTaskList(taskList)
@@ -42,7 +49,6 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
 
   const handleSearch = (term) => {
     let filtered = taskList;
-
     if (term.trim() !== '') {
       filtered = filtered.filter(task =>
           task.title.toLowerCase().includes(term.toLowerCase())
@@ -50,8 +56,32 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
     } else {
       setFilteredTaskList(taskList);
     }
-
     setFilteredTaskList(filtered);
+  };
+
+  const onOptionChanged = (e) => {
+    const {fullName: funcName, value: index} = e || {};
+
+    const updateFilterGroups = (newGroups) => {
+      setConfigChanges(!areObjectArraysEqual(sprintConfig, newGroups));
+      setConfig(newGroups);
+    };
+
+    const colID = funcName && funcName.includes('groupIndex') || funcName.includes('visibleIndex')
+        ? extractNumberFromSquareBrackets(funcName)
+        : null;
+
+    if (colID >= 0) {
+      const dataField = columnMap.find((col) => col.id === colID)?.dataField;
+
+      if (funcName.includes('groupIndex') && dataField && index >= 0) {
+        const updatedGroups = addObjectsToArrayByIndex(config, {dataField, index});
+        updateFilterGroups(updatedGroups);
+      } else if (funcName.includes('visibleIndex') && dataField) {
+        const updatedGroups = removeObjectFromArrayByDataField(config, dataField);
+        updateFilterGroups(updatedGroups);
+      }
+    }
   };
 
   return (
@@ -82,6 +112,7 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
             showRowLines={true}
             showColumnLines={true}
             onToolbarPreparing={onToolbarPreparing}
+            onOptionChanged={onOptionChanged}
         >
           <ColumnChooser enabled={true} mode="select"/>
           <GroupPanel visible/>
@@ -95,13 +126,14 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
               width={350}
               headerCellRender={customHeaderRender}
               cellRender={taskTitleComponent}
+              groupIndex={getGroupIndex('title', sprintConfig)}
           />
           <Column
               dataField="assignee"
               caption="Assignee"
-              groupIndex={0}
               headerCellRender={customHeaderRender}
               cellRender={customCellRender}
+              groupIndex={getGroupIndex('assignee', sprintConfig)}
           />
           <Column
               dataField="status"
@@ -109,6 +141,7 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
               headerCellRender={customHeaderRender}
               cellRender={statusCellRender}
               width={120}
+              groupIndex={getGroupIndex('status', sprintConfig)}
           />
           <Column
               dataField="startDate"
@@ -116,6 +149,7 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
               dataType="date"
               headerCellRender={customHeaderRender}
               cellRender={customCellRender}
+              groupIndex={getGroupIndex('startDate', sprintConfig)}
           />
           <Column
               dataField="endDate"
@@ -123,24 +157,29 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
               dataType="date"
               headerCellRender={customHeaderRender}
               cellRender={customCellRender}
+              groupIndex={getGroupIndex('endDate', sprintConfig)}
           />
           <Column
               dataField="epic"
               caption="Epic Name"
               headerCellRender={customHeaderRender}
               cellRender={customCellRender}
+              visible={false}
+              groupIndex={getGroupIndex('epic', sprintConfig)}
           />
           <Column
               dataField="type"
               caption="Type"
               headerCellRender={customHeaderRender}
               cellRender={customCellRender}
+              groupIndex={getGroupIndex('type', sprintConfig)}
           />
           <Column
               dataField="priority"
               caption="Priority"
               headerCellRender={customHeaderRender}
               cellRender={priorityCellRender}
+              groupIndex={getGroupIndex('priority', sprintConfig)}
           />
         </DataGrid>
       </div>

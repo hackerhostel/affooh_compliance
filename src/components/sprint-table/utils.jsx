@@ -75,6 +75,56 @@ export const statusCellRender = (data) => {
             {status === "Done" ? 'Completed' : status}
         </div>
     );
-
-    // console.log(status)
 };
+
+export const columnMap = [
+    {id: 0, dataField: 'title'},
+    {id: 1, dataField: 'assignee'},
+    {id: 2, dataField: 'status'},
+    {id: 3, dataField: 'startDate'},
+    {id: 4, dataField: 'endDate'},
+    {id: 5, dataField: 'epic'},
+    {id: 6, dataField: 'type'},
+    {id: 7, dataField: 'priority'},
+];
+
+export const getGroupIndex = (dataField, configs) => {
+    const group = configs.find((obj) => obj.dataField === dataField);
+    return group ? group.index : undefined;
+};
+
+export const extractNumberFromSquareBrackets = (inputString) => {
+    const match = inputString.match(/\[(\d+)\]/);
+    return match ? parseInt(match[1], 10) : null;
+};
+
+export const addObjectsToArrayByIndex = (arr, paramObj) => {
+    return [
+        ...arr.map((obj) => ({
+            ...obj,
+            index: obj.index >= paramObj.index ? obj.index + 1 : obj.index,
+        })),
+        paramObj,
+    ].sort((a, b) => a.index - b.index);
+};
+
+export const areObjectArraysEqual = (arr1, arr2) =>
+    arr1.length === arr2.length && arr1.every((obj, index) => JSON.stringify(obj) === JSON.stringify(arr2[index]));
+
+
+export const removeObjectFromArrayByDataField = (arr, dataFieldToRemove) => {
+    const newArray = arr.filter((obj) => obj.dataField !== dataFieldToRemove);
+    const removedIndex = arr.findIndex((obj) => obj.dataField === dataFieldToRemove);
+
+    if (removedIndex !== -1) {
+        return newArray.map((obj) => ({
+            ...obj,
+            index: obj.index > removedIndex ? obj.index - 1 : obj.index,
+        }));
+    }
+
+    return newArray;
+};
+
+
+
