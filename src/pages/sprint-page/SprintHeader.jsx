@@ -24,7 +24,9 @@ const SprintHeader = ({
                         sprintStatusList,
                         onSelectFilterChange,
                         onToggleFilterChange,
-                        configChanges
+                        configChanges,
+                        sprintConfig,
+                        setConfigChanges
                       }) => {
   const {addToast} = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
@@ -56,6 +58,25 @@ const SprintHeader = ({
       addToast(errorMessage, {appearance: 'error'});
     }
 
+    setIsSubmitting(false)
+  }
+
+  const updateDisplayConfig = async () => {
+    setIsSubmitting(true)
+    try {
+      const response = await axios.put(`/sprints/${sprint?.id}/config`, {config: sprintConfig})
+      const updated = response?.data?.status
+
+      if (updated) {
+        addToast('Sprint display config updated', {appearance: 'success'});
+        refetchSprint()
+        setConfigChanges(false)
+      } else {
+        addToast('Failed update the sprint display config', {appearance: 'error'});
+      }
+    } catch (error) {
+      addToast('Failed update the sprint display config', {appearance: 'error'});
+    }
     setIsSubmitting(false)
   }
 
@@ -165,7 +186,8 @@ const SprintHeader = ({
             <div className="flex items-center space-x-4">
               <button
                   className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
-                  disabled={!configChanges}
+                  disabled={!configChanges || isSubmitting}
+                  onClick={updateDisplayConfig}
               >Save
               </button>
               <button

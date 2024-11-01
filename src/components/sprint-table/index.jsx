@@ -12,7 +12,6 @@ import './custom-style.css';
 import {useHistory} from "react-router-dom";
 import {
   addObjectsToArrayByIndex,
-  areObjectArraysEqual,
   columnMap,
   customCellRender,
   customHeaderRender,
@@ -27,10 +26,16 @@ import MenuTabs from '../../assets/menu_tabs.png'
 import FormSelect from "../FormSelect.jsx";
 import SearchBar from "../SearchBar.jsx";
 
-const SprintTable = ({taskList, typeList, filters, onSelectFilterChange, sprintConfig, setConfigChanges}) => {
+const SprintTable = ({
+                       taskList,
+                       typeList,
+                       filters,
+                       onSelectFilterChange,
+                       sprintConfig,
+                       updateFilterGroups,
+                     }) => {
   const history = useHistory();
   const [filteredTaskList, setFilteredTaskList] = useState(taskList);
-  const [config, setConfig] = useState(sprintConfig);
 
   useEffect(() => {
     setFilteredTaskList(taskList)
@@ -61,12 +66,6 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange, sprintC
 
   const onOptionChanged = (e) => {
     const {fullName: funcName, value: index} = e || {};
-
-    const updateFilterGroups = (newGroups) => {
-      setConfigChanges(!areObjectArraysEqual(sprintConfig, newGroups));
-      setConfig(newGroups);
-    };
-
     const colID = funcName && funcName.includes('groupIndex') || funcName.includes('visibleIndex')
         ? extractNumberFromSquareBrackets(funcName)
         : null;
@@ -75,10 +74,10 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange, sprintC
       const dataField = columnMap.find((col) => col.id === colID)?.dataField;
 
       if (funcName.includes('groupIndex') && dataField && index >= 0) {
-        const updatedGroups = addObjectsToArrayByIndex(config, {dataField, index});
+        const updatedGroups = addObjectsToArrayByIndex(sprintConfig, {dataField, index});
         updateFilterGroups(updatedGroups);
       } else if (funcName.includes('visibleIndex') && dataField) {
-        const updatedGroups = removeObjectFromArrayByDataField(config, dataField);
+        const updatedGroups = removeObjectFromArrayByDataField(sprintConfig, dataField);
         updateFilterGroups(updatedGroups);
       }
     }
