@@ -6,6 +6,7 @@ import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import SprintHeader from "./SprintHeader.jsx";
 import useFetchSprint from "../../hooks/custom-hooks/sprint/useFetchSprint.jsx";
+import {areObjectArraysEqual} from "../../components/sprint-table/utils.jsx";
 
 const transformTask = (task) => {
   return {
@@ -46,12 +47,14 @@ const SprintContentPage = () => {
   const [statusList, setStatusList] = useState([]);
   const [typeList, setTypeList] = useState([]);
   const [configChanges, setConfigChanges] = useState(false);
+  const [sprintConfig, setSprintConfig] = useState([]);
 
   const {error, loading, data: sprintResponse, refetch: refetchSprint} = useFetchSprint(sprintId)
 
   useEffect(() => {
-    if (sprintResponse?.sprint) {
+    if (sprintResponse?.sprint?.id) {
       setSprint(sprintResponse?.sprint)
+      setSprintConfig(sprintResponse?.sprint?.displayConfig || [])
       setIsBacklog(sprintResponse?.sprint?.name === 'BACKLOG')
 
       const taskListResponse = sprintResponse?.tasks
@@ -121,6 +124,11 @@ const SprintContentPage = () => {
     setFilters(tempFilters)
   }
 
+  const updateFilterGroups = (newGroups) => {
+    setConfigChanges(!areObjectArraysEqual(sprint?.displayConfig, newGroups));
+    setSprintConfig(newGroups);
+  };
+
   if (loading) {
     return (
         <div className="px-2 pt-4 h-content-screen">
@@ -135,10 +143,11 @@ const SprintContentPage = () => {
       <SprintHeader sprint={sprint} isBacklog={isBacklog} refetchSprint={refetchSprint} filters={filters}
                     onFilterChange={setFilters} assignees={assigneeList} statusList={statusList}
                     sprintStatusList={sprintStatusList} onSelectFilterChange={onSelectFilterChange}
-                    onToggleFilterChange={onToggleFilterChange} configChanges={configChanges}/>
+                    onToggleFilterChange={onToggleFilterChange} configChanges={configChanges}
+                    setConfigChanges={setConfigChanges} sprintConfig={sprintConfig}/>
       <SprintTable taskList={filteredList} typeList={typeList} filters={filters}
-                   onSelectFilterChange={onSelectFilterChange} sprintConfig={sprint?.displayConfig || []}
-                   setConfigChanges={setConfigChanges}/>
+                   onSelectFilterChange={onSelectFilterChange} sprintConfig={sprintConfig}
+                   setConfigChanges={setConfigChanges} updateFilterGroups={updateFilterGroups}/>
     </>
   );
 }
