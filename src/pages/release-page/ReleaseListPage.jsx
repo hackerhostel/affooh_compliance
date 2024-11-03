@@ -52,6 +52,8 @@ const ReleaseListPage = () => {
 
     const handleDeleteClick = (release) => {
         setSelectedRelease(release);
+        console.log(release);
+        
         setIsDialogOpen(true);
     };
 

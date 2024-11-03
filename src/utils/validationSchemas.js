@@ -38,10 +38,14 @@ export const ProjectCreateSchema = yup.object().shape({
 
 export const ReleaseCreateSchema = yup.object({
     name: yup.string().required('Name is required'),
-    releaseDate: yup.string(),
-    description: yup.string(),
-    type: yup.string(),
-    version: yup.string(),
+    description: yup.string().required('Description is required'),
+    releaseDate: yup.string().required('Date is required'),
+    status: yup.string().required('Status is required'),
+    type: yup.number().integer().required('Type is required'),
+    version: yup.string().required('Version is required'),
+    projectID: yup.string().required('Project Id is required'),
+    releaseCheckListItems: yup.array().required('Check list item is required'),
+    requirements: yup.string(),
 });
 
 export const ReleaseEditSchema = yup.object({

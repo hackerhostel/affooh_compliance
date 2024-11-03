@@ -12,6 +12,7 @@ import FormTextArea from "../../components/FormTextArea.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import { ReleaseCreateSchema } from "../../utils/validationSchemas.js";
 import { useToasts } from "react-toast-notifications";
+import axios from "axios";
 
 const ReleaseCreate = ({ isOpen, onClose }) => {
   const { addToast } = useToasts();
@@ -26,6 +27,8 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
   };
 
   const handleFormChange = (name, value, isText) => {
+    
+    
     setFormValues({ ...formValues, [name]: isText ? value : Number(value) });
     setIsValidationErrorsShown(false);
   };
@@ -36,19 +39,26 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
     releaseDate: "MM/DD/YYYY",
     type: "",
     version: "",
+    projectID: selectedProject.id,
+    status: 1,
+    releaseCheckListItems: []
   });
   const [formErrors] = useValidation(ReleaseCreateSchema, formValues);
 
   const createRelease = async (event) => {
+    event.preventDefault();
     setIsSubmitting(true);
     if (formErrors && Object.keys(formErrors).length > 0) {
+      console.log(formErrors);
       setIsValidationErrorsShown(true);
     } else {
       setIsValidationErrorsShown(false);
       try {
-        const response = await axios.post("/release-create", {
-          task: formValues,
+
+        const response = await axios.post("releases/create", {
+          body : formValues,
         });
+
         const releaseId = response?.data?.body?.releaseId;
 
         if (releaseId > 0) {
@@ -58,6 +68,8 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
           addToast("Failed To Create The Release ", { appearance: "error" });
         }
       } catch (error) {
+        console.log(error);
+        
         addToast("Failed To Create The Release ", { appearance: "error" });
       }
     }
@@ -112,10 +124,9 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                     handleFormChange(name, value, true)
                   }
                   rows={6}
+                  formErrors={formErrors}
+                  showErrors={isValidationErrorsShown}
                 />
-                {isValidationErrorsShown && formErrors.description && (
-                  <span className="text-red-500">{formErrors.description}</span>
-                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
@@ -123,11 +134,13 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                   <FormInput
                     type="date"
                     name="releaseDate"
-                    formValues={formValues}
+                    formValues={Date(formValues)}
                     placeholder="Release Date"
                     onChange={({ target: { name, value } }) =>
                       handleFormChange(name, value)
                     }
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
 
@@ -136,7 +149,12 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                     formValues={formValues}
                     name="type"
                     placeholder="Type"
-                    options={[{ value: "alpha", label: "Alpha" }]}
+                    options={[{ value: 1, label: "Alpha" }]}
+                    formErrors={formErrors}
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value)
+                    }
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
                 <div>

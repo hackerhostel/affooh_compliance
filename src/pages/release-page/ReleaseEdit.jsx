@@ -1,16 +1,10 @@
-import React, { useCallback, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import React, { useState } from "react";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
-import {
-  doSwitchProject,
-  selectProjectList,
-  selectSelectedProject,
-} from "../../state/slice/projectSlice.js";
+
 import FormTextArea from "../../components/FormTextArea.jsx";
 import useValidation from "../../utils/use-validation.jsx";
-import { ReleaseCreateSchema } from "../../utils/validationSchemas.js";
+import { ReleaseEditSchema } from "../../utils/validationSchemas.js";
 import { useToasts } from "react-toast-notifications";
 import {ChevronRightIcon} from "@heroicons/react/24/outline/index.js";
 
@@ -30,9 +24,9 @@ const ReleaseEdit = ({ releaseId }) => {
     type: "",
     version: "",
   });
-  const [formErrors] = useValidation(ReleaseCreateSchema, formValues);
+  const [formErrors] = useValidation(ReleaseEditSchema, formValues);
 
-  const createRelease = async (event) => {
+  const editRelease = async (event) => {
     setIsSubmitting(true);
     if (formErrors && Object.keys(formErrors).length > 0) {
       setIsValidationErrorsShown(true);
