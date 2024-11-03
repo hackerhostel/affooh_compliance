@@ -1,6 +1,7 @@
 ﻿import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { post } from 'aws-amplify/api';
 import { confirmSignUp } from 'aws-amplify/auth';
+import axios from "axios";
 
 const initialState = {
   user: null,
@@ -45,6 +46,26 @@ export const doRegisterUser = createAsyncThunk(
   },
 );
 
+export const fetchUserInvitedOrganization = createAsyncThunk(
+    'register/fetchUserInvitedOrganization',
+    async (email, thunkApi) => {
+      try {
+        const response = await axios.get(`/users/complete-registration/${email}`);
+
+        if (!response?.data?.body?.name) {
+          throw new Error('Invalid response format');
+        }
+
+        return response.data.body.name;
+
+      } catch (error) {
+        return thunkApi.rejectWithValue(
+            error.message || 'Failed to send invitation'
+        );
+      }
+    }
+);
+
 export const doVerifyOTP = createAsyncThunk(
     'register/doVerifyOTP',
     async (verificationDetails, thunkApi) => {
@@ -86,6 +107,64 @@ const registerSlice = createSlice({
         state.error = action.payload;
       });
   },
+});
+
+export const sendInvitation = createAsyncThunk(
+    'invitations/sendInvitation',
+    async ({ email, userRole }, thunkApi) => {
+      try {
+        const response = await axios.post('/organizations/invite-user', {
+          email,
+          userRole
+        });
+
+        if (!response?.data?.body?.userID) {
+          throw new Error('Invalid response format');
+        }
+
+        return response.data.body.userID;
+
+      } catch (error) {
+        return thunkApi.rejectWithValue(
+            error.message || 'Failed to send invitation'
+        );
+      }
+    }
+);
+
+// Slice for managing invitations state
+const invitationsSlice = createSlice({
+  name: 'invitations',
+  initialState: {
+    invitations: [],
+    currentInvitation: null
+  },
+  reducers: {
+    clearInvitationError: (state) => {
+      state.error = null;
+    },
+    resetInvitationStatus: (state) => {
+      state.status = 'idle';
+      state.error = null;
+      state.currentInvitation = null;
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+        .addCase(sendInvitation.pending, (state) => {
+          state.status = 'loading';
+          state.error = null;
+        })
+        .addCase(sendInvitation.fulfilled, (state, action) => {
+          state.status = 'succeeded';
+          state.invitations.push(action.payload);
+          state.currentInvitation = action.payload;
+        })
+        .addCase(sendInvitation.rejected, (state, action) => {
+          state.status = 'failed';
+          state.error = action.payload;
+        });
+  }
 });
 
 export const { clearRegisterState } = registerSlice.actions;
