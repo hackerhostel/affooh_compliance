@@ -1003,3 +1003,11 @@ label:focus {
   }
 }
 
+/* Task Table */
+.dx-datagrid .dx-toolbar {
+  margin-bottom: 0 !important;
+}
+
+.dx-toolbar-after{
+  width: 30px !important;
+}

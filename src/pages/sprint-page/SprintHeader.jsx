@@ -10,29 +10,73 @@ import DateRangeSelector from "../../components/DateRangeSelector.jsx";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
 import moment from "moment";
+import {useDispatch, useSelector} from "react-redux";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {doGetSprintBreakdown, setRedirectSprint} from "../../state/slice/sprintSlice.js";
 
-const SprintHeader = ({sprint, isBacklog, refetchSprint, filters, onFilterChange, assignees, statusList}) => {
+const SprintHeader = ({
+                        sprint,
+                        isBacklog,
+                        refetchSprint,
+                        filters,
+                        assignees,
+                        statusList,
+                        sprintStatusList,
+                        onSelectFilterChange,
+                        onToggleFilterChange,
+                        configChanges,
+                        sprintConfig,
+                        setConfigChanges
+                      }) => {
   const {addToast} = useToasts();
+  const selectedProject = useSelector(selectSelectedProject);
+  const dispatch = useDispatch();
+
   const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
   const [dateRangelOpen, setDateRangelOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const updateSprint = async (payload, toUpdate) => {
+  let sprintStatus = sprint?.status?.value || "OPEN"
+
+  const updateSprint = async (payload, successMessage, errorMessage, pullSprints = false) => {
     setIsSubmitting(true)
     try {
       const response = await axios.put(`/sprints/${sprint?.id}`, {sprint: payload})
       const updated = response?.data?.body
 
       if (updated) {
-        addToast(`${toUpdate} Successfully Updated`, {appearance: 'success'});
+        addToast(successMessage, {appearance: 'success'});
+        if (pullSprints) {
+          dispatch(setRedirectSprint(sprint?.id));
+          dispatch(doGetSprintBreakdown(selectedProject?.id))
+        }
         await refetchSprint()
       } else {
-        addToast(`Failed To Updated The ${toUpdate}`, {appearance: 'error'});
+        addToast(errorMessage, {appearance: 'error'});
       }
     } catch (error) {
-      addToast(`Failed To Updated The ${toUpdate}`, {appearance: 'error'});
+      addToast(errorMessage, {appearance: 'error'});
     }
 
+    setIsSubmitting(false)
+  }
+
+  const updateDisplayConfig = async () => {
+    setIsSubmitting(true)
+    try {
+      const response = await axios.put(`/sprints/${sprint?.id}/config`, {config: sprintConfig})
+      const updated = response?.data?.status
+
+      if (updated) {
+        addToast('Sprint display config updated', {appearance: 'success'});
+        refetchSprint()
+        setConfigChanges(false)
+      } else {
+        addToast('Failed update the sprint display config', {appearance: 'error'});
+      }
+    } catch (error) {
+      addToast('Failed update the sprint display config', {appearance: 'error'});
+    }
     setIsSubmitting(false)
   }
 
@@ -45,17 +89,20 @@ const SprintHeader = ({sprint, isBacklog, refetchSprint, filters, onFilterChange
       sprintID: sprint?.id,
       startDate: moment(dateRange?.startDate).format('YYYY-MM-DD'),
       endDate: moment(dateRange?.endDate).format('YYYY-MM-DD'),
-    }, "Sprint Dates")
+    }, "Sprint Dates Successfully Updated", "Failed To Updated The Sprint Dates")
   }
 
-  const onToggleFilterChange = (e, name) => {
-    const tempFilters = {...filters, [name]: e?.target?.checked}
-    onFilterChange(tempFilters)
-  }
+  const updateSprintStatus = async () => {
+    const statusID = (() => {
+      const targetValue = sprintStatus === "Open" ? "In Progress" : "Done";
+      const status = sprintStatusList?.find(sl => sl.value === targetValue);
+      return status?.id;
+    })();
 
-  const onSelectFilterChange = (value, name) => {
-    const tempFilters = {...filters, [name]: Number(value)}
-    onFilterChange(tempFilters)
+    await updateSprint({
+      sprintID: sprint?.id,
+      statusID: statusID
+    }, sprintStatus === "Open" ? "Sprint Started" : "Sprint Completed", sprintStatus === "Open" ? "Failed To Start The Sprint" : "Failed To Complete The Sprint", true)
   }
 
   return (
@@ -69,7 +116,7 @@ const SprintHeader = ({sprint, isBacklog, refetchSprint, filters, onFilterChange
               </div>
               <div className="flex text-status-done font-medium pl-4 pr-5 gap-2">
                 <div className={"min-w-1 rounded-md bg-status-done"}></div>
-                <p>{sprint?.status?.value || "OPEN"}</p></div>
+                <p>{sprintStatus}</p></div>
               <div className="flex items-center">
                 <div className="h-7 w-px bg-gray-500 mr-4"></div>
                 <img
@@ -139,12 +186,16 @@ const SprintHeader = ({sprint, isBacklog, refetchSprint, filters, onFilterChange
             <div className="flex items-center space-x-4">
               <button
                   className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
-                  disabled={true}
+                  disabled={!configChanges || isSubmitting}
+                  onClick={updateDisplayConfig}
               >Save
               </button>
               <button
-                  className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300">
-                Complete Sprint
+                  className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
+                  disabled={isBacklog || sprintStatus === "Done" || isSubmitting}
+                  onClick={updateSprintStatus}
+              >
+                {sprintStatus === "Open" ? 'Start Sprint' : 'Complete Sprint'}
               </button>
               <button
                   className="px-6 py-3 text-white rounded-lg border border-primary-pink bg-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"

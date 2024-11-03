@@ -1,125 +1,187 @@
 import React, {useEffect, useState} from 'react';
 import DataGrid, {
   Column,
-  SearchPanel,
-  Paging, GroupPanel, Grouping, ColumnChooser, Scrolling, Sorting,
+  ColumnChooser,
+  Grouping,
+  GroupPanel,
+  Paging,
+  Scrolling,
+  Sorting
 } from 'devextreme-react/data-grid';
-import {formatDateIfDate} from "../../utils/commonUtils.js";
-
 import './custom-style.css';
 import {useHistory} from "react-router-dom";
+import {
+  addObjectsToArrayByIndex,
+  columnMap,
+  customCellRender,
+  customHeaderRender,
+  extractNumberFromSquareBrackets,
+  getGroupIndex,
+  onToolbarPreparing,
+  priorityCellRender,
+  removeObjectFromArrayByDataField,
+  statusCellRender
+} from "./utils.jsx";
+import MenuTabs from '../../assets/menu_tabs.png'
+import FormSelect from "../FormSelect.jsx";
+import SearchBar from "../SearchBar.jsx";
 
-const SprintTable = ({taskList}) => {
+const SprintTable = ({
+                       taskList,
+                       typeList,
+                       filters,
+                       onSelectFilterChange,
+                       sprintConfig,
+                       updateFilterGroups,
+                     }) => {
   const history = useHistory();
+  const [filteredTaskList, setFilteredTaskList] = useState(taskList);
+
+  useEffect(() => {
+    setFilteredTaskList(taskList)
+  }, [taskList]);
 
   const taskTitleComponent = (data) => {
     return <button
-      className="px-2 py-1 text-sm hover:bg-gray-50 rounded-lg"
-      onClick={() => {
-        history.push(`/task/${data?.key?.taskCode}`);
-      }}
+        className="px-2 py-1 text-sm hover:bg-gray-50 rounded-lg text-wrap text-start"
+        onClick={() => {
+          history.push(`/task/${data?.key?.taskCode}`);
+        }}
     >
       {data.value}
     </button>
   };
 
-  const customCellRender = (data) => {
-    if (typeof data.value === 'object') {
-      return <div className="px-2 py-1 text-sm">{formatDateIfDate(data.value)}</div>;
+  const handleSearch = (term) => {
+    let filtered = taskList;
+    if (term.trim() !== '') {
+      filtered = filtered.filter(task =>
+          task.title.toLowerCase().includes(term.toLowerCase())
+      );
+    } else {
+      setFilteredTaskList(taskList);
     }
-    return <div className="px-2 py-1 text-sm">{data.value}</div>;
+    setFilteredTaskList(filtered);
   };
 
-  const customHeaderRender = (data) => {
-    return <div className="font-bold text-gray-600">{data.column.caption}</div>;
+  const onOptionChanged = (e) => {
+    const {fullName: funcName, value: index} = e || {};
+    const colID = funcName && funcName.includes('groupIndex') || funcName.includes('visibleIndex')
+        ? extractNumberFromSquareBrackets(funcName)
+        : null;
+
+    if (colID >= 0) {
+      const dataField = columnMap.find((col) => col.id === colID)?.dataField;
+
+      if (funcName.includes('groupIndex') && dataField && index >= 0) {
+        const updatedGroups = addObjectsToArrayByIndex(sprintConfig, {dataField, index});
+        updateFilterGroups(updatedGroups);
+      } else if (funcName.includes('visibleIndex') && dataField) {
+        const updatedGroups = removeObjectFromArrayByDataField(sprintConfig, dataField);
+        updateFilterGroups(updatedGroups);
+      }
+    }
   };
-
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight  - 200);
-
-  useEffect(() => {
-    const handleResize = () => setWindowHeight(window.innerHeight  - 200);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   return (
-    <div className="p-4">
-      <DataGrid
-        dataSource={taskList}
-        allowColumnReordering={true}
-        rowAlternationEnabled={true}
-        showBorders={true}
-        width="100%"
-        className="shadow-lg rounded-lg overflow-hidden sprint-grid-table"
-        height={windowHeight}
-      >
-        <GroupPanel visible/>
-        <SearchPanel visible/>
-        <Grouping autoExpandAll/>
-        <Paging enabled={false}/>
-        <ColumnChooser enabled={true} mode="select"/>
-        <Scrolling columnRenderingMode="virtual" />
-        <Sorting mode="multiple"/>
-
-        <Column
-          dataField="status"
-          caption="Status"
-          headerCellRender={customHeaderRender}
-          cellRender={customCellRender}
-        />
-        <Column
-          dataField="title"
-          caption="Title"
-          width={500}
-          headerCellRender={customHeaderRender}
-          cellRender={taskTitleComponent}
-        />
-        <Column
-          dataField="assignee"
-          caption="Assignee"
-          groupIndex={0}
-          headerCellRender={customHeaderRender}
-          cellRender={customCellRender}
-          // groupCellRender={(cellInfo) => (
-          //   <div className="custom-group-cell">
-          //     group cell test
-          //   </div>
-          // )}
-        />
-        <Column
-          dataField="epic"
-          caption="Epic"
-          headerCellRender={customHeaderRender}
-          cellRender={customCellRender}
-        />
-        <Column
-          dataField="startDate"
-          caption="Start Date"
-          dataType="date"
-          headerCellRender={customHeaderRender}
-          cellRender={customCellRender}
-        />
-        <Column
-          dataField="endDate"
-          caption="End Date"
-          dataType="date"
-          headerCellRender={customHeaderRender}
-          cellRender={customCellRender}
-        />
-        <Column
-          dataField="type"
-          caption="Type"
-          headerCellRender={customHeaderRender}
-          cellRender={customCellRender}
-        />
-        <Column
-          dataField="priority"
-          caption="Priority"
-          headerCellRender={customHeaderRender}
-          cellRender={customCellRender}
-        />
-      </DataGrid>
-    </div>
+      <div className="px-4">
+        <div className="mb-2 flex items-center justify-between w-full">
+          <div className="flex gap-5 w-1/2 items-center">
+            <p className='text-secondary-grey text-lg font-medium'>{`Tasks (${filteredTaskList && filteredTaskList.length})`}</p>
+            <div className={"min-w-28"}>
+              <FormSelect
+                  name="type"
+                  formValues={{type: filters?.type}}
+                  options={typeList}
+                  onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
+              />
+            </div>
+            <SearchBar onSearch={handleSearch}/>
+          </div>
+          <div className="flex items-center w-1/2 ">
+            <img src={MenuTabs} alt="Menu tabs"/>
+          </div>
+        </div>
+        <DataGrid
+            dataSource={filteredTaskList}
+            allowColumnReordering={true}
+            showBorders={true}
+            width="100%"
+            className="shadow-lg rounded-lg overflow-hidden sprint-grid-table h-task-list-screen"
+            showRowLines={true}
+            showColumnLines={true}
+            onToolbarPreparing={onToolbarPreparing}
+            onOptionChanged={onOptionChanged}
+        >
+          <ColumnChooser enabled={true} mode="select"/>
+          <GroupPanel visible/>
+          <Grouping autoExpandAll/>
+          <Paging enabled={false}/>
+          <Scrolling columnRenderingMode="virtual"/>
+          <Sorting mode="multiple"/>
+          <Column
+              dataField="title"
+              caption="Task Name"
+              width={350}
+              headerCellRender={customHeaderRender}
+              cellRender={taskTitleComponent}
+              groupIndex={getGroupIndex('title', sprintConfig)}
+          />
+          <Column
+              dataField="assignee"
+              caption="Assignee"
+              headerCellRender={customHeaderRender}
+              cellRender={customCellRender}
+              groupIndex={getGroupIndex('assignee', sprintConfig)}
+          />
+          <Column
+              dataField="status"
+              caption="Status"
+              headerCellRender={customHeaderRender}
+              cellRender={statusCellRender}
+              width={120}
+              groupIndex={getGroupIndex('status', sprintConfig)}
+          />
+          <Column
+              dataField="startDate"
+              caption="Start Date"
+              dataType="date"
+              headerCellRender={customHeaderRender}
+              cellRender={customCellRender}
+              groupIndex={getGroupIndex('startDate', sprintConfig)}
+          />
+          <Column
+              dataField="endDate"
+              caption="End Date"
+              dataType="date"
+              headerCellRender={customHeaderRender}
+              cellRender={customCellRender}
+              groupIndex={getGroupIndex('endDate', sprintConfig)}
+          />
+          <Column
+              dataField="epic"
+              caption="Epic Name"
+              headerCellRender={customHeaderRender}
+              cellRender={customCellRender}
+              visible={false}
+              groupIndex={getGroupIndex('epic', sprintConfig)}
+          />
+          <Column
+              dataField="type"
+              caption="Type"
+              headerCellRender={customHeaderRender}
+              cellRender={customCellRender}
+              groupIndex={getGroupIndex('type', sprintConfig)}
+          />
+          <Column
+              dataField="priority"
+              caption="Priority"
+              headerCellRender={customHeaderRender}
+              cellRender={priorityCellRender}
+              groupIndex={getGroupIndex('priority', sprintConfig)}
+          />
+        </DataGrid>
+      </div>
   );
 };
 

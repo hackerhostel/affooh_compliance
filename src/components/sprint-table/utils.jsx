@@ -1,0 +1,130 @@
+import AddIcon from '../../assets/add_icon.png'
+import {formatDateIfDate} from "../../utils/commonUtils.js";
+import React from "react";
+
+export const onToolbarPreparing = (e) => {
+    const toolbarItems = e.toolbarOptions.items;
+    const columnChooserButton = toolbarItems.find((item) => item.name === 'columnChooserButton');
+
+    if (columnChooserButton) {
+        columnChooserButton.options.icon = AddIcon;
+    }
+};
+
+export const customCellRender = (data) => {
+    if (typeof data.value === 'object') {
+        return <div className="text-sm text-wrap text-start">{formatDateIfDate(data.value)}</div>;
+    }
+    return <div className="text-sm text-wrap text-start">{data.value}</div>;
+};
+
+export const customHeaderRender = (data) => {
+    return <div className="font-bold text-gray-600">{data.column.caption}</div>;
+};
+
+export const priorityCellRender = (data) => {
+    const priority = data?.value || ""
+
+    const bgColors = {
+        "High": "bg-priority-high",
+        "Medium": "bg-priority-medium",
+        "Low": "bg-priority-low",
+        "": "bg-secondary-bgc"
+    };
+
+    const txtColors = {
+        "High": "text-white",
+        "Medium": "text-secondary-grey",
+        "Low": "text-secondary-grey",
+        "": "text-black"
+    };
+
+    return (
+        <div
+            className={`${bgColors[priority] || "bg-secondary-bgc"} ${txtColors[priority] || "text-black"} py-1 px-0.5 text-center text-xs rounded-md cursor-pointer`}>
+            {priority}
+        </div>
+    );
+}
+
+export const statusCellRender = (data) => {
+    const status = data?.value || ""
+
+    const bgColors = {
+        "To Do": "bg-task-status-to-do",
+        "In Progress": "bg-task-status-in-progress",
+        "Done": "bg-task-status-done",
+        "QA": "bg-task-status-qa",
+        "UAT": "bg-task-status-uat",
+        "": "bg-secondary-bgc"
+    };
+
+    const bgBoldColors = {
+        "To Do": "bg-task-status-to-do-bold",
+        "In Progress": "bg-task-status-in-progress-bold",
+        "Done": "bg-task-status-done-bold",
+        "QA": "bg-task-status-qa-bold",
+        "UAT": "bg-task-status-uat-bold",
+        "": "bg-secondary-bgc"
+    };
+
+    return (
+        <div
+            className={`${bgColors[status] || "bg-secondary-bgc"} text-secondary-grey py-1 px-2  text-center text-xs rounded-md cursor-pointer flex justify-start gap-2`}>
+            <div className={`${bgBoldColors[status] || "bg-secondary-bgc"} min-w-1 rounded-md`}></div>
+            {status === "Done" ? 'Completed' : status}
+        </div>
+    );
+};
+
+export const columnMap = [
+    {id: 0, dataField: 'title'},
+    {id: 1, dataField: 'assignee'},
+    {id: 2, dataField: 'status'},
+    {id: 3, dataField: 'startDate'},
+    {id: 4, dataField: 'endDate'},
+    {id: 5, dataField: 'epic'},
+    {id: 6, dataField: 'type'},
+    {id: 7, dataField: 'priority'},
+];
+
+export const getGroupIndex = (dataField, configs) => {
+    const group = configs.find((obj) => obj.dataField === dataField);
+    return group ? group.index : undefined;
+};
+
+export const extractNumberFromSquareBrackets = (inputString) => {
+    const match = inputString.match(/\[(\d+)\]/);
+    return match ? parseInt(match[1], 10) : null;
+};
+
+export const addObjectsToArrayByIndex = (arr, paramObj) => {
+    return [
+        ...arr.map((obj) => ({
+            ...obj,
+            index: obj.index >= paramObj.index ? obj.index + 1 : obj.index,
+        })),
+        paramObj,
+    ].sort((a, b) => a.index - b.index);
+};
+
+export const areObjectArraysEqual = (arr1, arr2) =>
+    arr1.length === arr2.length && arr1.every((obj, index) => JSON.stringify(obj) === JSON.stringify(arr2[index]));
+
+
+export const removeObjectFromArrayByDataField = (arr, dataFieldToRemove) => {
+    const newArray = arr.filter((obj) => obj.dataField !== dataFieldToRemove);
+    const removedIndex = arr.findIndex((obj) => obj.dataField === dataFieldToRemove);
+
+    if (removedIndex !== -1) {
+        return newArray.map((obj) => ({
+            ...obj,
+            index: obj.index > removedIndex ? obj.index - 1 : obj.index,
+        }));
+    }
+
+    return newArray;
+};
+
+
+

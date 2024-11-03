@@ -1,8 +1,5 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {generateClient} from "aws-amplify/api";
-import {fetchAuthSession} from "aws-amplify/auth";
-import {getProjectBreakdown} from "../../graphql/organizationQueries/queries.js";
-import {doGetSprintBreakdown} from "./sprintSlice.js";
+import {doGetSprintBreakdown, doGetSprintFormData, setRedirectSprint} from "./sprintSlice.js";
 import {doGetProjectUsers} from "./projectUsersSlice.js";
 
 const initialState = {
@@ -23,8 +20,10 @@ export const doGetProjectBreakdown = createAsyncThunk('src/project/getProjectBre
 
       if (selectedProject) {
         const selectedProjectId = selectedProject?.id
+        thunkApi.dispatch(setRedirectSprint(0));
         thunkApi.dispatch(doGetSprintBreakdown(selectedProjectId));
         thunkApi.dispatch(doGetProjectUsers(selectedProjectId));
+        thunkApi.dispatch(doGetSprintFormData());
       } else {
         return thunkApi.rejectWithValue('project details not found');
       }
@@ -40,8 +39,10 @@ export const doSwitchProject = createAsyncThunk('src/project/switchProject',
       const { projectList } = state.project;
 
       // TODO: other initial lists will be invoked here
+      thunkApi.dispatch(setRedirectSprint(0));
       thunkApi.dispatch(doGetSprintBreakdown(newProjectId));
       thunkApi.dispatch(doGetProjectUsers(newProjectId));
+      thunkApi.dispatch(doGetSprintFormData());
 
       if(projectList && Array.isArray(projectList)) {
         const pp = projectList.filter(p => p.id === newProjectId)

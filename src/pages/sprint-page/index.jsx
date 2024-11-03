@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import MainPageLayout from '../../layouts/MainPageLayout.jsx';
 import SprintListPage from "./SprintListPage.jsx";
 import SprintContentPage from "./SprintContentPage.jsx";
 import CreateSprintPopup from '../../components/popupForms/createSprint.jsx';
-import { SprintSchema } from '../../state/domains/authModels.js';
-import { PlusCircleIcon } from "@heroicons/react/24/outline/index.js";
+import {SprintSchema} from '../../state/domains/authModels.js';
 
 const SprintLayout = () => {
   const [isPopupVisible, setPopupVisible] = useState(false);
