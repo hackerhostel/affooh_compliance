@@ -1,7 +1,6 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import * as Amplify from 'aws-amplify';  // Updated import
-
-const API = Amplify.API;
+﻿import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { post } from 'aws-amplify/api';
+import { confirmSignUp } from 'aws-amplify/auth';
 
 const initialState = {
   user: null,
@@ -12,38 +11,58 @@ const initialState = {
 export const doRegisterUser = createAsyncThunk(
   'register/doRegisterUser',
   async (userDetails, thunkApi) => {
-    const { organization, firstName, lastName, email, password } = userDetails;
+    const { organization, firstName, lastName, username, password } =
+      userDetails;
     try {
-      console.log('Attempting to register user with details:', userDetails);
-      const response = await API.post('afooh-prod-public-api', 'register-user', {
-        body: {
-          user: {
-            password,
-            email,
-            firstName,
-            lastName,
-            organizationName: organization,
+      const response = await post({
+        apiName: 'AffoohAPI',
+        path: '/users/register-user',
+        options: {
+          body: {
+            user: {
+              password,
+              email: username,
+              firstName,
+              lastName,
+              organizationName: organization,
+            },
           },
-        },
-        headers: {
-          Accept: '*/*',
-          'Content-Type': 'application/json',
-          'x-api-key': 'i96NvXChBqwJbv1973ti8196S9jnvMr9J1z2Yteg',
+          headers: {
+            // TODO: hardcoded as a sample. move to a proper config.
+            'X-Api-Key': 'MKEutNn1JZ5l411hLitRu8KLq7Ih8Qh6611OtBR3',
+          },
         },
       });
 
       if (response) {
-        console.log('Registration successful:', response);
-        return response;
+        return response.resolve();
       } else {
-        console.error('Registration failed: No response');
         return thunkApi.rejectWithValue('Registration failed');
       }
     } catch (error) {
-      console.error('Registration failed with error:', error.message);
       return thunkApi.rejectWithValue(error.message);
     }
-  }
+  },
+);
+
+export const doVerifyOTP = createAsyncThunk(
+    'register/doVerifyOTP',
+    async (verificationDetails, thunkApi) => {
+      const { username, otp } = verificationDetails;
+
+      try {
+        const verificationResult = await confirmSignUp({
+          username,
+          confirmationCode: otp
+        });
+
+        if (!verificationResult.isSignUpComplete) {
+          return thunkApi.rejectWithValue('OTP verification failed');
+        }
+      } catch (error) {
+        return thunkApi.rejectWithValue(error.message);
+      }
+    }
 );
 
 const registerSlice = createSlice({

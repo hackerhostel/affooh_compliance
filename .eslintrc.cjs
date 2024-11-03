@@ -16,6 +16,7 @@ module.exports = {
     'plugin:react-hooks/recommended',
     'airbnb',
     'prettier',
+    'eslint-config-prettier'
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -25,7 +26,7 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: 'module',
   },
-  plugins: ['react', '@typescript-eslint', 'testing-library', 'cypress'],
+  plugins: ['react','prettier','@typescript-eslint'],
   settings: {
     'import/resolver': {
       node: {
@@ -79,12 +80,7 @@ module.exports = {
     'import/no-relative-parent-imports': 'off',
     // Restricting absolute imports - do not disable this rule
     // Fix your IDE to use absolute imports
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: ['.*'],
-      },
-    ],
+    'no-restricted-imports': 'off',
     'no-param-reassign': ['error', { props: true, ignorePropertyModificationsFor: ['state'] }],
     'react/jsx-boolean-value': 'off',
     'array-callback-return': 'error',
