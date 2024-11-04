@@ -21,6 +21,7 @@ const transformTask = (task) => {
     startDate: task.attributes.startDate?.value || null,
     endDate: task.attributes.endDate?.value || null,
     type: task.type,
+    priorityId: task.attributes.priority?.id || 0,
     priority: task.attributes.priority?.value || '',
     parentTaskId: task?.parentTaskID || 0
   };

@@ -1,5 +1,5 @@
 import AddIcon from '../../assets/add_icon.png'
-import {formatDateIfDate} from "../../utils/commonUtils.js";
+import {formatDateIfDate, getFirstName, getInitials} from "../../utils/commonUtils.js";
 import React from "react";
 
 export const onToolbarPreparing = (e) => {
@@ -75,6 +75,16 @@ export const statusCellRender = (data) => {
             {status === "Done" ? 'Completed' : status}
         </div>
     );
+};
+
+export const assigneeCellRender = (data) => {
+    return <div className="text-sm text-wrap text-start flex items-center gap-1 cursor-pointer">
+        <div
+            className="w-8 h-8 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold">
+            {data.value ? (getInitials(data.value)) : "N/A"}
+        </div>
+        {getFirstName(data.value)}
+    </div>;
 };
 
 export const columnMap = [
