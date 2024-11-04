@@ -11,7 +11,7 @@ import DataGrid, {
 import './custom-style.css';
 import {useHistory} from "react-router-dom";
 import {
-  addObjectsToArrayByIndex,
+  addObjectsToArrayByIndex, assigneeCellRender,
   columnMap,
   customCellRender,
   customHeaderRender,
@@ -83,6 +83,12 @@ const SprintTable = ({
     }
   };
 
+  const onCellClick = (e) => {
+    if (e.column && e.data) {
+      alert(`Cell clicked in column "${e.column.dataField}" with value "${e.data[e.column.dataField]}"`);
+    }
+  };
+
   return (
       <div className="px-4">
         <div className="mb-2 flex items-center justify-between w-full">
@@ -112,6 +118,7 @@ const SprintTable = ({
             showColumnLines={true}
             onToolbarPreparing={onToolbarPreparing}
             onOptionChanged={onOptionChanged}
+            onCellClick={onCellClick}
         >
           <ColumnChooser enabled={true} mode="select"/>
           <GroupPanel visible/>
@@ -131,7 +138,7 @@ const SprintTable = ({
               dataField="assignee"
               caption="Assignee"
               headerCellRender={customHeaderRender}
-              cellRender={customCellRender}
+              cellRender={assigneeCellRender}
               groupIndex={getGroupIndex('assignee', sprintConfig)}
           />
           <Column

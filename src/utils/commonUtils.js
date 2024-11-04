@@ -25,6 +25,10 @@ export const getInitials = (name) => {
       .join('');
 }
 
+export const getFirstName = (name) => {
+  return name.split(' ')[0];
+};
+
 export const getSelectOptions = (options) => {
   return options.map(o => ({value: Number(o.id), label: o?.name || o?.value || o?.summary}));
 };
