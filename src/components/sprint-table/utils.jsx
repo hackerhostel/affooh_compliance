@@ -78,7 +78,7 @@ export const statusCellRender = (data) => {
 };
 
 export const assigneeCellRender = (data) => {
-    return <div className="text-sm text-wrap text-start flex items-center gap-1">
+    return <div className="text-sm text-wrap text-start flex items-center gap-1 cursor-pointer">
         <div
             className="w-8 h-8 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold">
             {data.value ? (getInitials(data.value)) : "N/A"}

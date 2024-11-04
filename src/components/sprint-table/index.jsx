@@ -11,7 +11,8 @@ import DataGrid, {
 import './custom-style.css';
 import {useHistory} from "react-router-dom";
 import {
-  addObjectsToArrayByIndex, assigneeCellRender,
+  addObjectsToArrayByIndex,
+  assigneeCellRender,
   columnMap,
   customCellRender,
   customHeaderRender,
@@ -25,6 +26,7 @@ import {
 import MenuTabs from '../../assets/menu_tabs.png'
 import FormSelect from "../FormSelect.jsx";
 import SearchBar from "../SearchBar.jsx";
+import TaskAttriEditPopUp from "../popupForms/taskAttriEditPopUp.jsx";
 
 const SprintTable = ({
                        taskList,
@@ -36,6 +38,7 @@ const SprintTable = ({
                      }) => {
   const history = useHistory();
   const [filteredTaskList, setFilteredTaskList] = useState(taskList);
+  const [editOptions, setEditOptions] = useState({});
 
   useEffect(() => {
     setFilteredTaskList(taskList)
@@ -84,8 +87,38 @@ const SprintTable = ({
   };
 
   const onCellClick = (e) => {
-    if (e.column && e.data) {
-      alert(`Cell clicked in column "${e.column.dataField}" with value "${e.data[e.column.dataField]}"`);
+    if (e.column) {
+      if (e.column.dataField === "assignee") {
+        const assigneeId = e.data.assigneeId;
+        setEditOptions({
+          dataFieldId: assigneeId,
+          id: e.data.id,
+          title: e.data.title,
+          caption: e.column.caption,
+          dataField: e.column.dataField,
+          value: e.data[e.column.dataField]
+        })
+      } else if (e.column.dataField === "status") {
+        const statusId = e.data.statusId;
+        setEditOptions({
+          dataFieldId: statusId,
+          id: e.data.id,
+          title: e.data.title,
+          caption: e.column.caption,
+          dataField: e.column.dataField,
+          value: e.data[e.column.dataField]
+        })
+      } else if (e.column.dataField === "priority") {
+        const priorityId = e.data.priorityId;
+        setEditOptions({
+          dataFieldId: priorityId,
+          id: e.data.id,
+          title: e.data.title,
+          caption: e.column.caption,
+          dataField: e.column.dataField,
+          value: e.data[e.column.dataField]
+        })
+      }
     }
   };
 
@@ -188,6 +221,7 @@ const SprintTable = ({
               groupIndex={getGroupIndex('priority', sprintConfig)}
           />
         </DataGrid>
+        <TaskAttriEditPopUp editOptions={editOptions} setEditOptions={setEditOptions}/>
       </div>
   );
 };
