@@ -4,7 +4,7 @@ import {useDispatch} from "react-redux";
 import {useToasts} from "react-toast-notifications";
 import {useHistory, useLocation} from "react-router-dom";
 
-const OTPVerification = (props) => {
+const OTPVerification = () => {
     const history = useHistory();
     const {addToast} = useToasts();
     const dispatch = useDispatch();
