@@ -35,6 +35,7 @@ const SprintTable = ({
                        onSelectFilterChange,
                        sprintConfig,
                        updateFilterGroups,
+                       taskAttributes
                      }) => {
   const history = useHistory();
   const [filteredTaskList, setFilteredTaskList] = useState(taskList);
@@ -96,6 +97,7 @@ const SprintTable = ({
           title: e.data.title,
           caption: e.column.caption,
           dataField: e.column.dataField,
+          editAttribute: {},
           value: e.data[e.column.dataField]
         })
       } else if (e.column.dataField === "status") {
@@ -106,6 +108,7 @@ const SprintTable = ({
           title: e.data.title,
           caption: e.column.caption,
           dataField: e.column.dataField,
+          editAttribute: e.data.statusAttributes,
           value: e.data[e.column.dataField]
         })
       } else if (e.column.dataField === "priority") {
@@ -116,6 +119,7 @@ const SprintTable = ({
           title: e.data.title,
           caption: e.column.caption,
           dataField: e.column.dataField,
+          editAttribute: e.data.priorityAttributes,
           value: e.data[e.column.dataField]
         })
       }
@@ -221,7 +225,7 @@ const SprintTable = ({
               groupIndex={getGroupIndex('priority', sprintConfig)}
           />
         </DataGrid>
-        <TaskAttriEditPopUp editOptions={editOptions} setEditOptions={setEditOptions}/>
+        <TaskAttriEditPopUp editOptions={editOptions} setEditOptions={setEditOptions} taskAttributes={taskAttributes}/>
       </div>
   );
 };
