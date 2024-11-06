@@ -168,7 +168,7 @@ const SprintContentPage = () => {
       <SprintTable taskList={filteredList} typeList={typeList} filters={filters}
                    onSelectFilterChange={onSelectFilterChange} sprintConfig={sprintConfig}
                    setConfigChanges={setConfigChanges} updateFilterGroups={updateFilterGroups}
-                   taskAttributes={taskAttributes}/>
+                   taskAttributes={taskAttributes} refetchSprint={refetchSprint}/>
     </>
   );
 }
