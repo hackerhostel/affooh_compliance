@@ -61,6 +61,7 @@ const SprintContentPage = () => {
   const [configChanges, setConfigChanges] = useState(false);
   const [sprintConfig, setSprintConfig] = useState([]);
   const [taskAttributes, setTaskAttributes] = useState({});
+  const [epics, setEpics] = useState([]);
 
   const {error, loading, data: sprintResponse, refetch: refetchSprint} = useFetchSprint(sprintId)
   const {attributeError, attributeLoading, data: attributes} = useFetchTaskAttributes(sprintId)
@@ -82,6 +83,7 @@ const SprintContentPage = () => {
         types.add(JSON.stringify({value: -1, label: "All Types"}))
         let typeCounter = 1
         const typeIdMap = {};
+        const epicList = []
 
         taskListResponse.map(task => {
           const transformedTask = transformTask(task)
@@ -97,6 +99,10 @@ const SprintContentPage = () => {
             transformedTask["typeId"] = typeIdMap[transformedTask.type];
           }
 
+          if (transformedTask.type === "Epic") {
+            epicList.push({value: Number(transformedTask.id), label: transformedTask.title})
+          }
+
           taskListConverted.push(transformedTask)
         })
 
@@ -105,6 +111,7 @@ const SprintContentPage = () => {
         setAssigneeList(Array.from(assignees).map(item => JSON.parse(item)))
         setStatusList(Array.from(status).map(item => JSON.parse(item)))
         setTypeList(Array.from(types).map(item => JSON.parse(item)))
+        setEpics(epicList)
       }
     }
   }, [sprintResponse]);
@@ -164,7 +171,7 @@ const SprintContentPage = () => {
                     onFilterChange={setFilters} assignees={assigneeList} statusList={statusList}
                     sprintStatusList={sprintStatusList} onSelectFilterChange={onSelectFilterChange}
                     onToggleFilterChange={onToggleFilterChange} configChanges={configChanges}
-                    setConfigChanges={setConfigChanges} sprintConfig={sprintConfig}/>
+                    setConfigChanges={setConfigChanges} sprintConfig={sprintConfig} epics={epics}/>
       <SprintTable taskList={filteredList} typeList={typeList} filters={filters}
                    onSelectFilterChange={onSelectFilterChange} sprintConfig={sprintConfig}
                    setConfigChanges={setConfigChanges} updateFilterGroups={updateFilterGroups}

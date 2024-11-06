@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import TaskForm from "../../components/task/create/CreateTask.jsx";
+import TaskCreateComponent from "../../components/task/create/TaskCreateComponent.jsx";
 import timeCalender from '../../assets/Time_Calender.png'
 import EditIcon from '../../assets/Edit_Icon.png'
 import {formatShortDate} from "../../utils/commonUtils.js";
@@ -26,7 +26,8 @@ const SprintHeader = ({
                         onToggleFilterChange,
                         configChanges,
                         sprintConfig,
-                        setConfigChanges
+                        setConfigChanges,
+                        epics
                       }) => {
   const {addToast} = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
@@ -206,7 +207,8 @@ const SprintHeader = ({
           </div>
         </div>
 
-        <TaskForm sprintId={sprint?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}/>
+        <TaskCreateComponent sprintId={sprint?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}
+                             epics={epics} refetchSprint={refetchSprint}/>
         <DateRangeSelector isOpen={dateRangelOpen} onClose={closeDateRange} startDate={sprint?.startDate}
                            endDate={sprint?.endDate} onSave={updateDateRange}/>
       </>
