@@ -35,7 +35,8 @@ const SprintTable = ({
                        onSelectFilterChange,
                        sprintConfig,
                        updateFilterGroups,
-                       taskAttributes
+                       taskAttributes,
+                       refetchSprint
                      }) => {
   const history = useHistory();
   const [filteredTaskList, setFilteredTaskList] = useState(taskList);
@@ -225,7 +226,8 @@ const SprintTable = ({
               groupIndex={getGroupIndex('priority', sprintConfig)}
           />
         </DataGrid>
-        <TaskAttriEditPopUp editOptions={editOptions} setEditOptions={setEditOptions} taskAttributes={taskAttributes}/>
+        <TaskAttriEditPopUp editOptions={editOptions} setEditOptions={setEditOptions} taskAttributes={taskAttributes}
+                            refetchSprint={refetchSprint}/>
       </div>
   );
 };

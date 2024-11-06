@@ -2,13 +2,14 @@ import React, {useEffect, useState} from 'react';
 import {XCircleIcon} from "@heroicons/react/24/outline/index.js";
 import FormSelect from "../FormSelect.jsx";
 import {getSelectOptions, getUserSelectOptions} from "../../utils/commonUtils.js";
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
 
-const TaskAttriEditPopUp = ({editOptions, setEditOptions, taskAttributes}) => {
+const TaskAttriEditPopUp = ({editOptions, setEditOptions, taskAttributes, refetchSprint}) => {
+    const {addToast} = useToasts();
     const [dataFieldId, setDataFieldId] = useState(0);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const {dataField} = editOptions
-    // console.log("a", taskAttributes)
-    // console.log(editOptions)
-    // console.log("id", dataFieldId)
 
     useEffect(() => {
         if (editOptions?.dataFieldId)
@@ -20,6 +21,48 @@ const TaskAttriEditPopUp = ({editOptions, setEditOptions, taskAttributes}) => {
     }
 
     const closeModal = () => setEditOptions({});
+
+    const updateTaskAttributes = async () => {
+        setIsSubmitting(true)
+        try {
+            let payload = {}
+
+            if (dataField === "assignee") {
+                payload = {
+                    taskID: editOptions?.id,
+                    type: 'TASK',
+                    attributeDetails: {
+                        attributeKey: 'assigneeID',
+                        attributeValue: dataFieldId
+                    }
+                };
+            } else {
+                payload = {
+                    taskID: editOptions?.id,
+                    type: 'TASK_ATTRIBUTE',
+                    attributeDetails: {
+                        attributeKey: editOptions?.editAttribute?.attributeKey,
+                        taskFieldID: editOptions?.editAttribute?.taskFieldID,
+                        attributeValue: dataFieldId
+                    }
+                };
+            }
+
+            const response = await axios.put(`/tasks/${editOptions?.id}`, payload)
+            const updated = response?.data?.body?.task?.id
+
+            if (updated) {
+                addToast(`${editOptions?.caption} successfully updated`, {appearance: 'success'});
+                closeModal()
+                await refetchSprint()
+            } else {
+                addToast(`Failed to update ${editOptions?.caption}`, {appearance: 'error'});
+            }
+        } catch (error) {
+            addToast(`Failed to update ${editOptions?.caption}`, {appearance: 'error'});
+        }
+        setIsSubmitting(false)
+    }
 
     return (
         editOptions?.id && (
@@ -74,13 +117,15 @@ const TaskAttriEditPopUp = ({editOptions, setEditOptions, taskAttributes}) => {
                         <div className="mt-6 flex justify-center space-x-4">
                             <button type="submit"
                                     className="px-4 py-2 bg-primary-pink text-white rounded hover:bg-pink-600 w-2/4 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                    disabled={editOptions?.dataFieldId === dataFieldId}
+                                    disabled={editOptions?.dataFieldId === dataFieldId || isSubmitting}
+                                    onClick={updateTaskAttributes}
                             >
                                 Update
                             </button>
                             <button
                                 onClick={closeModal}
                                 className="px-4 py-2 text-gray-700 rounded w-1/4 border border-black cursor-pointer disabled:cursor-not-allowed"
+                                disabled={isSubmitting}
                             >
                                 Cancel
                             </button>
