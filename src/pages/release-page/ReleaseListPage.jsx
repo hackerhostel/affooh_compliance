@@ -66,7 +66,6 @@ const ReleaseListPage = () => {
                 if (deleted) {
                     addToast('Release Successfully Deleted', {appearance: 'success'});
                     dispatch(doGetReleases(selectedProject?.id));
-                    setToDeleteSprint({})
                 } else {
                     addToast('Failed to delete release ', {appearance: 'error'});
                 }
@@ -78,7 +77,7 @@ const ReleaseListPage = () => {
     };
 
     if (releaseLoading) return <div className="p-2"><SkeletonLoader/></div>;
-    if (releaseError) return <ErrorAlert message={error.message}/>;
+    if (releaseError) return <ErrorAlert message="Cannot get release list"/>;
 
     return (
         <div className="h-list-screen overflow-y-auto w-full">

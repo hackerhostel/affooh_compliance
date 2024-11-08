@@ -9,27 +9,44 @@ import { useToasts } from "react-toast-notifications";
 import {ChevronRightIcon} from "@heroicons/react/24/outline/index.js";
 import { selectSelectedRelease } from "../../state/slice/releaseSlice.js";
 import { useSelector } from "react-redux";
+import axios from "axios";
+import {getSelectOptions} from "../../utils/commonUtils.js";
 
 const ReleaseEdit = ({ releaseId }) => {
   const { addToast } = useToasts();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const SelectedRelease = useSelector(selectSelectedRelease);
 
+  const [releaseTypes, setReleaseTypes] = useState([]);
+  const releaseStatus = [
+    {value: 1, label: "RELEASED"},
+    {value: 2, label: "UNRELEASED"}
+  ];
+
   const handleFormChange = (name, value, isText) => {
     setFormValues({ ...formValues, [name]: isText ? value : Number(value) });
     setIsValidationErrorsShown(false);
   };
-  console.log(SelectedRelease);
-  
+
+  const formatDateToMMDDYYYY = (dateString)=> {
+    const date = new Date(dateString);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${year}-${month}-${day}`;
+  };
+
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
 
   const [formValues, setFormValues] = useState({
-    id: SelectedRelease.id,
-    name: SelectedRelease.name,
-    releaseDate: SelectedRelease.releaseDate,
-    type: SelectedRelease.type.id,
-    status: SelectedRelease.status,
-    version: SelectedRelease.version,
+    id: SelectedRelease?.id,
+    name: SelectedRelease?.name,
+    description: SelectedRelease?.description,
+    releaseDate: formatDateToMMDDYYYY(SelectedRelease?.releaseDate),
+    type: SelectedRelease?.type.id,
+    status: SelectedRelease?.status,
+    version: SelectedRelease?.version,
   });
 
   useEffect(() => {
@@ -37,7 +54,8 @@ const ReleaseEdit = ({ releaseId }) => {
       setFormValues({
         id: SelectedRelease.id,
         name: SelectedRelease.name,
-        releaseDate: SelectedRelease.releaseDate,
+        description: SelectedRelease?.description,
+        releaseDate: formatDateToMMDDYYYY(SelectedRelease?.releaseDate),
         type: SelectedRelease.type?.id,
         status: SelectedRelease.status,
         version: SelectedRelease.version,
@@ -45,28 +63,44 @@ const ReleaseEdit = ({ releaseId }) => {
     }
   }, [SelectedRelease]);
 
+  useEffect(() => {
+    getReleaseTypes();
+  }, []);
+
+  const getReleaseTypes = async () => {
+    await axios
+        .get("releases/types")
+        .then((r) => {
+          setReleaseTypes(r?.data?.releaseType);
+        })
+        .catch((e) => {
+          addToast("Failed To Get Release Types", { appearance: "error" });
+        });
+  };
+
   const [formErrors] = useValidation(ReleaseEditSchema, formValues);
 
   const editRelease = async (event) => {
+    event.preventDefault();
+
     setIsSubmitting(true);
     if (formErrors && Object.keys(formErrors).length > 0) {
       setIsValidationErrorsShown(true);
     } else {
       setIsValidationErrorsShown(false);
       try {
-        const response = await axios.post("/release-create", {
-          task: formValues,
+        const response = await axios.put(`releases/${SelectedRelease.id}`, {
+          release: formValues,
         });
-        const releaseId = response?.data?.body?.releaseId;
+        const status = response?.data?.body?.status;
 
-        if (releaseId > 0) {
-          addToast("Release Successfully Created", { appearance: "success" });
-          handleClose();
+        if (status) {
+          addToast("Release Successfully Updated", { appearance: "success" });
         } else {
-          addToast("Failed To Create The Release ", { appearance: "error" });
+          addToast("Failed To Update The Release ", { appearance: "error" });
         }
       } catch (error) {
-        addToast("Failed To Create The Release ", { appearance: "error" });
+        addToast("Failed To Update The Release ", { appearance: "error" });
       }
     }
     setIsSubmitting(false);
@@ -91,17 +125,17 @@ const ReleaseEdit = ({ releaseId }) => {
           </div>
 
           <div className="flex items-center justify-end">
-            <input
-              type="submit"
-              value="Edit"
-              disabled={isSubmitting}
-              className="px-9 py-2 rounded-lg bg-primary-pink text-white font-bold cursor-pointer "
-            />
+            <button form="editReleaseForm"
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-9 py-2 rounded-lg bg-primary-pink text-white font-bold cursor-pointer">
+              Edit
+            </button>
           </div>
         </div>
         <div>
           <div className="p-5 bg-white rounded-lg">
-            <form onSubmit={editRelease} className="text-start">
+            <form id="editReleaseForm" onSubmit={editRelease} className="text-start">
               <div className=" mt-5">
                 <FormInput
                   type="text"
@@ -137,26 +171,27 @@ const ReleaseEdit = ({ releaseId }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
                 <div>
                   <FormInput
+                    isDate={true}
                     type="date"
                     name="releaseDate"
-                    formValues={Date(formValues)}
+                    formValues={formValues}
                     placeholder="Release Date"
                     onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
+                      handleFormChange(name, value, true)
                     }
                   />
                 </div>
                 <div>
-                  <FormInput
-                    type="text"
-                    name="Status"
-                    formValues={formValues}
-                    placeholder="Status"
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
-                    }
-                    formErrors={formErrors}
-                    showErrors={isValidationErrorsShown}
+                  <FormSelect
+                      formValues={formValues}
+                      name="status"
+                      placeholder="Status"
+                      options={releaseStatus}
+                      formErrors={formErrors}
+                      onChange={({target: {name, value}}) =>
+                          handleFormChange(name, value)
+                      }
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
                 <div>
@@ -174,10 +209,15 @@ const ReleaseEdit = ({ releaseId }) => {
                 </div>
                 <div>
                   <FormSelect
-                    formValues={formValues}
-                    name="type"
-                    placeholder="Type"
-                    options={[{ value: "alpha", label: "Alpha" }]}
+                      formValues={formValues}
+                      name="type"
+                      placeholder="Type"
+                      options={getSelectOptions(releaseTypes)}
+                      formErrors={formErrors}
+                      onChange={({target: {name, value}}) =>
+                          handleFormChange(name, value)
+                      }
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
               </div>
