@@ -3,6 +3,7 @@ import ReleaseContentPage from "./ReleaseContentPage.jsx";
 import ReleaseCreate from "./ReleaseCreate.jsx";
 import {useState} from "react";
 import MainPageLayout from "../../layouts/MainPageLayout.jsx";
+import ReleaseEdit from "./ReleaseEdit.jsx";
 
 const ReleaseLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,7 +24,7 @@ const ReleaseLayout = () => {
           leftColumn={<ReleaseListPage/>}
           rightColumn={
             <div className={"bg-dashboard-bgc"}>
-              <ReleaseContentPage/>
+              <ReleaseEdit />
               <ReleaseCreate onClose={handleClose} isOpen={isOpen}/>
             </div>
           }

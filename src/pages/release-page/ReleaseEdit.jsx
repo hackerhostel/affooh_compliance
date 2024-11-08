@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 
@@ -7,23 +7,44 @@ import useValidation from "../../utils/use-validation.jsx";
 import { ReleaseEditSchema } from "../../utils/validationSchemas.js";
 import { useToasts } from "react-toast-notifications";
 import {ChevronRightIcon} from "@heroicons/react/24/outline/index.js";
+import { selectSelectedRelease } from "../../state/slice/releaseSlice.js";
+import { useSelector } from "react-redux";
 
 const ReleaseEdit = ({ releaseId }) => {
   const { addToast } = useToasts();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const SelectedRelease = useSelector(selectSelectedRelease);
 
   const handleFormChange = (name, value, isText) => {
     setFormValues({ ...formValues, [name]: isText ? value : Number(value) });
     setIsValidationErrorsShown(false);
   };
-
+  console.log(SelectedRelease);
+  
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+
   const [formValues, setFormValues] = useState({
-    name: "",
-    releaseDate: "MM/DD/YYYY",
-    type: "",
-    version: "",
+    id: SelectedRelease.id,
+    name: SelectedRelease.name,
+    releaseDate: SelectedRelease.releaseDate,
+    type: SelectedRelease.type.id,
+    status: SelectedRelease.status,
+    version: SelectedRelease.version,
   });
+
+  useEffect(() => {
+    if (SelectedRelease) {
+      setFormValues({
+        id: SelectedRelease.id,
+        name: SelectedRelease.name,
+        releaseDate: SelectedRelease.releaseDate,
+        type: SelectedRelease.type?.id,
+        status: SelectedRelease.status,
+        version: SelectedRelease.version,
+      });
+    }
+  }, [SelectedRelease]);
+
   const [formErrors] = useValidation(ReleaseEditSchema, formValues);
 
   const editRelease = async (event) => {
@@ -80,7 +101,7 @@ const ReleaseEdit = ({ releaseId }) => {
         </div>
         <div>
           <div className="p-5 bg-white rounded-lg">
-            <form onSubmit={createRelease} className="text-start">
+            <form onSubmit={editRelease} className="text-start">
               <div className=" mt-5">
                 <FormInput
                   type="text"
@@ -118,7 +139,7 @@ const ReleaseEdit = ({ releaseId }) => {
                   <FormInput
                     type="date"
                     name="releaseDate"
-                    formValues={formValues}
+                    formValues={Date(formValues)}
                     placeholder="Release Date"
                     onChange={({ target: { name, value } }) =>
                       handleFormChange(name, value)
