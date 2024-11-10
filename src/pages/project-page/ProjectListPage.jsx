@@ -1,12 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import { selectProjectList, setSelectedProjectFromList } from "../../state/slice/projectSlice.js";
+import {
+  selectProjectList,
+  selectSelectedProject,
+  setSelectedProject
+} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
 import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
+import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
 
 const ProjectListPage = () => {
+  const {addToast} = useToasts();
   const dispatch = useDispatch();
   const projectList = useSelector(selectProjectList);
+  const selectedProject = useSelector(selectSelectedProject);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // const [selectedProject, setSelectedProject] = useState(null);
 
   const [filteredProjectList, setFilteredProjectList] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState({
@@ -63,6 +74,31 @@ const ProjectListPage = () => {
     }));
   };
 
+  const handleDeleteClick = (project) => {
+    setSelectedProject(project);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedProject) {
+      axios.delete(`/projects/${selectedProject.id}`)
+          .then(response => {
+            const deleted = response?.data?.status
+
+            if (deleted) {
+              addToast('Project Successfully Deleted', {appearance: 'success'});
+              setFilteredProjectList(projectList);
+            } else {
+              addToast('Failed to delete project ', {appearance: 'error'});
+            }
+          }).catch(() => {
+        addToast('Project delete request failed ', {appearance: 'error'});
+      });
+    }
+    setIsDialogOpen(false);
+    setSelectedProject(null);
+  };
+
   return (
     <div className="h-list-screen overflow-y-auto w-full">
       <div className="flex flex-col gap-3 p-3">
@@ -97,7 +133,7 @@ const ProjectListPage = () => {
             key={index}
             className="items-center p-3 border border-gray-200 rounded-md w-full grid grid-cols-3 gap-2 hover:bg-gray-100"
             onClick={() => {
-              dispatch(setSelectedProjectFromList(index))
+              dispatch(setSelectedProject(element))
             }}
           >
             <div className="col-span-2 text-left">
@@ -108,12 +144,22 @@ const ProjectListPage = () => {
             </div>
 
             <div className="flex gap-1 ml-5">
-              <TrashIcon className="w-4 h-4 text-pink-700" />
+              <TrashIcon onClick={() => handleDeleteClick(element)} className="w-4 h-4 text-pink-700" />
               <ChevronRightIcon className="w-4 h-4 text-black" />
             </div>
           </button>
         ))}
       </div>
+
+      <ConfirmationDialog
+          isOpen={isDialogOpen}
+          onClose={() => {
+            setIsDialogOpen(false);
+            setSelectedProject(null);
+          }}
+          onConfirm={handleConfirmDelete}
+          message={selectedProject ? `To delete project - ${selectedProject.name} ?` : ''}
+      />
     </div>
   );
 };

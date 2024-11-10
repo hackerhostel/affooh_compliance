@@ -4,7 +4,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import FormInput from "../FormInput.jsx";
 import FormSelect from "../FormSelect.jsx";
 import { getSelectOptions } from "../../utils/commonUtils.js";
-import { selectProjectList } from "../../state/slice/projectSlice.js";
+import {selectProjectList, setProjectType} from "../../state/slice/projectSlice.js";
 import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
 import { ProjectCreateSchema } from '../../utils/validationSchemas.js'; 
@@ -15,6 +15,7 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
     
     const projects = useSelector(selectProjectList);
+    const projectTypes = useSelector(setProjectType);
 
     // Initial form values
     const [formValues, setFormValues] = useState({
@@ -52,9 +53,9 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
             setIsValidationErrorsShown(false);
             try {
                 const response = await axios.post("/projects", { project: formValues });
-                const projectId = response?.data?.body?.projectId;
+                const projectId = response?.data?.body;
 
-                if (projectId > 0) {
+                if (projectId) {
                     addToast('Project Successfully Created', { appearance: 'success' });
                     // Dispatch any necessary action to update the state after creation
                     handleClose();
@@ -67,13 +68,6 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
         }
         setIsSubmitting(false);
     };
-
-    const getProjectOptions = useCallback(() => [
-        { value: 'webApp', label: 'Web Application' },
-        { value: 'mobileApp', label: 'Mobile Application' },
-        { value: 'desktopApp', label: 'Desktop Application' },
-        { value: 'api', label: 'API' }
-    ], []);
 
     return (
         <>
@@ -115,7 +109,7 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
                                     <FormSelect
                                         name="projectType"
                                         formValues={formValues}
-                                        options={getSelectOptions(getProjectOptions())}
+                                        options={getSelectOptions(projectTypes)}
                                         onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                         formErrors={formErrors}
                                         showErrors={isValidationErrorsShown}

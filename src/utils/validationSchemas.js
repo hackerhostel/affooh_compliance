@@ -51,3 +51,9 @@ export const ReleaseEditSchema = yup.object({
     type: yup.string(),
     version: yup.string(),
 });
+
+export const ProjectUpdateSchema = yup.object({
+    prefix: yup.string().required('Prefix is required').max(5, 'Prefix must be at most 5 characters long'),
+    name: yup.string().required('Project name is required').min(3, 'Project name must be at least 3 characters long').max(50, 'Project name must be at most 50 characters long'),
+    projectType: yup.string().required('Project type is required')
+});
