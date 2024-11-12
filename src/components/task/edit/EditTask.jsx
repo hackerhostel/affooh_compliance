@@ -14,6 +14,7 @@ import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
 import FormInputWrapper from "./FormEditInputWrapper.jsx";
 import EditTaskScreenDetails from "./EditTaskScreenDetails.jsx";
 import {useToasts} from "react-toast-notifications";
+import TimeTracking from "./TimeTracking.jsx";
 
 const EditTaskPage = () => {
   const {code} = useParams();
@@ -154,7 +155,7 @@ const EditTaskPage = () => {
 
   return (
     <div className="flex">
-      <div className="w-3/5 p-5">
+      <div className="w-3/5 p-5 bg-secondary-bgc">
         <div className="mb-6">
           <FormInputWrapper
             isEditing={isEditing}
@@ -217,8 +218,7 @@ const EditTaskPage = () => {
 
         <EditTaskAdditionalDetails/>
       </div>
-      <div className="w-2/5 p-5">
-        <div className="">
+      <div className="w-2/5 py-5 bg-secondary-bgc">
           <div className="mb-6">
             <FormSelect
               name="assignee"
@@ -266,7 +266,8 @@ const EditTaskPage = () => {
             screenDetails={taskData.screen}
             updateTaskAttribute={updateTaskAttribute}
           />
-        </div>
+
+        <TimeTracking taskId={initialTaskData.id}/>
       </div>
     </div>
   )
