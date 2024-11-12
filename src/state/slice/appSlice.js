@@ -3,6 +3,7 @@ import axios from "axios";
 
 const initialState = {
   appConfig: {},
+  organizationUsers: undefined,
   initialDataLoading: true,
   initialDataError: false,
 }
@@ -11,7 +12,9 @@ export const doGetMasterData = createAsyncThunk(
   'src/app/doGetMasterData', async (_, thunkApi) =>
   {
   try {
-    const response = await axios.get('/organizations/master-data')
+    const response = await axios.get('/organizations/master-data');
+
+    thunkApi.dispatch(doGetOrganizationUsers());
 
     const responseData = response.data;
     if (responseData) {
@@ -23,6 +26,23 @@ export const doGetMasterData = createAsyncThunk(
     return thunkApi.rejectWithValue(error);
   }
 });
+
+export const doGetOrganizationUsers = createAsyncThunk(
+    'src/app/doGetOrganizationUsers', async (_, thunkApi) =>
+    {
+      try {
+        const response = await axios.get('/organizations/users')
+
+        const responseData = response.data.body;
+        if (responseData) {
+          return responseData;
+        } else {
+          return thunkApi.rejectWithValue('Organization users not found');
+        }
+      } catch (error) {
+        return thunkApi.rejectWithValue(error);
+      }
+    });
 
 export const appSlice = createSlice({
   name: 'app',
@@ -42,6 +62,17 @@ export const appSlice = createSlice({
     builder.addCase(doGetMasterData.rejected, (state, action) => {
       state.initialDataError = true;
     });
+    builder.addCase(doGetOrganizationUsers.pending, (state, action) => {
+      state.initialDataLoading = true;
+    });
+    builder.addCase(doGetOrganizationUsers.fulfilled, (state, action) => {
+      state.initialDataLoading = false;
+      state.initialDataError = false;
+      state.organizationUsers = action.payload
+    });
+    builder.addCase(doGetOrganizationUsers.rejected, (state, action) => {
+      state.initialDataError = true;
+    });
   }
 })
 
@@ -50,5 +81,6 @@ export const {clearAppState} = appSlice.actions
 export const selectAppConfig = (state) => state.app.appConfig;
 export const selectInitialDataLoading = (state) => state.app.initialDataLoading;
 export const selectInitialDataError = (state) => state.app.initialDataError;
+export const selectOrganizationUsers = (state) => state.app.organizationUsers;
 
 export default appSlice.reducer

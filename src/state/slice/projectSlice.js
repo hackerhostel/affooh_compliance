@@ -1,6 +1,7 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {doGetSprintBreakdown, doGetSprintFormData, setRedirectSprint} from "./sprintSlice.js";
 import {doGetProjectUsers} from "./projectUsersSlice.js";
+import axios from "axios";
 
 const initialState = {
   isProjectDetailsError: false,
@@ -24,6 +25,7 @@ export const doGetProjectBreakdown = createAsyncThunk('src/project/getProjectBre
         thunkApi.dispatch(doGetSprintBreakdown(selectedProjectId));
         thunkApi.dispatch(doGetProjectUsers(selectedProjectId));
         thunkApi.dispatch(doGetSprintFormData());
+        thunkApi.dispatch(doGetProjectFormData());
       } else {
         return thunkApi.rejectWithValue('project details not found');
       }
@@ -53,6 +55,22 @@ export const doSwitchProject = createAsyncThunk('src/project/switchProject',
     }
   });
 
+export const doGetProjectFormData = createAsyncThunk('src/projects/form-data',
+    async (thunkApi) => {
+      try {
+        const response = await axios.get('/projects/form-data')
+        const responseData = response?.data;
+
+        if (responseData) {
+          return responseData?.body.types
+        } else {
+          return thunkApi.rejectWithValue('Project form data not found');
+        }
+      } catch (error) {
+        return thunkApi.rejectWithValue(error);
+      }
+    });
+
 export const projectSlice = createSlice({
   name: 'project',
   initialState,
@@ -76,6 +94,13 @@ export const projectSlice = createSlice({
       state.selectedProject = action.payload;
       state.isSwitchingProject = false;
     });
+    builder.addCase(doGetProjectFormData.pending, (state, action) => {
+      state.isProjectDetailsLoading = true;
+    });
+    builder.addCase(doGetProjectFormData.fulfilled, (state, action) => {
+      state.projectFormdata = action.payload;
+      state.isProjectDetailsLoading = false;
+    });
   }
 })
 
@@ -86,5 +111,6 @@ export const selectIsProjectDetailsLoading = (state) => state.project.isProjectD
 export const selectSelectedProject = (state) => state.project.selectedProject;
 export const selectSelectedProjectFromList = (state) => state.project.selectedProjectFromList;
 export const selectProjectList = (state) => state.project.projectList;
+export const setProjectType = (state) => state.project.projectFormdata;
 
 export default projectSlice.reducer
