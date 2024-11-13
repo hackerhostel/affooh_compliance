@@ -1,16 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import FormInput from "../../FormInput.jsx";
 import ProgressBar from "../../ProgressBar.jsx";
-import useFetchTimeLogs from "../../../hooks/custom-hooks/task/useFetchTimeLogs.jsx";
 import {getSpendTime} from "../../../utils/commonUtils.js";
 
-const TimeTracking = ({estimation, taskId}) => {
-
-    const {loading, data: timeLogs} = useFetchTimeLogs(taskId)
+const TimeTracking = ({estimation, timeLogs}) => {
     const [spendTime, setSpendTime] = useState('');
 
     useEffect(() => {
-        console.log(timeLogs)
         if (timeLogs && timeLogs.length) {
             setSpendTime(getSpendTime(timeLogs))
         } else {
@@ -41,6 +37,7 @@ const TimeTracking = ({estimation, taskId}) => {
                         type="text"
                         name="spendTime"
                         formValues={{spendTime: spendTime}}
+                        disabled={true}
                         // onChange={({target: {name, value}}) => handleFormChanges(name, value, true)}
                         // formErrors={formErrors}
                         // showErrors={isValidationErrorsShown}
