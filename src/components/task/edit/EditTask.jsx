@@ -1,5 +1,5 @@
 import FormInput from "../../FormInput.jsx";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import useValidation from "../../../utils/use-validation.jsx";
 import {LoginSchema} from "../../../state/domains/authModels.js";
 import EditTaskAdditionalDetails from "./EditTaskAdditionalDetails.jsx";
@@ -15,25 +15,25 @@ import FormInputWrapper from "./FormEditInputWrapper.jsx";
 import EditTaskScreenDetails from "./EditTaskScreenDetails.jsx";
 import {useToasts} from "react-toast-notifications";
 import TimeTracking from "./TimeTracking.jsx";
+import useFetchTimeLogs from "../../../hooks/custom-hooks/task/useFetchTimeLogs.jsx";
+import TimeLogging from "./TimeLogging.jsx";
 
 const EditTaskPage = () => {
   const {code} = useParams();
   const {addToast} = useToasts();
+  const projectUserList = useSelector(selectProjectUserList);
 
   const [initialTaskData, setInitialTaskData] = useState({});
   const [taskData, setTaskData] = useState({});
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
-  const formRef = useRef(null);
-  const [formErrors] = useValidation(LoginSchema, taskData);
-
-  const projectUserList = useSelector(selectProjectUserList);
-
   const [loading, setLoading] = useState(false);
   const [apiError, setAPIError] = useState(false);
-
   const [isEditing, setIsEditing] = useState(false)
   const [additionalFormValues, setAdditionalFormValues] = useState({});
   const [initialAdditionalFormValues, setInitialAdditionalFormValues] = useState({});
+  const [formErrors] = useValidation(LoginSchema, taskData);
+
+  const {data: timeLogs, refetch: refetchTimeLogs} = useFetchTimeLogs(initialTaskData?.id)
 
   const handleFormChange = (name, value) => {
     const newForm = {...taskData, [name]: value};
@@ -155,7 +155,7 @@ const EditTaskPage = () => {
 
   return (
     <div className="flex">
-      <div className="w-3/5 p-5 bg-secondary-bgc">
+      <div className="w-3/5 p-5 bg-dashboard-bgc">
         <div className="mb-6">
           <FormInputWrapper
             isEditing={isEditing}
@@ -217,8 +217,9 @@ const EditTaskPage = () => {
         </div>
 
         <EditTaskAdditionalDetails/>
+        <TimeLogging timeLogs={timeLogs} taskId={initialTaskData?.id || ''}/>
       </div>
-      <div className="w-2/5 py-5 bg-secondary-bgc">
+      <div className="w-2/5 py-5 bg-dashboard-bgc">
           <div className="mb-6">
             <FormSelect
               name="assignee"
@@ -267,7 +268,7 @@ const EditTaskPage = () => {
             updateTaskAttribute={updateTaskAttribute}
           />
 
-        <TimeTracking taskId={initialTaskData.id}/>
+        <TimeTracking timeLogs={timeLogs}/>
       </div>
     </div>
   )
