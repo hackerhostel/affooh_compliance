@@ -4,26 +4,52 @@ import {CheckBadgeIcon, PlusCircleIcon, TrashIcon, XCircleIcon} from "@heroicons
 import FormInput from "../../FormInput.jsx";
 import {useSelector} from "react-redux";
 import {selectUser} from "../../../state/slice/authSlice.js";
+import DateSelector from "../../DateSelector.jsx";
+import moment from "moment";
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
 
-const TimeLogging = ({timeLogs, taskId}) => {
+const TimeLogging = ({timeLogs, taskId, refetchTimeLogs}) => {
+    const {addToast} = useToasts();
     const userDetails = useSelector(selectUser);
 
     const [showNewRow, setShowNewRow] = useState(false);
-    const [newRow, setNewRow] = useState({time: 0, description: ''});
+    const [newRow, setNewRow] = useState({time: 0, description: '', date: new Date()});
+    const [dateSelectorOpen, setDateSelectorOpen] = useState(false);
 
     const handleAddNewRow = () => {
         setShowNewRow(true);
     };
 
-    const handleSaveNewRow = () => {
-        console.log("New row saved:", newRow);
-        setShowNewRow(false);
-        setNewRow({time: 0, description: ''});
+    const handleSaveTimeLog = async () => {
+        if (newRow.time > 0) {
+            try {
+                const response = await axios.post(`/tasks/${taskId}/time-logs`, {
+                    ...newRow,
+                    date: moment(newRow?.date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+                })
+                const created = response?.data?.body?.status
+
+                if (created) {
+                    addToast('Time Logged Successfully ', {appearance: 'success'});
+                    refetchTimeLogs()
+                    setShowNewRow(false);
+                    setNewRow({time: 0, description: '', date: new Date()});
+                } else {
+                    addToast('Failed log time', {appearance: 'error'});
+                }
+            } catch (error) {
+                addToast('Failed log time', {appearance: 'error'});
+            }
+        } else {
+            addToast('Time should be greater than 0', {appearance: 'warning'});
+        }
+
     };
 
     const handleCancelNewRow = () => {
         setShowNewRow(false);
-        setNewRow({time: 0, description: ''});
+        setNewRow({time: 0, description: '', date: new Date()});
     };
 
     const handleInputChange = (name, value) => {
@@ -33,7 +59,19 @@ const TimeLogging = ({timeLogs, taskId}) => {
         }));
     };
 
+    const handleDateSelect = (value) => {
+        setNewRow({...newRow, date: value});
+    };
+
+    const handleDateClose = (doReset) => {
+        setDateSelectorOpen(false)
+        if (doReset) {
+            setNewRow({...newRow, date: new Date()});
+        }
+    };
+
     const GenerateRow = ({row}) => {
+        const timeLogId = row?.id
         const user = row?.user;
         const [time, setTime] = useState(row?.time || 0);
         const [description, setDescription] = useState(row?.description || '');
@@ -51,17 +89,43 @@ const TimeLogging = ({timeLogs, taskId}) => {
             }
         }
 
-        const deleteTimeLog = () => {
-            console.log("deleted")
+        const deleteTimeLog = async () => {
+            try {
+                const response = await axios.delete(`/tasks/${taskId}/time-logs/${timeLogId}`)
+                const deleted = response?.data?.body?.status
+
+                if (deleted) {
+                    addToast('Time log successfully deleted', {appearance: 'success'});
+                    refetchTimeLogs()
+                } else {
+                    addToast('Failed to delete the time log', {appearance: 'error'});
+                }
+            } catch (error) {
+                addToast('Failed to delete the time log', {appearance: 'error'});
+            }
         }
 
-        const updateTimeLog = () => {
-            console.log("updated")
+        const updateTimeLog = async () => {
+            if (time > 0) {
+                try {
+                    await axios.put(`/tasks/${taskId}/time-logs/${timeLogId}`, {
+                        time: time,
+                        description: description,
+                        date: row.date
+                    })
+                    addToast('Time log successfully updated', {appearance: 'success'});
+                    refetchTimeLogs()
+                } catch (error) {
+                    addToast('Failed to update the logged time', {appearance: 'error'});
+                }
+            } else {
+                addToast('Time should be greater than 0', {appearance: 'warning'});
+            }
         }
 
         return (
             <tr className="border-b">
-                <td className="px-4 py-2">{new Date(row?.date).toISOString().split('T')[0]}</td>
+                <td className="px-4 py-2">{moment(row?.date).local().format('YYYY-MM-DD')}</td>
                 <td className="px-4 py-2 w-36">
                     <FormInput
                         type="number"
@@ -128,7 +192,12 @@ const TimeLogging = ({timeLogs, taskId}) => {
                         <tbody>
                         {showNewRow && (
                             <tr className="border-b">
-                                <td className="px-4 py-2">{new Date().toISOString().split('T')[0]}</td>
+                                <td className="px-4 py-2">
+                                    <div className={"bg-secondary-pink cursor-pointer py-3 pl-3 rounded-md"}
+                                         onClick={() => setDateSelectorOpen(true)}>
+                                        {moment(newRow?.date).format('YYYY-MM-DD')}
+                                    </div>
+                                </td>
                                 <td className="px-4 py-2 w-36">
                                     <FormInput
                                         type="number"
@@ -156,7 +225,7 @@ const TimeLogging = ({timeLogs, taskId}) => {
                                     <div className={"flex gap-5"}>
                                         <XCircleIcon onClick={handleCancelNewRow}
                                                      className="w-5 h-5 text-gray-500 cursor-pointer"/>
-                                        <CheckBadgeIcon onClick={handleSaveNewRow}
+                                        <CheckBadgeIcon onClick={handleSaveTimeLog}
                                                         className="w-5 h-5 text-pink-700 cursor-pointer"/>
                                     </div>
                                 </td>
@@ -170,6 +239,8 @@ const TimeLogging = ({timeLogs, taskId}) => {
                 ) : (
                     <p className="text-text-color">No Time Logs Available</p>
                 )}
+                <DateSelector date={newRow?.date} onClose={handleDateClose} isOpen={dateSelectorOpen}
+                              onSave={handleDateSelect}/>
             </div>
         </div>
     );
