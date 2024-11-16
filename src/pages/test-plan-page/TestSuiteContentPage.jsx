@@ -10,9 +10,14 @@ import FormSelect from "../../components/FormSelect.jsx";
 import {getInitials, getSelectOptions} from "../../utils/commonUtils.js";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
+import TestSuiteEditComponent from "./TestSuiteEditComponent.jsx";
+import {XMarkIcon, CheckIcon} from "@heroicons/react/24/outline";
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
 
 const TestSuiteContentPage = () => {
     const dispatch = useDispatch();
+    const {addToast} = useToasts();
 
     const selectedProject = useSelector(selectSelectedProject);
     const selectedTestPlanId = useSelector(selectSelectedTestPlanId);
@@ -24,7 +29,9 @@ const TestSuiteContentPage = () => {
     const [testPlan, setTestPlan] = useState({});
     const [testPlanId, setTestPlanId] = useState(0);
     const [testSuiteId, setTestSuiteId] = useState(0);
-    const [testCycleId, setTestCycleId] = useState(0)
+    const [testCycleId, setTestCycleId] = useState(0);
+    const [editTestSuitId, setEditTestSuitId] = useState(0);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const {loading: testPlanLoading, error: testPlanError, data: testPlanResponse} = useFetchTestPlan(testPlanId)
     const {
@@ -86,6 +93,40 @@ const TestSuiteContentPage = () => {
         }
     };
 
+    const openTestSuiteEdit = () => {
+        setEditTestSuitId(testSuiteId)
+    }
+
+    const handleTestSuiteEditClose = (updated) => {
+        setEditTestSuitId(0)
+        if (updated === true) {
+            reFetchTestPlan()
+        }
+    };
+
+    const updateRow = async (rowID, updatedData) => {
+        setIsUpdating(true)
+
+        try {
+            const response = await axios.put('/test-case/update', {testExecData: updatedData});
+
+            if (response) {
+                setIsUpdating(false);
+                setTestExecutions((prevRows) =>
+                    prevRows.map((row) =>
+                        row.testCycleExecutionID === rowID
+                            ? {...row, ...updatedData}
+                            : row
+                    )
+                );
+                addToast('Successfully Update Test Execution Item', {appearance: 'success'});
+            }
+        } catch (e) {
+            setIsUpdating(false)
+            addToast('Failed To Update Test Execution Item', {appearance: 'error'});
+        }
+    }
+
     if (testPlanLoading) {
         return <div className="m-10"><SkeletonLoader/></div>;
     }
@@ -97,13 +138,29 @@ const TestSuiteContentPage = () => {
     const GenerateRow = (props) => {
         const {row} = props
         const [open, setOpen] = React.useState(false);
-        const [status, setStatus] = React.useState(row?.status || 0);
+        const [status, setStatus] = React.useState(row?.status || 8);
         const [note, setNote] = React.useState(row?.notes || '');
-        const [statusChanged, setStatusChanged] = React.useState(false);
         const [noteChanged, setNoteChanged] = React.useState(false);
 
-        const handleChanges = () => {
-            console.log("changes")
+        const handleStatusUpdate = (name, value) => {
+            setStatus(value);
+            props.onUpdate(row.testCycleExecutionID, {...row, status: value});
+        };
+
+        const onNoteChange = (value) => {
+            if (value || value === '') {
+                setNoteChanged(true);
+                setNote(value);
+            } else {
+                setNoteChanged(false)
+                setNote(row.notes)
+            }
+        }
+
+        const onSaveNote = async () => {
+            setNoteChanged(false);
+
+            props.onUpdate(row.testCycleExecutionID, {...row, notes: note});
         }
 
         return (
@@ -131,7 +188,8 @@ const TestSuiteContentPage = () => {
                     <td className="px-4 py-2">
                         <div>
                             <select
-                                onChange={handleChanges}
+                                disabled={isUpdating}
+                                onChange={({target: {name, value}}) => handleStatusUpdate(name, value)}
                                 value={status}
                                 className="w-full p-2 border border-gray-300 rounded"
                             >
@@ -154,27 +212,36 @@ const TestSuiteContentPage = () => {
                         </div>
                     </td>
                     <td className="px-4 py-2">
-                        <div>
+                        <div className="relative">
                             <input
+                                disabled={isUpdating}
                                 type="text"
-                                onChange={handleChanges}
                                 value={note}
-                                className="w-full p-2 border border-gray-300 rounded"
+                                onChange={(e) => onNoteChange(e.target.value)}
+                                className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-20"
                             />
-                            {/*{noteChanged && (*/}
-                            {/*    <div className="flex justify-center mt-2">*/}
-                            {/*        <button className="p-1 text-green-600"*/}
-                            {/*            // onClick={() => handleNoteActions(true)}*/}
-                            {/*        >*/}
-                            {/*            <CheckIcon/>*/}
-                            {/*        </button>*/}
-                            {/*        <button className="p-1 text-red-600"*/}
-                            {/*            // onClick={() => handleNoteActions(false)}*/}
-                            {/*        >*/}
-                            {/*            <ClearIcon/>*/}
-                            {/*        </button>*/}
-                            {/*    </div>*/}
-                            {/*)}*/}
+
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                                {noteChanged && (
+                                    <div>
+                                        <button
+                                            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                            aria-label="Clear input"
+                                        >
+                                            <XMarkIcon onClick={() => onNoteChange(false)}
+                                                       className="w-5 h-5 text-gray-500"/>
+                                        </button>
+
+                                        <button
+                                            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                            aria-label="Save input"
+                                        >
+                                            <CheckIcon onClick={() => onSaveNote()}
+                                                       className="w-5 h-5 text-green-500"/>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -227,6 +294,8 @@ const TestSuiteContentPage = () => {
 
     return (
         <div className={"p-7 bg-dashboard-bgc h-full"}>
+            <TestSuiteEditComponent testSuiteId={editTestSuitId} onClose={handleTestSuiteEditClose}/>
+
             <div className={"flex w-full justify-between items-center mb-10"}>
                 <div>
                     {testPlan?.id && (
@@ -256,7 +325,7 @@ const TestSuiteContentPage = () => {
                         </div>
                     )}
                     {testExecutionOptions.length > 0 && testExecutionCycles.length > 0 && (
-                        <button className="bg-primary-pink text-white px-14 rounded-lg">
+                        <button onClick={openTestSuiteEdit} className="bg-primary-pink text-white px-14 rounded-lg">
                             Edit
                         </button>
                     )}
@@ -289,7 +358,7 @@ const TestSuiteContentPage = () => {
                                 </thead>
                                 <tbody>
                                 {testExecutions.map((row) => (
-                                    <GenerateRow row={row} key={row.testCycleExecutionID}/>
+                                    <GenerateRow row={row} key={row.testCycleExecutionID} onUpdate={updateRow}/>
                                 ))}
                                 </tbody>
                             </table>
