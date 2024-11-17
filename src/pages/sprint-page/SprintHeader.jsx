@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import TaskForm from "../../components/task/create/CreateTask.jsx";
+import TaskCreateComponent from "../../components/task/create/TaskCreateComponent.jsx";
 import timeCalender from '../../assets/Time_Calender.png'
 import EditIcon from '../../assets/Edit_Icon.png'
 import {formatShortDate} from "../../utils/commonUtils.js";
@@ -23,7 +23,11 @@ const SprintHeader = ({
                         statusList,
                         sprintStatusList,
                         onSelectFilterChange,
-                        onToggleFilterChange
+                        onToggleFilterChange,
+                        configChanges,
+                        sprintConfig,
+                        setConfigChanges,
+                        epics
                       }) => {
   const {addToast} = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
@@ -55,6 +59,25 @@ const SprintHeader = ({
       addToast(errorMessage, {appearance: 'error'});
     }
 
+    setIsSubmitting(false)
+  }
+
+  const updateDisplayConfig = async () => {
+    setIsSubmitting(true)
+    try {
+      const response = await axios.put(`/sprints/${sprint?.id}/config`, {config: sprintConfig})
+      const updated = response?.data?.status
+
+      if (updated) {
+        addToast('Sprint display config updated', {appearance: 'success'});
+        refetchSprint()
+        setConfigChanges(false)
+      } else {
+        addToast('Failed update the sprint display config', {appearance: 'error'});
+      }
+    } catch (error) {
+      addToast('Failed update the sprint display config', {appearance: 'error'});
+    }
     setIsSubmitting(false)
   }
 
@@ -164,7 +187,8 @@ const SprintHeader = ({
             <div className="flex items-center space-x-4">
               <button
                   className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
-                  disabled={true}
+                  disabled={!configChanges || isSubmitting}
+                  onClick={updateDisplayConfig}
               >Save
               </button>
               <button
@@ -183,7 +207,8 @@ const SprintHeader = ({
           </div>
         </div>
 
-        <TaskForm sprintId={sprint?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}/>
+        <TaskCreateComponent sprintId={sprint?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}
+                             epics={epics} refetchSprint={refetchSprint}/>
         <DateRangeSelector isOpen={dateRangelOpen} onClose={closeDateRange} startDate={sprint?.startDate}
                            endDate={sprint?.endDate} onSave={updateDateRange}/>
       </>

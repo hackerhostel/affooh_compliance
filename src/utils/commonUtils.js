@@ -25,6 +25,10 @@ export const getInitials = (name) => {
       .join('');
 }
 
+export const getFirstName = (name) => {
+  return name.split(' ')[0];
+};
+
 export const getSelectOptions = (options) => {
   return options.map(o => ({value: Number(o.id), label: o?.name || o?.value || o?.summary}));
 };
@@ -46,3 +50,29 @@ export const formatShortDate = (dateString) => {
     return "N/A"
   }
 }
+
+export const getSpendTime = (timeEntries) => {
+  const totalHours = timeEntries.reduce((sum, entry) => sum + entry.time, 0);
+
+  const hoursInWeek = 168;
+  const hoursInDay = 24;
+  const minutesInHour = 60;
+
+  const weeks = Math.floor(totalHours / hoursInWeek);
+  const remainingHoursAfterWeeks = totalHours % hoursInWeek;
+
+  const days = Math.floor(remainingHoursAfterWeeks / hoursInDay);
+  const remainingHoursAfterDays = remainingHoursAfterWeeks % hoursInDay;
+
+  const hours = Math.floor(remainingHoursAfterDays);
+  const minutes = Math.round((remainingHoursAfterDays - hours) * minutesInHour);
+
+  let result = '';
+  if (weeks > 0) result += `${weeks}w `;
+  if (days > 0) result += `${days}d `;
+  if (hours > 0) result += `${hours}h `;
+  if (minutes > 0) result += `${minutes}m`;
+
+  return result.trim();
+}
+

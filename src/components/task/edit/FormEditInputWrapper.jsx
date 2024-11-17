@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { CheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import React, {useEffect, useState} from 'react';
+import {CheckIcon, XMarkIcon} from '@heroicons/react/24/solid';
 import Spinner from "../../Spinner.jsx";
 
 const FormInputWrapper = ({
@@ -16,7 +16,7 @@ const FormInputWrapper = ({
   useEffect(() => {
     if(fieldId) {
       setIsChanged(
-        (initialData[fieldId].fieldValue[0] || '') !== (currentData[fieldId].fieldValue[0] || '')
+          (initialData[fieldId]?.fieldValue[0] || '') !== (currentData[fieldId]?.fieldValue[0] || '')
       );
     } else {
       const childName = React.Children.only(children).props.name;

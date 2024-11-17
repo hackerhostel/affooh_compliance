@@ -45,6 +45,11 @@ const Login = () => {
     try {
       const response = await signIn(loginDetails)
 
+      if (response.nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+        history.push('/inviteUserRegister', {email: loginDetails.username});
+        return;
+      }
+
       dispatch(doGetWhoAmI())
       addToast('logged in Successfully', { appearance: 'success', autoDismiss: true });
       formRef.current.reset();

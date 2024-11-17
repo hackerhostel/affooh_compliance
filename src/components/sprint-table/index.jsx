@@ -8,18 +8,39 @@ import DataGrid, {
   Scrolling,
   Sorting
 } from 'devextreme-react/data-grid';
-import {formatDateIfDate} from "../../utils/commonUtils.js";
 import './custom-style.css';
 import {useHistory} from "react-router-dom";
-import {onToolbarPreparing} from "./utils.jsx";
+import {
+  addObjectsToArrayByIndex,
+  assigneeCellRender,
+  columnMap,
+  customCellRender,
+  customHeaderRender,
+  extractNumberFromSquareBrackets,
+  getGroupIndex,
+  onToolbarPreparing,
+  priorityCellRender,
+  removeObjectFromArrayByDataField,
+  statusCellRender
+} from "./utils.jsx";
 import MenuTabs from '../../assets/menu_tabs.png'
 import FormSelect from "../FormSelect.jsx";
 import SearchBar from "../SearchBar.jsx";
+import TaskAttriEditPopUp from "../popupForms/taskAttriEditPopUp.jsx";
 
-const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
+const SprintTable = ({
+                       taskList,
+                       typeList,
+                       filters,
+                       onSelectFilterChange,
+                       sprintConfig,
+                       updateFilterGroups,
+                       taskAttributes,
+                       refetchSprint
+                     }) => {
   const history = useHistory();
-
   const [filteredTaskList, setFilteredTaskList] = useState(taskList);
+  const [editOptions, setEditOptions] = useState({});
 
   useEffect(() => {
     setFilteredTaskList(taskList)
@@ -36,20 +57,8 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
     </button>
   };
 
-  const customCellRender = (data) => {
-    if (typeof data.value === 'object') {
-      return <div className="text-sm text-wrap text-start">{formatDateIfDate(data.value)}</div>;
-    }
-    return <div className="text-sm text-wrap text-start">{data.value}</div>;
-  };
-
-  const customHeaderRender = (data) => {
-    return <div className="font-bold text-gray-600">{data.column.caption}</div>;
-  };
-
   const handleSearch = (term) => {
     let filtered = taskList;
-
     if (term.trim() !== '') {
       filtered = filtered.filter(task =>
           task.title.toLowerCase().includes(term.toLowerCase())
@@ -57,8 +66,65 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
     } else {
       setFilteredTaskList(taskList);
     }
-
     setFilteredTaskList(filtered);
+  };
+
+  const onOptionChanged = (e) => {
+    const {fullName: funcName, value: index} = e || {};
+    const colID = funcName && funcName.includes('groupIndex') || funcName.includes('visibleIndex')
+        ? extractNumberFromSquareBrackets(funcName)
+        : null;
+
+    if (colID >= 0) {
+      const dataField = columnMap.find((col) => col.id === colID)?.dataField;
+
+      if (funcName.includes('groupIndex') && dataField && index >= 0) {
+        const updatedGroups = addObjectsToArrayByIndex(sprintConfig, {dataField, index});
+        updateFilterGroups(updatedGroups);
+      } else if (funcName.includes('visibleIndex') && dataField) {
+        const updatedGroups = removeObjectFromArrayByDataField(sprintConfig, dataField);
+        updateFilterGroups(updatedGroups);
+      }
+    }
+  };
+
+  const onCellClick = (e) => {
+    if (e.column) {
+      if (e.column.dataField === "assignee") {
+        const assigneeId = e.data.assigneeId;
+        setEditOptions({
+          dataFieldId: assigneeId,
+          id: e.data.id,
+          title: e.data.title,
+          caption: e.column.caption,
+          dataField: e.column.dataField,
+          editAttribute: {},
+          value: e.data[e.column.dataField]
+        })
+      } else if (e.column.dataField === "status") {
+        const statusId = e.data.statusId;
+        setEditOptions({
+          dataFieldId: statusId,
+          id: e.data.id,
+          title: e.data.title,
+          caption: e.column.caption,
+          dataField: e.column.dataField,
+          editAttribute: e.data.statusAttributes,
+          value: e.data[e.column.dataField]
+        })
+      } else if (e.column.dataField === "priority") {
+        const priorityId = e.data.priorityId;
+        setEditOptions({
+          dataFieldId: priorityId,
+          id: e.data.id,
+          title: e.data.title,
+          caption: e.column.caption,
+          dataField: e.column.dataField,
+          editAttribute: e.data.priorityAttributes,
+          value: e.data[e.column.dataField]
+        })
+      }
+    }
   };
 
   return (
@@ -89,6 +155,8 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
             showRowLines={true}
             showColumnLines={true}
             onToolbarPreparing={onToolbarPreparing}
+            onOptionChanged={onOptionChanged}
+            onCellClick={onCellClick}
         >
           <ColumnChooser enabled={true} mode="select"/>
           <GroupPanel visible/>
@@ -96,32 +164,28 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
           <Paging enabled={false}/>
           <Scrolling columnRenderingMode="virtual"/>
           <Sorting mode="multiple"/>
-
-          <Column
-              dataField="status"
-              caption="Status"
-              headerCellRender={customHeaderRender}
-              cellRender={customCellRender}
-          />
           <Column
               dataField="title"
-              caption="Title"
-              width={400}
+              caption="Task Name"
+              width={350}
               headerCellRender={customHeaderRender}
               cellRender={taskTitleComponent}
+              groupIndex={getGroupIndex('title', sprintConfig)}
           />
           <Column
               dataField="assignee"
               caption="Assignee"
-              groupIndex={0}
               headerCellRender={customHeaderRender}
-              cellRender={customCellRender}
+              cellRender={assigneeCellRender}
+              groupIndex={getGroupIndex('assignee', sprintConfig)}
           />
           <Column
-              dataField="epic"
-              caption="Epic"
+              dataField="status"
+              caption="Status"
               headerCellRender={customHeaderRender}
-              cellRender={customCellRender}
+              cellRender={statusCellRender}
+              width={120}
+              groupIndex={getGroupIndex('status', sprintConfig)}
           />
           <Column
               dataField="startDate"
@@ -129,6 +193,7 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
               dataType="date"
               headerCellRender={customHeaderRender}
               cellRender={customCellRender}
+              groupIndex={getGroupIndex('startDate', sprintConfig)}
           />
           <Column
               dataField="endDate"
@@ -136,20 +201,33 @@ const SprintTable = ({taskList, typeList, filters, onSelectFilterChange}) => {
               dataType="date"
               headerCellRender={customHeaderRender}
               cellRender={customCellRender}
+              groupIndex={getGroupIndex('endDate', sprintConfig)}
+          />
+          <Column
+              dataField="epic"
+              caption="Epic Name"
+              headerCellRender={customHeaderRender}
+              cellRender={customCellRender}
+              visible={false}
+              groupIndex={getGroupIndex('epic', sprintConfig)}
           />
           <Column
               dataField="type"
               caption="Type"
               headerCellRender={customHeaderRender}
               cellRender={customCellRender}
+              groupIndex={getGroupIndex('type', sprintConfig)}
           />
           <Column
               dataField="priority"
               caption="Priority"
               headerCellRender={customHeaderRender}
-              cellRender={customCellRender}
+              cellRender={priorityCellRender}
+              groupIndex={getGroupIndex('priority', sprintConfig)}
           />
         </DataGrid>
+        <TaskAttriEditPopUp editOptions={editOptions} setEditOptions={setEditOptions} taskAttributes={taskAttributes}
+                            refetchSprint={refetchSprint}/>
       </div>
   );
 };
