@@ -99,7 +99,7 @@ const RegisterForm = () => {
               <input
                 type="submit"
                 value="Sign In"
-                className="w-full py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
+                className="btn-login"
               />
             </form>
             <div className="text-center mt-5 text-textColor">

@@ -1,112 +1,117 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import FormInput from "../../components/FormInput.jsx";
-import {XMarkIcon} from '@heroicons/react/24/outline';
-
 
 const CreateSprintPopup = ({
-  createSprintDetails,
+  isOpen,
   handleFormChange,
   formErrors,
   isValidationErrorsShown,
   handleFormSubmit,
   handleClosePopup
 }) => {
+  const [createSprintDetails, setCreateSprintDetails] = useState({
+    sprintName: '',
+    startDate: '',
+    endDate: ''
+  });
+
+  const handleLocalFormChange = (name, value) => {
+    setCreateSprintDetails(prevDetails => ({
+      ...prevDetails,
+      [name]: value
+    }));
+    handleFormChange && handleFormChange(name, value);
+  };
+
+  const resetForm = () => {
+    setCreateSprintDetails({
+      sprintName: '',
+      startDate: '',
+      endDate: ''
+    });
+  };
+
+  const handleClose = () => {
+    resetForm();
+    if (handleClosePopup) {
+      handleClosePopup();
+    }
+  };
+
   return (
-    <div style={popupStyles}>
-      <button onClick={handleClosePopup} style={closeButtonStyles}>
-        <XMarkIcon className='w-6 h-6'/>
-      </button>
-      <span className='text-3xl'>Create New Sprint</span>
-      <form onSubmit={handleFormSubmit}>
-        <div className='ml-2, mt-4'>
-          <FormInput
-            type="text"
-            name="sprintName"
-            formValues={createSprintDetails}
-            placeholder="Sprint Name"
-            onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-            formErrors={formErrors}
-            showErrors={isValidationErrorsShown}
-          />
-        </div>
-
-        <div className='flex gap-1 mt-5'>
-          <div>
-            <FormInput
-              type="date"
-              name="startDate"
-              formValues={createSprintDetails}
-              placeholder="Start Date"
-              onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-              formErrors={formErrors}
-              showErrors={isValidationErrorsShown}
-              style={{ width: '352px' }}
-            />
+    <>
+      {isOpen && (
+        <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
+          <div className="bg-white p-6 shadow-lg w-1/3 h-full">
+            <div className="flex justify-between items-center mb-4">
+              <p className="font-bold text-2xl">Create New Sprint</p>
+              <button onClick={handleClose} className="cursor-pointer">
+                <XMarkIcon className="w-6 h-6 text-gray-500" />
+              </button>
+            </div>
+            <form
+              className="flex flex-col justify-between h-5/6 mt-10"
+              onSubmit={(e) => handleFormSubmit(e, createSprintDetails)}
+            >
+              <div className="space-y-4">
+                <div className="flex-col">
+                  <FormInput
+                    type="text"
+                    name="sprintName"
+                    formValues={createSprintDetails}
+                    placeholder="Sprint Name"
+                    onChange={({ target: { name, value } }) => handleLocalFormChange(name, value)}
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
+                  />
+                </div>
+                <div className="flex gap-4 mt-5">
+                  <div className="flex-col w-1/2">
+                    <FormInput
+                      type="date"
+                      name="startDate"
+                      formValues={createSprintDetails}
+                      placeholder="Start Date"
+                      onChange={({ target: { name, value } }) => handleLocalFormChange(name, value)}
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
+                    />
+                  </div>
+                  <div className="flex-col w-1/2">
+                    <FormInput
+                      type="date"
+                      name="endDate"
+                      formValues={createSprintDetails}
+                      placeholder="End Date"
+                      onChange={({ target: { name, value } }) => handleLocalFormChange(name, value)}
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex space-x-4 mt-6 self-end w-full">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="btn-cancel "
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-create "
+                >
+                  Create New Sprint
+                </button>
+              </div>
+            </form>
           </div>
-          <div>
-            <FormInput
-              type="date"
-              name="endDate"
-              formValues={createSprintDetails}
-              placeholder="End Date"
-              onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-              formErrors={formErrors}
-              showErrors={isValidationErrorsShown}
-              style={{ width: '392px' }}
-            />
-          </div>
         </div>
-
-        <br />
-        <div className='flex mt-80 gap-5 ml-6'>
-          <input
-            type="button"
-            value="Cancel"
-            className="w-full py-3 rounded-lg text-black font-bold cursor-pointer"
-            style={{
-              width: '205px',
-              borderColor: 'rgba(116, 122, 136, 1)',
-              borderWidth: '2px',
-              borderStyle: 'solid',
-              color: 'rgba(116, 122, 136, 1)'
-            }}
-            onClick={handleClosePopup}
-          />
-
-          <input
-            type="submit"
-            value="Create New Sprint"
-            className="py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
-            style={{ width: '484px' }}
-          />
-        </div>
-      </form>
-    </div>
+      )}
+    </>
   );
-};
-
-const popupStyles = {
-  position: 'fixed',
-  top: '420px',
-  right: '0',
-  transform: 'translateY(-50%)',
-  width: '797px',
-  height: '840px',
-  padding: '20px',
-  backgroundColor: '#fff',
-  boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-  zIndex: 1000,
-  borderRadius: '8px 0 0 8px',
-};
-
-const closeButtonStyles = {
-  position: 'absolute',
-  top: '10px',
-  right: '10px',
-  background: 'transparent',
-  border: 'none',
-  fontSize: '16px',
-  cursor: 'pointer',
 };
 
 export default CreateSprintPopup;

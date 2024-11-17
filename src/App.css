@@ -19,3 +19,21 @@
 ::-webkit-scrollbar-thumb:hover {
     background: #808080;
 }
+
+@layer components {
+    
+  
+    .btn-create {
+      @apply px-4 py-2 bg-primary-pink text-white rounded hover:bg-pink-600 w-3/4 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed;
+    }
+  
+    .btn-cancel {
+      @apply px-4 py-2 text-cancel-button rounded w-1/4 border border-cancel-button cursor-pointer disabled:cursor-not-allowed;
+    }
+  
+    .btn-login {
+      @apply w-full py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer;
+    }
+  }
+
+  
