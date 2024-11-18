@@ -2,8 +2,12 @@ import React from 'react';
 import {Tab, TabGroup, TabList, TabPanel, TabPanels} from "@headlessui/react";
 import TimeLogging from "./TimeLogging.jsx";
 import CommentSection from "./CommentSection.jsx";
+import {useSelector} from "react-redux";
+import {selectUser} from "../../../state/slice/authSlice.js";
 
 const CommentAndTimeTabs = ({timeLogs, taskId, refetchTimeLogs}) => {
+    const userDetails = useSelector(selectUser);
+
     return (
         <div className="w-full mt-8">
             <TabGroup>
@@ -23,10 +27,11 @@ const CommentAndTimeTabs = ({timeLogs, taskId, refetchTimeLogs}) => {
                 </TabList>
                 <TabPanels>
                     <TabPanel key={'comments'}>
-                        <CommentSection/>
+                        <CommentSection userDetails={userDetails} taskId={taskId}/>
                     </TabPanel>
                     <TabPanel key={'timelogs'}>
-                        <TimeLogging timeLogs={timeLogs} taskId={taskId} refetchTimeLogs={refetchTimeLogs}/>
+                        <TimeLogging timeLogs={timeLogs} taskId={taskId} refetchTimeLogs={refetchTimeLogs}
+                                     userDetails={userDetails}/>
                     </TabPanel>
                 </TabPanels>
             </TabGroup>

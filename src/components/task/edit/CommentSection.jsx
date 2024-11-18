@@ -1,18 +1,39 @@
 import React, {useState} from "react";
+import FormInput from "../../FormInput.jsx";
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
 
-const CommentSection = () => {
+const CommentSection = ({taskId, userDetails}) => {
+    const {addToast} = useToasts();
+
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
     const [editing, setEditing] = useState(null);
     const [editedComment, setEditedComment] = useState("");
 
-    const handleAddComment = () => {
+    const handleAddComment = async () => {
         if (newComment.trim()) {
             setComments([
                 ...comments,
                 {id: Date.now(), text: newComment, replies: []},
             ]);
-            setNewComment("");
+            try {
+                const response = await axios.post(`/tasks/${taskId}/comments`, {
+                    comment: newComment
+                })
+                const created = response?.data?.body?.status
+
+                if (created) {
+                    addToast('Comment Added', {appearance: 'success'});
+                    setNewComment("");
+                } else {
+                    addToast('Failed to add the comment', {appearance: 'error'});
+                }
+            } catch (error) {
+                addToast('Failed to add the comment', {appearance: 'error'});
+            }
+        } else {
+            addToast('Comment is required', {appearance: 'warning'});
         }
     };
 
@@ -47,27 +68,37 @@ const CommentSection = () => {
 
     return (
         <div className="w-full mt-8 p-6 bg-white rounded-lg shadow-lg flex-col">
-            <div className="flex gap-5">
-        <textarea
-            className="w-full p-2 border rounded"
-            placeholder="Add a comment..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-        ></textarea>
-                <div className="cursor-pointer" onClick={handleAddComment}>
-                    Post
+            <div className="flex gap-5 items-center">
+                <div
+                    className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
+                    {userDetails.firstName?.[0]}{userDetails.lastName?.[0]}
+                </div>
+                <div className={"w-9/12"}>
+                    <FormInput
+                        type="text"
+                        name="comment"
+                        showLabel={false}
+                        formValues={{comment: newComment}}
+                        placeholder="Add a comment..."
+                        onChange={(e) => setNewComment(e.target.value)}
+                    />
+                </div>
+                <div className=" flex items-center justify-center cursor-pointer btn-primary text-center w-20"
+                     onClick={handleAddComment}>
+                    <p>Post</p>
                 </div>
             </div>
-            <div>
+            <div className={'mt-6'}>
                 {comments.map((comment) => (
                     <div key={comment.id} className="mb-4">
                         {editing === comment.id ? (
                             <div>
-                <textarea
-                    className="w-full p-2 border rounded"
-                    value={editedComment}
-                    onChange={(e) => setEditedComment(e.target.value)}
-                ></textarea>
+                                <FormInput
+                                    type="text"
+                                    name="editedComment"
+                                    formValues={{editedComment: editedComment}}
+                                    onChange={(e) => setEditedComment(e.target.value)}
+                                />
                                 <button
                                     className="mt-2 px-4 py-2 bg-green-500 text-white rounded"
                                     onClick={() => handleSaveEdit(comment.id)}
@@ -82,7 +113,7 @@ const CommentSection = () => {
                                 </button>
                             </div>
                         ) : (
-                            <div>
+                            <div className={"flex w-full justify-between"}>
                                 <p className="mb-2">{comment.text}</p>
                                 <div className="space-x-2">
                                     <button
