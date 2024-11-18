@@ -143,14 +143,14 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
               <div className="flex space-x-4 mt-6 self-end w-full">
                 <button
                   onClick={handleClose}
-                  className="btn-cancel"
+                  className="btn-secondary"
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-create"
+                  className="btn-primary"
                   disabled={isSubmitting}
                 >
                   Create

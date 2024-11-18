@@ -23,11 +23,11 @@
 @layer components {
     
   
-    .btn-create {
+    .btn-primary {
       @apply px-4 py-2 bg-primary-pink text-white rounded hover:bg-pink-600 w-3/4 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed;
     }
   
-    .btn-cancel {
+    .btn-secondary {
       @apply px-4 py-2 text-cancel-button rounded w-1/4 border border-cancel-button cursor-pointer disabled:cursor-not-allowed;
     }
   

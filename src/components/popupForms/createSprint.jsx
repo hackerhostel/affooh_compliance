@@ -95,13 +95,13 @@ const CreateSprintPopup = ({
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="btn-cancel "
+                  className="btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-create "
+                  className="btn-primary"
                 >
                   Create New Sprint
                 </button>
