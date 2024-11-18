@@ -9,6 +9,7 @@ import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
 import { ProjectCreateSchema } from '../../utils/validationSchemas.js'; 
 import { useToasts } from 'react-toast-notifications';
+import {doGetWhoAmI} from "../../state/slice/authSlice.js";
 
 const CreateNewProjectPopup = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
@@ -53,8 +54,8 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
                 const projectId = response?.data?.body;
 
                 if (projectId) {
+                    dispatch(doGetWhoAmI());
                     addToast('Project Successfully Created', { appearance: 'success' });
-                    // Dispatch any necessary action to update the state after creation
                     handleClose();
                 } else {
                     addToast('Failed To Create The Project', { appearance: 'error' });

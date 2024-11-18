@@ -16,6 +16,7 @@ import axios from "axios";
 import useValidation from "../../utils/use-validation.jsx";
 import {ProjectUpdateSchema} from "../../utils/validationSchemas.js";
 import {selectOrganizationUsers} from "../../state/slice/appSlice.js";
+import {doGetWhoAmI} from "../../state/slice/authSlice.js";
 
 const ProjectContentPage = () => {
     const dispatch = useDispatch();
@@ -29,12 +30,13 @@ const ProjectContentPage = () => {
     const [activeButton, setActiveButton] = useState("Details");
     const [formValues, setFormValues] = useState({name: "", prefix: "", projectType: "", projectUserIDs: ""});
     const [formErrors] = useValidation(ProjectUpdateSchema, formValues);
+    const projectUsersIdList = userListForProject.map(user => user.id);
 
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        setFormValues({...selectedProject, projectUserIDs: ""});
+        setFormValues({...selectedProject, projectUserIDs: projectUsersIdList});
     }, [selectedProject]);
 
     const handleButtonClick = (buttonName) => {
@@ -74,7 +76,6 @@ const ProjectContentPage = () => {
         } else {
             setIsValidationErrorsShown(false);
             try {
-                const projectUsersIdList = userListForProject.map(user => user.id)
                 const payLoad = {
                     ...formValues,
                     projectUserIDs: [...projectUsersIdList, parseInt(formValues.projectUserIDs)]
@@ -113,9 +114,10 @@ const ProjectContentPage = () => {
             setIsValidationErrorsShown(false);
             try {
                 const response = await axios.put(`/projects/${selectedProject.id}`, formValues)
-                const updated = response?.data?.status
+                const updated = response?.data?.body
 
                 if (updated) {
+                    dispatch(doGetWhoAmI());
                     addToast('Project Successfully Updated', {appearance: 'success'});
                 } else {
                     addToast('Failed To Updated The Project', {appearance: 'error'});

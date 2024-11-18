@@ -101,7 +101,7 @@ const TestPlanListPage = () => {
                             </div>
                             <div className={"flex gap-1"}>
                                 <div onClick={() => deleteTestPlan(element?.id)} className={"cursor-pointer"}>
-                                    < TrashIcon className={"w-4 h-4 text-pink-700"}/>
+                                    <TrashIcon className={"w-4 h-4 text-pink-700"}/>
                                 </div>
                                 <div onClick={() => handleTestPlanEditClick(element?.id)} className={"cursor-pointer"}>
                                     <PencilSquareIcon className={"w-4 h-4 text-black"}/>

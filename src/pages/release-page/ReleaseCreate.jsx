@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import FormInput from "../../components/FormInput.jsx";
@@ -13,6 +13,9 @@ import useValidation from "../../utils/use-validation.jsx";
 import { ReleaseCreateSchema } from "../../utils/validationSchemas.js";
 import { useToasts } from "react-toast-notifications";
 import axios from "axios";
+import { selectTestCaseStatuses } from "../../state/slice/testCaseFormDataSlice.js";
+import { getSelectOptions } from "../../utils/commonUtils.js";
+import { doGetReleases } from "../../state/slice/releaseSlice.js";
 
 const ReleaseCreate = ({ isOpen, onClose }) => {
   const { addToast } = useToasts();
@@ -20,14 +23,15 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
   const selectedProject = useSelector(selectSelectedProject);
   const projectList = useSelector(selectProjectList);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
-  const [formValues, setFormValues] = useState({
-    name: "",
-    releaseDate: "MM/DD/YYYY",
-    type: "",
-    version: "",
-  });
-  const [formErrors] = useValidation(ReleaseCreateSchema, formValues);
+  const [releaseTypes, setReleaseTypes] = useState([]);
+  const releaseStatus = [
+    { value: 1, label: "RELEASED" },
+    { value: 2, label: "UNRELEASED" },
+  ];
+
+  useEffect(() => {
+    getReleaseTypes();
+  }, []);
 
   const handleProjectChange = (name, value) => {
     handleFormChange(name, value);
@@ -39,10 +43,31 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
     setIsValidationErrorsShown(false);
   };
 
-  const handleClose = () => {
-    onClose();
-    setFormValues({ name: "", releaseDate: "MM/DD/YYYY", type: "", version: "" });
-    setIsValidationErrorsShown(false);
+  const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+  const [formValues, setFormValues] = useState({
+    name: "",
+    releaseDate: "",
+    type: 1,
+    version: "",
+    projectID: selectedProject.id.toString(),
+    status: 1,
+  });
+  const [formErrors] = useValidation(ReleaseCreateSchema, formValues);
+
+  const getReleaseTypes = async () => {
+    await axios
+      .get("releases/types")
+      .then((r) => {
+        setReleaseTypes(r?.data?.releaseType);
+      })
+      .catch((e) => {
+        addToast("Failed To Get Release Types", { appearance: "error" });
+      });
+  };
+
+  const getStatusLabel = (value) => {
+    const status = releaseStatus.find((status) => status.value === value);
+    return status?.label || "";
   };
 
   const createRelease = async (event) => {
@@ -53,15 +78,21 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
       setIsValidationErrorsShown(true);
     } else {
       setIsValidationErrorsShown(false);
+
       try {
-        const response = await axios.post("/release-create", {
-          task: formValues,
+        const payload = {
+          ...formValues,
+          status: getStatusLabel(formValues.status),
+        };
+        const response = await axios.post("releases", {
+          release: payload,
         });
+
         const releaseId = response?.data?.body?.releaseId;
 
         if (releaseId > 0) {
+          dispatch(doGetReleases(selectedProject?.id));
           addToast("Release Successfully Created", { appearance: "success" });
-          handleClose();
         } else {
           addToast("Failed To Create The Release", { appearance: "error" });
         }
@@ -69,50 +100,101 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
         addToast("Failed To Create The Release", { appearance: "error" });
       }
     }
+
     setIsSubmitting(false);
   };
 
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
-          <div className="bg-white p-6 shadow-lg w-1/3">
-            <div className="flex justify-between items-center mb-4">
-              <p className="font-bold text-2xl">New Release</p>
-              <div className="cursor-pointer" onClick={handleClose}>
-                <XMarkIcon className="w-6 h-6 text-gray-500" />
-              </div>
+        <div
+          className="fixed top-[420px] right-0 transform -translate-y-1/2
+  w-[797px] h-[840px] p-5 bg-white shadow-md 
+  z-[1000] rounded-l-lg"
+        >
+          <button
+            onClick={onClose}
+            className="
+  absolute top-2.5 right-2.5 bg-transparent border-none 
+  text-[16px] cursor-pointer
+"
+          >
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+          <div className="p-2">
+            <div className="text-3xl border-b border-gray-300/40 pb-2">
+              New Release
             </div>
-            <form className="flex flex-col justify-between h-5/6 mt-10" onSubmit={createRelease}>
-              <div className="space-y-4">
-                <div className="flex-col">
-                  <p className="text-secondary-grey">Name</p>
-                  <FormInput
-                    type="text"
-                    name="name"
-                    formValues={formValues}
-                    onChange={({ target: { name, value } }) => handleFormChange(name, value, true)}
-                    formErrors={formErrors}
-                    showErrors={isValidationErrorsShown}
-                  />
-                </div>
-                <div className="flex-col">
-                  <p className="text-secondary-grey">Description</p>
-                  <FormTextArea
-                    name="description"
-                    rows={4}
-                    formValues={formValues}
-                    onChange={({ target: { name, value } }) => handleFormChange(name, value, true)}
-                    showErrors={isValidationErrorsShown}
-                  />
-                </div>
-                <div className="flex-col">
-                  <p className="text-secondary-grey">Release Date</p>
+            <form onSubmit={createRelease}>
+              <div className=" mt-5">
+                <FormInput
+                  type="text"
+                  name="name"
+                  formValues={formValues}
+                  placeholder="Name"
+                  onChange={({ target: { name, value } }) =>
+                    handleFormChange(name, value, true)
+                  }
+                  formErrors={formErrors}
+                  showErrors={isValidationErrorsShown}
+                />
+              </div>
+
+              <div className="mt-5">
+                <label className="block text-sm text-text-color">
+                  Description
+                </label>
+                <FormTextArea
+                  name="description"
+                  showShadow={false}
+                  formValues={formValues}
+                  onChange={({ target: { name, value } }) =>
+                    handleFormChange(name, value, true)
+                  }
+                  rows={6}
+                  formErrors={formErrors}
+                  showErrors={isValidationErrorsShown}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
+                <div>
                   <FormInput
                     type="date"
                     name="releaseDate"
                     formValues={formValues}
-                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                    placeholder="Release Date"
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value, true)
+                    }
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
+                  />
+                </div>
+
+                <div>
+                  <FormSelect
+                    formValues={formValues}
+                    name="status"
+                    placeholder="Status"
+                    options={releaseStatus}
+                    formErrors={formErrors}
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value)
+                    }
+                    showErrors={isValidationErrorsShown}
+                  />
+                </div>
+
+                <div>
+                  <FormInput
+                    type="text"
+                    name="version"
+                    formValues={formValues}
+                    placeholder="Version"
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value, true)
+                    }
                     formErrors={formErrors}
                     showErrors={isValidationErrorsShown}
                   />
@@ -121,21 +203,12 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                   <p className="text-secondary-grey">Type</p>
                   <FormSelect
                     name="type"
-                    options={[{ value: "alpha", label: "Alpha" }, { value: "beta", label: "Beta" }]}
-                    formValues={formValues}
-                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                    placeholder="Type"
+                    options={getSelectOptions(releaseTypes)}
                     formErrors={formErrors}
-                    showErrors={isValidationErrorsShown}
-                  />
-                </div>
-                <div className="flex-col">
-                  <p className="text-secondary-grey">Version</p>
-                  <FormInput
-                    type="text"
-                    name="version"
-                    formValues={formValues}
-                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                    formErrors={formErrors}
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value)
+                    }
                     showErrors={isValidationErrorsShown}
                   />
                 </div>
