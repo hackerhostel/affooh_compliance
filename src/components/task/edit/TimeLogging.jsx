@@ -167,8 +167,7 @@ const TimeLogging = ({timeLogs, taskId, refetchTimeLogs}) => {
 
     return (
         <div className="w-full mt-8">
-            <div className="flex w-full mb-3 justify-between pr-5">
-                <p className="text-text-color text-lg font-bold">Time Logs</p>
+            <div className="flex w-full mb-3 justify-end pr-5">
                 <div className="flex gap-1 items-center">
                     <PlusCircleIcon
                         onClick={handleAddNewRow}

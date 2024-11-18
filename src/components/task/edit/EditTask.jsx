@@ -17,6 +17,7 @@ import {useToasts} from "react-toast-notifications";
 import TimeTracking from "./TimeTracking.jsx";
 import useFetchTimeLogs from "../../../hooks/custom-hooks/task/useFetchTimeLogs.jsx";
 import TimeLogging from "./TimeLogging.jsx";
+import CommentAndTimeTabs from "./CommentAndTimeTabs.jsx";
 
 const EditTaskPage = () => {
   const {code} = useParams();
@@ -217,7 +218,7 @@ const EditTaskPage = () => {
         </div>
 
         <EditTaskAdditionalDetails/>
-        <TimeLogging timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs}/>
+        <CommentAndTimeTabs timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs}/>
       </div>
       <div className="w-2/5 py-5 bg-dashboard-bgc">
           <div className="mb-6">
