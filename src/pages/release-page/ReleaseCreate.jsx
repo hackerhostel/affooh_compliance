@@ -1,17 +1,21 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
+import FormTextArea from "../../components/FormTextArea.jsx";
 import {
   doSwitchProject,
   selectProjectList,
   selectSelectedProject,
 } from "../../state/slice/projectSlice.js";
-import FormTextArea from "../../components/FormTextArea.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import { ReleaseCreateSchema } from "../../utils/validationSchemas.js";
 import { useToasts } from "react-toast-notifications";
+import axios from "axios";
+import { selectTestCaseStatuses } from "../../state/slice/testCaseFormDataSlice.js";
+import { getSelectOptions } from "../../utils/commonUtils.js";
+import { doGetReleases } from "../../state/slice/releaseSlice.js";
 
 const ReleaseCreate = ({ isOpen, onClose }) => {
   const { addToast } = useToasts();
@@ -19,6 +23,15 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
   const selectedProject = useSelector(selectSelectedProject);
   const projectList = useSelector(selectProjectList);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [releaseTypes, setReleaseTypes] = useState([]);
+  const releaseStatus = [
+    { value: 1, label: "RELEASED" },
+    { value: 2, label: "UNRELEASED" },
+  ];
+
+  useEffect(() => {
+    getReleaseTypes();
+  }, []);
 
   const handleProjectChange = (name, value) => {
     handleFormChange(name, value);
@@ -33,34 +46,61 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const [formValues, setFormValues] = useState({
     name: "",
-    releaseDate: "MM/DD/YYYY",
-    type: "",
+    releaseDate: "",
+    type: 1,
     version: "",
+    projectID: selectedProject.id.toString(),
+    status: 1,
   });
   const [formErrors] = useValidation(ReleaseCreateSchema, formValues);
 
+  const getReleaseTypes = async () => {
+    await axios
+      .get("releases/types")
+      .then((r) => {
+        setReleaseTypes(r?.data?.releaseType);
+      })
+      .catch((e) => {
+        addToast("Failed To Get Release Types", { appearance: "error" });
+      });
+  };
+
+  const getStatusLabel = (value) => {
+    const status = releaseStatus.find((status) => status.value === value);
+    return status?.label || "";
+  };
+
   const createRelease = async (event) => {
+    event.preventDefault();
     setIsSubmitting(true);
+
     if (formErrors && Object.keys(formErrors).length > 0) {
       setIsValidationErrorsShown(true);
     } else {
       setIsValidationErrorsShown(false);
+
       try {
-        const response = await axios.post("/release-create", {
-          task: formValues,
+        const payload = {
+          ...formValues,
+          status: getStatusLabel(formValues.status),
+        };
+        const response = await axios.post("releases", {
+          release: payload,
         });
+
         const releaseId = response?.data?.body?.releaseId;
 
         if (releaseId > 0) {
+          dispatch(doGetReleases(selectedProject?.id));
           addToast("Release Successfully Created", { appearance: "success" });
-          handleClose();
         } else {
-          addToast("Failed To Create The Release ", { appearance: "error" });
+          addToast("Failed To Create The Release", { appearance: "error" });
         }
       } catch (error) {
-        addToast("Failed To Create The Release ", { appearance: "error" });
+        addToast("Failed To Create The Release", { appearance: "error" });
       }
     }
+
     setIsSubmitting(false);
   };
 
@@ -68,7 +108,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
     <>
       {isOpen && (
         <div
-          className="fixed top-[420px] right-0 transform -translate-y-1/2 
+          className="fixed top-[420px] right-0 transform -translate-y-1/2
   w-[797px] h-[840px] p-5 bg-white shadow-md 
   z-[1000] rounded-l-lg"
         >
@@ -112,10 +152,9 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                     handleFormChange(name, value, true)
                   }
                   rows={6}
+                  formErrors={formErrors}
+                  showErrors={isValidationErrorsShown}
                 />
-                {isValidationErrorsShown && formErrors.description && (
-                  <span className="text-red-500">{formErrors.description}</span>
-                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
@@ -126,19 +165,27 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                     formValues={formValues}
                     placeholder="Release Date"
                     onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
+                      handleFormChange(name, value, true)
                     }
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
 
                 <div>
                   <FormSelect
                     formValues={formValues}
-                    name="type"
-                    placeholder="Type"
-                    options={[{ value: "alpha", label: "Alpha" }]}
+                    name="status"
+                    placeholder="Status"
+                    options={releaseStatus}
+                    formErrors={formErrors}
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value)
+                    }
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
+
                 <div>
                   <FormInput
                     type="text"
@@ -146,29 +193,41 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                     formValues={formValues}
                     placeholder="Version"
                     onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
+                      handleFormChange(name, value, true)
                     }
                     formErrors={formErrors}
                     showErrors={isValidationErrorsShown}
                   />
                 </div>
+                <div className="flex-col">
+                  <p className="text-secondary-grey">Type</p>
+                  <FormSelect
+                    name="type"
+                    placeholder="Type"
+                    options={getSelectOptions(releaseTypes)}
+                    formErrors={formErrors}
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value)
+                    }
+                    showErrors={isValidationErrorsShown}
+                  />
+                </div>
               </div>
-
-              <div className="flex gap-5 mt-5">
-                <input
-                  type="button"
-                  value="Cancel"
-                  className="w-full py-3 rounded-lg  font-bold cursor-pointer w-[205px] border-2 border-[#747A88] text-[#747A88]"
-                  onClick={onClose}
+              <div className="flex space-x-4 mt-6 self-end w-full">
+                <button
+                  onClick={handleClose}
+                  className="btn-secondary"
                   disabled={isSubmitting}
-                />
-
-                <input
+                >
+                  Cancel
+                </button>
+                <button
                   type="submit"
-                  value="Create"
+                  className="btn-primary"
                   disabled={isSubmitting}
-                  className="py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer w-full"
-                />
+                >
+                  Create
+                </button>
               </div>
             </form>
           </div>

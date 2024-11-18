@@ -2,6 +2,7 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import axios from "axios";
 
 const initialState = {
+    selectedRelease: undefined,
     isReleaseListForProjectError: false,
     isReleaseListForProjectLoading: false,
     releaseListForProject: []
@@ -31,6 +32,9 @@ export const releaseSlice = createSlice({
     initialState,
     reducers: {
         clearReleaseState: () => initialState,
+        setSelectedRelease: (state, action) => {
+            state.selectedRelease = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -49,8 +53,9 @@ export const releaseSlice = createSlice({
     },
 });
 
-export const {clearReleaseState} = releaseSlice.actions;
+export const {clearReleaseState, setSelectedRelease} = releaseSlice.actions;
 
+export const selectSelectedRelease = (state) => state.release.selectedRelease;
 export const selectIsReleaseListForProjectError = (state) => state?.release?.isReleaseListForProjectError;
 export const selectIsReleaseListForProjectLoading = (state) => state?.release?.isReleaseListForProjectLoading;
 export const selectReleaseListForProject = (state) => state?.release?.releaseListForProject;

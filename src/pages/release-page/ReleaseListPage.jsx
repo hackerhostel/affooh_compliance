@@ -9,7 +9,8 @@ import {
     doGetReleases,
     selectIsReleaseListForProjectError,
     selectIsReleaseListForProjectLoading,
-    selectReleaseListForProject
+    selectReleaseListForProject,
+    setSelectedRelease
 } from "../../state/slice/releaseSlice.js";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
@@ -22,8 +23,9 @@ const ReleaseListPage = () => {
     const releases = useSelector(selectReleaseListForProject)
     const releaseLoading = useSelector(selectIsReleaseListForProjectLoading)
     const releaseError = useSelector(selectIsReleaseListForProjectError)
+    const [toDeleteRelease, setToDeleteRelease] = useState({});
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [selectedRelease, setSelectedRelease] = useState(null);
+
 
     const [filteredReleases, setFilteredReleases] = useState([]);
 
@@ -51,13 +53,13 @@ const ReleaseListPage = () => {
     };
 
     const handleDeleteClick = (release) => {
-        setSelectedRelease(release);
+        setToDeleteRelease(release)
         setIsDialogOpen(true);
     };
 
     const handleConfirmDelete = () => {
-        if (selectedRelease) {
-            axios.delete(`/releases/${selectedRelease.id}`)
+        if (toDeleteRelease) {
+            axios.delete(`/releases/${toDeleteRelease.id}`)
                 .then(response => {
                 const deleted = response?.data?.status
 
@@ -72,11 +74,10 @@ const ReleaseListPage = () => {
             });
         }
         setIsDialogOpen(false);
-        setSelectedRelease(null);
     };
 
     if (releaseLoading) return <div className="p-2"><SkeletonLoader/></div>;
-    if (releaseError) return <ErrorAlert message={error.message}/>;
+    if (releaseError) return <ErrorAlert message="Cannot get release list"/>;
 
     return (
         <div className="h-list-screen overflow-y-auto w-full">
@@ -89,9 +90,9 @@ const ReleaseListPage = () => {
                         <button
                             key={index}
                             className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100"
-                            // onClick={() => {
-                            //     dispatch(setSelectedProjectFromList(index))
-                            // }}
+                            onClick={() => {
+                                dispatch(setSelectedRelease(element))
+                            }}
                         >
                             <div className="text-left">
                                 <div className="font-bold mb-1">{element?.name}</div>
@@ -112,10 +113,9 @@ const ReleaseListPage = () => {
                 isOpen={isDialogOpen}
                 onClose={() => {
                     setIsDialogOpen(false);
-                    setSelectedRelease(null);
                 }}
                 onConfirm={handleConfirmDelete}
-                message={selectedRelease ? `To delete release - ${selectedRelease.name} ?` : ''}
+                message={toDeleteRelease ? `To delete release - ${toDeleteRelease.name} ?` : ''}
             />
         </div>
     );

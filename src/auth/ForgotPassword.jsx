@@ -47,7 +47,7 @@ const ForgotPassword = () => {
             type="submit"
             style={{width:'420px'}}
             value="Confirm"
-            className="w-full py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
+            className="btn-login"
           />
         </form>
       </div>

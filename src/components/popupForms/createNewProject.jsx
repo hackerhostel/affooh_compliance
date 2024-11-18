@@ -9,6 +9,7 @@ import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
 import { ProjectCreateSchema } from '../../utils/validationSchemas.js'; 
 import { useToasts } from 'react-toast-notifications';
+import {doGetWhoAmI} from "../../state/slice/authSlice.js";
 
 const CreateNewProjectPopup = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
@@ -26,12 +27,9 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
     
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formErrors] = useValidation(ProjectCreateSchema, formValues); // Assuming a validation schema exists.
+    const [formErrors] = useValidation(ProjectCreateSchema, formValues); 
 
-    useEffect(() => {
-        // Any necessary effect when the popup opens
-    }, []);
-
+   
     const handleFormChange = (name, value) => {
         setFormValues({ ...formValues, [name]: value });
         setIsValidationErrorsShown(false);
@@ -56,8 +54,8 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
                 const projectId = response?.data?.body;
 
                 if (projectId) {
+                    dispatch(doGetWhoAmI());
                     addToast('Project Successfully Created', { appearance: 'success' });
-                    // Dispatch any necessary action to update the state after creation
                     handleClose();
                 } else {
                     addToast('Failed To Create The Project', { appearance: 'error' });
@@ -119,14 +117,14 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
                             <div className="flex space-x-4 mt-6 self-end w-full">
                                 <button
                                     onClick={handleClose}
-                                    className="px-4 py-2 text-gray-700 rounded w-1/4 border border-black cursor-pointer disabled:cursor-not-allowed"
+                                    className=" btn-secondary"
                                     disabled={isSubmitting}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 bg-primary-pink text-white rounded hover:bg-pink-600 w-3/4 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                    className=" btn-primary"
                                     disabled={isSubmitting}
                                 >
                                     Create
