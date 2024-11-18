@@ -1,7 +1,6 @@
-import { ExclamationCircleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { ExclamationCircleIcon, EyeIcon, EyeSlashIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-
 
 function FormInput(
   {
@@ -23,6 +22,7 @@ function FormInput(
     onMouseDown,
     ariaLabel,
     showPasswordVisibilityIcon = false,
+    showDropdownIcon = false, // New prop for ChevronDownIcon
     autocomplete,
     ...rest
   },
@@ -67,7 +67,7 @@ function FormInput(
               { 'shadow-sm': showShadow },
               { 'mt-1': showLabel },
               { 'py-3': size === 'normal' },
-              { 'pl-3': showPasswordVisibilityIcon },
+              { 'pl-3': showPasswordVisibilityIcon || showDropdownIcon },
               { 'bg-gray-200 cursor-not-allowed': disabled },
             )}
             placeholder={placeholder}
@@ -83,7 +83,7 @@ function FormInput(
           {showPasswordVisibilityIcon && (
             <button
               type="button"
-              className="absolute inset-y-1 right-0 pr-3 pt-6 flex items-center"
+              className="absolute inset-y-1 right-8 pr-3 pt-6 flex items-center"
               onClick={handleToggleType}
             >
               {inputType === 'password' ? (
@@ -93,9 +93,12 @@ function FormInput(
               )}
             </button>
           )}
+          {showDropdownIcon && (
+            <ChevronDownIcon className="absolute inset-y-0 right-0 h-5 w-5 text-gray-400 mr-3 mt-6" />
+          )}
         </label>
         {hasError && (
-          <div className="absolute bottom-2  right-0 pr-3 flex items-center pointer-events-none">
+          <div className="absolute bottom-2 right-0 pr-3 flex items-center pointer-events-none">
             <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
           </div>
         )}

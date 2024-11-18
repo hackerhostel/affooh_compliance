@@ -3,12 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
+import FormTextArea from "../../components/FormTextArea.jsx";
 import {
   doSwitchProject,
   selectProjectList,
   selectSelectedProject,
 } from "../../state/slice/projectSlice.js";
-import FormTextArea from "../../components/FormTextArea.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import { ReleaseCreateSchema } from "../../utils/validationSchemas.js";
 import { useToasts } from "react-toast-notifications";
@@ -94,10 +94,10 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
           dispatch(doGetReleases(selectedProject?.id));
           addToast("Release Successfully Created", { appearance: "success" });
         } else {
-          addToast("Failed To Create The Release ", { appearance: "error" });
+          addToast("Failed To Create The Release", { appearance: "error" });
         }
       } catch (error) {
-        addToast("Failed To Create The Release ", { appearance: "error" });
+        addToast("Failed To Create The Release", { appearance: "error" });
       }
     }
 
@@ -199,10 +199,9 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                     showErrors={isValidationErrorsShown}
                   />
                 </div>
-
-                <div>
+                <div className="flex-col">
+                  <p className="text-secondary-grey">Type</p>
                   <FormSelect
-                    formValues={formValues}
                     name="type"
                     placeholder="Type"
                     options={getSelectOptions(releaseTypes)}
@@ -214,22 +213,21 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                   />
                 </div>
               </div>
-
-              <div className="flex gap-5 mt-5">
-                <input
-                  type="button"
-                  value="Cancel"
-                  className="w-full py-3 rounded-lg  font-bold cursor-pointer w-[205px] border-2 border-[#747A88] text-[#747A88]"
-                  onClick={onClose}
+              <div className="flex space-x-4 mt-6 self-end w-full">
+                <button
+                  onClick={handleClose}
+                  className="btn-secondary"
                   disabled={isSubmitting}
-                />
-
-                <input
+                >
+                  Cancel
+                </button>
+                <button
                   type="submit"
-                  value="Create"
+                  className="btn-primary"
                   disabled={isSubmitting}
-                  className="py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer w-full"
-                />
+                >
+                  Create
+                </button>
               </div>
             </form>
           </div>
