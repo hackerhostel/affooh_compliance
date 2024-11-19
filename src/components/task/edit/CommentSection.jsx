@@ -1,31 +1,39 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import FormInput from "../../FormInput.jsx";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
+import useFetchComments from "../../../hooks/custom-hooks/task/useFetchComments.jsx";
+import {getRelativeDate} from "../../../utils/commonUtils.js";
+import {PencilSquareIcon, ReceiptRefundIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 
 const CommentSection = ({taskId, userDetails}) => {
     const {addToast} = useToasts();
+
+    const {data: commentResponse, refetch: reFetchComments} = useFetchComments(taskId)
+
+    useEffect(() => {
+        setComments(commentResponse);
+    }, [commentResponse]);
 
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
     const [editing, setEditing] = useState(null);
     const [editedComment, setEditedComment] = useState("");
+    const [replying, setReplying] = useState(null);
+    const [replyingComment, setReplyingComment] = useState("");
 
-    const handleAddComment = async () => {
-        if (newComment.trim()) {
-            setComments([
-                ...comments,
-                {id: Date.now(), text: newComment, replies: []},
-            ]);
+    const handleAddComment = async (parentId = 0) => {
+        if (parentId === 0 ? newComment.trim() : replyingComment.trim()) {
             try {
-                const response = await axios.post(`/tasks/${taskId}/comments`, {
-                    comment: newComment
-                })
+                const payload = parentId === 0 ? {comment: newComment} : {comment: replyingComment, parentID: parentId}
+                const response = await axios.post(`/tasks/${taskId}/comments`, payload)
                 const created = response?.data?.body?.status
 
                 if (created) {
-                    addToast('Comment Added', {appearance: 'success'});
                     setNewComment("");
+                    setReplying("")
+                    await reFetchComments()
+                    addToast('Comment Added', {appearance: 'success'});
                 } else {
                     addToast('Failed to add the comment', {appearance: 'error'});
                 }
@@ -37,8 +45,45 @@ const CommentSection = ({taskId, userDetails}) => {
         }
     };
 
-    const handleDeleteComment = (id) => {
-        setComments(comments.filter((comment) => comment.id !== id));
+    const handleUpdateComment = async (id) => {
+        if (editedComment.trim()) {
+            setComments(
+                comments.map((comment) =>
+                    comment.id === id ? {...comment, text: editedComment} : comment
+                )
+            );
+            try {
+                const response = await axios.put(`/tasks/${taskId}/comments/${id}`, {comment: editedComment})
+                const updated = response?.status
+                if (updated === 204) {
+                    setEditing(null);
+                    setEditedComment("");
+                    await reFetchComments()
+                    addToast('Comment Updated', {appearance: 'success'});
+                } else {
+                    addToast('Failed to update the comment', {appearance: 'error'});
+                }
+            } catch (error) {
+                addToast('Failed to update the comment', {appearance: 'error'});
+            }
+        } else {
+            addToast('Comment is required', {appearance: 'warning'});
+        }
+    };
+
+    const handleDeleteComment = async (id) => {
+        try {
+            const response = await axios.delete(`/tasks/${taskId}/comments/${id}`)
+            const deleted = response?.status
+            if (deleted) {
+                await reFetchComments()
+                addToast('Comment successfully deleted', {appearance: 'success'});
+            } else {
+                addToast('Failed to delete the comment', {appearance: 'error'});
+            }
+        } catch (error) {
+            addToast('Failed to delete the comment', {appearance: 'error'});
+        }
     };
 
     const handleEditComment = (id, text) => {
@@ -46,24 +91,9 @@ const CommentSection = ({taskId, userDetails}) => {
         setEditedComment(text);
     };
 
-    const handleSaveEdit = (id) => {
-        setComments(
-            comments.map((comment) =>
-                comment.id === id ? {...comment, text: editedComment} : comment
-            )
-        );
-        setEditing(null);
-        setEditedComment("");
-    };
-
-    const handleReply = (id, replyText) => {
-        setComments(
-            comments.map((comment) =>
-                comment.id === id
-                    ? {...comment, replies: [...comment.replies, {text: replyText}]}
-                    : comment
-            )
-        );
+    const handleReplyCancel = () => {
+        setReplying(null);
+        setReplyingComment("");
     };
 
     return (
@@ -83,75 +113,149 @@ const CommentSection = ({taskId, userDetails}) => {
                         onChange={(e) => setNewComment(e.target.value)}
                     />
                 </div>
-                <div className=" flex items-center justify-center cursor-pointer btn-primary text-center w-20"
-                     onClick={handleAddComment}>
+                <div className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
+                     onClick={() => handleAddComment(0)}>
                     <p>Post</p>
                 </div>
             </div>
             <div className={'mt-6'}>
                 {comments.map((comment) => (
-                    <div key={comment.id} className="mb-4">
-                        {editing === comment.id ? (
-                            <div>
-                                <FormInput
-                                    type="text"
-                                    name="editedComment"
-                                    formValues={{editedComment: editedComment}}
-                                    onChange={(e) => setEditedComment(e.target.value)}
-                                />
-                                <button
-                                    className="mt-2 px-4 py-2 bg-green-500 text-white rounded"
-                                    onClick={() => handleSaveEdit(comment.id)}
-                                >
-                                    Save
-                                </button>
-                                <button
-                                    className="mt-2 ml-2 px-4 py-2 bg-gray-500 text-white rounded"
-                                    onClick={() => setEditing(null)}
-                                >
-                                    Cancel
-                                </button>
+                    <div key={comment?.id} className="mb-4">
+                        {editing === comment?.id ? (
+                            <div className={"flex w-full gap-4 items-center"}>
+                                <div className={"w-full"}>
+                                    <FormInput
+                                        type="text"
+                                        name="editedComment"
+                                        formValues={{editedComment: editedComment}}
+                                        onChange={(e) => setEditedComment(e.target.value)}
+                                    />
+                                </div>
+                                <div className={"flex gap-4"}>
+                                    <div
+                                        className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
+                                        onClick={() => handleUpdateComment(comment?.id)}>
+                                        <p>Update</p>
+                                    </div>
+                                    <div
+                                        className="flex items-center justify-center cursor-pointer btn-secondary text-center w-20"
+                                        onClick={() => setEditing(null)}>
+                                        <p>Cancel</p>
+                                    </div>
+                                </div>
                             </div>
                         ) : (
-                            <div className={"flex w-full justify-between"}>
-                                <p className="mb-2">{comment.text}</p>
-                                <div className="space-x-2">
-                                    <button
-                                        className="text-blue-500"
-                                        onClick={() => handleEditComment(comment.id, comment.text)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        className="text-red-500"
-                                        onClick={() => handleDeleteComment(comment.id)}
-                                    >
-                                        Delete
-                                    </button>
-                                    <button
-                                        className="text-green-500"
-                                        onClick={() =>
-                                            handleReply(
-                                                comment.id,
-                                                prompt("Enter your reply:", "")
-                                            )
-                                        }
-                                    >
-                                        Reply
-                                    </button>
+                            <div className={"flex w-full justify-between items-center"}>
+                                <div
+                                    className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
+                                    {comment?.createdBy?.firstName[0]}{comment?.createdBy?.lastName[0]}
+                                </div>
+                                <div className={"flex flex-col flex-grow mx-5"}>
+                                    <div className={"flex gap-2"}>
+                                        <p className={"text-secondary-grey font-semibold"}>{`${comment?.createdBy?.firstName} ${comment?.createdBy?.lastName}`}</p>
+                                        <p className={"text-secondary-grey text-xs"}>{getRelativeDate(comment?.createdAt)}</p>
+                                    </div>
+                                    <p className={"text-secondary-grey"}>{comment?.comment}</p>
+                                </div>
+
+                                <div className="flex space-x-2">
+                                    <div onClick={() => setReplying(comment?.id)} className={"cursor-pointer"}>
+                                        <ReceiptRefundIcon className={"w-5 h-5 text-green-700"}/>
+                                    </div>
+                                    <div onClick={() => handleEditComment(comment?.id, comment?.comment)}
+                                         className={"cursor-pointer"}>
+                                        <PencilSquareIcon className={"w-5 h-5 text-black"}/>
+                                    </div>
+                                    <div onClick={() => handleDeleteComment(comment?.id)} className={"cursor-pointer"}>
+                                        <TrashIcon className={"w-5 h-5 text-pink-700"}/>
+                                    </div>
                                 </div>
                             </div>
                         )}
-                        {comment.replies.length > 0 && (
+                        {comment?.replies?.length > 0 && (
                             <div className="ml-4 mt-2 space-y-2">
-                                {comment.replies.map((reply, index) => (
+                                {comment?.replies?.map((reply, index) => (
                                     <div
                                         key={index}
-                                        className="p-2 border-l-2 border-gray-200"
+                                        className="pl-3 border-l-2 border-gray-200"
                                     >
-                                        <p>{reply.text}</p>
+                                        {editing === reply?.id ? (
+                                            <div className={"flex w-full gap-4 items-center"}>
+                                                <div className={"w-full"}>
+                                                    <FormInput
+                                                        type="text"
+                                                        name="editedComment"
+                                                        formValues={{editedComment: editedComment}}
+                                                        onChange={(e) => setEditedComment(e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className={"flex gap-4"}>
+                                                    <div
+                                                        className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
+                                                        onClick={() => handleUpdateComment(reply?.id)}>
+                                                        <p>Update</p>
+                                                    </div>
+                                                    <div
+                                                        className="flex items-center justify-center cursor-pointer btn-secondary text-center w-20"
+                                                        onClick={() => setEditing(null)}>
+                                                        <p>Cancel</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className={"flex w-full justify-between items-center"}>
+                                                <div
+                                                    className="w-9 h-9 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
+                                                    {reply?.createdBy?.firstName[0]}{reply?.createdBy?.lastName[0]}
+                                                </div>
+                                                <div className={"flex flex-col flex-grow mx-5"}>
+                                                    <div className={"flex gap-2"}>
+                                                        <p className={"text-secondary-grey font-semibold"}>{`${reply?.createdBy?.firstName} ${reply?.createdBy?.lastName}`}</p>
+                                                        <p className={"text-secondary-grey text-xs"}>{getRelativeDate(reply?.createdAt)}</p>
+                                                    </div>
+                                                    <p className={"text-secondary-grey"}>{reply?.comment}</p>
+                                                </div>
+
+                                                <div className="flex space-x-2">
+                                                    <div
+                                                        onClick={() => handleEditComment(reply?.id, reply?.comment)}
+                                                        className={"cursor-pointer"}>
+                                                        <PencilSquareIcon className={"w-5 h-5 text-black"}/>
+                                                    </div>
+                                                    <div onClick={() => handleDeleteComment(reply?.id)}
+                                                         className={"cursor-pointer"}>
+                                                        <TrashIcon className={"w-5 h-5 text-pink-700"}/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
+                            </div>
+                        )}
+                        {replying === comment?.id && (
+                            <div className="pl-3 border-l-2 border-gray-200 flex gap-4 items-center w-full mt-4 ml-4">
+                                <div className={"w-full"}>
+                                    <FormInput
+                                        type="text"
+                                        name="reply"
+                                        formValues={{reply: replyingComment || ''}}
+                                        placeholder="Write a reply..."
+                                        onChange={(e) => setReplyingComment(e.target.value)}
+                                        showLabel={false}
+                                    />
+                                </div>
+                                <div
+                                    className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
+                                    onClick={() => handleAddComment(comment?.id)}
+                                >
+                                    <p>Reply</p>
+                                </div>
+                                <div
+                                    className="flex items-center justify-center cursor-pointer btn-secondary text-center w-20"
+                                    onClick={handleReplyCancel}>
+                                    <p>Cancel</p>
+                                </div>
                             </div>
                         )}
                     </div>

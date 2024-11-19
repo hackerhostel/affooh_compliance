@@ -16,7 +16,6 @@ import EditTaskScreenDetails from "./EditTaskScreenDetails.jsx";
 import {useToasts} from "react-toast-notifications";
 import TimeTracking from "./TimeTracking.jsx";
 import useFetchTimeLogs from "../../../hooks/custom-hooks/task/useFetchTimeLogs.jsx";
-import TimeLogging from "./TimeLogging.jsx";
 import CommentAndTimeTabs from "./CommentAndTimeTabs.jsx";
 
 const EditTaskPage = () => {
