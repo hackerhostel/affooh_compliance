@@ -1,4 +1,5 @@
 import {getBuildConstant} from "../constants/build-constants.jsx";
+import moment from "moment";
 
 export const getAPIBaseURL = () => {
   const host = getBuildConstant('REACT_APP_API_HOST');
@@ -74,5 +75,24 @@ export const getSpendTime = (timeEntries) => {
   if (minutes > 0) result += `${minutes}m`;
 
   return result.trim();
+}
+
+export const getRelativeDate = (dateString) => {
+  const inputDate = moment(dateString);
+
+  if (!inputDate.isValid()) {
+    return 'Invalid date';
+  }
+
+  const now = moment();
+  const daysDifference = now.diff(inputDate, 'days');
+
+  if (daysDifference === 0) {
+    return 'Today';
+  } else if (daysDifference === 1) {
+    return '1 day ago';
+  } else {
+    return `${daysDifference} days ago`;
+  }
 }
 

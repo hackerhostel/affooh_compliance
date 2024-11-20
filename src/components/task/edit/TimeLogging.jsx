@@ -2,16 +2,13 @@ import React, {useState} from 'react';
 import {getInitials} from "../../../utils/commonUtils.js";
 import {CheckBadgeIcon, PlusCircleIcon, TrashIcon, XCircleIcon} from "@heroicons/react/24/outline/index.js";
 import FormInput from "../../FormInput.jsx";
-import {useSelector} from "react-redux";
-import {selectUser} from "../../../state/slice/authSlice.js";
 import DateSelector from "../../DateSelector.jsx";
 import moment from "moment";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
 
-const TimeLogging = ({timeLogs, taskId, refetchTimeLogs}) => {
+const TimeLogging = ({timeLogs, taskId, refetchTimeLogs, userDetails}) => {
     const {addToast} = useToasts();
-    const userDetails = useSelector(selectUser);
 
     const [showNewRow, setShowNewRow] = useState(false);
     const [newRow, setNewRow] = useState({time: 0, description: '', date: new Date()});
@@ -167,8 +164,7 @@ const TimeLogging = ({timeLogs, taskId, refetchTimeLogs}) => {
 
     return (
         <div className="w-full mt-8">
-            <div className="flex w-full mb-3 justify-between pr-5">
-                <p className="text-text-color text-lg font-bold">Time Logs</p>
+            <div className="flex w-full mb-3 justify-end pr-5">
                 <div className="flex gap-1 items-center">
                     <PlusCircleIcon
                         onClick={handleAddNewRow}
