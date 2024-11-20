@@ -10,6 +10,7 @@ import {doGetWhoAmI, selectInitialUserDataError, selectInitialUserDataLoading} f
 import LoadingPage from "./LoadingPage.jsx";
 import ServiceDownPage from "./ServiceDownPage.jsx";
 import TestPlanLayout from "./test-plan-page/index.jsx";
+import DashboardLayout from "./dashboard-page/index.jsx";
 import ReleaseLayout from "./release-page/index.jsx";
 import SprintLayout from "./sprint-page/index.jsx";
 import SettingLayout from "./setting-page/index.jsx";
@@ -49,7 +50,7 @@ const Dashboard = () => {
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
           <Switch>
             <Route path="/dashboard">
-              <UnderConstruction />
+              <DashboardLayout />
             </Route>
 
             <Route path="/projects">
