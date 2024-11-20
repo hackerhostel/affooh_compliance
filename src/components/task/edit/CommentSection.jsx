@@ -1,26 +1,47 @@
 import React, {useEffect, useState} from "react";
-import FormInput from "../../FormInput.jsx";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
 import useFetchComments from "../../../hooks/custom-hooks/task/useFetchComments.jsx";
 import {getRelativeDate} from "../../../utils/commonUtils.js";
 import {PencilSquareIcon, ReceiptRefundIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
+import MentionInput from "../../MentionInput.jsx";
+import {useSelector} from "react-redux";
+import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
+import useFetchFlatTasks from "../../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
+import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 
 const CommentSection = ({taskId, userDetails}) => {
     const {addToast} = useToasts();
+    const projectUserList = useSelector(selectProjectUserList);
+    const selectedProject = useSelector(selectSelectedProject);
 
+    const {data: tasksList} = useFetchFlatTasks(selectedProject?.id)
     const {data: commentResponse, refetch: reFetchComments} = useFetchComments(taskId)
 
-    useEffect(() => {
-        setComments(commentResponse);
-    }, [commentResponse]);
-
+    const [users, setUsers] = useState([]);
+    const [tasks, setTasks] = useState([]);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
     const [editing, setEditing] = useState(null);
     const [editedComment, setEditedComment] = useState("");
     const [replying, setReplying] = useState(null);
     const [replyingComment, setReplyingComment] = useState("");
+
+    useEffect(() => {
+        if (projectUserList.length) {
+            setUsers(projectUserList.map(o => ({id: Number(o.id), display: `${o.firstName} ${o.lastName}`})))
+        }
+    }, [projectUserList]);
+
+    useEffect(() => {
+        if (tasksList.length) {
+            setTasks(tasksList.map(o => ({id: Number(o?.id), display: o?.name})))
+        }
+    }, [tasksList]);
+
+    useEffect(() => {
+        setComments(commentResponse);
+    }, [commentResponse]);
 
     const handleAddComment = async (parentId = 0) => {
         if (parentId === 0 ? newComment.trim() : replyingComment.trim()) {
@@ -103,15 +124,9 @@ const CommentSection = ({taskId, userDetails}) => {
                     className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
                     {userDetails.firstName?.[0]}{userDetails.lastName?.[0]}
                 </div>
-                <div className={"w-9/12"}>
-                    <FormInput
-                        type="text"
-                        name="comment"
-                        showLabel={false}
-                        formValues={{comment: newComment}}
-                        placeholder="Add a comment..."
-                        onChange={(e) => setNewComment(e.target.value)}
-                    />
+                <div className={"w-10/12"}>
+                    <MentionInput placeholder={'Add a comment...'} value={newComment} onchange={setNewComment}
+                                  users={users} tasks={tasks}/>
                 </div>
                 <div className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
                      onClick={() => handleAddComment(0)}>
@@ -124,12 +139,8 @@ const CommentSection = ({taskId, userDetails}) => {
                         {editing === comment?.id ? (
                             <div className={"flex w-full gap-4 items-center"}>
                                 <div className={"w-full"}>
-                                    <FormInput
-                                        type="text"
-                                        name="editedComment"
-                                        formValues={{editedComment: editedComment}}
-                                        onChange={(e) => setEditedComment(e.target.value)}
-                                    />
+                                    <MentionInput value={editedComment} onchange={setEditedComment}
+                                                  placeholder={'Add a comment...'} users={users} tasks={tasks}/>
                                 </div>
                                 <div className={"flex gap-4"}>
                                     <div
@@ -182,12 +193,9 @@ const CommentSection = ({taskId, userDetails}) => {
                                         {editing === reply?.id ? (
                                             <div className={"flex w-full gap-4 items-center"}>
                                                 <div className={"w-full"}>
-                                                    <FormInput
-                                                        type="text"
-                                                        name="editedComment"
-                                                        formValues={{editedComment: editedComment}}
-                                                        onChange={(e) => setEditedComment(e.target.value)}
-                                                    />
+                                                    <MentionInput value={editedComment} onchange={setEditedComment}
+                                                                  placeholder="Write a reply..." users={users}
+                                                                  tasks={tasks}/>
                                                 </div>
                                                 <div className={"flex gap-4"}>
                                                     <div
@@ -236,14 +244,8 @@ const CommentSection = ({taskId, userDetails}) => {
                         {replying === comment?.id && (
                             <div className="pl-3 border-l-2 border-gray-200 flex gap-4 items-center w-full mt-4 ml-4">
                                 <div className={"w-full"}>
-                                    <FormInput
-                                        type="text"
-                                        name="reply"
-                                        formValues={{reply: replyingComment || ''}}
-                                        placeholder="Write a reply..."
-                                        onChange={(e) => setReplyingComment(e.target.value)}
-                                        showLabel={false}
-                                    />
+                                    <MentionInput value={replyingComment} onchange={setReplyingComment}
+                                                  placeholder="Write a reply..." users={users} tasks={tasks}/>
                                 </div>
                                 <div
                                     className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
