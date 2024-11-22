@@ -9,9 +9,11 @@ import {useSelector} from "react-redux";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
 import useFetchFlatTasks from "../../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
 import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
+import {useHistory} from "react-router-dom";
 
 const CommentSection = ({taskId, userDetails}) => {
     const {addToast} = useToasts();
+    const history = useHistory();
     const projectUserList = useSelector(selectProjectUserList);
     const selectedProject = useSelector(selectSelectedProject);
 
@@ -26,6 +28,7 @@ const CommentSection = ({taskId, userDetails}) => {
     const [editedComment, setEditedComment] = useState("");
     const [replying, setReplying] = useState(null);
     const [replyingComment, setReplyingComment] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (projectUserList.length) {
@@ -44,6 +47,7 @@ const CommentSection = ({taskId, userDetails}) => {
     }, [commentResponse]);
 
     const handleAddComment = async (parentId = 0) => {
+        setIsSubmitting(true)
         if (parentId === 0 ? newComment.trim() : replyingComment.trim()) {
             try {
                 const payload = parentId === 0 ? {comment: newComment} : {comment: replyingComment, parentID: parentId}
@@ -55,18 +59,23 @@ const CommentSection = ({taskId, userDetails}) => {
                     setReplying("")
                     await reFetchComments()
                     addToast('Comment Added', {appearance: 'success'});
+                    setIsSubmitting(false)
                 } else {
                     addToast('Failed to add the comment', {appearance: 'error'});
+                    setIsSubmitting(false)
                 }
             } catch (error) {
                 addToast('Failed to add the comment', {appearance: 'error'});
+                setIsSubmitting(false)
             }
         } else {
             addToast('Comment is required', {appearance: 'warning'});
+            setIsSubmitting(false)
         }
     };
 
     const handleUpdateComment = async (id) => {
+        setIsSubmitting(true)
         if (editedComment.trim()) {
             setComments(
                 comments.map((comment) =>
@@ -81,14 +90,18 @@ const CommentSection = ({taskId, userDetails}) => {
                     setEditedComment("");
                     await reFetchComments()
                     addToast('Comment Updated', {appearance: 'success'});
+                    setIsSubmitting(false)
                 } else {
                     addToast('Failed to update the comment', {appearance: 'error'});
+                    setIsSubmitting(false)
                 }
             } catch (error) {
                 addToast('Failed to update the comment', {appearance: 'error'});
+                setIsSubmitting(false)
             }
         } else {
             addToast('Comment is required', {appearance: 'warning'});
+            setIsSubmitting(false)
         }
     };
 
@@ -117,6 +130,61 @@ const CommentSection = ({taskId, userDetails}) => {
         setReplyingComment("");
     };
 
+    const handleTaskCommentClick = (code) => {
+        if (code) {
+            history.push(`/task/${code}`);
+        } else {
+            addToast('Task not found', {appearance: 'warning'});
+        }
+    };
+
+    const handleUserCommentClick = (id) => {
+        if (id) {
+            history.push(`/profile/${id}`);
+        } else {
+            addToast('User not found', {appearance: 'warning'});
+        }
+    };
+
+    const displayComment = (inputString) => {
+        const parsePattern = /(@\{\{(\d+)\|\|([^\}]+)\}\})|(#\{\{(\d+)\|\|([^\}]+)\}\})/g;
+
+        const parts = [];
+        let lastIndex = 0;
+
+        inputString.replace(parsePattern, (match, mention, mentionId, mentionName, task, taskId, taskDesc, offset) => {
+            if (offset > lastIndex) {
+                parts.push(inputString.slice(lastIndex, offset));
+            }
+
+            if (mention) {
+                parts.push(
+                    <p className={"cursor-pointer text-task-status-qa-bold"} key={`mention-${mentionId}`}
+                       onClick={() => handleUserCommentClick(mentionId)}>
+                        @{mentionName}
+                    </p>
+                );
+            } else if (task) {
+                const taskCode = tasksList.find((t) => t.id === parseInt(taskId, 10))?.code;
+                parts.push(
+                    <p className={"cursor-pointer text-task-status-done-bold"} key={`task-${taskId}`}
+                       onClick={() => handleTaskCommentClick(taskCode)}>
+                        #{taskDesc}
+                    </p>
+                );
+            }
+
+            lastIndex = offset + match.length;
+            return match;
+        });
+
+        if (lastIndex < inputString.length) {
+            parts.push(inputString.slice(lastIndex));
+        }
+
+        return <span className={"text-secondary-grey flex flex-wrap gap-1 break-all"}>{parts}</span>;
+    }
+
     return (
         <div className="w-full mt-8 p-6 bg-white rounded-lg shadow-lg flex-col">
             <div className="flex gap-5 items-center">
@@ -128,10 +196,11 @@ const CommentSection = ({taskId, userDetails}) => {
                     <MentionInput placeholder={'Add a comment...'} value={newComment} onchange={setNewComment}
                                   users={users} tasks={tasks}/>
                 </div>
-                <div className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
+                <button disabled={isSubmitting}
+                        className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
                      onClick={() => handleAddComment(0)}>
                     <p>Post</p>
-                </div>
+                </button>
             </div>
             <div className={'mt-6'}>
                 {comments.map((comment) => (
@@ -143,11 +212,11 @@ const CommentSection = ({taskId, userDetails}) => {
                                                   placeholder={'Add a comment...'} users={users} tasks={tasks}/>
                                 </div>
                                 <div className={"flex gap-4"}>
-                                    <div
+                                    <button disabled={isSubmitting}
                                         className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
                                         onClick={() => handleUpdateComment(comment?.id)}>
                                         <p>Update</p>
-                                    </div>
+                                    </button>
                                     <div
                                         className="flex items-center justify-center cursor-pointer btn-secondary text-center w-20"
                                         onClick={() => setEditing(null)}>
@@ -157,16 +226,18 @@ const CommentSection = ({taskId, userDetails}) => {
                             </div>
                         ) : (
                             <div className={"flex w-full justify-between items-center"}>
-                                <div
-                                    className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
-                                    {comment?.createdBy?.firstName[0]}{comment?.createdBy?.lastName[0]}
+                                <div className={"flex"}>
+                                    <div
+                                        className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
+                                        {comment?.createdBy?.firstName[0]}{comment?.createdBy?.lastName[0]}
+                                    </div>
                                 </div>
                                 <div className={"flex flex-col flex-grow mx-5"}>
                                     <div className={"flex gap-2"}>
                                         <p className={"text-secondary-grey font-semibold"}>{`${comment?.createdBy?.firstName} ${comment?.createdBy?.lastName}`}</p>
                                         <p className={"text-secondary-grey text-xs"}>{getRelativeDate(comment?.createdAt)}</p>
                                     </div>
-                                    <p className={"text-secondary-grey"}>{comment?.comment}</p>
+                                    {displayComment(comment?.comment)}
                                 </div>
 
                                 <div className="flex space-x-2">
@@ -198,11 +269,11 @@ const CommentSection = ({taskId, userDetails}) => {
                                                                   tasks={tasks}/>
                                                 </div>
                                                 <div className={"flex gap-4"}>
-                                                    <div
+                                                    <button disabled={isSubmitting}
                                                         className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
                                                         onClick={() => handleUpdateComment(reply?.id)}>
                                                         <p>Update</p>
-                                                    </div>
+                                                    </button>
                                                     <div
                                                         className="flex items-center justify-center cursor-pointer btn-secondary text-center w-20"
                                                         onClick={() => setEditing(null)}>
@@ -212,16 +283,18 @@ const CommentSection = ({taskId, userDetails}) => {
                                             </div>
                                         ) : (
                                             <div className={"flex w-full justify-between items-center"}>
-                                                <div
-                                                    className="w-9 h-9 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
-                                                    {reply?.createdBy?.firstName[0]}{reply?.createdBy?.lastName[0]}
+                                                <div className={"flex"}>
+                                                    <div
+                                                        className="w-9 h-9 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
+                                                        {reply?.createdBy?.firstName[0]}{reply?.createdBy?.lastName[0]}
+                                                    </div>
                                                 </div>
                                                 <div className={"flex flex-col flex-grow mx-5"}>
                                                     <div className={"flex gap-2"}>
                                                         <p className={"text-secondary-grey font-semibold"}>{`${reply?.createdBy?.firstName} ${reply?.createdBy?.lastName}`}</p>
                                                         <p className={"text-secondary-grey text-xs"}>{getRelativeDate(reply?.createdAt)}</p>
                                                     </div>
-                                                    <p className={"text-secondary-grey"}>{reply?.comment}</p>
+                                                    {displayComment(reply?.comment)}
                                                 </div>
 
                                                 <div className="flex space-x-2">
@@ -247,12 +320,12 @@ const CommentSection = ({taskId, userDetails}) => {
                                     <MentionInput value={replyingComment} onchange={setReplyingComment}
                                                   placeholder="Write a reply..." users={users} tasks={tasks}/>
                                 </div>
-                                <div
+                                <button disabled={isSubmitting}
                                     className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
                                     onClick={() => handleAddComment(comment?.id)}
                                 >
                                     <p>Reply</p>
-                                </div>
+                                </button>
                                 <div
                                     className="flex items-center justify-center cursor-pointer btn-secondary text-center w-20"
                                     onClick={handleReplyCancel}>
