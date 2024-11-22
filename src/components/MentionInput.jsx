@@ -29,6 +29,13 @@ const MentionInput = ({value = '', onchange, placeholder = '', tasks = [], users
                         color: '#747A88',
                         borderRadius: '0.5rem',
                         borderColor: '#EB5A84'
+                    },
+                    suggestions: {
+                        border: 'solid 1px',
+                        borderRadius: '0.5rem',
+                        borderColor: 'black',
+                        maxHeight: "350px",
+                        overflowY: "auto",
                     }
                 }}
             >
@@ -37,7 +44,7 @@ const MentionInput = ({value = '', onchange, placeholder = '', tasks = [], users
                     data={users}
                     renderSuggestion={(entry) => (
                         <div
-                            className="px-4 py-2 bg-priority-button-low hover:bg-gray-100 cursor-pointer border border-gray-500 shadow-md hover:border-blue-500">{entry.display}</div>
+                            className="px-4 py-2 bg-task-status-qa hover:bg-gray-100 cursor-pointer border-b border-gray-500 shadow-md hover:border-blue-500">{entry.display}</div>
                     )}
                     markup="@{{__id__||__display__}}"
                 />
@@ -46,7 +53,7 @@ const MentionInput = ({value = '', onchange, placeholder = '', tasks = [], users
                     data={tasks}
                     renderSuggestion={(entry) => (
                         <div
-                            className="px-4 py-2 bg-priority-button-medium hover:bg-gray-100 cursor-pointer border border-gray-500 shadow-md hover:border-blue-500">{entry.display}</div>
+                            className="px-4 py-2 bg-task-status-done hover:bg-gray-100 cursor-pointer border-b border-gray-500 shadow-md hover:border-blue-500">{entry.display}</div>
                     )}
                     markup="#{{__id__||__display__}}"
                 />
