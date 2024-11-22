@@ -11,6 +11,7 @@ import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
 
+
 const ProjectListPage = () => {
   const {addToast} = useToasts();
   const dispatch = useDispatch();
