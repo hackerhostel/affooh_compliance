@@ -10,14 +10,15 @@ import FormSelect from "../../components/FormSelect.jsx";
 import {getInitials, getSelectOptions} from "../../utils/commonUtils.js";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
-import TestSuiteEditComponent from "./TestSuiteEditComponent.jsx";
 import {XMarkIcon, CheckIcon} from "@heroicons/react/24/outline";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
+import {useHistory} from "react-router-dom";
 
 const TestSuiteContentPage = () => {
     const dispatch = useDispatch();
     const {addToast} = useToasts();
+    const history = useHistory();
 
     const selectedProject = useSelector(selectSelectedProject);
     const selectedTestPlanId = useSelector(selectSelectedTestPlanId);
@@ -30,7 +31,6 @@ const TestSuiteContentPage = () => {
     const [testPlanId, setTestPlanId] = useState(0);
     const [testSuiteId, setTestSuiteId] = useState(0);
     const [testCycleId, setTestCycleId] = useState(0);
-    const [editTestSuitId, setEditTestSuitId] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
 
     const {loading: testPlanLoading, error: testPlanError, data: testPlanResponse} = useFetchTestPlan(testPlanId)
@@ -94,15 +94,8 @@ const TestSuiteContentPage = () => {
     };
 
     const openTestSuiteEdit = () => {
-        setEditTestSuitId(testSuiteId)
+        history.push(`/test-plans/${testPlanId}`);
     }
-
-    const handleTestSuiteEditClose = (updated) => {
-        setEditTestSuitId(0)
-        if (updated === true) {
-            reFetchTestPlan()
-        }
-    };
 
     const updateRow = async (rowID, updatedData) => {
         setIsUpdating(true)
@@ -294,8 +287,6 @@ const TestSuiteContentPage = () => {
 
     return (
         <div className={"p-7 bg-dashboard-bgc h-full"}>
-            <TestSuiteEditComponent testSuiteId={editTestSuitId} onClose={handleTestSuiteEditClose}/>
-
             <div className={"flex w-full justify-between items-center mb-10"}>
                 <div>
                     {testPlan?.id && (

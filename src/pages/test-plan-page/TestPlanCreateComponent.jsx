@@ -28,7 +28,7 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
         }
     }, [selectedProject]);
 
-    const [formValues, setFormValues] = useState({name: '', sprintId: 0, projectId: selectedProject?.id, releaseId: 0});
+    const [formValues, setFormValues] = useState({name: '', sprintId: 1, projectId: selectedProject?.id, releaseId: 41});
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors] = useValidation(TestPlanCreateSchema, formValues);

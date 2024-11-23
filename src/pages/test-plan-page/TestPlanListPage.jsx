@@ -16,6 +16,8 @@ import {
 import {useHistory} from "react-router-dom";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
+import {doGetReleases} from "../../state/slice/releaseSlice.js";
+import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 
 const TestPlanListPage = () => {
     const dispatch = useDispatch();
@@ -27,6 +29,8 @@ const TestPlanListPage = () => {
     const testPlansLoading = useSelector(selectIsTestPlanListForProjectLoading);
     const testPlans = useSelector(selectTestPlanListForProject);
     const selectedTestPlanId = useSelector(selectSelectedTestPlanId);
+    const [toDeleteTestPlan, setToDeleteTestPlan] = useState({});
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     useEffect(() => {
         if (selectedProject?.id && !testPlans.length) {
@@ -62,15 +66,20 @@ const TestPlanListPage = () => {
         history.push(`/test-plans`);
     };
 
-    const deleteTestPlan = async (test_plan_id) => {
+    const handleDeleteClick = (testPlan) => {
+        setToDeleteTestPlan(testPlan)
+        setIsDialogOpen(true);
+    };
+
+    const deleteTestPlan = async () => {
         try {
-            const response = await axios.delete(`/test-plans/${test_plan_id}`)
+            const response = await axios.delete(`/test-plans/${toDeleteTestPlan.id}`)
             const deleted = response?.data?.status
 
             if (deleted) {
                 addToast('Test Plan Successfully Deleted', {appearance: 'success'});
                 dispatch(doGetTestPlans(selectedProject?.id));
-                if (test_plan_id === selectedTestPlanId) {
+                if (toDeleteTestPlan.id === selectedTestPlanId) {
                     handleTestPlanClick(0)
                 }
             } else {
@@ -100,7 +109,7 @@ const TestPlanListPage = () => {
                                     className="mx-1 text-black text-2xl ">&#8226;</span>{element?.releaseName}</div>
                             </div>
                             <div className={"flex gap-1"}>
-                                <div onClick={() => deleteTestPlan(element?.id)} className={"cursor-pointer"}>
+                                <div onClick={() => handleDeleteClick(element)} className={"cursor-pointer"}>
                                     <TrashIcon className={"w-4 h-4 text-pink-700"}/>
                                 </div>
                                 <div onClick={() => handleTestPlanEditClick(element?.id)} className={"cursor-pointer"}>
@@ -111,6 +120,15 @@ const TestPlanListPage = () => {
                     ))}
                 </div>
             )}
+
+            <ConfirmationDialog
+                isOpen={isDialogOpen}
+                onClose={() => {
+                    setIsDialogOpen(false);
+                }}
+                onConfirm={deleteTestPlan}
+                message={toDeleteTestPlan ? `To delete test plan - ${toDeleteTestPlan.name} ?` : ''}
+            />
         </div>
     );
 };

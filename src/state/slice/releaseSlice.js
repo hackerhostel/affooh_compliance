@@ -43,6 +43,12 @@ export const releaseSlice = createSlice({
             })
             .addCase(doGetReleases.fulfilled, (state, action) => {
                 state.releaseListForProject = action.payload;
+
+                const unreleased = action.payload.find(release => release.status === 'UNRELEASED');
+                if (unreleased) {
+                    state.selectedRelease = unreleased;
+                }
+
                 state.isReleaseListForProjectLoading = false;
                 state.isReleaseListForProjectError = false;
             })
