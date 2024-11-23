@@ -42,7 +42,7 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
     const [formValues, setFormValues] = useState({
         summary: '',
         description: '',
-        status: '',
+        status: 1,
         assignee: '',
         releases: [],
         build: '',
@@ -55,6 +55,8 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors] = useValidation(TestSuiteCreateSchema, formValues);
+    const testSuiteStatus = ['Open', 'On Hold', 'Pass', 'Fail'];
+    const filterStatus = testCaseStatuses.filter(status => testSuiteStatus.includes(status.value));
 
     const handleMultiSelect = (selectedOptions, actionMeta) => {
         const {name} = actionMeta;
@@ -177,7 +179,7 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
                                         <FormSelect
                                             name="status"
                                             formValues={formValues}
-                                            options={testCaseStatuses && testCaseStatuses.length ? getSelectOptions(testCaseStatuses) : []}
+                                            options={filterStatus && filterStatus.length ? getSelectOptions(filterStatus) : []}
                                             onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                             formErrors={formErrors}
                                             showErrors={isValidationErrorsShown}

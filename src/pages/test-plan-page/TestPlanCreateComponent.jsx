@@ -28,10 +28,15 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
         }
     }, [selectedProject]);
 
-    const [formValues, setFormValues] = useState({name: '', sprintId: 1, projectId: selectedProject?.id, releaseId: 41});
+    const [formValues, setFormValues] = useState({name: '', sprintId: 1, projectId: selectedProject?.id, releaseId: 41, status: 'TODO'});
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors] = useValidation(TestPlanCreateSchema, formValues);
+    const testPlanStatus = [
+        {value: 'TODO', label: 'TODO'},
+        {value: 'IN PROGRESS', label: 'IN PROGRESS'},
+        {value: 'DONE', label: 'DONE'}
+    ];
 
     const handleFormChange = (name, value, isText) => {
         setFormValues({...formValues, [name]: isText ? value : Number(value)});
@@ -40,7 +45,7 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
 
     const handleClose = () => {
         onClose()
-        setFormValues({name: '', sprintId: 0, projectId: selectedProject.id, releaseId: 0})
+        setFormValues({name: '', sprintId: 0, projectId: selectedProject.id, releaseId: 0, status: 'TODO'})
         setIsValidationErrorsShown(false)
     };
 
@@ -86,13 +91,13 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
                                 <div className={"flex-col"}>
                                     <p className={"text-secondary-grey"}>Name</p>
                                     <FormInput
-                                    type="text"
-                                    name="name"
-                                    formValues={formValues}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
-                                    formErrors={formErrors}
-                                    showErrors={isValidationErrorsShown}
-                                />
+                                        type="text"
+                                        name="name"
+                                        formValues={formValues}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
                                 </div>
                                 <div className={"flex-col"}>
                                     <p className={"text-secondary-grey"}>Project</p>
@@ -124,6 +129,17 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
                                         formValues={formValues}
                                         options={releases && releases.length ? getSelectOptions(releases) : []}
                                         onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
+                                </div>
+                                <div className={"flex-col"}>
+                                    <p className={"text-secondary-grey"}>Status</p>
+                                    <FormSelect
+                                        name="status"
+                                        formValues={formValues}
+                                        options={testPlanStatus}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
                                         formErrors={formErrors}
                                         showErrors={isValidationErrorsShown}
                                     />
