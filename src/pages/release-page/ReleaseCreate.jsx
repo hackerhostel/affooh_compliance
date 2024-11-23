@@ -50,7 +50,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
     type: 1,
     version: "",
     projectID: selectedProject.id.toString(),
-    status: 1,
+    status: "UNRELEASED",
   });
   const [formErrors] = useValidation(ReleaseCreateSchema, formValues);
 
@@ -80,12 +80,8 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
       setIsValidationErrorsShown(false);
 
       try {
-        const payload = {
-          ...formValues,
-          status: getStatusLabel(formValues.status),
-        };
         const response = await axios.post("releases", {
-          release: payload,
+          release: formValues,
         });
 
         const releaseId = response?.data?.body?.releaseId;
@@ -173,14 +169,13 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                 </div>
 
                 <div>
-                  <FormSelect
+                  <FormInput
                     formValues={formValues}
                     name="status"
                     placeholder="Status"
-                    options={releaseStatus}
                     formErrors={formErrors}
                     onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
+                      handleFormChange(name, value, true)
                     }
                     showErrors={isValidationErrorsShown}
                   />
@@ -200,10 +195,10 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                   />
                 </div>
                 <div className="flex-col">
-                  <p className="text-secondary-grey">Type</p>
                   <FormSelect
                     name="type"
                     placeholder="Type"
+                    formValues={formValues}
                     options={getSelectOptions(releaseTypes)}
                     formErrors={formErrors}
                     onChange={({ target: { name, value } }) =>
@@ -215,7 +210,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
               </div>
               <div className="flex space-x-4 mt-6 self-end w-full">
                 <button
-                  onClick={handleClose}
+                  onClick={onClose}
                   className="btn-secondary"
                   disabled={isSubmitting}
                 >
