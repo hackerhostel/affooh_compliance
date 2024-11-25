@@ -36,6 +36,10 @@ const ReleaseEdit = ({ releaseId }) => {
   const [newRow, setNewRow] = useState({ name: "", status: "", assignee: "" });
   const [dateSelectorOpen, setDateSelectorOpen] = useState(false);
   const timeLogs = [{ name: "Ahmed", status: "UNRELEASED", assignee: "" }, { name: "Ahmed", status: "UNRELEASED", assignee: "" }]
+  const releaseStatus = [
+    { value: "RELEASED", label: "RELEASED" },
+    { value: "UNRELEASED", label: "UNRELEASED" }
+  ]
 
   const handleAddNewRow = () => {
     setShowNewRow(true);
@@ -324,53 +328,53 @@ const ReleaseEdit = ({ releaseId }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
                 <div>
                   <FormInput
-                    isDate={true}
-                    type="date"
-                    name="releaseDate"
-                    formValues={formValues}
-                    placeholder="Release Date"
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value, true)
-                    }
+                      isDate={true}
+                      type="date"
+                      name="releaseDate"
+                      formValues={formValues}
+                      placeholder="Release Date"
+                      onChange={({target: {name, value}}) =>
+                          handleFormChange(name, value, true)
+                      }
+                  />
+                </div>
+                <div className="flex-col">
+                  <FormSelect
+                      name="status"
+                      placeholder="Status"
+                      formValues={formValues}
+                      options={releaseStatus}
+                      formErrors={formErrors}
+                      onChange={({target: {name, value}}) =>
+                          handleFormChange(name, value, true)
+                      }
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
                 <div>
                   <FormInput
-                    type="text"
-                    formValues={formValues}
-                    name="status"
-                    placeholder="Status"
-                    formErrors={formErrors}
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value, true)
-                    }
-                    showErrors={isValidationErrorsShown}
-                  />
-                </div>
-                <div>
-                  <FormInput
-                    type="text"
-                    name="version"
-                    formValues={formValues}
-                    placeholder="Version"
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
-                    }
-                    formErrors={formErrors}
-                    showErrors={isValidationErrorsShown}
+                      type="text"
+                      name="version"
+                      formValues={formValues}
+                      placeholder="Version"
+                      onChange={({target: {name, value}}) =>
+                          handleFormChange(name, value)
+                      }
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
                 <div>
                   <FormSelect
-                    formValues={formValues}
-                    name="type"
-                    placeholder="Type"
-                    options={getSelectOptions(releaseTypes)}
-                    formErrors={formErrors}
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
-                    }
-                    showErrors={isValidationErrorsShown}
+                      formValues={formValues}
+                      name="type"
+                      placeholder="Type"
+                      options={getSelectOptions(releaseTypes)}
+                      formErrors={formErrors}
+                      onChange={({target: {name, value}}) =>
+                          handleFormChange(name, value)
+                      }
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
               </div>
@@ -385,8 +389,8 @@ const ReleaseEdit = ({ releaseId }) => {
             <div className="flex w-full mb-3 justify-end pr-5">
               <div className="flex gap-1 items-center">
                 <PlusCircleIcon
-                  onClick={handleAddNewRow}
-                  className={`w-6 h-6 ${showNewRow ? "text-gray-300 cursor-not-allowed" : "text-pink-500 cursor-pointer"}`}
+                    onClick={handleAddNewRow}
+                    className={`w-6 h-6 ${showNewRow ? "text-gray-300 cursor-not-allowed" : "text-pink-500 cursor-pointer"}`}
                 />
                 <span className="font-thin text-xs text-gray-600">Add New</span>
               </div>

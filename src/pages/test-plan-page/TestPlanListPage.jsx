@@ -32,7 +32,6 @@ const TestPlanListPage = () => {
     const [toDeleteTestPlan, setToDeleteTestPlan] = useState({});
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    const [allTestPlans, setAllTestPlans] = useState([]);
     const [filteredTestPlans, setFilteredTestPlans] = useState([]);
     const [toDeleteRelease, setToDeleteRelease] = useState({});
     const [selectedFilters, setSelectedFilters] = useState({
@@ -53,13 +52,7 @@ const TestPlanListPage = () => {
         }
     }, [selectedProject]);
 
-    useEffect(() => {
-        if (testPlans.length) {
-            setAllTestPlans(testPlans)
-        }
-    }, [testPlans]);
-
-    const filteredTestPlan = allTestPlans.filter((testPlan) => {
+    const testPlanByStatus = filteredTestPlans.filter((testPlan) => {
       // If both filters are unchecked, show nothing
       if (
         !selectedFilters.todo &&
@@ -87,15 +80,15 @@ const TestPlanListPage = () => {
 
     useEffect(() => {
       if (testPlans.length) {
-        setAllTestPlans(testPlans);
+        setFilteredTestPlans(testPlans);
 
-        const todoCount = allTestPlans.filter(
+        const todoCount = testPlans.filter(
           (testPlan) => testPlan.status === "TODO",
         ).length;
-        const inProgressCount = allTestPlans.filter(
+        const inProgressCount = testPlans.filter(
           (testPlan) => testPlan.status === "IN PROGRESS",
         ).length;
-        const doneCount = allTestPlans.filter(
+        const doneCount = testPlans.filter(
           (testPlan) => testPlan.status === "DONE",
         ).length;
 
@@ -186,7 +179,7 @@ const TestPlanListPage = () => {
                 </button>
               </div>
             </div>
-            {filteredTestPlan.map((element, index) => (
+            {testPlanByStatus.map((element, index) => (
               <div
                 key={element?.id}
                 className={`flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 ${

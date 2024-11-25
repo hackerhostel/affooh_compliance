@@ -43,7 +43,8 @@ const TestSuiteContentPage = () => {
     const {
         loading: testExecutionLoading,
         error: testExecutionError,
-        data: testExecutionResponse
+        data: testExecutionResponse,
+        refetch: refetchTextExecution
     } = useFetchTestExecution(testSuiteId, testCycleId)
 
     useEffect(() => {
@@ -74,19 +75,21 @@ const TestSuiteContentPage = () => {
     useEffect(() => {
       if (testExecutionResponse.length) {
         setTestExecutions(testExecutionResponse);
-
-        setStatusCounts({
-          ...statusCounts,
-          all: testExecutionResponse?.length,
-          pass: testExecutionResponse?.filter((item) => item.status === 14)
-            .length,
-          fail: testExecutionResponse?.filter((item) => item.status === 21)
-            .length,
-          pending: testExecutionResponse?.filter((item) => item.status === 13)
-            .length,
-        });
       }
     }, [testExecutionResponse]);
+
+    useEffect(() => {
+        setStatusCounts({
+            ...statusCounts,
+            all: testExecutions?.length,
+            pass: testExecutions?.filter((item) => item.status === 20)
+                .length,
+            fail: testExecutions?.filter((item) => item.status === 21)
+                .length,
+            pending: testExecutions?.filter((item) => item.status === 13)
+                .length,
+        });
+    }, [testExecutions]);
 
     useEffect(() => {
         if (testSuiteId !== 0) {
@@ -122,14 +125,15 @@ const TestSuiteContentPage = () => {
 
             if (response) {
                 setIsUpdating(false);
-                setTestExecutions((prevRows) =>
-                    prevRows.map((row) =>
-                        row.testCycleExecutionID === rowID
-                            ? {...row, ...updatedData}
-                            : row
-                    )
-                );
+                // setTestExecutions((prevRows) =>
+                //     prevRows.map((row) =>
+                //         row.testCycleExecutionID === rowID
+                //             ? {...row, ...updatedData}
+                //             : row
+                //     )
+                // );
                 addToast('Successfully Update Test Execution Item', {appearance: 'success'});
+                refetchTextExecution();
             }
         } catch (e) {
             setIsUpdating(false)
