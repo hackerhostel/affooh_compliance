@@ -47,6 +47,12 @@ export const testPlansSlice = createSlice({
             })
             .addCase(doGetTestPlans.fulfilled, (state, action) => {
                 state.testPlanListForProject = action.payload;
+
+                const inProgress = action.payload.find(testPlan => testPlan.status === 'IN PROGRESS');
+                if (inProgress) {
+                    state.selectedTestPlanId = inProgress.id;
+                }
+
                 state.isTestPlanListForProjectLoading = false;
                 state.isTestPlanListForProjectError = false;
             })

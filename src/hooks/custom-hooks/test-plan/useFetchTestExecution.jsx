@@ -6,30 +6,30 @@ const useFetchTestExecution = (testSuiteID, testCycleID) => {
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchTestExecution = async () => {
-            setLoading(true)
-            setError(false)
-            try {
-                const response = await axios.get(`/test-plans/test-suites/${testSuiteID}/test-cycle/${testCycleID}`)
-                const testExecutionResponse = response?.data?.testExecutionData;
+    const fetchTestExecution = async () => {
+        setLoading(true)
+        setError(false)
+        try {
+            const response = await axios.get(`/test-plans/test-suites/${testSuiteID}/test-cycle/${testCycleID}`)
+            const testExecutionResponse = response?.data?.testExecutionData;
 
-                if (testExecutionResponse.length) {
-                    setLoading(false)
-                    setData(testExecutionResponse)
-                }
-            } catch (error) {
-                setError(true)
+            if (testExecutionResponse.length) {
                 setLoading(false)
+                setData(testExecutionResponse)
             }
-        };
+        } catch (error) {
+            setError(true)
+            setLoading(false)
+        }
+    };
 
+    useEffect(() => {
         if (testCycleID !== 0) {
             fetchTestExecution()
         }
     }, [testCycleID]);
 
-    return {data, error, loading};
+    return {data, error, loading, refetch: fetchTestExecution};
 };
 
 export default useFetchTestExecution;

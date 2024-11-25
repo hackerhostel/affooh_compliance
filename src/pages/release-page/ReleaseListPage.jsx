@@ -9,7 +9,7 @@ import {
     doGetReleases,
     selectIsReleaseListForProjectError,
     selectIsReleaseListForProjectLoading,
-    selectReleaseListForProject,
+    selectReleaseListForProject, selectSelectedRelease,
     setSelectedRelease
 } from "../../state/slice/releaseSlice.js";
 import axios from "axios";
@@ -23,11 +23,42 @@ const ReleaseListPage = () => {
     const releases = useSelector(selectReleaseListForProject)
     const releaseLoading = useSelector(selectIsReleaseListForProjectLoading)
     const releaseError = useSelector(selectIsReleaseListForProjectError)
-    const [toDeleteRelease, setToDeleteRelease] = useState({});
+    const selectedRelease = useSelector(selectSelectedRelease)
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-
     const [filteredReleases, setFilteredReleases] = useState([]);
+    const [toDeleteRelease, setToDeleteRelease] = useState({});
+    const [selectedFilters, setSelectedFilters] = useState({
+      unreleased: true,
+      released: false,
+    });
+
+    const [filterCounts, setFilterCounts] = useState({
+      unreleased: 0,
+      released: 0,
+    });
+
+    const filteredReleaseList = filteredReleases.filter((release) => {
+        // If both filters are unchecked, show nothing
+        if (!selectedFilters.unreleased && !selectedFilters.released) {
+            return false;
+        }
+
+        // Return true if the release status matches selected filters
+        if (selectedFilters.unreleased && release.status === "UNRELEASED")
+            return true;
+        if (selectedFilters.released && release.status === "RELEASED")
+            return true;
+
+        return false;
+    });
+
+    const handleFilterChange = (filterName) => {
+        setSelectedFilters(prev => ({
+            ...prev,
+            [filterName]: !prev[filterName]
+        }));
+    };
 
     useEffect(() => {
         if (selectedProject?.id) {
@@ -36,9 +67,21 @@ const ReleaseListPage = () => {
     }, [selectedProject]);
 
     useEffect(() => {
-        if (releases.length) {
-            setFilteredReleases(releases)
-        }
+      if (releases.length) {
+        setFilteredReleases(releases);
+
+        const unreleasedCount = filteredReleases.filter(
+          (release) => release.status === "UNRELEASED",
+        ).length;
+        const releasedCount = filteredReleases.filter(
+          (release) => release.status === "RELEASED",
+        ).length;
+
+        setFilterCounts({
+          unreleased: unreleasedCount,
+          released: releasedCount,
+        });
+      }
     }, [releases]);
 
     const handleSearch = (term) => {
@@ -80,44 +123,75 @@ const ReleaseListPage = () => {
     if (releaseError) return <ErrorAlert message="Cannot get release list"/>;
 
     return (
-        <div className="h-list-screen overflow-y-auto w-full">
-            {releaseLoading ? (<div className="p-2"><SkeletonLoader/></div>) : (
-                <div className="flex flex-col gap-3 ">
-                    <div className="py-3">
-                        <SearchBar onSearch={handleSearch}/>
-                    </div>
-                    {filteredReleases.map((element, index) => (
-                        <button
-                            key={index}
-                            className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100"
-                            onClick={() => {
-                                dispatch(setSelectedRelease(element))
-                            }}
-                        >
-                            <div className="text-left">
-                                <div className="font-bold mb-1">{element?.name}</div>
-                                <div className="flex text-xs text-gray-600 items-center">{element?.type?.name}</div>
-                            </div>
-                            <div className={"flex gap-1"}>
-                                <div onClick={() => handleDeleteClick(element)} className={"cursor-pointer"}>
-                                    <TrashIcon className={"w-4 h-4 text-pink-700"}/>
-                                </div>
-                                <ChevronRightIcon className={"w-4 h-4 text-black"}/>
-                            </div>
-                        </button>
-                    ))}
-                </div>
-            )}
-
-            <ConfirmationDialog
-                isOpen={isDialogOpen}
-                onClose={() => {
-                    setIsDialogOpen(false);
+      <div className="h-list-screen overflow-y-auto w-full">
+        {releaseLoading ? (
+          <div className="p-2">
+            <SkeletonLoader />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3 ">
+            <div className="py-3">
+              <SearchBar onSearch={handleSearch} />
+            </div>
+            <div className="flex flex-col gap-4 w-full pl-3">
+              <div className="flex justify-between w-full">
+                <button
+                  className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.unreleased ? "bg-black text-white" : "bg-gray-200"}`}
+                  onClick={() => handleFilterChange("unreleased")}
+                >
+                  UNRELEASED ({filterCounts.unreleased})
+                </button>
+                <button
+                  className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.released ? "bg-black text-white" : "bg-gray-200"}`}
+                  onClick={() => handleFilterChange("released")}
+                >
+                  RELEASED ({filterCounts.released})
+                </button>
+              </div>
+            </div>
+            {filteredReleaseList.map((element, index) => (
+              <button
+                key={index}
+                className={`flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 ${
+                    selectedRelease?.id === element.id ? 'bg-gray-100' : ''
+                }`}
+                onClick={() => {
+                  dispatch(setSelectedRelease(element));
                 }}
-                onConfirm={handleConfirmDelete}
-                message={toDeleteRelease ? `To delete release - ${toDeleteRelease.name} ?` : ''}
-            />
-        </div>
+              >
+                <div className="text-left">
+                  <div className="font-bold mb-1">{element?.name}</div>
+                  <div className="flex text-xs text-gray-600 items-center">
+                    {element?.type?.name}
+                  </div>
+                </div>
+                <div className={"flex gap-1"}>
+                  <div
+                    onClick={() => handleDeleteClick(element)}
+                    className={"cursor-pointer"}
+                  >
+                    <TrashIcon className={"w-4 h-4 text-pink-700"} />
+                  </div>
+                  <ChevronRightIcon className={"w-4 h-4 text-black"} />
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        <ConfirmationDialog
+          isOpen={isDialogOpen}
+          onClose={() => {
+            setIsDialogOpen(false);
+          }}
+          onConfirm={handleConfirmDelete}
+          message={
+            toDeleteRelease
+              ? `To delete release - ${toDeleteRelease.name} ?`
+              : ""
+          }
+        />
+      </div>
     );
 };
 

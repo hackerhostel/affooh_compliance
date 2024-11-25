@@ -47,6 +47,8 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
     });
     const [formErrors] = useValidation(TestSuiteCreateSchema, formValues);
     const [isTestCaseCreateOpen, setIsTestCaseCreateOpen] = useState(false);
+    const testSuiteStatus = ['Open', 'On Hold', 'Pass', 'Fail'];
+    const filterStatus = testCaseStatuses.filter(status => testSuiteStatus.includes(status.value));
 
     useEffect(() => {
         if (testSuiteResponse?.testSuite?.id) {
@@ -255,7 +257,7 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
                                         <FormSelect
                                             name="status"
                                             formValues={formValues}
-                                            options={getSelectOptions(testCaseStatuses)}
+                                            options={getSelectOptions(filterStatus)}
                                             onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                             formErrors={formErrors}
                                             showErrors={isValidationErrorsShown}

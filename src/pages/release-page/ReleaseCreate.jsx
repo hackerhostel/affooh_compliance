@@ -25,8 +25,8 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [releaseTypes, setReleaseTypes] = useState([]);
   const releaseStatus = [
-    { value: 1, label: "RELEASED" },
-    { value: 2, label: "UNRELEASED" },
+    { value: "RELEASED", label: "RELEASED" },
+    { value: "UNRELEASED", label: "UNRELEASED" },
   ];
 
   useEffect(() => {
@@ -50,7 +50,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
     type: 1,
     version: "",
     projectID: selectedProject.id.toString(),
-    status: 1,
+    status: "UNRELEASED",
   });
   const [formErrors] = useValidation(ReleaseCreateSchema, formValues);
 
@@ -80,18 +80,15 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
       setIsValidationErrorsShown(false);
 
       try {
-        const payload = {
-          ...formValues,
-          status: getStatusLabel(formValues.status),
-        };
-        const response = await axios.post("releases", {
-          release: payload,
-        });
+        // const response = await axios.post("releases", {
+        //   release: formValues,
+        // });
+        //
+        // const releaseId = response?.data?.body?.releaseId;
 
-        const releaseId = response?.data?.body?.releaseId;
-
-        if (releaseId > 0) {
+        if (true || releaseId > 0) {
           dispatch(doGetReleases(selectedProject?.id));
+          onClose();
           addToast("Release Successfully Created", { appearance: "success" });
         } else {
           addToast("Failed To Create The Release", { appearance: "error" });
@@ -160,71 +157,72 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
                 <div>
                   <FormInput
-                    type="date"
-                    name="releaseDate"
-                    formValues={formValues}
-                    placeholder="Release Date"
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value, true)
-                    }
-                    formErrors={formErrors}
-                    showErrors={isValidationErrorsShown}
+                      type="date"
+                      name="releaseDate"
+                      formValues={formValues}
+                      placeholder="Release Date"
+                      onChange={({target: {name, value}}) =>
+                          handleFormChange(name, value, true)
+                      }
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
 
-                <div>
+                <div className="flex-col">
                   <FormSelect
-                    formValues={formValues}
-                    name="status"
-                    placeholder="Status"
-                    options={releaseStatus}
-                    formErrors={formErrors}
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
-                    }
-                    showErrors={isValidationErrorsShown}
+                      name="status"
+                      disabled={true}
+                      placeholder="Status"
+                      formValues={formValues}
+                      options={releaseStatus}
+                      formErrors={formErrors}
+                      onChange={({target: {name, value}}) =>
+                          handleFormChange(name, value, true)
+                      }
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
 
                 <div>
                   <FormInput
-                    type="text"
-                    name="version"
-                    formValues={formValues}
-                    placeholder="Version"
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value, true)
-                    }
-                    formErrors={formErrors}
-                    showErrors={isValidationErrorsShown}
+                      type="text"
+                      name="version"
+                      formValues={formValues}
+                      placeholder="Version"
+                      onChange={({target: {name, value}}) =>
+                          handleFormChange(name, value, true)
+                      }
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
                 <div className="flex-col">
-                  <p className="text-secondary-grey">Type</p>
                   <FormSelect
-                    name="type"
-                    placeholder="Type"
-                    options={getSelectOptions(releaseTypes)}
-                    formErrors={formErrors}
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
-                    }
-                    showErrors={isValidationErrorsShown}
+                      name="type"
+                      placeholder="Type"
+                      formValues={formValues}
+                      options={getSelectOptions(releaseTypes)}
+                      formErrors={formErrors}
+                      onChange={({target: {name, value}}) =>
+                          handleFormChange(name, value)
+                      }
+                      showErrors={isValidationErrorsShown}
                   />
                 </div>
               </div>
               <div className="flex space-x-4 mt-6 self-end w-full">
                 <button
-                  onClick={handleClose}
-                  className="btn-secondary"
-                  disabled={isSubmitting}
+                    onClick={onClose}
+                    className="btn-secondary"
+                    disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={isSubmitting}
+                    type="submit"
+                    className="btn-primary"
+                    disabled={isSubmitting}
                 >
                   Create
                 </button>

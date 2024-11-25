@@ -10,14 +10,15 @@ import FormSelect from "../../components/FormSelect.jsx";
 import {getInitials, getSelectOptions} from "../../utils/commonUtils.js";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
-import TestSuiteEditComponent from "./TestSuiteEditComponent.jsx";
 import {XMarkIcon, CheckIcon} from "@heroicons/react/24/outline";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
+import {useHistory} from "react-router-dom";
 
 const TestSuiteContentPage = () => {
     const dispatch = useDispatch();
     const {addToast} = useToasts();
+    const history = useHistory();
 
     const selectedProject = useSelector(selectSelectedProject);
     const selectedTestPlanId = useSelector(selectSelectedTestPlanId);
@@ -30,14 +31,20 @@ const TestSuiteContentPage = () => {
     const [testPlanId, setTestPlanId] = useState(0);
     const [testSuiteId, setTestSuiteId] = useState(0);
     const [testCycleId, setTestCycleId] = useState(0);
-    const [editTestSuitId, setEditTestSuitId] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [statusCounts, setStatusCounts] = useState({
+      all: 0,
+      pass: 0,
+      fail: 0,
+      pending: 0,
+    });
 
     const {loading: testPlanLoading, error: testPlanError, data: testPlanResponse} = useFetchTestPlan(testPlanId)
     const {
         loading: testExecutionLoading,
         error: testExecutionError,
-        data: testExecutionResponse
+        data: testExecutionResponse,
+        refetch: refetchTextExecution
     } = useFetchTestExecution(testSuiteId, testCycleId)
 
     useEffect(() => {
@@ -66,10 +73,23 @@ const TestSuiteContentPage = () => {
     }, [selectedTestPlanId]);
 
     useEffect(() => {
-        if (testExecutionResponse.length) {
-            setTestExecutions(testExecutionResponse)
-        }
+      if (testExecutionResponse.length) {
+        setTestExecutions(testExecutionResponse);
+      }
     }, [testExecutionResponse]);
+
+    useEffect(() => {
+        setStatusCounts({
+            ...statusCounts,
+            all: testExecutions?.length,
+            pass: testExecutions?.filter((item) => item.status === 20)
+                .length,
+            fail: testExecutions?.filter((item) => item.status === 21)
+                .length,
+            pending: testExecutions?.filter((item) => item.status === 13)
+                .length,
+        });
+    }, [testExecutions]);
 
     useEffect(() => {
         if (testSuiteId !== 0) {
@@ -94,15 +114,8 @@ const TestSuiteContentPage = () => {
     };
 
     const openTestSuiteEdit = () => {
-        setEditTestSuitId(testSuiteId)
+        history.push(`/test-plans/${testPlanId}`);
     }
-
-    const handleTestSuiteEditClose = (updated) => {
-        setEditTestSuitId(0)
-        if (updated === true) {
-            reFetchTestPlan()
-        }
-    };
 
     const updateRow = async (rowID, updatedData) => {
         setIsUpdating(true)
@@ -112,14 +125,15 @@ const TestSuiteContentPage = () => {
 
             if (response) {
                 setIsUpdating(false);
-                setTestExecutions((prevRows) =>
-                    prevRows.map((row) =>
-                        row.testCycleExecutionID === rowID
-                            ? {...row, ...updatedData}
-                            : row
-                    )
-                );
+                // setTestExecutions((prevRows) =>
+                //     prevRows.map((row) =>
+                //         row.testCycleExecutionID === rowID
+                //             ? {...row, ...updatedData}
+                //             : row
+                //     )
+                // );
                 addToast('Successfully Update Test Execution Item', {appearance: 'success'});
+                refetchTextExecution();
             }
         } catch (e) {
             setIsUpdating(false)
@@ -134,6 +148,25 @@ const TestSuiteContentPage = () => {
     if (testPlanError || testExecutionError) {
         return <ErrorAlert message={error.message}/>;
     }
+
+    const StatusCount = ({ count, label, variant = "default" }) => {
+      const variants = {
+        default: "border-gray-300 text-gray-600",
+        success: "border-green-500 text-green-600",
+        danger: "border-red-500 text-red-600",
+        warning: "border-yellow-500 text-yellow-600",
+      };
+
+      return (
+        <div
+          className={`flex flex-col items-center justify-center p-4 rounded-lg min-w-[200px] border-2 ${variants[variant]}`}
+          style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}
+        >
+          <span className="text-2xl font-semibold mb-1">{count}</span>
+          <span className="text-sm">{label}</span>
+        </div>
+      );
+    };
 
     const GenerateRow = (props) => {
         const {row} = props
@@ -294,8 +327,6 @@ const TestSuiteContentPage = () => {
 
     return (
         <div className={"p-7 bg-dashboard-bgc h-full"}>
-            <TestSuiteEditComponent testSuiteId={editTestSuitId} onClose={handleTestSuiteEditClose}/>
-
             <div className={"flex w-full justify-between items-center mb-10"}>
                 <div>
                     {testPlan?.id && (
@@ -343,25 +374,35 @@ const TestSuiteContentPage = () => {
                         {testExecutionLoading ? (
                             <div className="m-10"><SkeletonLoader/></div>
                         ) : (
-                            <table className="min-w-full border-collapse">
-                                <thead>
-                                <tr>
-                                    <th className="px-4 py-2"></th>
-                                    <th className="px-4 py-2 text-left">Summary</th>
-                                    <th className="px-4 py-2 text-left">Platform</th>
-                                    <th className="px-4 py-2 text-left">Priority</th>
-                                    <th className="px-4 py-2 text-left">Category</th>
-                                    <th className="px-4 py-2 text-left">Assignee</th>
-                                    <th className="px-4 py-2 text-left">Status</th>
-                                    <th className="px-4 py-2 text-left">Notes</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {testExecutions.map((row) => (
-                                    <GenerateRow row={row} key={row.testCycleExecutionID} onUpdate={updateRow}/>
-                                ))}
-                                </tbody>
-                            </table>
+                            <>
+                                <div className={"bg-white p-4 rounded-md mb-5"}>
+                                    <div className="flex gap-4 justify-around">
+                                        <StatusCount count={statusCounts.all} label="All" variant="default"/>
+                                        <StatusCount count={statusCounts.pass} label="Pass" variant="success"/>
+                                        <StatusCount count={statusCounts.fail} label="Fail" variant="danger"/>
+                                        <StatusCount count={statusCounts.pending} label="Pending" variant="warning"/>
+                                    </div>
+                                </div>
+                                <table className="min-w-full border-collapse">
+                                    <thead>
+                                    <tr>
+                                        <th className="px-4 py-2"></th>
+                                        <th className="px-4 py-2 text-left">Summary</th>
+                                        <th className="px-4 py-2 text-left">Platform</th>
+                                        <th className="px-4 py-2 text-left">Priority</th>
+                                        <th className="px-4 py-2 text-left">Category</th>
+                                        <th className="px-4 py-2 text-left">Assignee</th>
+                                        <th className="px-4 py-2 text-left">Status</th>
+                                        <th className="px-4 py-2 text-left">Notes</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {testExecutions.map((row) => (
+                                        <GenerateRow row={row} key={row.testCycleExecutionID} onUpdate={updateRow}/>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </>
                         )}
                     </div>
                 </div>
