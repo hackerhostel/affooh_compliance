@@ -44,6 +44,11 @@ const TestPlanEditComponent = ({test_plan_id}) => {
     const [isTestSuiteCreateOpen, setIsTestSuiteCreateOpen] = useState(false);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const testPlanStatus = [
+        {value: 'TODO', label: 'TODO'},
+        {value: 'IN PROGRESS', label: 'IN PROGRESS'},
+        {value: 'DONE', label: 'DONE'}
+    ];
 
     const {loading, error, data: testPlan, refetch: reFetchTestPlan} = useFetchTestPlan(testPlanId)
 
@@ -143,7 +148,7 @@ const TestPlanEditComponent = ({test_plan_id}) => {
                     <div className={"flex-col"}>
                         <div className={"bg-white p-4 rounded-md"}>
                             <form className="flex flex-col items-end" onSubmit={updateTestPlan}>
-                                <div className="flex justify-between w-full">
+                                <div className="flex justify-between w-full gap-4">
                                     <div className={"flex-col w-1/4"}>
                                         <p className={"text-secondary-grey"}>Name</p>
                                         <FormInput
@@ -181,6 +186,15 @@ const TestPlanEditComponent = ({test_plan_id}) => {
                                             formValues={formValues}
                                             options={releases.length ? getOptions(releases) : []}
                                             onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                                        />
+                                    </div>
+                                    <div className={"flex-col w-1/5"}>
+                                        <p className={"text-secondary-grey"}>Status</p>
+                                        <FormSelect
+                                            name="status"
+                                            formValues={formValues}
+                                            options={testPlanStatus}
+                                            onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
                                         />
                                     </div>
                                 </div>
