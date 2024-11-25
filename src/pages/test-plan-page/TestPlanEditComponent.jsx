@@ -39,7 +39,7 @@ const TestPlanEditComponent = ({test_plan_id}) => {
 
     const [testPlanId, setTestPlanId] = useState(0);
     const [testSuiteId, setTestSuiteId] = useState(0);
-    const [formValues, setFormValues] = useState({name: '', sprintId: 0, projectId: selectedProject.id, releaseId: 0});
+    const [formValues, setFormValues] = useState({name: '', sprintId: 0, projectId: selectedProject.id, releaseId: 0, status: 'TODO'});
     const [formErrors] = useValidation(TestPlanEditSchema, formValues);
     const [isTestSuiteCreateOpen, setIsTestSuiteCreateOpen] = useState(false);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
@@ -71,7 +71,8 @@ const TestPlanEditComponent = ({test_plan_id}) => {
                 name: testPlan.name,
                 sprintId: testPlan.sprintID,
                 projectId: testPlan.projectID,
-                releaseId: testPlan.releaseID
+                releaseId: testPlan.releaseID,
+                status: testPlan.status
             })
             dispatch(setSelectedTestPlan(testPlan))
         }
