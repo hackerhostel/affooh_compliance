@@ -9,7 +9,7 @@ const CommentAndTimeTabs = ({timeLogs, taskId, refetchTimeLogs}) => {
     const userDetails = useSelector(selectUser);
 
     return (
-        <div className="w-full mt-8">
+        <div className="w-full mt-10">
             <TabGroup>
                 <TabList className="flex gap-4">
                     <Tab

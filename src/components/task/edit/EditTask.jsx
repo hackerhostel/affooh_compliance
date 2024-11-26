@@ -2,7 +2,6 @@ import FormInput from "../../FormInput.jsx";
 import React, {useEffect, useState} from "react";
 import useValidation from "../../../utils/use-validation.jsx";
 import {LoginSchema} from "../../../state/domains/authModels.js";
-import EditTaskAdditionalDetails from "./EditTaskAdditionalDetails.jsx";
 import {useParams} from "react-router-dom";
 import axios from "axios";
 import SkeletonLoader from "../../SkeletonLoader.jsx";
@@ -17,6 +16,7 @@ import {useToasts} from "react-toast-notifications";
 import TimeTracking from "./TimeTracking.jsx";
 import useFetchTimeLogs from "../../../hooks/custom-hooks/task/useFetchTimeLogs.jsx";
 import CommentAndTimeTabs from "./CommentAndTimeTabs.jsx";
+import TaskRelationTabs from "./TaskRelationTabs.jsx";
 
 const EditTaskPage = () => {
   const {code} = useParams();
@@ -216,7 +216,7 @@ const EditTaskPage = () => {
           </div>
         </div>
 
-        <EditTaskAdditionalDetails/>
+        <TaskRelationTabs taskId={initialTaskData?.id || ''}/>
         <CommentAndTimeTabs timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs}/>
       </div>
       <div className="w-2/5 py-5 bg-dashboard-bgc">
