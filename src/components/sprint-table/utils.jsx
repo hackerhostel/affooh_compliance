@@ -48,7 +48,7 @@ export const priorityCellRender = (data) => {
 }
 
 export const statusCellRender = (data) => {
-    const status = data?.value || ""
+    const status = data?.value || "To Do"
 
     const bgColors = {
         "To Do": "bg-task-status-to-do",
@@ -56,7 +56,6 @@ export const statusCellRender = (data) => {
         "Done": "bg-task-status-done",
         "QA": "bg-task-status-qa",
         "UAT": "bg-task-status-uat",
-        "": "bg-secondary-bgc"
     };
 
     const bgBoldColors = {
@@ -65,7 +64,6 @@ export const statusCellRender = (data) => {
         "Done": "bg-task-status-done-bold",
         "QA": "bg-task-status-qa-bold",
         "UAT": "bg-task-status-uat-bold",
-        "": "bg-secondary-bgc"
     };
 
     return (
