@@ -17,6 +17,7 @@ import TimeTracking from "./TimeTracking.jsx";
 import useFetchTimeLogs from "../../../hooks/custom-hooks/task/useFetchTimeLogs.jsx";
 import CommentAndTimeTabs from "./CommentAndTimeTabs.jsx";
 import TaskRelationTabs from "./TaskRelationTabs.jsx";
+import useFetchTask from "../../../hooks/custom-hooks/task/useFetchTask.jsx";
 
 const EditTaskPage = () => {
   const {code} = useParams();
@@ -26,13 +27,17 @@ const EditTaskPage = () => {
   const [initialTaskData, setInitialTaskData] = useState({});
   const [taskData, setTaskData] = useState({});
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [apiError, setAPIError] = useState(false);
   const [isEditing, setIsEditing] = useState(false)
   const [additionalFormValues, setAdditionalFormValues] = useState({});
   const [initialAdditionalFormValues, setInitialAdditionalFormValues] = useState({});
   const [formErrors] = useValidation(LoginSchema, taskData);
 
+  const {
+    loading: loading,
+    error: apiError,
+    data: taskDetails,
+    refetch: refetchTask
+  } = useFetchTask(code)
   const {data: timeLogs, refetch: refetchTimeLogs} = useFetchTimeLogs(initialTaskData?.id)
 
   const handleFormChange = (name, value) => {
@@ -63,28 +68,13 @@ const EditTaskPage = () => {
   }
 
   useEffect(() => {
-    const fetchTaskDetails = async () => {
-      setLoading(true)
-      try {
-        const response = await axios.get(`tasks/by-code/${code}`)
-        if (response.data.body.task) {
-          const taskDetails = response.data.body.task
-          setTaskData(taskDetails)
-          setInitialTaskData(taskDetails)
-
-          setAdditionalFormValues(attributesToMap(taskDetails.attributes))
-          setInitialAdditionalFormValues(attributesToMap(taskDetails.attributes))
-        }
-        setAPIError(false)
-      } catch (e) {
-        setAPIError(true)
-      } finally {
-        setLoading(false)
-      }
+    if (taskDetails?.id) {
+      setTaskData(taskDetails)
+      setInitialTaskData(taskDetails)
+      setAdditionalFormValues(attributesToMap(taskDetails.attributes))
+      setInitialAdditionalFormValues(attributesToMap(taskDetails.attributes))
     }
-
-    fetchTaskDetails()
-  }, [code]);
+  }, [taskDetails]);
 
   if (loading) {
     return <div className="p-5"><SkeletonLoader fillBackground/></div>
@@ -216,7 +206,8 @@ const EditTaskPage = () => {
           </div>
         </div>
 
-        <TaskRelationTabs taskId={initialTaskData?.id || ''} subTasks={taskData?.subTasks}/>
+        <TaskRelationTabs taskId={initialTaskData?.id || ''} subTasks={taskData?.subTasks}
+                          sprintId={taskData?.sprint?.id} refetchTask={refetchTask}/>
         <CommentAndTimeTabs timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs}/>
       </div>
       <div className="w-2/5 py-5 bg-dashboard-bgc">

@@ -3,7 +3,7 @@ import {
     CheckBadgeIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
-    EllipsisVerticalIcon,
+    PencilSquareIcon,
     XMarkIcon
 } from "@heroicons/react/24/outline/index.js";
 import {getInitials, getSelectOptions, getUserSelectOptions} from "../../../utils/commonUtils.js";
@@ -14,14 +14,17 @@ import {useSelector} from "react-redux";
 import {selectAppConfig} from "../../../state/slice/appSlice.js";
 import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 import useFetchScreensForTask from "../../../hooks/custom-hooks/task/useFetchScreensForTask.jsx";
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
 
-const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users}) => {
+const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, taskId, sprintId, refetchTask}) => {
+    const {addToast} = useToasts();
     const appConfig = useSelector(selectAppConfig);
     const selectedProject = useSelector(selectSelectedProject);
 
     const {data: screenResponse} = useFetchScreensForTask(appConfig?.taskTypes.find(tt => tt.value === "Task")?.screenID || 0, selectedProject?.id)
 
-    const [newRow, setNewRow] = useState({name: '', assignee: 0, status: ''});
+    const [newRow, setNewRow] = useState({name: '', assignee: 0, status: 0});
     const [showNewRow, setShowNewRow] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [status, setStatus] = useState([]);
@@ -39,7 +42,7 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users})
             const fieldStatus = screenResponse?.tabs[0]?.fields.find(f => f.name === "Status")?.fieldValues || []
             setStatus(fieldStatus)
             if (fieldStatus.length) {
-                setNewRow({...newRow, status: fieldStatus[0].id})
+                setNewRow({...newRow, status: fieldStatus[0].id, assignee: users[0]?.id})
             }
         }
     }, [screenResponse]);
@@ -64,20 +67,72 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users})
 
     const onHideNew = () => {
         setAddingNew(false)
-        setNewRow({name: '', assignee: 0, status: ''})
+        setNewRow({name: '', status: status[0].id, assignee: users[0]?.id})
     }
 
+    const handleFormChange = (name, value, isText) => {
+        setNewRow({...newRow, [name]: isText ? value : Number(value)});
+    };
+
+    const handleSaveSubTask = async () => {
+        if (newRow.name !== '') {
+            const payload = {
+                parentTaskID: taskId,
+                name: newRow.name,
+                assigneeID: newRow.assignee,
+                projectID: selectedProject?.id,
+                sprintID: sprintId,
+                statusID: newRow.status,
+                taskTypeID: appConfig?.taskTypes.find(tt => tt.value === "Task")?.id
+            }
+
+            try {
+                const response = await axios.post(`/tasks/sub-task`, {task: payload})
+                const created = response?.data?.body
+
+                if (created) {
+                    addToast('Sub task successfully created', {appearance: 'success'});
+                    refetchTask(true)
+                    onHideNew()
+                } else {
+                    addToast('Failed to create the sub task', {appearance: 'error'});
+                }
+            } catch (error) {
+                addToast('Failed to create the sub task', {appearance: 'error'});
+            }
+        } else {
+            addToast('Name is required', {appearance: 'warning'});
+        }
+    };
+
     const GenerateRow = ({subTask}) => {
-        // console.log(subTask)
+        console.log(subTask)
         const subTaskId = subTask?.id
         const assignee = subTask?.assignee
-        const [isEdit, setIsEditing] = useState(false);
-        const [description, setDescription] = useState(subTask?.description || '');
-        const [dataChanged, setDataChanged] = useState(false);
+        const editStatus = subTask?.attributes?.status
+        const initialData = {
+            name: subTask?.name,
+            status: status ? editStatus.id : status[0].id,
+            assignee: assignee ? assignee?.id : users[0].id
+        }
+
+        const [isEditing, setIsEditing] = useState(false);
+        const [editRow, setEditRow] = useState(initialData);
+
+        const handleEditFormChange = (name, value, isText) => {
+            setEditRow({...editRow, [name]: isText ? value : Number(value)});
+        };
+
+        const onHideEdit = () => {
+            setIsEditing(false)
+            setEditRow(initialData)
+        }
+
+        console.log(editRow)
 
         return (
             <tr className="border-b border-gray-200">
-                {!isEdit ? (
+                {!isEditing ? (
                     <>
                         <td className="py-5 px-4 text-text-color">{subTask?.name}</td>
                         <td className="py-5 px-4 flex gap-3 items-center text-text-color">
@@ -89,51 +144,49 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users})
                         </td>
                         <td className="py-5 px-4">
                             <div className={"max-w-28"}>
-                                {statusCellRender(subTask?.attributes?.status)}
+                                {statusCellRender(editStatus)}
                             </div>
                         </td>
-                        <td className="py-5 px-4">
-                            <EllipsisVerticalIcon className={"w-6 h-6 text-secondary-grey cursor-pointer"}/>
+                        <td className="py-5 px-4" onClick={() => setIsEditing(true)}>
+                            <PencilSquareIcon className={"w-5 h-5 text-secondary-grey cursor-pointer"}/>
                         </td>
                     </>
                 ) : (
                     <>
-                        {/*<td className="px-4 py-5">{moment(subTask?.date).local().format('YYYY-MM-DD')}</td>*/}
-                        {/*<td className="px-4 py-5 w-36">*/}
-                        {/*    <FormInput*/}
-                        {/*        type="number"*/}
-                        {/*        min="0"*/}
-                        {/*        name="time"*/}
-                        {/*        formValues={{time: time}}*/}
-                        {/*        // onChange={({target: {name, value}}) => handleChanges(name, value)}*/}
-                        {/*    />*/}
-                        {/*</td>*/}
-                        {/*<td className="px-4 py-5">*/}
-                        {/*    <FormInput*/}
-                        {/*        type="text"*/}
-                        {/*        name="description"*/}
-                        {/*        formValues={{description: description}}*/}
-                        {/*        // onChange={({target: {name, value}}) => handleChanges(name, value)}*/}
-                        {/*    />*/}
-                        {/*</td>*/}
-                        {/*<td className="px-4 py-5">*/}
-                        {/*    <div*/}
-                        {/*        className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">*/}
-                        {/*        {subTask?.user ? (getInitials(`${subTask?.firstName} ${subTask?.lastName}`)) : "N/A"}*/}
-                        {/*    </div>*/}
-                        {/*</td>*/}
-                        {/*<td className="px-4 py-5">*/}
-                        {/*    <div className={"flex gap-5"}>*/}
-                        {/*        <div className={"cursor-pointer"}>*/}
-                        {/*            <TrashIcon className={"w-5 h-5 text-pink-700"}/>*/}
-                        {/*        </div>*/}
-                        {/*        {dataChanged && (*/}
-                        {/*            <div className={"cursor-pointer"}>*/}
-                        {/*                <CheckBadgeIcon className={"w-5 h-5 text-pink-700"}/>*/}
-                        {/*            </div>*/}
-                        {/*        )}*/}
-                        {/*    </div>*/}
-                        {/*</td>*/}
+                        <td className="px-4 py-5">
+                            <FormInput
+                                type="text"
+                                name="name"
+                                formValues={{name: editRow.name}}
+                                onChange={({target: {name, value}}) => handleEditFormChange(name, value, true)}
+                            />
+                        </td>
+                        <td className="px-4 py-5">
+                            <FormSelect
+                                name="assignee"
+                                formValues={{assignee: editRow.assignee}}
+                                options={getUserSelectOptions(users)}
+                                onChange={({target: {name, value}}) => handleEditFormChange(name, value, false)}
+                            />
+                        </td>
+                        <td className="px-4 py-5">
+                            <FormSelect
+                                name="status"
+                                formValues={{status: editRow.status}}
+                                options={getSelectOptions(status)}
+                                onChange={({target: {name, value}}) => handleEditFormChange(name, value, false)}
+                            />
+                        </td>
+                        <td className="px-4 py-5">
+                            <div className={"flex gap-5"}>
+                                <div className={"cursor-pointer"}>
+                                    <CheckBadgeIcon className={"w-6 h-6 text-pink-700"}/>
+                                </div>
+                                <div className={"cursor-pointer"} onClick={onHideEdit}>
+                                    <XMarkIcon className={"w-6 h-6 text-text-color"}/>
+                                </div>
+                            </div>
+                        </td>
                     </>
                 )}
             </tr>
@@ -150,7 +203,7 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users})
                             <th className="py-5 px-4">Task Name</th>
                             <th className="py-5 px-4">Assignee</th>
                             <th className="py-5 px-4">Status</th>
-                            <th className="py-5 px-4">Action</th>
+                            <th className="py-5 px-4"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -161,7 +214,7 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users})
                                         type="text"
                                         name="name"
                                         formValues={{name: newRow.name}}
-                                        // onChange={({target: {name, value}}) => handleChanges(name, value)}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
                                     />
                                 </td>
                                 <td className="px-4 py-5">
@@ -169,7 +222,7 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users})
                                         name="assignee"
                                         formValues={{assignee: newRow.assignee}}
                                         options={getUserSelectOptions(users)}
-                                        // onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                     />
                                 </td>
                                 <td className="px-4 py-5">
@@ -177,12 +230,12 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users})
                                         name="status"
                                         formValues={{status: newRow.status}}
                                         options={getSelectOptions(status)}
-                                        // onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                     />
                                 </td>
                                 <td className="px-4 py-5">
                                     <div className={"flex gap-5"}>
-                                        <div className={"cursor-pointer"}>
+                                        <div className={"cursor-pointer"} onClick={handleSaveSubTask}>
                                             <CheckBadgeIcon className={"w-6 h-6 text-pink-700"}/>
                                         </div>
                                         <div className={"cursor-pointer"} onClick={onHideNew}>
