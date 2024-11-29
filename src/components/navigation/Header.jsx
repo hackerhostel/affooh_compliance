@@ -1,10 +1,10 @@
-import { useCallback } from "react";
-import { Menu } from '@headlessui/react';
+import {useCallback} from "react";
+import {Menu} from '@headlessui/react';
 import FormSelect from "../FormSelect.jsx";
-import { useDispatch, useSelector } from "react-redux";
-import { BellIcon } from '@heroicons/react/24/outline';
-import { doSwitchProject, selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
-import { selectUser } from "../../state/slice/authSlice.js";
+import {useDispatch, useSelector} from "react-redux";
+import {BellIcon} from '@heroicons/react/24/outline';
+import {doSwitchProject, selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {selectUser} from "../../state/slice/authSlice.js";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -13,7 +13,7 @@ const Header = () => {
   const userDetails = useSelector(selectUser);
 
   const handleChange = (e, value) => {
-    dispatch(doSwitchProject(value));
+    dispatch(doSwitchProject(Number(value)));
   };
 
   const getProjectOptions = useCallback(() => {
@@ -25,7 +25,7 @@ const Header = () => {
 
   return (
     <div className="flex justify-between w-full">
-      <div className="py-5 px-4 w-96">
+      <div className="py-5 px-4 w-72">
         <FormSelect
           name="project"
           showLabel={false}
