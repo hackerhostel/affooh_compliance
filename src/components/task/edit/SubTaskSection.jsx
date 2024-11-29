@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
+    ArrowTopRightOnSquareIcon,
     CheckBadgeIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
@@ -16,9 +17,11 @@ import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 import useFetchScreensForTask from "../../../hooks/custom-hooks/task/useFetchScreensForTask.jsx";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
+import {useHistory} from "react-router-dom";
 
 const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, taskId, sprintId, refetchTask}) => {
     const {addToast} = useToasts();
+    const history = useHistory();
     const appConfig = useSelector(selectAppConfig);
     const selectedProject = useSelector(selectSelectedProject);
 
@@ -106,13 +109,12 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, 
     };
 
     const GenerateRow = ({subTask}) => {
-        console.log(subTask)
         const subTaskId = subTask?.id
         const assignee = subTask?.assignee
         const editStatus = subTask?.attributes?.status
         const initialData = {
             name: subTask?.name,
-            status: status ? editStatus.id : status[0].id,
+            status: editStatus ? editStatus.id : status[0].id,
             assignee: assignee ? assignee?.id : users[0].id
         }
 
@@ -128,7 +130,71 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, 
             setEditRow(initialData)
         }
 
-        console.log(editRow)
+        const onRedirectClick = () => {
+            history.push(`/task/${subTask?.code}`);
+        }
+
+        const handleUpdateTask = async () => {
+            const payloads = [];
+
+            if (editRow.name !== initialData.name) {
+                if (editRow.name.trim() === '') {
+                    addToast('Name is required', {appearance: 'warning'});
+                    return;
+                }
+                payloads.push({
+                    taskID: subTaskId,
+                    type: "TASK",
+                    attributeDetails: {
+                        attributeKey: "Name",
+                        attributeValue: editRow.name,
+                    },
+                });
+            }
+
+            if (editRow.assignee !== initialData.assignee) {
+                payloads.push({
+                    taskID: subTaskId,
+                    type: "TASK",
+                    attributeDetails: {
+                        attributeKey: "assigneeID",
+                        attributeValue: editRow.assignee,
+                    },
+                });
+            }
+
+            if (editRow.status !== initialData.status) {
+                if (!editStatus?.attributeId || !editStatus?.fieldID) {
+                    addToast('Invalid status update details', {appearance: 'warning'});
+                    return;
+                }
+                payloads.push({
+                    taskID: subTaskId,
+                    type: "TASK_ATTRIBUTE",
+                    attributeDetails: {
+                        attributeKey: editStatus.attributeId,
+                        taskFieldID: editStatus.fieldID,
+                        attributeValue: editRow.status,
+                    },
+                });
+            }
+
+            if (payloads.length) {
+                try {
+                    await Promise.all(
+                        payloads.map(payload => axios.put(`/tasks/${subTaskId}`, payload))
+                    );
+                    addToast('Sub task successfully updated', {appearance: 'success'});
+                    setIsEditing(false);
+                    refetchTask(true);
+                } catch (error) {
+                    console.error('Error updating sub task:', error);
+                    addToast('Failed to update the sub task', {appearance: 'error'});
+                }
+            } else {
+                addToast('No changes to update', {appearance: 'warning'});
+            }
+        };
 
         return (
             <tr className="border-b border-gray-200">
@@ -147,8 +213,15 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, 
                                 {statusCellRender(editStatus)}
                             </div>
                         </td>
-                        <td className="py-5 px-4" onClick={() => setIsEditing(true)}>
-                            <PencilSquareIcon className={"w-5 h-5 text-secondary-grey cursor-pointer"}/>
+                        <td className="px-4 py-5">
+                            <div className={"flex gap-5"}>
+                                <div className="cursor-pointer" onClick={() => setIsEditing(true)}>
+                                    <PencilSquareIcon className={"w-5 h-5 text-secondary-grey cursor-pointer"}/>
+                                </div>
+                                <div className={"cursor-pointer"} onClick={onRedirectClick}>
+                                    <ArrowTopRightOnSquareIcon className={"w-5 h-5 text-text-color"}/>
+                                </div>
+                            </div>
                         </td>
                     </>
                 ) : (
@@ -179,7 +252,7 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, 
                         </td>
                         <td className="px-4 py-5">
                             <div className={"flex gap-5"}>
-                                <div className={"cursor-pointer"}>
+                                <div className={"cursor-pointer"} onClick={handleUpdateTask}>
                                     <CheckBadgeIcon className={"w-6 h-6 text-pink-700"}/>
                                 </div>
                                 <div className={"cursor-pointer"} onClick={onHideEdit}>
