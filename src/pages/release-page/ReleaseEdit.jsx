@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 
@@ -13,33 +13,53 @@ import {
   TrashIcon,
   XCircleIcon,
 } from "@heroicons/react/24/outline/index.js";
-import { selectSelectedRelease } from "../../state/slice/releaseSlice.js";
-import { useSelector } from "react-redux";
+import {
+  doGetReleases,
+  doGetReleasesCheckListItems,
+  selectCheckListItems,
+  selectSelectedRelease,
+} from "../../state/slice/releaseSlice.js";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { getInitials, getSelectOptions } from "../../utils/commonUtils.js";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import moment from "moment/moment.js";
 import DateSelector from "../../components/DateSelector.jsx";
-import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
+import { selectProjectUserList } from "../../state/slice/projectUsersSlice.js";
+import errorAlert from "../../components/ErrorAlert.jsx";
+import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 
 const ReleaseEdit = ({ releaseId }) => {
   const { addToast } = useToasts();
+  const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const SelectedRelease = useSelector(selectSelectedRelease);
   const selectedProject = useSelector(selectSelectedProject);
   const projectUsers = useSelector(selectProjectUserList);
+  const checkListItems = useSelector(selectCheckListItems);
 
   const [releaseTypes, setReleaseTypes] = useState([]);
   const [createdDate, setCreatedDate] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [toDeleteItem, setToDeleteItem] = useState({});
 
   const [showNewRow, setShowNewRow] = useState(false);
-  const [newRow, setNewRow] = useState({ name: "", status: "", assignee: "" });
+  const [newRow, setNewRow] = useState({
+    name: "",
+    status: "TODO",
+    assignee: 1,
+  });
   const [dateSelectorOpen, setDateSelectorOpen] = useState(false);
-  const timeLogs = [{ name: "Ahmed", status: "UNRELEASED", assignee: "" }, { name: "Ahmed", status: "UNRELEASED", assignee: "" }]
+  // const [releaseCheckListItems, setReleaseCheckListItems] = useState([]);
+  const checkListStatuses = [
+    { value: "TODO", label: "TODO" },
+    { value: "IN-PROGRESS", label: "IN-PROGRESS" },
+    { value: "DONE", label: "DONE" },
+  ];
   const releaseStatus = [
     { value: "RELEASED", label: "RELEASED" },
-    { value: "UNRELEASED", label: "UNRELEASED" }
-  ]
+    { value: "UNRELEASED", label: "UNRELEASED" },
+  ];
 
   const handleAddNewRow = () => {
     setShowNewRow(true);
@@ -53,7 +73,7 @@ const ReleaseEdit = ({ releaseId }) => {
   const handleInputChange = (name, value) => {
     setNewRow((prevRow) => ({
       ...prevRow,
-      [name]: name === "time" ? Number(value) : value,
+      [name]: value,
     }));
   };
 
@@ -103,7 +123,19 @@ const ReleaseEdit = ({ releaseId }) => {
 
   useEffect(() => {
     getReleaseTypes();
+    dispatch(doGetReleasesCheckListItems());
   }, []);
+
+  let releaseCheckListItems = checkListItems.filter(
+    (item) => item.releaseID === SelectedRelease?.id,
+  );
+
+  const getProjectUsers = useCallback(() => {
+    return projectUsers.map((user) => ({
+      value: user.id,
+      label: `${user.firstName} ${user.lastName}`,
+    }));
+  }, [projectUsers]);
 
   const getReleaseTypes = async () => {
     await axios
@@ -119,7 +151,9 @@ const ReleaseEdit = ({ releaseId }) => {
   const [formErrors] = useValidation(ReleaseEditSchema, formValues);
 
   const getCreatedUser = () => {
-    const user = projectUsers.find(user => user.id === SelectedRelease?.createdBy);
+    const user = projectUsers.find(
+      (user) => user.id === SelectedRelease?.createdBy,
+    );
     return user?.firstName + user?.lastName;
   };
 
@@ -149,105 +183,164 @@ const ReleaseEdit = ({ releaseId }) => {
     setIsSubmitting(false);
   };
 
-  const GenerateRow = ({ row }) => {
-    const timeLogId = row?.id;
-    const user = row?.user;
-    const [time, setTime] = useState(row?.time || 0);
-    const [description, setDescription] = useState(row?.description || "");
-    const [dataChanged, setDataChanged] = useState(false);
+  const addChecklist = async () => {
+    if (newRow.name !== "") {
+      await axios
+        .post(`releases/${SelectedRelease.id}/checkListItem`, {
+          checkListItem: {
+            ...newRow,
+            checkListID: SelectedRelease.checklistID,
+          },
+        })
+        .then((r) => {
+          if (r) {
+            setShowNewRow(false);
+            addToast("Check List Item Created Successfully", {
+              appearance: "success",
+            });
+            dispatch(doGetReleasesCheckListItems());
+          } else {
+            addToast("Failed To Create Check List Item", {
+              appearance: "error",
+            });
+          }
+        })
+        .catch((e) => {
+          addToast("Failed To Create Check List Item", { appearance: "error" });
+        });
+    } else {
+      addToast("Please Enter a name", { appearance: "warning" });
+    }
+  };
 
-    const handleChanges = (name, value) => {
-      if (name === "time") {
-        const newTime = Number(value);
-        setTime(newTime);
-        setDataChanged(
-          newTime !== row?.time || description !== (row?.description || ""),
-        );
-      } else {
-        const newDescription = value;
-        setDescription(newDescription);
-        setDataChanged(
-          time !== row?.time || newDescription !== (row?.description || ""),
-        );
-      }
-    };
+  const updateCheckLitItem = async (row) => {
+    await axios
+      .put(`releases/${SelectedRelease.id}/checkListItem`, {
+        checkListItem: row,
+      })
+      .then((r) => {
+        if (r) {
+          addToast("Check List Item Updated Successfully", {
+            appearance: "success",
+          });
+          dispatch(doGetReleasesCheckListItems());
+        } else {
+          addToast("Failed To Update Check List Item", { appearance: "error" });
+        }
+      })
+      .catch((e) => {
+        addToast("Failed To Update Check List Item", { appearance: "error" });
+      });
+  };
 
-    const deleteTimeLog = async () => {
+  const handleDeleteClick = (item) => {
+    setToDeleteItem(item);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (toDeleteItem) {
       try {
         const response = await axios.delete(
-          `/tasks/${taskId}/time-logs/${timeLogId}`,
+          `releases/${SelectedRelease.id}/checkListItem/${toDeleteItem.checklistItemID}`,
         );
-        const deleted = response?.data?.body?.status;
+        const deleted = response?.data?.body?.checkListItem;
 
         if (deleted) {
-          addToast("Time log successfully deleted", { appearance: "success" });
-          refetchTimeLogs();
+          addToast("Check list item successfully deleted", {
+            appearance: "success",
+          });
+          dispatch(doGetReleasesCheckListItems());
         } else {
-          addToast("Failed to delete the time log", { appearance: "error" });
+          addToast("Failed to delete Check list item", { appearance: "error" });
         }
       } catch (error) {
-        addToast("Failed to delete the time log", { appearance: "error" });
+        addToast("Failed to delete Check list item", { appearance: "error" });
       }
+    }
+    setIsDialogOpen(false);
+  };
+
+  const GenerateRow = ({ row, onUpdate, onDelete }) => {
+    const [name, setName] = useState(row?.name || "");
+    const [status, setStatus] = useState(row?.status || "TODO");
+    const [assignee, setAssignee] = useState(row?.assignee || "");
+    const [hasChange, setHasChange] = useState(false);
+
+    const handleChanges = (name, value) => {
+      switch (name) {
+        case "name":
+          setName(value);
+          break;
+        case "status":
+          setStatus(value);
+          break;
+        case "assignee":
+          setAssignee(value);
+          break;
+        default:
+          return "";
+      }
+
+      setHasChange(true);
     };
 
-    const updateTimeLog = async () => {
-      if (time > 0) {
-        try {
-          await axios.put(`/tasks/${taskId}/time-logs/${timeLogId}`, {
-            time: time,
-            description: description,
-            date: row.date,
-          });
-          addToast("Time log successfully updated", { appearance: "success" });
-          refetchTimeLogs();
-        } catch (error) {
-          addToast("Failed to update the logged time", { appearance: "error" });
-        }
-      } else {
-        addToast("Time should be greater than 0", { appearance: "warning" });
-      }
+    const updateCheckListItemRow = () => {
+      setHasChange(false);
+      onUpdate({
+        name,
+        status,
+        assignee,
+        checklistItemID: row?.checklistItemID,
+      });
+    };
+
+    const deleteChecklistItem = async () => {
+      onDelete(row);
     };
 
     return (
       <tr className="border-b">
         <td className="px-4 py-2">
-          {moment(row?.date).local().format("YYYY-MM-DD")}
-        </td>
-        <td className="px-4 py-2 w-36">
-          <FormInput
-            type="number"
-            min="0"
-            name="time"
-            formValues={{ time: time }}
-            onChange={({ target: { name, value } }) =>
-              handleChanges(name, value)
-            }
-          />
-        </td>
-        <td className="px-4 py-2">
           <FormInput
             type="text"
-            name="description"
-            formValues={{ description: description }}
+            name="name"
+            formValues={{ name: name }}
+            onChange={({ target: { name, value } }) =>
+              handleChanges(name, value)
+            }
+          />
+        </td>
+        <td className="px-4 py-2 w-36">
+          <FormSelect
+            name="status"
+            formValues={{ status: status }}
+            options={checkListStatuses}
             onChange={({ target: { name, value } }) =>
               handleChanges(name, value)
             }
           />
         </td>
         <td className="px-4 py-2">
-          <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
-            {row?.user
-              ? getInitials(`${user?.firstName} ${user?.lastName}`)
-              : "N/A"}
-          </div>
+          <FormSelect
+            name="assignee"
+            formValues={{ assignee: assignee }}
+            options={getProjectUsers()}
+            onChange={({ target: { name, value } }) =>
+              handleChanges(name, value)
+            }
+          />
         </td>
         <td className="px-4 py-2">
           <div className={"flex gap-5"}>
-            <div onClick={deleteTimeLog} className={"cursor-pointer"}>
+            <div onClick={deleteChecklistItem} className={"cursor-pointer"}>
               <TrashIcon className={"w-5 h-5 text-pink-700"} />
             </div>
-            {dataChanged && (
-              <div onClick={updateTimeLog} className={"cursor-pointer"}>
+            {hasChange && (
+              <div
+                onClick={updateCheckListItemRow}
+                className={"cursor-pointer"}
+              >
                 <CheckBadgeIcon className={"w-5 h-5 text-pink-700"} />
               </div>
             )}
@@ -328,53 +421,53 @@ const ReleaseEdit = ({ releaseId }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
                 <div>
                   <FormInput
-                      isDate={true}
-                      type="date"
-                      name="releaseDate"
-                      formValues={formValues}
-                      placeholder="Release Date"
-                      onChange={({target: {name, value}}) =>
-                          handleFormChange(name, value, true)
-                      }
+                    isDate={true}
+                    type="date"
+                    name="releaseDate"
+                    formValues={formValues}
+                    placeholder="Release Date"
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value, true)
+                    }
                   />
                 </div>
                 <div className="flex-col">
                   <FormSelect
-                      name="status"
-                      placeholder="Status"
-                      formValues={formValues}
-                      options={releaseStatus}
-                      formErrors={formErrors}
-                      onChange={({target: {name, value}}) =>
-                          handleFormChange(name, value, true)
-                      }
-                      showErrors={isValidationErrorsShown}
+                    name="status"
+                    placeholder="Status"
+                    formValues={formValues}
+                    options={releaseStatus}
+                    formErrors={formErrors}
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value, true)
+                    }
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
                 <div>
                   <FormInput
-                      type="text"
-                      name="version"
-                      formValues={formValues}
-                      placeholder="Version"
-                      onChange={({target: {name, value}}) =>
-                          handleFormChange(name, value)
-                      }
-                      formErrors={formErrors}
-                      showErrors={isValidationErrorsShown}
+                    type="text"
+                    name="version"
+                    formValues={formValues}
+                    placeholder="Version"
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value)
+                    }
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
                 <div>
                   <FormSelect
-                      formValues={formValues}
-                      name="type"
-                      placeholder="Type"
-                      options={getSelectOptions(releaseTypes)}
-                      formErrors={formErrors}
-                      onChange={({target: {name, value}}) =>
-                          handleFormChange(name, value)
-                      }
-                      showErrors={isValidationErrorsShown}
+                    formValues={formValues}
+                    name="type"
+                    placeholder="Type"
+                    options={getSelectOptions(releaseTypes)}
+                    formErrors={formErrors}
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value)
+                    }
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
               </div>
@@ -389,14 +482,14 @@ const ReleaseEdit = ({ releaseId }) => {
             <div className="flex w-full mb-3 justify-end pr-5">
               <div className="flex gap-1 items-center">
                 <PlusCircleIcon
-                    onClick={handleAddNewRow}
-                    className={`w-6 h-6 ${showNewRow ? "text-gray-300 cursor-not-allowed" : "text-pink-500 cursor-pointer"}`}
+                  onClick={handleAddNewRow}
+                  className={`w-6 h-6 ${showNewRow ? "text-gray-300 cursor-not-allowed" : "text-pink-500 cursor-pointer"}`}
                 />
                 <span className="font-thin text-xs text-gray-600">Add New</span>
               </div>
             </div>
             <div className="w-full p-6 bg-white rounded-lg shadow-lg flex-col">
-              {timeLogs.length || showNewRow ? (
+              {releaseCheckListItems.length || showNewRow ? (
                 <table className="min-w-full border-collapse">
                   <thead>
                     <tr>
@@ -411,39 +504,33 @@ const ReleaseEdit = ({ releaseId }) => {
                       <tr className="border-b">
                         <td className="px-4 py-2">
                           <FormInput
-                              type="text"
-                              name="name"
-                              formValues={{ name: newRow.name }}
-                              onChange={({ target: { name, value } }) =>
-                                  handleInputChange(name, value)
-                              }
+                            type="text"
+                            name="name"
+                            formValues={newRow}
+                            onChange={({ target: { name, value } }) =>
+                              handleInputChange(name, value)
+                            }
                           />
                         </td>
                         <td className="px-4 py-2 w-36">
-                          <FormInput
-                              type="text"
-                              name="status"
-                              formValues={{ status: newRow.status }}
-                              onChange={({ target: { name, value } }) =>
-                                  handleInputChange(name, value)
-                              }
-                          />
-                        </td>
-                        <td className="px-4 py-2">
-                          <FormInput
-                            type="text"
-                            name="description"
-                            formValues={{ description: newRow.description }}
+                          <FormSelect
+                            name="status"
+                            formValues={newRow}
+                            options={checkListStatuses}
                             onChange={({ target: { name, value } }) =>
                               handleInputChange(name, value)
                             }
                           />
                         </td>
                         <td className="px-4 py-2">
-                          <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
-                            Ahmed
-                            Shafraz
-                          </div>
+                          <FormSelect
+                            name="assignee"
+                            formValues={newRow}
+                            options={getProjectUsers()}
+                            onChange={({ target: { name, value } }) =>
+                              handleInputChange(name, value)
+                            }
+                          />
                         </td>
                         <td className="px-4 py-2 ">
                           <div className={"flex gap-5"}>
@@ -452,25 +539,40 @@ const ReleaseEdit = ({ releaseId }) => {
                               className="w-5 h-5 text-gray-500 cursor-pointer"
                             />
                             <CheckBadgeIcon
+                              onClick={addChecklist}
                               className="w-5 h-5 text-pink-700 cursor-pointer"
                             />
                           </div>
                         </td>
                       </tr>
                     )}
-                    {timeLogs &&
-                      timeLogs.map((row) => (
-                        <GenerateRow row={row} key={row.id} />
+                    {releaseCheckListItems &&
+                      releaseCheckListItems.map((row, index) => (
+                        <GenerateRow
+                          row={row}
+                          key={index}
+                          onUpdate={updateCheckLitItem}
+                          onDelete={handleDeleteClick}
+                        />
                       ))}
                   </tbody>
                 </table>
               ) : (
-                <p className="text-text-color">No Time Logs Available</p>
+                <p className="text-text-color">No Check List Items Available</p>
               )}
             </div>
           </div>
         </div>
       </div>
+
+      <ConfirmationDialog
+        isOpen={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+        }}
+        onConfirm={handleConfirmDelete}
+        message={toDeleteItem ? `To delete item - ${toDeleteItem.name} ?` : ""}
+      />
     </>
   );
 };
