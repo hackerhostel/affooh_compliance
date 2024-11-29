@@ -165,23 +165,6 @@ const SprintHeader = ({
                     onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
                 />
               </div>
-
-              <div className="flex items-center space-x-2 ml-10 border border-gray-300 p rounded-full">
-                <div className="avatar-group flex -space-x-5">
-                  <img src="https://via.placeholder.com/24"
-                       className="w-8 h-8 rounded-full border-2 border-white"
-                       alt="User Avatar"/>
-                  <img src="https://via.placeholder.com/24"
-                       className="w-8 h-8 rounded-full border-2 border-white"
-                       alt="User Avatar"/>
-                  <span
-                      className="bg-white w-8 h-8 rounded-full flex items-center justify-center text-primary-pink text-xs border-2 border-white">+11</span>
-                </div>
-                <div className="h-7 w-px bg-gray-300 mr-4"></div>
-                <div className={"flex items-center mr-5"}>
-                  <PlusCircleIcon className={"w-9 h-9 text-pink-500 cursor-pointer"}/>
-                </div>
-              </div>
             </div>
 
             <div className="flex items-center space-x-4">
