@@ -109,7 +109,7 @@ const SprintListPage = () => {
             <div className="flex-col gap-4">
               <div className="flex flex-col gap-4 w-full pl-3">
                 <SearchBar onSearch={handleSearch}/>
-                <div className="flex justify-between w-full">
+                <div className="flex w-full laptopL:w-64 justify-between  ">
                   <button
                       className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.inProgress ? 'bg-black text-white' : 'bg-gray-200'}`}
                       onClick={() => handleFilterChange('inProgress')}
@@ -130,7 +130,7 @@ const SprintListPage = () => {
                   </button>
                 </div>
               </div>
-              <div className={"h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-2 mt-6"}>
+              <div className={"h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-5 pr-1 mt-6"}>
                 {filteredSprintList.length === 0 ? (
                     <div className="text-center text-gray-600">No sprints found</div>
                 ) : (

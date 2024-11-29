@@ -52,6 +52,9 @@ module.exports = {
         '25px': '25px',
         '29.5px': '29.5px'
       },
+      screens:{
+        laptopL:{max:"1580px"}
+      }
       
     },
   },
