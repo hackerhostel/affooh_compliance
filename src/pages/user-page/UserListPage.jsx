@@ -58,15 +58,9 @@ const UserListPage = () => {
   const handleConfirmDelete = () => {
     if (selectedUser) {
       axios.delete(`/users/${selectedUser.id}`)
-          .then(response => {
-            const deleted = response?.data?.status
-
-            if (deleted) {
-              addToast('User Successfully Deleted', {appearance: 'success'});
-              dispatch(doGetProjectUsers(selectedProject?.id));
-            } else {
-              addToast('Failed to delete user ', {appearance: 'error'});
-            }
+          .then(() => {
+            addToast('User Successfully Deleted', {appearance: 'success'});
+            dispatch(doGetProjectUsers(selectedProject?.id));
           }).catch(() => {
         addToast('User delete request failed ', {appearance: 'error'});
       });
