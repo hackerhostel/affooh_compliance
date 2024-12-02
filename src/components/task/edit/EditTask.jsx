@@ -6,7 +6,7 @@ import {useParams} from "react-router-dom";
 import axios from "axios";
 import SkeletonLoader from "../../SkeletonLoader.jsx";
 import ErrorAlert from "../../ErrorAlert.jsx";
-import {getUserSelectOptions} from "../../../utils/commonUtils.js";
+import {getSelectOptions, getUserSelectOptions} from "../../../utils/commonUtils.js";
 import FormSelect from "../../FormSelect.jsx";
 import {useSelector} from "react-redux";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
@@ -18,6 +18,7 @@ import useFetchTimeLogs from "../../../hooks/custom-hooks/task/useFetchTimeLogs.
 import CommentAndTimeTabs from "./CommentAndTimeTabs.jsx";
 import TaskRelationTabs from "./TaskRelationTabs.jsx";
 import useFetchTask from "../../../hooks/custom-hooks/task/useFetchTask.jsx";
+import useFetchFlatTasks from "../../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
 
 const EditTaskPage = () => {
   const {code} = useParams();
@@ -30,6 +31,7 @@ const EditTaskPage = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [additionalFormValues, setAdditionalFormValues] = useState({});
   const [initialAdditionalFormValues, setInitialAdditionalFormValues] = useState({});
+  const [epics, setEpics] = useState([]);
   const [formErrors] = useValidation(LoginSchema, taskData);
 
   const {
@@ -39,6 +41,7 @@ const EditTaskPage = () => {
     refetch: refetchTask
   } = useFetchTask(code)
   const {data: timeLogs, refetch: refetchTimeLogs} = useFetchTimeLogs(initialTaskData?.id)
+  const {data: tasksList} = useFetchFlatTasks(initialTaskData?.project?.id)
 
   const handleFormChange = (name, value) => {
     const newForm = {...taskData, [name]: value};
@@ -67,14 +70,25 @@ const EditTaskPage = () => {
     }, {});
   }
 
+  const updateStates = (task) => {
+    setTaskData({...task, assignee: task?.assignee?.id})
+    setInitialTaskData(task)
+  }
+
   useEffect(() => {
     if (taskDetails?.id) {
-      setTaskData(taskDetails)
-      setInitialTaskData(taskDetails)
+      // console.log("deat", taskDetails)
+      updateStates(taskDetails)
       setAdditionalFormValues(attributesToMap(taskDetails.attributes))
       setInitialAdditionalFormValues(attributesToMap(taskDetails.attributes))
     }
   }, [taskDetails]);
+
+  useEffect(() => {
+    if (tasksList?.length) {
+      setEpics(tasksList.filter(tl => tl.type === "Epic"))
+    }
+  }, [tasksList]);
 
   if (loading) {
     return <div className="p-5"><SkeletonLoader fillBackground/></div>
@@ -98,10 +112,10 @@ const EditTaskPage = () => {
     try {
       const updatedTask = await axios.put(`/tasks/${initialTaskData.id}`, payload)
 
-      addToast(`task ${attributeKey} updated!`, {appearance: 'success', autoDismiss: true});
-      if (updatedTask.data.body.task) {
-        setTaskData(updatedTask.data.body.task)
-        setInitialTaskData(updatedTask.data.body.task)
+      addToast(`Task successfully updated!`, {appearance: 'success', autoDismiss: true});
+      const updatedTaskDetails = updatedTask?.data?.body?.task
+      if (updatedTaskDetails) {
+        updateStates(updatedTaskDetails)
       }
     } catch (e) {
       setTaskData(initialTaskData)
@@ -125,15 +139,12 @@ const EditTaskPage = () => {
 
     try {
       const updatedTask = await axios.put(`/tasks/${initialTaskData.id}`, payload)
-
-      addToast(`task ${attributeKey} updated!`, {appearance: 'success', autoDismiss: true});
-      if (updatedTask.data.body.task) {
-        const updatedTaskDetails = updatedTask.data.body.task
-        setTaskData(updatedTaskDetails)
-        setInitialTaskData(updatedTaskDetails)
-
+      const updatedTaskDetails = updatedTask?.data?.body?.task
+      if (updatedTaskDetails) {
+        updateStates(updatedTaskDetails)
         setAdditionalFormValues(attributesToMap(updatedTaskDetails.attributes))
         setInitialAdditionalFormValues(attributesToMap(updatedTaskDetails.attributes))
+        addToast(`Task attribute updated!`, {appearance: 'success', autoDismiss: true});
       }
     } catch (e) {
       setAdditionalFormValues(initialAdditionalFormValues)
@@ -227,28 +238,37 @@ const EditTaskPage = () => {
             />
           </div>
           <div className="mb-6">
-            <FormInput
-              type="text"
-              name="name"
-              formValues={taskData}
-              placeholder="Task Owner"
-              onChange={({target: {name, value}}) => handleFormChange(name, value)}
-              formErrors={formErrors}
-              showErrors={isValidationErrorsShown}
+            <FormSelect
+                name="owner"
+                disabled={isEditing}
+                placeholder="Task Owner"
+                formValues={{owner: taskData?.assignee}}
+                options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
+                // onChange={({target: {name, value}}) => {
+                //   const fieldDetails = formValues[field.id]
+                //   updateTaskAttribute(
+                //       fieldDetails.taskFieldID,
+                //       field.id,
+                //       formValues[field.id].fieldValue[0]
+                //   );
+                //   handleChange(name, value)
+                // }}
+                formErrors={formErrors}
+                showErrors={isValidationErrorsShown}
             />
           </div>
           <div className="mb-6">
-            <FormInput
-              type="text"
-              name="name"
-              formValues={taskData}
-              placeholder="Epic Name"
-              onChange={({target: {name, value}}) => handleFormChange(name, value)}
-              formErrors={formErrors}
-              showErrors={isValidationErrorsShown}
+            <FormSelect
+                placeholder="Epic"
+                name="epicID"
+                formValues={{epicID: taskData?.epicID}}
+                options={getSelectOptions(epics)}
+                onChange={({target: {name, value}}) => {
+                  handleFormChange(name, value);
+                  updateTaskDetails("epicID", value)
+                }}
             />
           </div>
-
           <EditTaskScreenDetails
             isEditing={isEditing}
             initialTaskData={initialAdditionalFormValues}
@@ -258,7 +278,6 @@ const EditTaskPage = () => {
             screenDetails={taskData.screen}
             updateTaskAttribute={updateTaskAttribute}
           />
-
         <TimeTracking timeLogs={timeLogs}/>
       </div>
     </div>

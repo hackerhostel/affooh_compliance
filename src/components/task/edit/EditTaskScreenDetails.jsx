@@ -27,22 +27,28 @@ const EditTaskScreenDetails =
           </TabList>
           <TabPanels className="mt-5 rounded-md">
             {screenDetails?.tabs.map(({id, fields}) => (
-              <TabPanel key={id} className="rounded-xl bg-white/5">
-                <div className="grid grid-cols-3 gap-4">
-                  {fields.map((field) => (
-                    <EditScreenTabField
-                      isEditing={isEditing}
-                      field={field}
-                      onChange={handleFormChange}
-                      initialTaskData={initialTaskData}
-                      formValues={taskFormData}
-                      isValidationErrorsShown={isValidationErrorsShown}
-                      updateTaskAttribute={updateTaskAttribute}
-                    />
-                  ))}
-                </div>
-              </TabPanel>
-              ))}
+                <TabPanel key={id} className="rounded-xl bg-white/5">
+                    <div className="grid grid-cols-3 gap-4">
+                        {fields
+                            .filter((field) => {
+                                // console.log(field);
+                                return field.name !== "Task Owner" && field.name !== "Predecessors" && field.name !== "Labels";
+                            })
+                            .map((field) => (
+                                <EditScreenTabField
+                                    key={field.id}
+                                    isEditing={isEditing}
+                                    field={field}
+                                    onChange={handleFormChange}
+                                    initialTaskData={initialTaskData}
+                                    formValues={taskFormData}
+                                    isValidationErrorsShown={isValidationErrorsShown}
+                                    updateTaskAttribute={updateTaskAttribute}
+                                />
+                            ))}
+                    </div>
+                </TabPanel>
+            ))}
           </TabPanels>
         </TabGroup>
       </div>
