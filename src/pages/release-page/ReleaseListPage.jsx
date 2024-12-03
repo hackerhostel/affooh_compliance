@@ -129,12 +129,12 @@ const ReleaseListPage = () => {
             <SkeletonLoader />
           </div>
         ) : (
-          <div className="flex flex-col gap-3 ">
-            <div className="py-3">
+          <div className="flex-col gap-4 ">
+            <div className="flex flex-col gap-4 w-full pl-3">
               <SearchBar onSearch={handleSearch} />
             </div>
             <div className="flex flex-col gap-4 w-full pl-3">
-              <div className="flex justify-between w-full">
+              <div className="flex justify-between laptopL:w-64 w-full">
                 <button
                   className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.unreleased ? "bg-black text-white" : "bg-gray-200"}`}
                   onClick={() => handleFilterChange("unreleased")}
