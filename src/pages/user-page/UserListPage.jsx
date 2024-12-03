@@ -109,8 +109,8 @@ const UserListPage = () => {
   if (userListError) return <ErrorAlert message="failed to fetch users at the moment" />;
 
   return (
-    <div className="h-list-screen overflow-y-auto w-full ">
-      <div className="flex flex-col gap-3 laptopL:w-54  w-full ">
+    <div className="h-list-screen overflow-y-auto w-full pl-3">
+      <div className="flex flex-col gap-3 laptopL:w-56  w-full ">
 
         {/* Invite Section */}
         <div className="flex items-center gap-2">

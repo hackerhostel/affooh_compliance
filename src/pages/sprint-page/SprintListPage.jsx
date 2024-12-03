@@ -109,7 +109,7 @@ const SprintListPage = () => {
             <div className="flex-col gap-4">
               <div className="flex flex-col gap-4 w-full pl-3">
                 <SearchBar  onSearch={handleSearch}/>
-                <div className="flex w-full laptopL:w-64 justify-between">
+                <div className="flex w-full laptopL:w-60 justify-between">
                   <button
                       className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.inProgress ? 'bg-black text-white' : 'bg-gray-200'}`}
                       onClick={() => handleFilterChange('inProgress')}

@@ -99,9 +99,9 @@ const ProjectListPage = () => {
 
   return (
     <div className="h-list-screen w-full">
-      <div className="flex flex-col gap-4  w-full">
+      <div className="flex flex-col gap-4  w-full pl-3">
         <SearchBar onSearch={handleSearch} />
-        <div className="flex w-full laptopL:w-64 justify-between ">
+        <div className="flex w-full laptopL:w-60 justify-between ">
           {["active", "onHold", "closed"].map((filter) => (
             <button
               key={filter}

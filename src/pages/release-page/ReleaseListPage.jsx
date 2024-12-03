@@ -125,27 +125,23 @@ const ReleaseListPage = () => {
     return (
       <div className="h-list-screen overflow-y-auto w-full">
         {releaseLoading ? (
-          <div className="p-2">
-            <SkeletonLoader />
-          </div>
+          <div className="p-2"><SkeletonLoader /></div>
         ) : (
           <div className="flex-col gap-4 ">
-            <div className="flex flex-col gap-4 w-full pl-3">
+            <div className="flex flex-col gap-4 w-full pl-3 ">
               <SearchBar onSearch={handleSearch} />
-            </div>
-            <div className="flex flex-col gap-4 w-full pl-3">
-              <div className="flex justify-between laptopL:w-64 w-full">
+              <div className="flex justify-start gap-6 laptopL:w-64 w-full">
                 <button
                   className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.unreleased ? "bg-black text-white" : "bg-gray-200"}`}
                   onClick={() => handleFilterChange("unreleased")}
                 >
-                  UNRELEASED ({filterCounts.unreleased})
+                  Unreleased ({filterCounts.unreleased})
                 </button>
                 <button
                   className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.released ? "bg-black text-white" : "bg-gray-200"}`}
                   onClick={() => handleFilterChange("released")}
                 >
-                  RELEASED ({filterCounts.released})
+                  Released ({filterCounts.released})
                 </button>
               </div>
             </div>
