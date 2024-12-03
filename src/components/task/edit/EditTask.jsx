@@ -27,6 +27,7 @@ const EditTaskPage = () => {
 
   const [initialTaskData, setInitialTaskData] = useState({});
   const [taskData, setTaskData] = useState({});
+  const [taskAttributes, setTaskAttributes] = useState([]);
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const [isEditing, setIsEditing] = useState(false)
   const [additionalFormValues, setAdditionalFormValues] = useState({});
@@ -72,12 +73,12 @@ const EditTaskPage = () => {
 
   const updateStates = (task) => {
     setTaskData({...task, assignee: task?.assignee?.id})
+    setTaskAttributes(task?.attributes)
     setInitialTaskData(task)
   }
 
   useEffect(() => {
     if (taskDetails?.id) {
-      // console.log("deat", taskDetails)
       updateStates(taskDetails)
       setAdditionalFormValues(attributesToMap(taskDetails.attributes))
       setInitialAdditionalFormValues(attributesToMap(taskDetails.attributes))
@@ -125,33 +126,43 @@ const EditTaskPage = () => {
     }
   }
 
-  const updateTaskAttribute = async (attributeKey, taskFieldID, attributeValue) => {
-    setIsEditing(true)
-    const payload = {
-      "taskID": initialTaskData.id,
-      "type": "TASK_ATTRIBUTE",
-      "attributeDetails": {
-        attributeKey,
-        taskFieldID,
-        attributeValue
-      }
-    }
+  const updateTaskAttribute = async (fieldId, value) => {
+    const filteredAttribute = taskAttributes.find(ta => ta?.taskFieldID === fieldId)
+    if (filteredAttribute) {
+      setIsEditing(true)
 
-    try {
-      const updatedTask = await axios.put(`/tasks/${initialTaskData.id}`, payload)
-      const updatedTaskDetails = updatedTask?.data?.body?.task
-      if (updatedTaskDetails) {
-        updateStates(updatedTaskDetails)
-        setAdditionalFormValues(attributesToMap(updatedTaskDetails.attributes))
-        setInitialAdditionalFormValues(attributesToMap(updatedTaskDetails.attributes))
-        addToast(`Task attribute updated!`, {appearance: 'success', autoDismiss: true});
+      const payload = {
+        "taskID": initialTaskData.id,
+        "type": "TASK_ATTRIBUTE",
+        "attributeDetails": {
+          attributeKey: filteredAttribute.id,
+          taskFieldID: filteredAttribute.taskFieldID,
+          attributeValue: value
+        }
       }
-    } catch (e) {
-      setAdditionalFormValues(initialAdditionalFormValues)
-      addToast(e.message, {appearance: 'error'});
-    } finally {
-      setIsEditing(false);
+
+      try {
+        const updatedTask = await axios.put(`/tasks/${initialTaskData.id}`, payload)
+        const updatedTaskDetails = updatedTask?.data?.body?.task
+        if (updatedTaskDetails) {
+          updateStates(updatedTaskDetails)
+          addToast(`Task attribute updated!`, {appearance: 'success', autoDismiss: true});
+        }
+      } catch (e) {
+        setAdditionalFormValues(initialAdditionalFormValues)
+        addToast(e.message, {appearance: 'error'});
+      } finally {
+        setIsEditing(false);
+      }
     }
+  }
+
+  const filterTaskFieldValue = (fieldName) => {
+    return taskAttributes.find(ta => ta?.taskFieldName === fieldName)?.values[0] || ''
+  }
+
+  const filterTaskFieldId = (fieldName) => {
+    return taskAttributes.find(ta => ta?.taskFieldName === fieldName)?.taskFieldID || ''
   }
 
   return (
@@ -242,17 +253,11 @@ const EditTaskPage = () => {
                 name="owner"
                 disabled={isEditing}
                 placeholder="Task Owner"
-                formValues={{owner: taskData?.assignee}}
+                formValues={{owner: filterTaskFieldValue("Task Owner")}}
                 options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
-                // onChange={({target: {name, value}}) => {
-                //   const fieldDetails = formValues[field.id]
-                //   updateTaskAttribute(
-                //       fieldDetails.taskFieldID,
-                //       field.id,
-                //       formValues[field.id].fieldValue[0]
-                //   );
-                //   handleChange(name, value)
-                // }}
+                onChange={({target: {value}}) => {
+                  updateTaskAttribute(filterTaskFieldId("Task Owner"), value);
+                }}
                 formErrors={formErrors}
                 showErrors={isValidationErrorsShown}
             />
@@ -267,6 +272,7 @@ const EditTaskPage = () => {
                   handleFormChange(name, value);
                   updateTaskDetails("epicID", value)
                 }}
+                disabled={isEditing}
             />
           </div>
           <EditTaskScreenDetails
@@ -277,6 +283,8 @@ const EditTaskPage = () => {
             isValidationErrorsShown={isValidationErrorsShown}
             screenDetails={taskData.screen}
             updateTaskAttribute={updateTaskAttribute}
+            users={projectUserList}
+            taskAttributes={taskAttributes}
           />
         <TimeTracking timeLogs={timeLogs}/>
       </div>
