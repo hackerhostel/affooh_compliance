@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExclamationCircleIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
+import {ChevronDownIcon, ExclamationCircleIcon} from '@heroicons/react/24/solid';
 import classNames from 'classnames';
 
 function FormSelect({
@@ -36,7 +36,7 @@ function FormSelect({
               disabled={disabled}
               id={name}
               name={name}
-              value={name.split('.').reduce((a, b) => a[b], formValues)}
+              value={name.split('.').reduce((a, b) => a?.[b], formValues) ?? ''}
               className={classNames(
                 'w-full p-4 rounded-lg shadow-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white cursor-pointer',
                 {
@@ -53,9 +53,11 @@ function FormSelect({
               onFocus={onFocus}
               {...rest}
             >
-              <option value="" disabled hidden>{placeholder}</option>
-              {options.map((option) => (
-                <option key={option.value} value={option.value}>
+                <option value="" disabled>
+                    Select an option
+                </option>
+                {options.map((option) => (
+                    <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
