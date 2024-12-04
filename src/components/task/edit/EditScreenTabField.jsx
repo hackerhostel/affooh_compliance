@@ -8,9 +8,8 @@ import {useToasts} from "react-toast-notifications";
 const EditScreenTabField = ({
                                 isEditing,
                                 field,
-                                formValues,
                                 onChange,
-                                initialTaskData,
+                                initialAttributeData = [],
                                 isValidationErrorsShown,
                                 updateTaskAttribute,
                                 tabName,
@@ -19,40 +18,45 @@ const EditScreenTabField = ({
                             }) => {
     const {addToast} = useToasts();
 
-    const handleChange = (name, value) => {
-        const fieldValue = Array.isArray(value) ? value : [value];
-        onChange({
-            fieldTypeName: field.fieldType.name,
-            fieldValue,
-            taskFieldID: field.id
-        });
+    const handleChange = (value) => {
+        onChange(field.id, value);
     };
 
-    const updateAttributes = () => {
+    const updateAttributes = (value) => {
         if (tabName === "General") {
-            // const fieldDetails = formValues[field.id]
-            // updateTaskAttribute(
-            //     fieldDetails.taskFieldID,
-            //     field.id,
-            //     formValues[field.id].fieldValue[0]
-            // );
-            addToast(`Under Development!`, {appearance: 'warning'});
+            updateTaskAttribute(field.id, value);
         } else {
             addToast(`Under Development!`, {appearance: 'warning'});
         }
     }
 
     const getErrorMessage = () => {
-        if (field.required === 1 && (!formValues[field.id] || formValues[field.id].length === 0)) {
+        const filteredTaskAttribute = initialAttributeData.find(ta => ta?.taskFieldID === field.id)
+        if (field.required === 1 && filteredTaskAttribute.values.length === 0) {
             return `${field.name} is required`;
         }
 
         return undefined
     };
 
+    const getInitialFormValue = (name) => {
+        const filteredTaskAttribute = initialAttributeData.find(ta => ta?.taskFieldName === name)
+        return {[name]: filteredTaskAttribute ? filteredTaskAttribute.values[0] : ''}
+    }
+
     const getFormValue = (name) => {
         const filteredTaskAttribute = taskAttributes.find(ta => ta?.taskFieldName === name)
         return {[name]: filteredTaskAttribute ? filteredTaskAttribute.values[0] : ''}
+    }
+
+    const setToInitialValue = () => {
+        const filteredTaskAttribute = initialAttributeData.find(ta => ta?.taskFieldID === field.id)
+        handleChange(filteredTaskAttribute.values[0])
+    }
+
+    const onAttributeAccept = () => {
+        const filteredTaskAttribute = taskAttributes.find(ta => ta?.taskFieldID === field.id)
+        updateAttributes(filteredTaskAttribute.values[0])
     }
 
     const renderField = () => {
@@ -63,15 +67,12 @@ const EditScreenTabField = ({
             showErrors: isValidationErrorsShown,
         };
 
-        const fieldValue = formValues[field.id]
-            ? {[field.name]: formValues[field.id].fieldValue}
-            : {[field.name]: ""};
-
         switch (field.fieldType.name) {
             case "DDL":
             case "MULTI_SELECT":
             case "TASK_PICKER_MULTI_SELECT": // TODO: need to remove task list comes with response
             case "TASK_PICKER":
+            case "RELEASE_PICKER":
                 return (
                     <FormSelect
                         {...commonProps}
@@ -81,9 +82,9 @@ const EditScreenTabField = ({
                         placeholder={field.name}
                         options={getSelectOptions(field?.fieldValues && field.fieldValues.length ? field?.fieldValues : [])}
                         isMulti={field.fieldType.canSelectMultiValues === 1}
-                        onChange={({target: {name, value}}) => {
-                            handleChange(name, value)
-                            updateAttributes()
+                        onChange={({target: {value}}) => {
+                            handleChange(value)
+                            updateAttributes(value)
                         }}
                     />
                 );
@@ -93,18 +94,13 @@ const EditScreenTabField = ({
                         {...commonProps}
                         disabled={isEditing}
                         showLabel
-                        formValues={fieldValue}
+                        formValues={getFormValue(field?.name)}
                         placeholder={field.name}
                         options={users.length ? getUserSelectOptions(users) : []}
                         isMulti={field.fieldType.canSelectMultiValues === 1}
-                        onChange={({target: {name, value}}) => {
-                            const fieldDetails = formValues[field.id]
-                            updateTaskAttribute(
-                                fieldDetails.taskFieldID,
-                                field.id,
-                                formValues[field.id].fieldValue[0]
-                            );
-                            handleChange(name, value)
+                        onChange={({target: {value}}) => {
+                            handleChange(value)
+                            updateAttributes(value)
                         }}
                     />
                 );
@@ -112,27 +108,18 @@ const EditScreenTabField = ({
                 return (
                     <FormInputWrapper
                         isEditing={isEditing}
-                        initialData={initialTaskData}
-                        currentData={formValues}
-                        fieldId={field.id}
-                        onAccept={() => {
-                            const fieldDetails = formValues[field.id]
-                            updateTaskAttribute(
-                                fieldDetails.taskFieldID,
-                                field.id,
-                                formValues[field.id].fieldValue[0]
-                            );
-                        }}
-                        onReject={() => {
-                            handleChange(field.name, initialTaskData[field.id].fieldValue[0]);
-                        }}
+                        initialData={getInitialFormValue(field?.name)}
+                        currentData={getFormValue(field?.name)}
+                        onAccept={onAttributeAccept}
+                        onReject={setToInitialValue}
+                        actionButtonPlacement={"bottom"}
                     >
                         <FormInput
                             {...commonProps}
-                            formValues={fieldValue}
+                            formValues={getFormValue(field?.name)}
                             type="date"
                             placeholder={field.name}
-                            onChange={({target: {name, value}}) => handleChange(name, value)}
+                            onChange={({target: {value}}) => handleChange(value)}
                         />
                     </FormInputWrapper>
                 );
@@ -141,27 +128,18 @@ const EditScreenTabField = ({
                 return (
                     <FormInputWrapper
                         isEditing={isEditing}
-                        initialData={initialTaskData}
-                        currentData={formValues}
-                        fieldId={field.id}
-                        onAccept={() => {
-                            const fieldDetails = formValues[field.id]
-                            updateTaskAttribute(
-                                fieldDetails.taskFieldID,
-                                field.id,
-                                formValues[field.id].fieldValue[0]
-                            );
-                        }}
-                        onReject={() => {
-                            handleChange(field.name, initialTaskData[field.id].fieldValue[0]);
-                        }}
+                        initialData={getInitialFormValue(field?.name)}
+                        currentData={getFormValue(field?.name)}
+                        onAccept={onAttributeAccept}
+                        onReject={setToInitialValue}
+                        actionButtonPlacement={"bottom"}
                     >
                         <FormInput
                             {...commonProps}
-                            formValues={fieldValue}
+                            formValues={getFormValue(field?.name)}
                             type="text"
                             placeholder={field.name}
-                            onChange={({target: {name, value}}) => handleChange(name, value)}
+                            onChange={({target: {value}}) => handleChange(value)}
                         />
                     </FormInputWrapper>
                 );
