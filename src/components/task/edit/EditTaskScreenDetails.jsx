@@ -6,7 +6,6 @@ const EditTaskScreenDetails =
   ({
        isEditing,
        initialTaskData,
-       taskFormData,
        handleFormChange,
        isValidationErrorsShown,
        screenDetails,
@@ -47,13 +46,12 @@ const EditTaskScreenDetails =
                                           isEditing={isEditing}
                                           field={field}
                                           onChange={handleFormChange}
-                                          initialTaskData={initialTaskData}
-                                          formValues={taskFormData}
                                           isValidationErrorsShown={isValidationErrorsShown}
                                           updateTaskAttribute={updateTaskAttribute}
                                           tabName={name}
                                           users={users}
                                           taskAttributes={taskAttributes}
+                                          initialAttributeData={initialTaskData?.attributes}
                                       />
                                   ))
                               : fields.map((field) => (
@@ -62,8 +60,6 @@ const EditTaskScreenDetails =
                                       isEditing={isEditing}
                                       field={field}
                                       onChange={handleFormChange}
-                                      initialTaskData={initialTaskData}
-                                      formValues={taskFormData}
                                       isValidationErrorsShown={isValidationErrorsShown}
                                       updateTaskAttribute={updateTaskAttribute}
                                       tabName={name}
