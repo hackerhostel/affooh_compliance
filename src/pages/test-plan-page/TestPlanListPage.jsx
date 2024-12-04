@@ -1,235 +1,173 @@
-import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from "react-redux";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import SearchBar from "../../components/SearchBar.jsx";
-import {PencilSquareIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import {
-    doGetTestPlans,
-    selectIsTestPlanListForProjectError,
-    selectIsTestPlanListForProjectLoading,
-    selectSelectedTestPlanId,
-    selectTestPlanListForProject,
-    setSelectedTestPlanId
-} from "../../state/slice/testPlansSlice.js";
-import {useHistory} from "react-router-dom";
-import axios from "axios";
-import {useToasts} from "react-toast-notifications";
-import {doGetReleases} from "../../state/slice/releaseSlice.js";
+import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
+import {
+  doGetTestPlans,
+  selectIsTestPlanListForProjectError,
+  selectIsTestPlanListForProjectLoading,
+  selectTestPlanListForProject,
+  setSelectedTestPlanId,
+} from "../../state/slice/testPlansSlice.js";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 
 const TestPlanListPage = () => {
-    const dispatch = useDispatch();
-    const history = useHistory();
-    const {addToast} = useToasts();
+  const dispatch = useDispatch();
+  const testPlansError = useSelector(selectIsTestPlanListForProjectError);
+  const testPlansLoading = useSelector(selectIsTestPlanListForProjectLoading);
+  const testPlans = useSelector(selectTestPlanListForProject);
+  const selectedProject = useSelector(selectSelectedProject);
 
-    const selectedProject = useSelector(selectSelectedProject);
-    const testPlansError = useSelector(selectIsTestPlanListForProjectError);
-    const testPlansLoading = useSelector(selectIsTestPlanListForProjectLoading);
-    const testPlans = useSelector(selectTestPlanListForProject);
-    const selectedTestPlanId = useSelector(selectSelectedTestPlanId);
-    const [toDeleteTestPlan, setToDeleteTestPlan] = useState({});
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [filteredTestPlans, setFilteredTestPlans] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState({
+    todo: true,
+    inProgress: true,
+    done: true,
+  });
 
-    const [filteredTestPlans, setFilteredTestPlans] = useState([]);
-    const [toDeleteRelease, setToDeleteRelease] = useState({});
-    const [selectedFilters, setSelectedFilters] = useState({
-      todo: false,
-      inProgress: true,
-      done: false,
-    });
+  const [filterCounts, setFilterCounts] = useState({
+    todo: 0,
+    inProgress: 0,
+    done: 0,
+  });
 
-    const [filterCounts, setFilterCounts] = useState({
-      todo: 0,
-      inProgress: 0,
-      done: 0,
-    });
+  const [toDeleteTestPlan, setToDeleteTestPlan] = useState({});
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    useEffect(() => {
-        if (selectedProject?.id && !testPlans.length) {
-            dispatch(doGetTestPlans(selectedProject?.id));
-        }
-    }, [selectedProject]);
+  useEffect(() => {
+    if (selectedProject?.id) {
+      dispatch(doGetTestPlans(selectedProject?.id));
+    }
+  }, [selectedProject, dispatch]);
 
-    const testPlanByStatus = filteredTestPlans.filter((testPlan) => {
-      // If both filters are unchecked, show nothing
-      if (
-        !selectedFilters.todo &&
-        !selectedFilters.inProgress &&
-        !selectedFilters.done
-      ) {
-        return false;
-      }
+  useEffect(() => {
+    if (testPlans.length) {
+      const todoCount = testPlans.filter((tp) => tp.status === "TODO").length;
+      const inProgressCount = testPlans.filter((tp) => tp.status === "IN PROGRESS").length;
+      const doneCount = testPlans.filter((tp) => tp.status === "DONE").length;
 
-      // Return true if the test plan status matches selected filters
-      if (selectedFilters.todo && testPlan.status === "TODO") return true;
-      if (selectedFilters.inProgress && testPlan.status === "IN PROGRESS")
-        return true;
-      if (selectedFilters.done && testPlan.status === "DONE") return true;
+      setFilterCounts({ todo: todoCount, inProgress: inProgressCount, done: doneCount });
+      handleSearch("");
+    }
+  }, [testPlans]);
 
+  const handleSearch = (term) => {
+    let filtered = testPlans;
+
+    if (term.trim()) {
+      filtered = filtered.filter((tp) => tp.name.toLowerCase().includes(term.toLowerCase()));
+    }
+
+    filtered = filtered.filter((tp) => {
+      if (selectedFilters.todo && tp.status === "TODO") return true;
+      if (selectedFilters.inProgress && tp.status === "IN PROGRESS") return true;
+      if (selectedFilters.done && tp.status === "DONE") return true;
       return false;
     });
 
-    const handleFilterChange = (filterName) => {
-      setSelectedFilters((prev) => ({
-        ...prev,
-        [filterName]: !prev[filterName],
-      }));
-    };
+    setFilteredTestPlans(filtered);
+  };
 
-    useEffect(() => {
-      if (testPlans.length) {
-        setFilteredTestPlans(testPlans);
+  const handleFilterChange = (filterName) => {
+    setSelectedFilters((prev) => ({
+      ...prev,
+      [filterName]: !prev[filterName],
+    }));
+  };
 
-        const todoCount = testPlans.filter(
-          (testPlan) => testPlan.status === "TODO",
-        ).length;
-        const inProgressCount = testPlans.filter(
-          (testPlan) => testPlan.status === "IN PROGRESS",
-        ).length;
-        const doneCount = testPlans.filter(
-          (testPlan) => testPlan.status === "DONE",
-        ).length;
+  const handleDeleteClick = (testPlan) => {
+    setToDeleteTestPlan(testPlan);
+    setIsDialogOpen(true);
+  };
 
-        setFilterCounts({
-          todo: todoCount,
-          inProgress: inProgressCount,
-          done: doneCount,
-        });
-      }
-    }, [testPlans]);
+  const handleDeleteConfirm = () => {
+    // Assume delete API call and state update here
+    setIsDialogOpen(false);
+    dispatch(doGetTestPlans(selectedProject?.id));
+  };
 
-    const handleSearch = (term) => {
-        if (term.trim() === '') {
-            setFilteredTestPlans(testPlans);
-        } else {
-            const filtered = testPlans.filter(tp =>
-                tp?.name.toLowerCase().includes(term.toLowerCase())
-            );
-            setFilteredTestPlans(filtered);
-        }
-    };
+  if (testPlansError) return <ErrorAlert message="Failed to fetch test plans at the moment" />;
 
-    const handleTestPlanEditClick = (test_plan_id) => {
-        history.push(`/test-plans/${test_plan_id}`);
-    };
-
-    const handleTestPlanClick = (test_plan_id) => {
-        dispatch(setSelectedTestPlanId(test_plan_id))
-        history.push(`/test-plans`);
-    };
-
-    const handleDeleteClick = (testPlan) => {
-        setToDeleteTestPlan(testPlan)
-        setIsDialogOpen(true);
-    };
-
-    const deleteTestPlan = async () => {
-        try {
-            const response = await axios.delete(`/test-plans/${toDeleteTestPlan.id}`)
-            const deleted = response?.data?.status
-
-            if (deleted) {
-                addToast('Test Plan Successfully Deleted', {appearance: 'success'});
-                dispatch(doGetTestPlans(selectedProject?.id));
-                if (toDeleteTestPlan.id === selectedTestPlanId) {
-                    handleTestPlanClick(0)
-                }
-            } else {
-                addToast('Failed To Deleted The Test Plan ', {appearance: 'error'});
-            }
-        } catch (error) {
-            addToast('Failed To Deleted The Test Plan ', {appearance: 'error'});
-        }
-    }
-
-    if (testPlansError) return <ErrorAlert message={testPlansError.message}/>;
-
-    return (
-      <div className="h-list-screen overflow-y-auto w-full">
-        {testPlansLoading ? (
-          <div className="p-2">
-            <SkeletonLoader />
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3 p-3">
-            <div className="py-3">
-              <SearchBar onSearch={handleSearch} />
-            </div>
-            <div className="flex flex-col gap-4 w-full pl-3">
-              <div className="flex justify-between w-full">
-                <button
-                  className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.todo ? "bg-black text-white" : "bg-gray-200"}`}
-                  onClick={() => handleFilterChange("todo")}
-                >
-                  TODO ({filterCounts.todo})
-                </button>
-                <button
-                  className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.inProgress ? "bg-black text-white" : "bg-gray-200"}`}
-                  onClick={() => handleFilterChange("inProgress")}
-                >
-                  IN-PROGRESS ({filterCounts.inProgress})
-                </button>
-                <button
-                  className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.done ? "bg-black text-white" : "bg-gray-200"}`}
-                  onClick={() => handleFilterChange("done")}
-                >
-                  DONE ({filterCounts.done})
-                </button>
-              </div>
-            </div>
-            {testPlanByStatus.map((element, index) => (
-              <div
-                key={element?.id}
-                className={`flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 ${
-                    selectedTestPlanId === element.id ? 'bg-gray-100' : ''
+  return (
+    <div className="h-list-screen w-full">
+      {testPlansLoading ? (
+        <div className="p-2">
+          <SkeletonLoader />
+        </div>
+      ) : (
+        <div className="flex-col gap-4">
+          <div className="flex flex-col gap-4 w-full pl-3">
+            <SearchBar onSearch={handleSearch} />
+            <div className="flex w-full laptopL:w-60 justify-between">
+            <button
+                className={`px-2 py-1 rounded-xl text-xs ${
+                  selectedFilters.inProgress ? "bg-black text-white" : "bg-gray-200"
                 }`}
+                onClick={() => handleFilterChange("inProgress")}
               >
-                <div
-                  className="text-left cursor-pointer"
-                  onClick={() => handleTestPlanClick(element?.id)}
-                >
-                  <div className="font-bold mb-1">{element?.name}</div>
-                  <div className="text-sm text-gray-600 flex items-center">
-                    {element?.sprintName}
-                    <span className="mx-1 text-black text-2xl ">&#8226;</span>
-                    {element?.releaseName}
-                  </div>
-                </div>
-                <div className={"flex gap-1"}>
-                  <div
-                    onClick={() => handleDeleteClick(element)}
-                    className={"cursor-pointer"}
-                  >
-                    <TrashIcon className={"w-4 h-4 text-pink-700"} />
-                  </div>
-                  <div
-                    onClick={() => handleTestPlanEditClick(element?.id)}
-                    className={"cursor-pointer"}
-                  >
-                    <PencilSquareIcon className={"w-4 h-4 text-black"} />
-                  </div>
-                </div>
-              </div>
-            ))}
+                In Progress ({filterCounts.inProgress})
+              </button>
+              <button
+                className={`px-2 py-1 rounded-xl text-xs ${
+                  selectedFilters.todo ? "bg-black text-white" : "bg-gray-200"
+                }`}
+                onClick={() => handleFilterChange("todo")}
+              >
+                Todo ({filterCounts.todo})
+              </button>
+              <button
+                className={`px-2 py-1 rounded-xl text-xs ${
+                  selectedFilters.done ? "bg-black text-white" : "bg-gray-200"
+                }`}
+                onClick={() => handleFilterChange("done")}
+              >
+                Done ({filterCounts.done})
+              </button>
+            </div>
           </div>
-        )}
-
-        <ConfirmationDialog
-          isOpen={isDialogOpen}
-          onClose={() => {
-            setIsDialogOpen(false);
-          }}
-          onConfirm={deleteTestPlan}
-          message={
-            toDeleteTestPlan
-              ? `To delete test plan - ${toDeleteTestPlan.name} ?`
-              : ""
-          }
-        />
-      </div>
-    );
+          <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-5 pr-1 mt-6">
+            {filteredTestPlans.length === 0 ? (
+              <div className="text-center text-gray-600">No test plans found</div>
+            ) : (
+              filteredTestPlans.map((tp) => (
+                <div
+                  key={tp.id}
+                  className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer"
+                >
+                  <div
+                    className="col-span-2 text-left flex gap-2"
+                    onClick={() => dispatch(setSelectedTestPlanId(tp.id))}
+                  >
+                    <div className="flex flex-col gap-2 justify-center">
+                      <div className="font-bold">{tp.name}</div>
+                      <div className="text-xs text-gray-600">{tp.sprintName}</div>
+                    </div>
+                  </div>
+                  <div className="gap-1 flex">
+                    <div onClick={() => handleDeleteClick(tp)}>
+                      <TrashIcon className="w-4 h-4 text-pink-700" />
+                    </div>
+                    <div onClick={() => dispatch(setSelectedTestPlanId(tp.id))}>
+                      <ChevronRightIcon className="w-4 h-4 text-black" />
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+      <ConfirmationDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        message={`Are you sure you want to delete test plan "${toDeleteTestPlan?.name}"?`}
+      />
+    </div>
+  );
 };
 
 export default TestPlanListPage;

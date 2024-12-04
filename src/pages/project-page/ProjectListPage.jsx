@@ -1,24 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectProjectList,
   selectSelectedProject,
-  setSelectedProject
+  setSelectedProject,
 } from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
 import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import axios from "axios";
-import {useToasts} from "react-toast-notifications";
-
+import { useToasts } from "react-toast-notifications";
 
 const ProjectListPage = () => {
-  const {addToast} = useToasts();
+  const { addToast } = useToasts();
   const dispatch = useDispatch();
   const projectList = useSelector(selectProjectList);
   const selectedProject = useSelector(selectSelectedProject);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // const [selectedProject, setSelectedProject] = useState(null);
 
   const [filteredProjectList, setFilteredProjectList] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState({
@@ -26,39 +23,41 @@ const ProjectListPage = () => {
     onHold: true,
     closed: true,
   });
-
   const [filterCounts, setFilterCounts] = useState({
     active: 0,
     onHold: 0,
     closed: 0,
   });
 
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
+
   useEffect(() => {
-    if (projectList && Array.isArray(projectList)) {
-      const activeCount = projectList.filter(project => project.status === "Active").length;
-      const onHoldCount = projectList.filter(project => project.status === "On Hold").length;
-      const closedCount = projectList.filter(project => project.status === "Closed").length;
-
-      setFilterCounts({
-        active: activeCount,
-        onHold: onHoldCount,
-        closed: closedCount,
-      });
-
+    if (projectList?.length) {
+      updateFilterCounts();
       setFilteredProjectList(projectList);
     }
   }, [projectList]);
 
+  const updateFilterCounts = () => {
+    const counts = {
+      active: projectList.filter((p) => p.status === "Active").length,
+      onHold: projectList.filter((p) => p.status === "On Hold").length,
+      closed: projectList.filter((p) => p.status === "Closed").length,
+    };
+    setFilterCounts(counts);
+  };
+
   const handleSearch = (term) => {
     let filtered = projectList;
 
-    if (term.trim() !== '') {
-      filtered = filtered.filter(project =>
+    if (term.trim()) {
+      filtered = filtered.filter((project) =>
         project.name.toLowerCase().includes(term.toLowerCase())
       );
     }
 
-    filtered = filtered.filter(project => {
+    filtered = filtered.filter((project) => {
       if (selectedFilters.active && project.status === "Active") return true;
       if (selectedFilters.onHold && project.status === "On Hold") return true;
       if (selectedFilters.closed && project.status === "Closed") return true;
@@ -69,97 +68,87 @@ const ProjectListPage = () => {
   };
 
   const handleFilterChange = (filterName) => {
-    setSelectedFilters(prevState => ({
-      ...prevState,
-      [filterName]: !prevState[filterName]
+    setSelectedFilters((prev) => ({
+      ...prev,
+      [filterName]: !prev[filterName],
     }));
   };
 
   const handleDeleteClick = (project) => {
-    setSelectedProject(project);
+    setProjectToDelete(project);
     setIsDialogOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    if (selectedProject) {
-      axios.delete(`/projects/${selectedProject.id}`)
-          .then(response => {
-            const deleted = response?.data?.status
-
-            if (deleted) {
-              addToast('Project Successfully Deleted', {appearance: 'success'});
-              setFilteredProjectList(projectList);
-            } else {
-              addToast('Failed to delete project ', {appearance: 'error'});
-            }
-          }).catch(() => {
-        addToast('Project delete request failed ', {appearance: 'error'});
-      });
+  const handleDeleteConfirm = () => {
+    if (projectToDelete) {
+      axios
+        .delete(`/projects/${projectToDelete.id}`)
+        .then(() => {
+          addToast("Project successfully deleted", { appearance: "success" });
+          const updatedList = projectList.filter((p) => p.id !== projectToDelete.id);
+          setFilteredProjectList(updatedList);
+          updateFilterCounts();
+        })
+        .catch(() => {
+          addToast("Failed to delete project", { appearance: "error" });
+        });
     }
     setIsDialogOpen(false);
-    setSelectedProject(null);
+    setProjectToDelete(null);
   };
 
   return (
-    <div className="h-list-screen overflow-y-auto w-full">
-      <div className="flex flex-col gap-3 p-3">
-        <div className="py-3">
-          <SearchBar onSearch={handleSearch} />
+    <div className="h-list-screen w-full">
+      <div className="flex flex-col gap-4  w-full pl-3">
+        <SearchBar onSearch={handleSearch} />
+        <div className="flex w-full laptopL:w-60 justify-between ">
+          {["active", "onHold", "closed"].map((filter) => (
+            <button
+              key={filter}
+              className={`px-2 py-1 rounded-xl text-xs ${
+                selectedFilters[filter] ? "bg-black text-white" : "bg-gray-200"
+              }`}
+              onClick={() => handleFilterChange(filter)}
+            >
+              {filter.charAt(0).toUpperCase() + filter.slice(1)} ({filterCounts[filter]})
+            </button>
+          ))}
         </div>
+      </div>
 
-        
-        <div className="flex justify-between w-full mb-4">
-          <button
-            className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.active ? 'bg-black text-white' : 'bg-gray-200'}`}
-            onClick={() => handleFilterChange('active')}
-          >
-            Active ({filterCounts.active})
-          </button>
-          <button
-            className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.onHold ? 'bg-black text-white' : 'bg-gray-200'}`}
-            onClick={() => handleFilterChange('onHold')}
-          >
-            On Hold ({filterCounts.onHold})
-          </button>
-          <button
-            className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.closed ? 'bg-black text-white' : 'bg-gray-200'}`}
-            onClick={() => handleFilterChange('closed')}
-          >
-            Closed ({filterCounts.closed})
-          </button>
-        </div>
-
-        {filteredProjectList.map((element, index) => (
-          <button
-            key={index}
-            className="items-center p-3 border border-gray-200 rounded-md w-full grid grid-cols-3 gap-2 hover:bg-gray-100"
-            onClick={() => {
-              dispatch(setSelectedProject(element))
-            }}
-          >
-            <div className="col-span-2 text-left">
-              <div className="font-bold">{element?.name}</div>
-              <div className="text-sm text-gray-600">
-                Website<span className="mx-1">&#8226;</span>Development
+      <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-5 pr-1 mt-6">
+        {filteredProjectList.length === 0 ? (
+          <div className="text-center text-gray-600">No projects found</div>
+        ) : (
+          filteredProjectList.map((project) => (
+            <div
+              key={project.id}
+              className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer"
+            >
+              <div className="col-span-2 text-left flex flex-col gap-1">
+                <div className="font-bold">{project.name}</div>
+                <div className="text-xs text-gray-600">Website • Development</div>
+              </div>
+              <div className="flex gap-1">
+                <TrashIcon
+                  onClick={() => handleDeleteClick(project)}
+                  className="w-4 h-4 text-pink-700 cursor-pointer"
+                />
+                <ChevronRightIcon
+                  onClick={() => dispatch(setSelectedProject(project))}
+                  className="w-4 h-4 text-black cursor-pointer"
+                />
               </div>
             </div>
-
-            <div className="flex gap-1 ml-5">
-              <TrashIcon onClick={() => handleDeleteClick(element)} className="w-4 h-4 text-pink-700" />
-              <ChevronRightIcon className="w-4 h-4 text-black" />
-            </div>
-          </button>
-        ))}
+          ))
+        )}
       </div>
 
       <ConfirmationDialog
-          isOpen={isDialogOpen}
-          onClose={() => {
-            setIsDialogOpen(false);
-            setSelectedProject(null);
-          }}
-          onConfirm={handleConfirmDelete}
-          message={selectedProject ? `To delete project - ${selectedProject.name} ?` : ''}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        message={`Are you sure you want to delete project "${projectToDelete?.name}"?`}
       />
     </div>
   );

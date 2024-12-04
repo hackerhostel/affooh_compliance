@@ -109,8 +109,8 @@ const UserListPage = () => {
   if (userListError) return <ErrorAlert message="failed to fetch users at the moment" />;
 
   return (
-    <div className="h-list-screen overflow-y-auto w-full">
-      <div className="flex flex-col gap-3 p-3">
+    <div className="h-list-screen overflow-y-auto w-full pl-3">
+      <div className="flex flex-col gap-3 laptopL:w-56  w-full ">
 
         {/* Invite Section */}
         <div className="flex items-center gap-2">
@@ -124,7 +124,7 @@ const UserListPage = () => {
           />
         </div>
 
-        <div className='flex gap-1'>
+        <div className='flex gap-2'>
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
@@ -145,12 +145,11 @@ const UserListPage = () => {
 
         </div>
 
-        {/* Search Bar */}
+     
         <div className="py-3">
           <SearchBar onSearch={handleSearch} />
         </div>
 
-        {/* User List */}
         {filteredUserList.map((element, index) => (
           <button
             key={index}
