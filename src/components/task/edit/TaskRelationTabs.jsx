@@ -4,8 +4,9 @@ import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
 import SubTaskSection from "./SubTaskSection.jsx";
 import {useSelector} from "react-redux";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
+import RelationshipSection from "./RealationshipSection.jsx";
 
-const TaskRelationTabs = ({taskId, subTasks, sprintId, refetchTask}) => {
+const TaskRelationTabs = ({taskId, subTasks, sprintId, refetchTask, projectId, linkedTasks, projectTaskList}) => {
     const users = useSelector(selectProjectUserList);
 
     const tabs = [
@@ -57,10 +58,21 @@ const TaskRelationTabs = ({taskId, subTasks, sprintId, refetchTask}) => {
                             taskId={taskId}
                             sprintId={sprintId}
                             refetchTask={refetchTask}
-                        ></SubTaskSection>
+                            projectId={projectId}
+                        />
                     </TabPanel>
                     <TabPanel key={'relationship'}>
-                        <div className={'mt-8'}>Relationship</div>
+                        <RelationshipSection
+                            linkedTasks={linkedTasks}
+                            addingNew={addingNew}
+                            selectedTab={selectedTab}
+                            setAddingNew={setAddingNew}
+                            users={users}
+                            refetchTask={refetchTask}
+                            projectId={projectId}
+                            projectTaskList={projectTaskList}
+                            taskId={taskId}
+                        />
                     </TabPanel>
                     <TabPanel key={'criteria'}>
                         <div className={'mt-8'}>Criteria</div>

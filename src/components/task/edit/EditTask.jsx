@@ -19,11 +19,13 @@ import CommentAndTimeTabs from "./CommentAndTimeTabs.jsx";
 import TaskRelationTabs from "./TaskRelationTabs.jsx";
 import useFetchTask from "../../../hooks/custom-hooks/task/useFetchTask.jsx";
 import useFetchFlatTasks from "../../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
+import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 
 const EditTaskPage = () => {
   const {code} = useParams();
   const {addToast} = useToasts();
   const projectUserList = useSelector(selectProjectUserList);
+  const selectedProject = useSelector(selectSelectedProject);
 
   const [initialTaskData, setInitialTaskData] = useState({});
   const [taskData, setTaskData] = useState({});
@@ -229,7 +231,8 @@ const EditTaskPage = () => {
         </div>
 
         <TaskRelationTabs taskId={initialTaskData?.id || ''} subTasks={taskData?.subTasks}
-                          sprintId={taskData?.sprint?.id} refetchTask={refetchTask}/>
+                          sprintId={taskData?.sprint?.id} refetchTask={refetchTask} projectId={selectedProject?.id}
+                          linkedTasks={taskData?.linkedTasks} projectTaskList={tasksList}/>
         <CommentAndTimeTabs timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs}/>
       </div>
       <div className="w-2/5 py-5 bg-dashboard-bgc">
