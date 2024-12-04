@@ -13,19 +13,27 @@ import FormInput from "../../FormInput.jsx";
 import FormSelect from "../../FormSelect.jsx";
 import {useSelector} from "react-redux";
 import {selectAppConfig} from "../../../state/slice/appSlice.js";
-import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 import useFetchScreensForTask from "../../../hooks/custom-hooks/task/useFetchScreensForTask.jsx";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
 import {useHistory} from "react-router-dom";
 
-const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, taskId, sprintId, refetchTask}) => {
+const SubTaskSection = ({
+                            subtasks,
+                            addingNew,
+                            selectedTab,
+                            setAddingNew,
+                            users,
+                            taskId,
+                            sprintId,
+                            refetchTask,
+                            projectId
+                        }) => {
     const {addToast} = useToasts();
     const history = useHistory();
     const appConfig = useSelector(selectAppConfig);
-    const selectedProject = useSelector(selectSelectedProject);
 
-    const {data: screenResponse} = useFetchScreensForTask(appConfig?.taskTypes.find(tt => tt.value === "Task")?.screenID || 0, selectedProject?.id)
+    const {data: screenResponse} = useFetchScreensForTask(appConfig?.taskTypes.find(tt => tt.value === "Task")?.screenID || 0, projectId)
 
     const [newRow, setNewRow] = useState({name: '', assignee: 0, status: 0});
     const [showNewRow, setShowNewRow] = useState(false);
@@ -83,7 +91,7 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, 
                 parentTaskID: taskId,
                 name: newRow.name,
                 assigneeID: newRow.assignee,
-                projectID: selectedProject?.id,
+                projectID: projectId,
                 sprintID: sprintId,
                 statusID: newRow.status,
                 taskTypeID: appConfig?.taskTypes.find(tt => tt.value === "Task")?.id

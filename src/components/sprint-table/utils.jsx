@@ -75,6 +75,42 @@ export const statusCellRender = (data) => {
     );
 };
 
+export const relationCellRender = (data) => {
+    const type = data?.name || "Blocks"
+
+    const bgColors = {
+        "Is Blocked By": "bg-light-red",
+        "Blocks": "bg-priority-high",
+        "Finishes with": "bg-task-status-done",
+        "Start with": "bg-task-status-to-do",
+        "tbd after": "bg-task-status-uat",
+        "tbd before": "bg-task-status-in-progress",
+        "Related to": "bg-task-status-qa",
+    };
+
+    const bgBoldColors = {
+        "Is Blocked By": "bg-priority-high",
+        "Blocks": "bg-light-red",
+        "Finishes with": "bg-task-status-done-bold",
+        "Start with": "bg-task-status-to-do-bold",
+        "tbd after": "bg-task-status-uat-bold",
+        "tbd before": "bg-task-status-in-progress-bold",
+        "Related to": "bg-task-status-qa-bold",
+    };
+
+    const fontColors = {
+        "Blocks": "text-white",
+    };
+
+    return (
+        <div
+            className={`${bgColors[type] || "bg-secondary-bgc"} ${fontColors[type] || "text-secondary-grey"} py-1 px-2  text-center text-xs rounded-md cursor-pointer flex justify-start gap-2`}>
+            <div className={`${bgBoldColors[type] || "bg-secondary-bgc"} min-w-1 rounded-md`}></div>
+            {type}
+        </div>
+    );
+};
+
 export const assigneeCellRender = (data) => {
     return <div className="text-sm text-wrap text-start flex items-center gap-1 cursor-pointer">
         <div
