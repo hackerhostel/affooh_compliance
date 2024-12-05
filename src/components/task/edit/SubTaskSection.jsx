@@ -62,7 +62,7 @@ const SubTaskSection = ({
     const totalPages = subtasks && subtasks.length ? Math.ceil(subtasks.length / rowsPerPage) : 0;
     const indexOfLastTask = currentPage * rowsPerPage;
     const indexOfFirstTask = indexOfLastTask - rowsPerPage;
-    const currentTasks = subtasks && subtasks.length ? subtasks.slice(indexOfFirstTask, indexOfLastTask) : [];
+    const currentPageContent = subtasks && subtasks.length ? subtasks.slice(indexOfFirstTask, indexOfLastTask) : [];
 
     const handleNextPage = () => {
         if (currentPage < totalPages) {
@@ -326,12 +326,12 @@ const SubTaskSection = ({
                                 </td>
                             </tr>
                         )}
-                        {currentTasks.map((task) => (
+                        {currentPageContent.map((task) => (
                             <GenerateRow subTask={task} key={task?.id}/>
                         ))}
                         </tbody>
                     </table>
-                    {(subtasks && subtasks.length) && (
+                    {(subtasks && subtasks.length > 0) && (
                         <div className="w-full flex gap-5 items-center justify-end mt-4">
                             <button
                                 onClick={handlePreviousPage}

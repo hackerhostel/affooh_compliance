@@ -49,9 +49,9 @@ module.exports = {
         '4.2': '1.1rem',
       },
       spacing: {
+        '2px': '2px',
         '3px': '3px',
         '25px': '25px',
-        '29.5px': '29.5px'
       },
       screens:{
         laptopL:{max:"1580px"}

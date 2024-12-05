@@ -5,8 +5,18 @@ import SubTaskSection from "./SubTaskSection.jsx";
 import {useSelector} from "react-redux";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
 import RelationshipSection from "./RealationshipSection.jsx";
+import CriteriaSection from "./CriteriaSection.jsx";
 
-const TaskRelationTabs = ({taskId, subTasks, sprintId, refetchTask, projectId, linkedTasks, projectTaskList}) => {
+const TaskRelationTabs = ({
+                              taskId,
+                              subTasks,
+                              sprintId,
+                              refetchTask,
+                              projectId,
+                              linkedTasks,
+                              projectTaskList,
+                              acceptedCriteria
+                          }) => {
     const users = useSelector(selectProjectUserList);
 
     const tabs = [
@@ -75,7 +85,14 @@ const TaskRelationTabs = ({taskId, subTasks, sprintId, refetchTask, projectId, l
                         />
                     </TabPanel>
                     <TabPanel key={'criteria'}>
-                        <div className={'mt-8'}>Criteria</div>
+                        <CriteriaSection
+                            criterias={acceptedCriteria}
+                            addingNew={addingNew}
+                            selectedTab={selectedTab}
+                            setAddingNew={setAddingNew}
+                            refetchTask={refetchTask}
+                            taskId={taskId}
+                        />
                     </TabPanel>
                     <TabPanel key={'test_cases'}>
                         <div className={'mt-8'}>Test Cases</div>
