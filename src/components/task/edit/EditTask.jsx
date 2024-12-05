@@ -218,7 +218,7 @@ const EditTaskPage = () => {
         <TaskRelationTabs taskId={initialTaskData?.id || ''} subTasks={taskData?.subTasks}
                           sprintId={taskData?.sprint?.id} refetchTask={refetchTask} projectId={selectedProject?.id}
                           linkedTasks={taskData?.linkedTasks} projectTaskList={tasksList}
-                          acceptedCriteria={taskData?.acceptedCriteria}/>
+                          acceptedCriteria={taskData?.acceptedCriteria} testCases={taskData?.testCases}/>
         <CommentAndTimeTabs timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs}/>
       </div>
       <div className="w-2/5 py-5 bg-dashboard-bgc">

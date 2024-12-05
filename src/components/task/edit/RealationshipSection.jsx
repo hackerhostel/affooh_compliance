@@ -160,7 +160,7 @@ const RelationshipSection = ({
                             <th className="py-5 px-4">Task Name</th>
                             <th className="py-5 px-4">Assignee</th>
                             <th className="py-5 px-4">Status</th>
-                            <th className="py-5 px-4"></th>
+                            <th className="py-5 px-4">Action</th>
                         </tr>
                         </thead>
                         <tbody>
