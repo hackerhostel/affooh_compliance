@@ -61,21 +61,6 @@ const EditTaskPage = () => {
     }
   };
 
-  function attributesToMap(attributes) {
-    if (!attributes && attributes === null) {
-      return {};
-    }
-
-    return attributes.reduce((map, fieldData) => {
-      map[fieldData.taskFieldID] = {
-        fieldTypeName: fieldData.fieldTypeName,
-        fieldValue: fieldData.values,
-        taskFieldID: fieldData.id
-      };
-      return map;
-    }, {});
-  }
-
   const updateStates = (task) => {
     setTaskData({...task, assignee: task?.assignee?.id})
     setTaskAttributes(JSON.parse(JSON.stringify(task?.attributes)));
@@ -232,7 +217,8 @@ const EditTaskPage = () => {
 
         <TaskRelationTabs taskId={initialTaskData?.id || ''} subTasks={taskData?.subTasks}
                           sprintId={taskData?.sprint?.id} refetchTask={refetchTask} projectId={selectedProject?.id}
-                          linkedTasks={taskData?.linkedTasks} projectTaskList={tasksList}/>
+                          linkedTasks={taskData?.linkedTasks} projectTaskList={tasksList}
+                          acceptedCriteria={taskData?.acceptedCriteria}/>
         <CommentAndTimeTabs timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs}/>
       </div>
       <div className="w-2/5 py-5 bg-dashboard-bgc">

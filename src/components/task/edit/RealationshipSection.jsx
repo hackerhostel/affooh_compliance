@@ -53,7 +53,7 @@ const RelationshipSection = ({
     const totalPages = linkedTasks && linkedTasks.length ? Math.ceil(linkedTasks.length / rowsPerPage) : 0;
     const indexOfLastTask = currentPage * rowsPerPage;
     const indexOfFirstTask = indexOfLastTask - rowsPerPage;
-    const currentTasks = linkedTasks && linkedTasks.length ? linkedTasks.slice(indexOfFirstTask, indexOfLastTask) : [];
+    const currentPageContent = linkedTasks && linkedTasks.length ? linkedTasks.slice(indexOfFirstTask, indexOfLastTask) : [];
 
     const handleNextPage = () => {
         if (currentPage < totalPages) {
@@ -194,12 +194,12 @@ const RelationshipSection = ({
                                 </td>
                             </tr>
                         )}
-                        {currentTasks.map((task) => (
+                        {currentPageContent.map((task) => (
                             <GenerateRow linkedTask={task} key={task?.id}/>
                         ))}
                         </tbody>
                     </table>
-                    {(linkedTasks && linkedTasks.length) && (
+                    {(linkedTasks && linkedTasks.length > 0) && (
                         <div className="w-full flex gap-5 items-center justify-end mt-4">
                             <button
                                 onClick={handlePreviousPage}
