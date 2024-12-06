@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import {ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/24/outline/index.js";
+import {priorityCellRender, statusCellRender} from "../../sprint-table/utils.jsx";
 
 const TestCasesSection = ({testCases = []}) => {
 
@@ -23,38 +24,20 @@ const TestCasesSection = ({testCases = []}) => {
         }
     };
 
-    // const GenerateRow = ({criteria}) => {
-    //     const criteriaId = criteria?.acId
-    //     const description = criteria?.description
-    //     const [status, setSatus] = useState(criteria?.status);
-    //
-    //     const updateCriteria = (e) => {
-    //         const check = e?.target?.checked ? "Accepted" : "Open";
-    //         if (status !== check) {
-    //             setSatus(check);
-    //             manageCriteria('update', {acId: criteriaId, status: check});
-    //         }
-    //     };
-    //
-    //     return (
-    //         <tr className="border-b border-gray-200">
-    //             <td className="py-5 px-4 text-text-color" colSpan="2">{description}</td>
-    //             <td className="py-5 px-4 flex gap-3 items-center text-text-color">
-    //                 <div>
-    //                     <ToggleButton onChange={e => updateCriteria(e)}
-    //                                   checked={status === "Accepted"} disabled={isSubmitting}/>
-    //                 </div>
-    //             </td>
-    //             <td className="px-4 py-5">
-    //                 <div className={"flex gap-5"}>
-    //                     <div className="cursor-pointer" onClick={() => manageCriteria('remove', criteriaId)}>
-    //                         <TrashIcon className={"w-5 h-5 text-red-600 cursor-pointer"}/>
-    //                     </div>
-    //                 </div>
-    //             </td>
-    //         </tr>
-    //     );
-    // };
+    const GenerateRow = ({testCase}) => {
+        return (
+            <tr className="border-b border-gray-200">
+                <td className="py-5 px-4 text-text-color" colSpan={2}>{testCase?.summary}</td>
+                <td className="py-5 px-4 text-text-color"></td>
+                <td className="py-5 px-4">
+                    <div className={'flex justify-center w-full'}>{priorityCellRender(testCase?.priority)}</div>
+                </td>
+                <td className="px-4 py-4">
+                    <div className={'flex justify-center w-full'}>{statusCellRender(testCase?.status)}</div>
+                </td>
+            </tr>
+        );
+    };
 
     return (
         <div className="w-full mt-8 px-6 py-4 bg-white rounded-md shadow-lg">
@@ -63,16 +46,15 @@ const TestCasesSection = ({testCases = []}) => {
                     <table className="table-auto w-full border-collapse">
                         <thead>
                         <tr className="text-left text-secondary-grey border-b border-gray-200">
-                            <th className="py-5 px-4">Name</th>
-                            <th className="py-5 px-4">How</th>
-                            <th className="py-5 px-4">Priority</th>
-                            <th className="py-5 px-4">Action</th>
+                            <th className="py-5 px-4" colSpan={2}>Name</th>
+                            <th className="py-5 px-4"></th>
+                            <th className="py-5 px-4 text-center">Priority</th>
+                            <th className="py-5 px-4 text-center">Status</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {currentPageContent.map((cases) => (
-                            <div></div>
-                            //<GenerateRow criteria={criteria} key={criteria?.acId}/>
+                        {currentPageContent.map((testCase) => (
+                            <GenerateRow testCase={testCase} key={testCase?.testCaseID}/>
                         ))}
                         </tbody>
                     </table>
