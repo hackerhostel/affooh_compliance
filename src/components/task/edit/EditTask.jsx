@@ -20,6 +20,7 @@ import TaskRelationTabs from "./TaskRelationTabs.jsx";
 import useFetchTask from "../../../hooks/custom-hooks/task/useFetchTask.jsx";
 import useFetchFlatTasks from "../../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
 import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
+import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 
 const EditTaskPage = () => {
   const {code} = useParams();
@@ -201,15 +202,9 @@ const EditTaskPage = () => {
                 onReject={() => {
                   handleFormChange('description', initialTaskData.description);
                 }}
+                actionButtonPlacement={"bottom"}
               >
-                <FormInput
-                  type="text"
-                  name="description"
-                  formValues={taskData}
-                  onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                  formErrors={formErrors}
-                  showErrors={isValidationErrorsShown}
-                />
+                <WYSIWYGInput value={taskData.description} name={"description"} onchange={handleFormChange}/>
               </FormInputWrapper>
             </div>
           </div>
