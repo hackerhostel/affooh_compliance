@@ -1,14 +1,14 @@
-import React, {useEffect, useState} from 'react'
-import {useSelector} from "react-redux";
-import SprintTable from "../../components/sprint-table/index.jsx";
-import {selectSelectedSprint, selectSprintFormData} from "../../state/slice/sprintSlice.js";
-import SkeletonLoader from "../../components/SkeletonLoader.jsx";
-import ErrorAlert from "../../components/ErrorAlert.jsx";
-import SprintHeader from "./SprintHeader.jsx";
-import useFetchSprint from "../../hooks/custom-hooks/sprint/useFetchSprint.jsx";
-import {areObjectArraysEqual} from "../../components/sprint-table/utils.jsx";
-import useFetchTaskAttributes from "../../hooks/custom-hooks/sprint/useFetchTaskAttributes.jsx";
-import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import SprintTable from '../../components/sprint-table/index.jsx';
+import { selectSelectedSprint, selectSprintFormData } from '../../state/slice/sprintSlice.js';
+import SkeletonLoader from '../../components/SkeletonLoader.jsx';
+import ErrorAlert from '../../components/ErrorAlert.jsx';
+import SprintHeader from './SprintHeader.jsx';
+import useFetchSprint from '../../hooks/custom-hooks/sprint/useFetchSprint.jsx';
+import { areObjectArraysEqual } from '../../components/sprint-table/utils.jsx';
+import useFetchTaskAttributes from '../../hooks/custom-hooks/sprint/useFetchTaskAttributes.jsx';
+import { selectProjectUserList } from '../../state/slice/projectUsersSlice.js';
 
 const transformTask = (task) => {
   return {
@@ -17,7 +17,7 @@ const transformTask = (task) => {
     status: task.attributes.status?.value || 'To Do',
     statusAttributes: {
       attributeKey: task.attributes.status?.attributeKey,
-      taskFieldID: task.attributes.status?.taskFieldID
+      taskFieldID: task.attributes.status?.taskFieldID,
     },
     title: task.name,
     taskCode: task.code,
@@ -31,19 +31,19 @@ const transformTask = (task) => {
     priority: task.attributes.priority?.value || '',
     priorityAttributes: {
       attributeKey: task.attributes.priority?.attributeKey,
-      taskFieldID: task.attributes.priority?.taskFieldID
+      taskFieldID: task.attributes.priority?.taskFieldID,
     },
-    parentTaskId: task?.parentTaskID || 0
+    parentTaskId: task?.parentTaskID || 0,
   };
-}
+};
 
 const SprintContentPage = () => {
   const selectedSprint = useSelector(selectSelectedSprint);
   const sprintStatusList = useSelector(selectSprintFormData);
   const users = useSelector(selectProjectUserList);
 
-  const [taskList, setTaskList] = useState([])
-  const [filteredList, setFilteredList] = useState([])
+  const [taskList, setTaskList] = useState([]);
+  const [filteredList, setFilteredList] = useState([]);
   const [filters, setFilters] = useState({
     epic: false,
     completed: false,
@@ -52,7 +52,7 @@ const SprintContentPage = () => {
     status: -1,
     type: -1,
   });
-  const [sprint, setSprint] = useState(null)
+  const [sprint, setSprint] = useState(null);
   const [sprintId, setSprintId] = useState(0);
   const [isBacklog, setIsBacklog] = useState(false);
   const [assigneeList, setAssigneeList] = useState([]);
@@ -63,93 +63,99 @@ const SprintContentPage = () => {
   const [taskAttributes, setTaskAttributes] = useState({});
   const [epics, setEpics] = useState([]);
 
-  const {error, loading, data: sprintResponse, refetch: refetchSprint} = useFetchSprint(sprintId)
-  const {attributeError, attributeLoading, data: attributes} = useFetchTaskAttributes(sprintId)
+  const { error, loading, data: sprintResponse, refetch: refetchSprint } = useFetchSprint(sprintId);
+  const { attributeError, attributeLoading, data: attributes } = useFetchTaskAttributes(sprintId);
 
   useEffect(() => {
     if (sprintResponse?.sprint?.id) {
-      setSprint(sprintResponse?.sprint)
-      setSprintConfig(sprintResponse?.sprint?.displayConfig || [])
-      setIsBacklog(sprintResponse?.sprint?.name === 'BACKLOG')
+      setSprint(sprintResponse?.sprint);
+      setSprintConfig(sprintResponse?.sprint?.displayConfig || []);
+      setIsBacklog(sprintResponse?.sprint?.name === 'BACKLOG');
 
-      const taskListResponse = sprintResponse?.tasks
-      const taskListConverted = []
+      const taskListResponse = sprintResponse?.tasks;
+      const taskListConverted = [];
       if (taskListResponse && Array.isArray(taskListResponse)) {
         const assignees = new Set();
-        assignees.add(JSON.stringify({value: -1, label: "All Assignees"}))
+        assignees.add(JSON.stringify({ value: -1, label: 'All Assignees' }));
         const status = new Set();
-        status.add(JSON.stringify({value: -1, label: "All Status"}))
+        status.add(JSON.stringify({ value: -1, label: 'All Status' }));
         const types = new Set();
-        types.add(JSON.stringify({value: -1, label: "All Types"}))
-        let typeCounter = 1
+        types.add(JSON.stringify({ value: -1, label: 'All Types' }));
+        let typeCounter = 1;
         const typeIdMap = {};
-        const epicList = []
+        const epicList = [];
 
-        taskListResponse.map(task => {
-          const transformedTask = transformTask(task)
+        taskListResponse.map((task) => {
+          const transformedTask = transformTask(task);
 
-          assignees.add(JSON.stringify({value: transformedTask.assigneeId, label: transformedTask.assignee}))
-          status.add(JSON.stringify({value: transformedTask.statusId, label: transformedTask.status}))
+          assignees.add(JSON.stringify({ value: transformedTask.assigneeId, label: transformedTask.assignee }));
+          status.add(JSON.stringify({ value: transformedTask.statusId, label: transformedTask.status }));
 
-          if (![...types].some(item => JSON.parse(item).label === transformedTask.type)) {
+          if (![...types].some((item) => JSON.parse(item).label === transformedTask.type)) {
             types.add(JSON.stringify({ value: typeCounter, label: transformedTask.type }));
             typeIdMap[transformedTask.type] = typeCounter;
-            transformedTask["typeId"] = typeCounter++;
+            transformedTask['typeId'] = typeCounter++;
           } else {
-            transformedTask["typeId"] = typeIdMap[transformedTask.type];
+            transformedTask['typeId'] = typeIdMap[transformedTask.type];
           }
 
-          if (transformedTask.type === "Epic") {
-            epicList.push({value: Number(transformedTask.id), label: transformedTask.title})
+          if (transformedTask.type === 'Epic') {
+            epicList.push({ value: Number(transformedTask.id), label: transformedTask.title });
           }
 
-          taskListConverted.push(transformedTask)
-        })
+          taskListConverted.push(transformedTask);
+        });
 
-        setTaskList(taskListConverted)
+        setTaskList(taskListConverted);
 
-        setAssigneeList(Array.from(assignees).map(item => JSON.parse(item)))
-        setStatusList(Array.from(status).map(item => JSON.parse(item)))
-        setTypeList(Array.from(types).map(item => JSON.parse(item)))
-        setEpics(epicList)
+        setAssigneeList(Array.from(assignees).map((item) => JSON.parse(item)));
+        setStatusList(Array.from(status).map((item) => JSON.parse(item)));
+        setTypeList(Array.from(types).map((item) => JSON.parse(item)));
+        setEpics(epicList);
       }
     }
   }, [sprintResponse]);
 
   useEffect(() => {
     if (attributes !== null) {
-      setTaskAttributes({...attributes, users: users})
+      setTaskAttributes({ ...attributes, users: users });
     }
   }, [attributes]);
 
   useEffect(() => {
     if (selectedSprint?.id) {
-      setSprintId(selectedSprint?.id)
+      setSprintId(selectedSprint?.id);
     }
   }, [selectedSprint]);
 
   useEffect(() => {
     if (taskList.length) {
-      const epicFilteredTasks = taskList.filter(tl => filters.epic || tl?.type !== 'Epic');
-      const completedFilteredTasks = epicFilteredTasks.filter(tl => (filters.completed || tl?.status !== 'Done'));
-      const subFilteredTasks = completedFilteredTasks.filter(tl => (filters.sub || tl?.parentTaskId === 0));
-      const assigneeFilteredTasks = subFilteredTasks.filter(tl => (filters?.assignee === -1 ? true : tl?.assigneeId === filters.assignee));
-      const statusFilteredTasks = assigneeFilteredTasks.filter(tl => (filters?.status === -1 ? true : tl?.statusId === filters.status));
-      const typeFilteredTasks = statusFilteredTasks.filter(tl => (filters?.type === -1 ? true : tl?.typeId === filters.type));
+      const epicFilteredTasks = taskList.filter((tl) => filters.epic || tl?.type !== 'Epic');
+      const completedFilteredTasks = epicFilteredTasks.filter((tl) => filters.completed || tl?.status !== 'Done');
+      const subFilteredTasks = completedFilteredTasks.filter((tl) => filters.sub || tl?.parentTaskId === 0);
+      const assigneeFilteredTasks = subFilteredTasks.filter((tl) =>
+        filters?.assignee === -1 ? true : tl?.assigneeId === filters.assignee
+      );
+      const statusFilteredTasks = assigneeFilteredTasks.filter((tl) =>
+        filters?.status === -1 ? true : tl?.statusId === filters.status
+      );
+      const typeFilteredTasks = statusFilteredTasks.filter((tl) =>
+        filters?.type === -1 ? true : tl?.typeId === filters.type
+      );
 
-      setFilteredList(typeFilteredTasks)
+      setFilteredList(typeFilteredTasks);
     }
   }, [taskList, filters]);
 
   const onSelectFilterChange = (value, name) => {
-    const tempFilters = {...filters, [name]: Number(value)}
-    setFilters(tempFilters)
-  }
+    const tempFilters = { ...filters, [name]: Number(value) };
+    setFilters(tempFilters);
+  };
 
   const onToggleFilterChange = (e, name) => {
-    const tempFilters = {...filters, [name]: e?.target?.checked}
-    setFilters(tempFilters)
-  }
+    const tempFilters = { ...filters, [name]: e?.target?.checked };
+    setFilters(tempFilters);
+  };
 
   const updateFilterGroups = (newGroups) => {
     setConfigChanges(!areObjectArraysEqual(sprint?.displayConfig, newGroups));
@@ -158,26 +164,45 @@ const SprintContentPage = () => {
 
   if (loading || attributeLoading) {
     return (
-        <div className="px-2 pt-4 h-content-screen">
-          <SkeletonLoader bars={6}/>
-        </div>
-    )
+      <div className="px-2 pt-4 h-content-screen bg-slate-300">
+        <SkeletonLoader bars={6} />
+      </div>
+    );
   }
-  if (error || attributeError) return <ErrorAlert message={error.message}/>;
+  if (error || attributeError) return <ErrorAlert message={error.message} />;
 
   return (
-    <>
-      <SprintHeader sprint={sprint} isBacklog={isBacklog} refetchSprint={refetchSprint} filters={filters}
-                    onFilterChange={setFilters} assignees={assigneeList} statusList={statusList}
-                    sprintStatusList={sprintStatusList} onSelectFilterChange={onSelectFilterChange}
-                    onToggleFilterChange={onToggleFilterChange} configChanges={configChanges}
-                    setConfigChanges={setConfigChanges} sprintConfig={sprintConfig} epics={epics}/>
-      <SprintTable taskList={filteredList} typeList={typeList} filters={filters}
-                   onSelectFilterChange={onSelectFilterChange} sprintConfig={sprintConfig}
-                   setConfigChanges={setConfigChanges} updateFilterGroups={updateFilterGroups}
-                   taskAttributes={taskAttributes} refetchSprint={refetchSprint}/>
-    </>
+    <div className="bg-slate-100 min-h-screen">
+      <SprintHeader
+        sprint={sprint}
+        isBacklog={isBacklog}
+        refetchSprint={refetchSprint}
+        filters={filters}
+        onFilterChange={setFilters}
+        assignees={assigneeList}
+        statusList={statusList}
+        sprintStatusList={sprintStatusList}
+        onSelectFilterChange={onSelectFilterChange}
+        onToggleFilterChange={onToggleFilterChange}
+        configChanges={configChanges}
+        setConfigChanges={setConfigChanges}
+        sprintConfig={sprintConfig}
+        epics={epics}
+      />
+      <SprintTable
+        className=""
+        taskList={filteredList}
+        typeList={typeList}
+        filters={filters}
+        onSelectFilterChange={onSelectFilterChange}
+        sprintConfig={sprintConfig}
+        setConfigChanges={setConfigChanges}
+        updateFilterGroups={updateFilterGroups}
+        taskAttributes={taskAttributes}
+        refetchSprint={refetchSprint}
+      />
+    </div>
   );
-}
+};
 
 export default SprintContentPage;

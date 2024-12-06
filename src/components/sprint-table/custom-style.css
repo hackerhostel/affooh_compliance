@@ -776,6 +776,7 @@ label:focus {
 }
 .sprint-grid-table .dx-datagrid-headers {
   background: #ffffff;
+  height:38px;
 }
 .sprint-grid-table .dx-datagrid-headers td {
   position: relative;
@@ -825,6 +826,7 @@ label:focus {
 .sprint-grid-table tbody {
   background: #ffffff;
 }
+
 .sprint-grid-table tbody tr td {
   vertical-align: middle !important;
 }

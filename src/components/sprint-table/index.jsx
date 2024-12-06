@@ -129,7 +129,7 @@ const SprintTable = ({
 
   return (
       <div className="px-4">
-        <div className="mb-2 flex items-center justify-between w-full">
+        <div className="mb-2 mt-1 flex items-center justify-between w-full">
           <div className="flex gap-5 w-1/2 items-center">
             <p className='text-secondary-grey text-lg font-medium'>{`Tasks (${filteredTaskList && filteredTaskList.length})`}</p>
             <div className={"min-w-28"}>
@@ -138,11 +138,12 @@ const SprintTable = ({
                   formValues={{type: filters?.type}}
                   options={typeList}
                   onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
+                  className="w-28 h-10"
               />
             </div>
             <SearchBar onSearch={handleSearch}/>
           </div>
-          <div className="flex items-center w-1/2 ">
+          <div className="flex items-center w-1/2  ">
             <img src={MenuTabs} alt="Menu tabs"/>
           </div>
         </div>
