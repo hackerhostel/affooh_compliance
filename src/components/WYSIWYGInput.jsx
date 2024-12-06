@@ -14,7 +14,7 @@ const WYSIWYGInput = ({ value = '', name = '', onchange }) => {
                 { indent: '-1' },
                 { indent: '+1' }
             ],
-            ['link', 'image', 'video'],
+            ['link'],
             [{ color: [] }, { background: [] }],
             [{ align: [] }],
             [{ direction: 'rtl' }],
@@ -34,8 +34,6 @@ const WYSIWYGInput = ({ value = '', name = '', onchange }) => {
         'bullet',
         'indent',
         'link',
-        'image',
-        'video',
         'color',
         'background',
         'align',
