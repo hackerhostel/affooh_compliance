@@ -19,7 +19,7 @@ const SprintLayout = () => {
   return (
     <>
     <MainPageLayout
-      title={"Sprints"}
+      title={"Task"}
       onAction={onAddNew}
       subText={"Add New"}
       leftColumn={<SprintListPage />}
