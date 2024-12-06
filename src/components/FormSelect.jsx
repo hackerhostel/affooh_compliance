@@ -38,7 +38,7 @@ function FormSelect({
               name={name}
               value={name.split('.').reduce((a, b) => a?.[b], formValues) ?? ''}
               className={classNames(
-                'w-full p-4 rounded-lg shadow-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white cursor-pointer',
+                'w-full p-3 rounded-lg shadow-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white cursor-pointer',
                 {
                   'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500': hasError,
                   'focus:ring-blue-500 focus:border-blue-500 border-gray-300': !hasError,

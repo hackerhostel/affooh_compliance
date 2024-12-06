@@ -1,31 +1,45 @@
-import {useCallback} from "react";
-import {Menu} from '@headlessui/react';
+import React, { useCallback, useState, Fragment } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import { useDispatch, useSelector } from "react-redux";
+import { BellIcon } from "@heroicons/react/24/outline";
+import { Link, useLocation } from "react-router-dom";
 import FormSelect from "../FormSelect.jsx";
-import {useDispatch, useSelector} from "react-redux";
-import {BellIcon} from '@heroicons/react/24/outline';
-import {doSwitchProject, selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
-import {selectUser} from "../../state/slice/authSlice.js";
+import { doSwitchProject, selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
+import { selectUser } from "../../state/slice/authSlice.js";
 
 const Header = () => {
   const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
   const projectList = useSelector(selectProjectList);
   const userDetails = useSelector(selectUser);
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e, value) => {
     dispatch(doSwitchProject(Number(value)));
   };
 
+  const handleSignOut = async () => {
+    setLoading(true);
+    try {
+      await signOut({ global: true });
+      window.location.reload();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getProjectOptions = useCallback(() => {
-    return projectList.map(project => ({
+    return projectList.map((project) => ({
       value: project.id,
-      label: project.name
+      label: project.name,
     }));
   }, [projectList]);
 
   return (
-    <div className="flex justify-between w-full">
-      <div className="py-5 px-4 w-72">
+    <div className="flex justify-between h-16 w-full">
+      {/* Left Section */}
+      <div className="py-3 px-4 w-72">
         <FormSelect
           name="project"
           showLabel={false}
@@ -35,28 +49,73 @@ const Header = () => {
           onChange={handleChange}
         />
       </div>
+
+      {/* Right Section */}
       <div className="flex items-center mr-4 space-x-4">
+        {/* Notification Icon */}
         <BellIcon className="w-8 h-8 m-3" />
+
+        {/* Divider */}
         <div className="border-l border-gray-300 h-8"></div>
-        <div className="flex justify-center mr-12">
-          <Menu as="div" className="relative inline-block text-left">
-            <Menu.Button
-              className="h-16 w-16 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-pink"
-            >
-              {userDetails.avatar ? (
-                <img
-                  src={userDetails.avatar}
-                  alt={`${userDetails.firstName} ${userDetails.lastName}`}
-                  className="w-14 h-14 rounded-full object-cover"
-                />
-              ) : (
-                <div
-                  className="w-14 h-14 rounded-full bg-primary-pink flex items-center justify-center text-white text-xl font-semibold">
-                  {userDetails.firstName?.[0]}{userDetails.lastName?.[0]}
-                </div>
-              )}
-            </Menu.Button>
-          </Menu>
+
+        {/* User Avatar and Menu */}
+        <div className="flex justify-center z-50">
+          {!loading ? (
+            <Menu as="div" className="relative inline-block text-left">
+              <Menu.Button className="w-16 h-16 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-pink">
+                {userDetails.avatar ? (
+                  <img
+                    src={userDetails.avatar}
+                    alt={`${userDetails.firstName} ${userDetails.lastName}`}
+                    className="w-14 h-14 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-primary-pink flex items-center justify-center text-white text-xl font-semibold">
+                    {userDetails.firstName?.[0]}
+                    {userDetails.lastName?.[0]}
+                  </div>
+                )}
+              </Menu.Button>
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <Menu.Items className="absolute right-0 mt-2 w-64 bg-white divide-y divide-gray-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <div className="px-4 py-3">
+                    <p className="text-sm text-gray-500">Signed in as</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {`${userDetails.firstName} ${userDetails.lastName}`}
+                    </p>
+                    <p className="text-sm text-gray-500 truncate">{userDetails.email}</p>
+                  </div>
+                  <div className="py-1">
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          className={`${
+                            active ? "bg-gray-100 text-gray-900" : "text-gray-700"
+                          } group flex w-full items-center px-4 py-2 text-sm transition-colors duration-150`}
+                          onClick={handleSignOut}
+                          disabled={loading}
+                        >
+                          Sign out
+                        </button>
+                      )}
+                    </Menu.Item>
+                  </div>
+                </Menu.Items>
+              </Transition>
+            </Menu>
+          ) : (
+            <div className="w-16 h-16 flex items-center justify-center">
+              <Spinner />
+            </div>
+          )}
         </div>
       </div>
     </div>
