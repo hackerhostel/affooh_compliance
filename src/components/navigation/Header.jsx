@@ -51,18 +51,18 @@ const Header = () => {
       </div>
 
       {/* Right Section */}
-      <div className="flex items-center mr-4 space-x-4">
+      <div className="flex items-center mr-6 space-x-3">
         {/* Notification Icon */}
-        <BellIcon className="w-8 h-8 m-3" />
+        <BellIcon className="w-7 h-7 m-3" />
 
         {/* Divider */}
         <div className="border-l border-gray-300 h-8"></div>
 
         {/* User Avatar and Menu */}
-        <div className="flex justify-center z-50">
+        <div className="flex justify-center ">
           {!loading ? (
             <Menu as="div" className="relative inline-block text-left">
-              <Menu.Button className="w-16 h-16 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-pink">
+              <Menu.Button className="">
                 {userDetails.avatar ? (
                   <img
                     src={userDetails.avatar}
@@ -70,7 +70,7 @@ const Header = () => {
                     className="w-14 h-14 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-primary-pink flex items-center justify-center text-white text-xl font-semibold">
+                  <div className="w-12 h-12 rounded-full bg-primary-pink flex items-center justify-center text-white text-xl font-semibold">
                     {userDetails.firstName?.[0]}
                     {userDetails.lastName?.[0]}
                   </div>

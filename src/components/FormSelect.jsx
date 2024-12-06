@@ -1,24 +1,24 @@
 import React from 'react';
-import {ChevronDownIcon, ExclamationCircleIcon} from '@heroicons/react/24/solid';
+import { ChevronDownIcon, ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import classNames from 'classnames';
 
 function FormSelect({
-                      name,
-                      formValues,
-                      placeholder,
-                      options,
-                      required,
-                      formErrors,
-                      onChange,
-                      onFocus,
-                      showErrors,
-                      size = 'normal',
-                      showLabel = true,
-                      showShadow = true,
-                      disabled = false,
-                      ariaLabel,
-                      ...rest
-                    }, ref) {
+  name,
+  formValues,
+  placeholder,
+  options,
+  required,
+  formErrors,
+  onChange,
+  onFocus,
+  showErrors,
+  size = 'normal',
+  showLabel = true,
+  showShadow = true,
+  disabled = false,
+  ariaLabel,
+  ...rest
+}, ref) {
   const hasError = showErrors && formErrors && formErrors[name];
 
   return (
@@ -52,12 +52,17 @@ function FormSelect({
               onChange={(e) => onChange?.(e, e.target.value)}
               onFocus={onFocus}
               {...rest}
+              style={{
+                WebkitAppearance: 'none', 
+                MozAppearance: 'none', 
+                appearance: 'none', 
+              }}
             >
-                <option value="" disabled>
-                    Select an option
-                </option>
-                {options.map((option) => (
-                    <option key={option.value} value={option.value}>
+              <option value="" disabled>
+                Select an option
+              </option>
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
