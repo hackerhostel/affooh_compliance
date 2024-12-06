@@ -2,8 +2,16 @@ import React, {useEffect, useState} from 'react';
 import FormInput from "../../FormInput.jsx";
 import ProgressBar from "../../ProgressBar.jsx";
 import {getSpendTime} from "../../../utils/commonUtils.js";
+import FormInputWrapper from "./FormEditInputWrapper.jsx";
 
-const TimeTracking = ({estimation, timeLogs}) => {
+const TimeTracking = ({
+                          estimationAttribute = {},
+                          initialEstimationAttribute = {},
+                          timeLogs,
+                          isEditing,
+                          handleAdditionalFieldChange,
+                          updateTaskAttribute
+                      }) => {
     const [spendTime, setSpendTime] = useState('');
 
     useEffect(() => {
@@ -21,14 +29,21 @@ const TimeTracking = ({estimation, timeLogs}) => {
             </div>
             <div className={"flex-col mb-6"}>
                 <p className={"text-secondary-grey"}>Estimation</p>
-                <FormInput
-                    type="text"
-                    name="estimation"
-                    formValues={{estimation: estimation}}
-                    // onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
-                    // formErrors={formErrors}
-                    // showErrors={isValidationErrorsShown}
-                />
+                <FormInputWrapper
+                    isEditing={isEditing}
+                    initialData={{estimation: initialEstimationAttribute?.values ? initialEstimationAttribute?.values[0] : ''}}
+                    currentData={{estimation: estimationAttribute?.values ? estimationAttribute?.values[0] : ''}}
+                    onAccept={() => updateTaskAttribute(estimationAttribute?.taskFieldID, estimationAttribute?.values[0])}
+                    onReject={() => handleAdditionalFieldChange(initialEstimationAttribute?.taskFieldID, initialEstimationAttribute?.values[0])}
+                    actionButtonPlacement={"bottom"}
+                >
+                    <FormInput
+                        type="text"
+                        name="estimation"
+                        formValues={{estimation: estimationAttribute?.values ? estimationAttribute?.values[0] : ''}}
+                        onChange={({target: {value}}) => handleAdditionalFieldChange(estimationAttribute?.taskFieldID, value)}
+                    />
+                </FormInputWrapper>
             </div>
             <div className="flex w-full justify-between mb-5 gap-5">
                 <div className={"flex-col w-full"}>
@@ -38,9 +53,6 @@ const TimeTracking = ({estimation, timeLogs}) => {
                         name="spendTime"
                         formValues={{spendTime: spendTime}}
                         disabled={true}
-                        // onChange={({target: {name, value}}) => handleFormChanges(name, value, true)}
-                        // formErrors={formErrors}
-                        // showErrors={isValidationErrorsShown}
                     />
                 </div>
                 <div className={"flex-col w-full"}>
@@ -48,7 +60,7 @@ const TimeTracking = ({estimation, timeLogs}) => {
                     <FormInput
                         type="text"
                         name="remainingTime"
-                        formValues={{remainingTime: estimation}}
+                        formValues={{remainingTime: ''}}
                         disabled={true}
                     />
                 </div>

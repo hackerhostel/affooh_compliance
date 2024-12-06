@@ -14,6 +14,7 @@ import {useToasts} from "react-toast-notifications";
 import {XMarkIcon} from "@heroicons/react/24/outline/index.js";
 import {getUserSelectOptions} from "../../../utils/commonUtils.js";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
+import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 
 function getRequiredAdditionalFieldList(fieldsArray) {
     const requiredFields = [];
@@ -244,14 +245,8 @@ const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) 
                                     </button>
                                 </div>
                                 <div className="mb-6">
-                                    <FormInput
-                                        type="text"
-                                        name="description"
-                                        formValues={createTaskForm}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
+                                    <WYSIWYGInput value={createTaskForm.description} name={"description"}
+                                                  onchange={handleFormChange}/>
                                 </div>
                             </div>
                         </div>

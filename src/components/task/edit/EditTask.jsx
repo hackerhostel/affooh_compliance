@@ -19,19 +19,20 @@ import CommentAndTimeTabs from "./CommentAndTimeTabs.jsx";
 import TaskRelationTabs from "./TaskRelationTabs.jsx";
 import useFetchTask from "../../../hooks/custom-hooks/task/useFetchTask.jsx";
 import useFetchFlatTasks from "../../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
+import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
+import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 
 const EditTaskPage = () => {
   const {code} = useParams();
   const {addToast} = useToasts();
   const projectUserList = useSelector(selectProjectUserList);
+  const selectedProject = useSelector(selectSelectedProject);
 
   const [initialTaskData, setInitialTaskData] = useState({});
   const [taskData, setTaskData] = useState({});
   const [taskAttributes, setTaskAttributes] = useState([]);
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const [isEditing, setIsEditing] = useState(false)
-  const [additionalFormValues, setAdditionalFormValues] = useState({});
-  const [initialAdditionalFormValues, setInitialAdditionalFormValues] = useState({});
   const [epics, setEpics] = useState([]);
   const [formErrors] = useValidation(LoginSchema, taskData);
 
@@ -49,39 +50,27 @@ const EditTaskPage = () => {
     setTaskData(newForm);
   };
 
-  const handleAdditionalFieldChange = (fieldData) => {
-    setAdditionalFormValues(prevValues => ({
-      ...prevValues,
-      [fieldData.taskFieldID]: fieldData
-    }));
-  };
-
-  function attributesToMap(attributes) {
-    if (!attributes && attributes === null) {
-      return {};
+  const handleAdditionalFieldChange = (fieldId, value) => {
+    const filteredTaskAttribute = taskAttributes.find(ta => ta?.taskFieldID === fieldId);
+    if (filteredTaskAttribute) {
+      filteredTaskAttribute.values[0] = value;
+      setTaskAttributes(prevValues =>
+          prevValues.map(ta =>
+              ta.taskFieldID === fieldId ? filteredTaskAttribute : ta
+          )
+      );
     }
-
-    return attributes.reduce((map, fieldData) => {
-      map[fieldData.taskFieldID] = {
-        fieldTypeName: fieldData.fieldTypeName,
-        fieldValue: fieldData.values,
-        taskFieldID: fieldData.id
-      };
-      return map;
-    }, {});
-  }
+  };
 
   const updateStates = (task) => {
     setTaskData({...task, assignee: task?.assignee?.id})
-    setTaskAttributes(task?.attributes)
+    setTaskAttributes(JSON.parse(JSON.stringify(task?.attributes)));
     setInitialTaskData(task)
   }
 
   useEffect(() => {
     if (taskDetails?.id) {
       updateStates(taskDetails)
-      setAdditionalFormValues(attributesToMap(taskDetails.attributes))
-      setInitialAdditionalFormValues(attributesToMap(taskDetails.attributes))
     }
   }, [taskDetails]);
 
@@ -149,7 +138,6 @@ const EditTaskPage = () => {
           addToast(`Task attribute updated!`, {appearance: 'success', autoDismiss: true});
         }
       } catch (e) {
-        setAdditionalFormValues(initialAdditionalFormValues)
         addToast(e.message, {appearance: 'error'});
       } finally {
         setIsEditing(false);
@@ -214,22 +202,18 @@ const EditTaskPage = () => {
                 onReject={() => {
                   handleFormChange('description', initialTaskData.description);
                 }}
+                actionButtonPlacement={"bottom"}
               >
-                <FormInput
-                  type="text"
-                  name="description"
-                  formValues={taskData}
-                  onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                  formErrors={formErrors}
-                  showErrors={isValidationErrorsShown}
-                />
+                <WYSIWYGInput value={taskData.description} name={"description"} onchange={handleFormChange}/>
               </FormInputWrapper>
             </div>
           </div>
         </div>
 
         <TaskRelationTabs taskId={initialTaskData?.id || ''} subTasks={taskData?.subTasks}
-                          sprintId={taskData?.sprint?.id} refetchTask={refetchTask}/>
+                          sprintId={taskData?.sprint?.id} refetchTask={refetchTask} projectId={selectedProject?.id}
+                          linkedTasks={taskData?.linkedTasks} projectTaskList={tasksList}
+                          acceptedCriteria={taskData?.acceptedCriteria} testCases={taskData?.testCases}/>
         <CommentAndTimeTabs timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs}/>
       </div>
       <div className="w-2/5 py-5 bg-dashboard-bgc">
@@ -256,6 +240,7 @@ const EditTaskPage = () => {
                 formValues={{owner: filterTaskFieldValue("Task Owner")}}
                 options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
                 onChange={({target: {value}}) => {
+                  handleAdditionalFieldChange(filterTaskFieldId("Task Owner"), value)
                   updateTaskAttribute(filterTaskFieldId("Task Owner"), value);
                 }}
                 formErrors={formErrors}
@@ -277,8 +262,7 @@ const EditTaskPage = () => {
           </div>
           <EditTaskScreenDetails
             isEditing={isEditing}
-            initialTaskData={initialAdditionalFormValues}
-            taskFormData={additionalFormValues}
+            initialTaskData={initialTaskData}
             handleFormChange={handleAdditionalFieldChange}
             isValidationErrorsShown={isValidationErrorsShown}
             screenDetails={taskData.screen}
@@ -286,7 +270,12 @@ const EditTaskPage = () => {
             users={projectUserList}
             taskAttributes={taskAttributes}
           />
-        <TimeTracking timeLogs={timeLogs}/>
+        <TimeTracking timeLogs={timeLogs}
+                      estimationAttribute={taskAttributes.find(ta => ta?.taskFieldName === "Estimation") || {}}
+                      initialEstimationAttribute={initialTaskData?.attributes?.find(ta => ta?.taskFieldName === "Estimation") || {}}
+                      handleAdditionalFieldChange={handleAdditionalFieldChange}
+                      updateTaskAttribute={updateTaskAttribute} isEditing={isEditing}
+        />
       </div>
     </div>
   )

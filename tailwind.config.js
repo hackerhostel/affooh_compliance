@@ -37,6 +37,7 @@ module.exports = {
         'task-status-uat-bold': "#FF9820",
         'task-status-done': "#C9F6BF",
         'task-status-done-bold': "#41A936",
+        'light-red': "#FFE1E1"
       },
       height: {
         'list-screen': 'calc(100vh - 148px)',
@@ -48,9 +49,9 @@ module.exports = {
         '4.2': '1.1rem',
       },
       spacing: {
+        '2px': '2px',
         '3px': '3px',
         '25px': '25px',
-        '29.5px': '29.5px'
       },
       screens:{
         laptopL:{max:"1580px"}

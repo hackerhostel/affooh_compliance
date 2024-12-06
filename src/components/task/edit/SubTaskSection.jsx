@@ -13,19 +13,27 @@ import FormInput from "../../FormInput.jsx";
 import FormSelect from "../../FormSelect.jsx";
 import {useSelector} from "react-redux";
 import {selectAppConfig} from "../../../state/slice/appSlice.js";
-import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 import useFetchScreensForTask from "../../../hooks/custom-hooks/task/useFetchScreensForTask.jsx";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
 import {useHistory} from "react-router-dom";
 
-const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, taskId, sprintId, refetchTask}) => {
+const SubTaskSection = ({
+                            subtasks,
+                            addingNew,
+                            selectedTab,
+                            setAddingNew,
+                            users,
+                            taskId,
+                            sprintId,
+                            refetchTask,
+                            projectId
+                        }) => {
     const {addToast} = useToasts();
     const history = useHistory();
     const appConfig = useSelector(selectAppConfig);
-    const selectedProject = useSelector(selectSelectedProject);
 
-    const {data: screenResponse} = useFetchScreensForTask(appConfig?.taskTypes.find(tt => tt.value === "Task")?.screenID || 0, selectedProject?.id)
+    const {data: screenResponse} = useFetchScreensForTask(appConfig?.taskTypes.find(tt => tt.value === "Task")?.screenID || 0, projectId)
 
     const [newRow, setNewRow] = useState({name: '', assignee: 0, status: 0});
     const [showNewRow, setShowNewRow] = useState(false);
@@ -54,7 +62,7 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, 
     const totalPages = subtasks && subtasks.length ? Math.ceil(subtasks.length / rowsPerPage) : 0;
     const indexOfLastTask = currentPage * rowsPerPage;
     const indexOfFirstTask = indexOfLastTask - rowsPerPage;
-    const currentTasks = subtasks && subtasks.length ? subtasks.slice(indexOfFirstTask, indexOfLastTask) : [];
+    const currentPageContent = subtasks && subtasks.length ? subtasks.slice(indexOfFirstTask, indexOfLastTask) : [];
 
     const handleNextPage = () => {
         if (currentPage < totalPages) {
@@ -83,7 +91,7 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, 
                 parentTaskID: taskId,
                 name: newRow.name,
                 assigneeID: newRow.assignee,
-                projectID: selectedProject?.id,
+                projectID: projectId,
                 sprintID: sprintId,
                 statusID: newRow.status,
                 taskTypeID: appConfig?.taskTypes.find(tt => tt.value === "Task")?.id
@@ -276,7 +284,7 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, 
                             <th className="py-5 px-4">Task Name</th>
                             <th className="py-5 px-4">Assignee</th>
                             <th className="py-5 px-4">Status</th>
-                            <th className="py-5 px-4"></th>
+                            <th className="py-5 px-4">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -318,12 +326,12 @@ const SubTaskSection = ({subtasks, addingNew, selectedTab, setAddingNew, users, 
                                 </td>
                             </tr>
                         )}
-                        {currentTasks.map((task) => (
+                        {currentPageContent.map((task) => (
                             <GenerateRow subTask={task} key={task?.id}/>
                         ))}
                         </tbody>
                     </table>
-                    {(subtasks && subtasks.length) && (
+                    {(subtasks && subtasks.length > 0) && (
                         <div className="w-full flex gap-5 items-center justify-end mt-4">
                             <button
                                 onClick={handlePreviousPage}

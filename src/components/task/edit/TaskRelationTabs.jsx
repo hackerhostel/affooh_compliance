@@ -4,8 +4,21 @@ import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
 import SubTaskSection from "./SubTaskSection.jsx";
 import {useSelector} from "react-redux";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
+import RelationshipSection from "./RealationshipSection.jsx";
+import CriteriaSection from "./CriteriaSection.jsx";
+import TestCasesSection from "./TestCasesSection.jsx";
 
-const TaskRelationTabs = ({taskId, subTasks, sprintId, refetchTask}) => {
+const TaskRelationTabs = ({
+                              taskId,
+                              subTasks,
+                              sprintId,
+                              refetchTask,
+                              projectId,
+                              linkedTasks,
+                              projectTaskList,
+                              acceptedCriteria,
+                              testCases
+                          }) => {
     const users = useSelector(selectProjectUserList);
 
     const tabs = [
@@ -26,11 +39,13 @@ const TaskRelationTabs = ({taskId, subTasks, sprintId, refetchTask}) => {
                         <span className="font-semibold text-secondary-grey text-lg mt-1">
                             {tabs.find((tab) => tab.key === selectedTab)?.content}
                         </span>
-                        <div className={"flex gap-1 items-center ml-5 cursor-pointer"}
-                             onClick={() => setAddingNew(true)}>
-                            <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
-                            <span className="font-thin text-xs text-gray-600">Add New</span>
-                        </div>
+                        {selectedTab !== "test_cases" && (
+                            <div className={"flex gap-1 items-center ml-5 cursor-pointer"}
+                                 onClick={() => setAddingNew(true)}>
+                                <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
+                                <span className="font-thin text-xs text-gray-600">Add New</span>
+                            </div>
+                        )}
                     </div>
                     <TabList className="flex gap-4">
                         {tabs.map((tab) => (
@@ -57,16 +72,34 @@ const TaskRelationTabs = ({taskId, subTasks, sprintId, refetchTask}) => {
                             taskId={taskId}
                             sprintId={sprintId}
                             refetchTask={refetchTask}
-                        ></SubTaskSection>
+                            projectId={projectId}
+                        />
                     </TabPanel>
                     <TabPanel key={'relationship'}>
-                        <div className={'mt-8'}>Relationship</div>
+                        <RelationshipSection
+                            linkedTasks={linkedTasks}
+                            addingNew={addingNew}
+                            selectedTab={selectedTab}
+                            setAddingNew={setAddingNew}
+                            users={users}
+                            refetchTask={refetchTask}
+                            projectId={projectId}
+                            projectTaskList={projectTaskList}
+                            taskId={taskId}
+                        />
                     </TabPanel>
                     <TabPanel key={'criteria'}>
-                        <div className={'mt-8'}>Criteria</div>
+                        <CriteriaSection
+                            criterias={acceptedCriteria}
+                            addingNew={addingNew}
+                            selectedTab={selectedTab}
+                            setAddingNew={setAddingNew}
+                            refetchTask={refetchTask}
+                            taskId={taskId}
+                        />
                     </TabPanel>
                     <TabPanel key={'test_cases'}>
-                        <div className={'mt-8'}>Test Cases</div>
+                        <TestCasesSection testCases={testCases}/>
                     </TabPanel>
                 </TabPanels>
             </TabGroup>
