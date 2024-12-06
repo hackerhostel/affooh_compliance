@@ -26,22 +26,32 @@ export const priorityCellRender = (data) => {
     const priority = data?.value || ""
 
     const bgColors = {
+        "Blocker": "bg-status-todo",
+        "Critical": "bg-priority-high",
+        "Major": "bg-secondary-pink",
         "High": "bg-priority-high",
         "Medium": "bg-priority-medium",
         "Low": "bg-priority-low",
+        "Minor": "bg-task-status-uat",
+        "Trivial": "bg-task-status-qa",
         "": "bg-secondary-bgc"
     };
 
     const txtColors = {
+        "Blocker": "text-white",
+        "Critical": "text-white",
+        "Major": "text-secondary-grey",
         "High": "text-white",
         "Medium": "text-secondary-grey",
         "Low": "text-secondary-grey",
+        "Minor": "text-secondary-grey",
+        "Trivial": "text-black",
         "": "text-black"
     };
 
     return (
         <div
-            className={`${bgColors[priority] || "bg-secondary-bgc"} ${txtColors[priority] || "text-black"} py-1 px-0.5 text-center text-xs rounded-md cursor-pointer`}>
+            className={`${bgColors[priority] || "bg-secondary-bgc"} ${txtColors[priority] || "text-black"} py-1 px-0.5 text-center text-xs rounded-md cursor-pointer w-24`}>
             {priority}
         </div>
     );
@@ -49,26 +59,48 @@ export const priorityCellRender = (data) => {
 
 export const statusCellRender = (data) => {
     const status = data?.value || "To Do"
+    console.log(status)
 
     const bgColors = {
         "To Do": "bg-task-status-to-do",
+        "Open": "bg-task-status-to-do",
         "In Progress": "bg-task-status-in-progress",
         "Done": "bg-task-status-done",
+        "Pass": "bg-task-status-done",
         "QA": "bg-task-status-qa",
         "UAT": "bg-task-status-uat",
+        "Review Pending": "bg-task-status-uat",
+        "Fail": "bg-priority-high",
+        "Requires Rework": "bg-task-status-qa",
+        "Rejected": "bg-light-red",
+        "On Hold": "bg-dashboard-bgc",
+        "Closed": "bg-secondary-pink"
     };
 
     const bgBoldColors = {
         "To Do": "bg-task-status-to-do-bold",
+        "Open": "bg-task-status-to-do-bold",
         "In Progress": "bg-task-status-in-progress-bold",
         "Done": "bg-task-status-done-bold",
+        "Pass": "bg-task-status-done-bold",
         "QA": "bg-task-status-qa-bold",
         "UAT": "bg-task-status-uat-bold",
+        "Review Pending": "bg-task-status-uat-bold",
+        "Fail": "bg-status-todo",
+        "Requires Rework": "bg-task-status-qa-bold",
+        "Rejected": "bg-priority-high",
+        "On Hold": "bg-secondary-grey",
+        "Closed": "bg-create-button"
+    };
+
+    const txtColors = {
+        "Fail": "text-white",
+        "": "text-secondary-grey"
     };
 
     return (
         <div
-            className={`${bgColors[status] || "bg-secondary-bgc"} text-secondary-grey py-1 px-2  text-center text-xs rounded-md cursor-pointer flex justify-start gap-2`}>
+            className={`${bgColors[status] || "bg-secondary-bgc"} ${txtColors[status] || "text-secondary-grey"} py-1 px-2  text-center text-xs rounded-md cursor-pointer flex justify-start gap-2 w-32`}>
             <div className={`${bgBoldColors[status] || "bg-secondary-bgc"} min-w-1 rounded-md`}></div>
             {status === "Done" ? 'Completed' : status}
         </div>

@@ -6,6 +6,7 @@ import {useSelector} from "react-redux";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
 import RelationshipSection from "./RealationshipSection.jsx";
 import CriteriaSection from "./CriteriaSection.jsx";
+import TestCasesSection from "./TestCasesSection.jsx";
 
 const TaskRelationTabs = ({
                               taskId,
@@ -15,7 +16,8 @@ const TaskRelationTabs = ({
                               projectId,
                               linkedTasks,
                               projectTaskList,
-                              acceptedCriteria
+                              acceptedCriteria,
+                              testCases
                           }) => {
     const users = useSelector(selectProjectUserList);
 
@@ -37,11 +39,13 @@ const TaskRelationTabs = ({
                         <span className="font-semibold text-secondary-grey text-lg mt-1">
                             {tabs.find((tab) => tab.key === selectedTab)?.content}
                         </span>
-                        <div className={"flex gap-1 items-center ml-5 cursor-pointer"}
-                             onClick={() => setAddingNew(true)}>
-                            <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
-                            <span className="font-thin text-xs text-gray-600">Add New</span>
-                        </div>
+                        {selectedTab !== "test_cases" && (
+                            <div className={"flex gap-1 items-center ml-5 cursor-pointer"}
+                                 onClick={() => setAddingNew(true)}>
+                                <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
+                                <span className="font-thin text-xs text-gray-600">Add New</span>
+                            </div>
+                        )}
                     </div>
                     <TabList className="flex gap-4">
                         {tabs.map((tab) => (
@@ -95,7 +99,7 @@ const TaskRelationTabs = ({
                         />
                     </TabPanel>
                     <TabPanel key={'test_cases'}>
-                        <div className={'mt-8'}>Test Cases</div>
+                        <TestCasesSection testCases={testCases}/>
                     </TabPanel>
                 </TabPanels>
             </TabGroup>
