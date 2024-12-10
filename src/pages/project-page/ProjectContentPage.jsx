@@ -1,10 +1,6 @@
 import {useDispatch, useSelector} from "react-redux";
 import React, {useEffect, useRef, useState} from "react";
-import {
-    selectIsProjectDetailsLoading,
-    selectSelectedProject,
-    setProjectType
-} from "../../state/slice/projectSlice.js";
+import {selectIsProjectDetailsLoading, selectSelectedProject, setProjectType} from "../../state/slice/projectSlice.js";
 import FormInput from "../../components/FormInput.jsx";
 import {EllipsisVerticalIcon} from '@heroicons/react/24/outline';
 import FormSelect from "../../components/FormSelect.jsx";
@@ -113,7 +109,7 @@ const ProjectContentPage = () => {
         } else {
             setIsValidationErrorsShown(false);
             try {
-                const response = await axios.put(`/projects/${selectedProject.id}`, formValues)
+                const response = await axios.put(`/projects/${selectedProject.id}`, {...formValues})
                 const updated = response?.data?.body
 
                 if (updated) {

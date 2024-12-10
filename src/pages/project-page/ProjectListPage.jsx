@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  selectProjectList,
-  selectSelectedProject,
-  setSelectedProject,
-} from "../../state/slice/projectSlice.js";
+import React, {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {selectProjectList, selectSelectedProject, setSelectedProject,} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
-import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
+import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import axios from "axios";
-import { useToasts } from "react-toast-notifications";
+import {useToasts} from "react-toast-notifications";
 
 const ProjectListPage = () => {
   const { addToast } = useToasts();
@@ -73,6 +69,19 @@ const ProjectListPage = () => {
       [filterName]: !prev[filterName],
     }));
   };
+
+  useEffect(() => {
+    if (projectList && projectList.length) {
+      const filtered = projectList.filter((project) => {
+        if (selectedFilters.active && project.status === "Active") return true;
+        if (selectedFilters.onHold && project.status === "On Hold") return true;
+        if (selectedFilters.closed && project.status === "Closed") return true;
+        return false;
+      });
+
+      setFilteredProjectList(filtered);
+    }
+  }, [selectedFilters]);
 
   const handleDeleteClick = (project) => {
     setProjectToDelete(project);
