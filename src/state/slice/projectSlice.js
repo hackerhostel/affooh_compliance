@@ -27,7 +27,7 @@ export const doGetProjectBreakdown = createAsyncThunk('src/project/getProjectBre
         thunkApi.dispatch(doGetSprintFormData());
         thunkApi.dispatch(doGetProjectFormData());
       } else {
-        return thunkApi.rejectWithValue('project details not found');
+        thunkApi.dispatch(doGetProjectFormData());
       }
     } catch (error) {
       return thunkApi.rejectWithValue(error);
