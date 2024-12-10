@@ -10,10 +10,12 @@ import axios from 'axios';
 import {ProjectCreateSchema} from '../../utils/validationSchemas.js';
 import {useToasts} from 'react-toast-notifications';
 import {doGetWhoAmI} from "../../state/slice/authSlice.js";
+import {selectAppConfig} from "../../state/slice/appSlice.js";
 
 const CreateNewProjectPopup = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
     const { addToast } = useToasts();
+    const appConfig = useSelector(selectAppConfig);
 
     const projectTypes = useSelector(setProjectType);
 
@@ -73,73 +75,95 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
     };
 
     return (
-        <>
-            {isOpen && (
-                <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
-                    <div className="bg-white p-6 shadow-lg w-1/3">
-                        <div className="flex justify-between items-center mb-4">
-                            <p className="font-bold text-2xl">New Project</p>
-                            <div className={"cursor-pointer"} onClick={handleClose}>
-                                <XMarkIcon className={"w-6 h-6 text-gray-500"} />
-                            </div>
-                        </div>
-                        <form className={"flex flex-col justify-between h-5/6 mt-10"} onSubmit={createNewProject}>
-                            <div className="space-y-4">
-                                <div className="flex-col">
-                                    <p className="text-secondary-grey">Prefix</p>
-                                    <FormInput
-                                        type="text"
-                                        name="prefix"
-                                        formValues={formValues}
-                                        onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-                                <div className="flex-col">
-                                    <p className="text-secondary-grey">Project Name</p>
-                                    <FormInput
-                                        type="text"
-                                        name="name"
-                                        formValues={formValues}
-                                        onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-                                <div className="flex-col">
-                                    <p className="text-secondary-grey">Project Type</p>
-                                    <FormSelect
-                                        name="projectType"
-                                        formValues={formValues}
-                                        options={getSelectOptions(projectTypes)}
-                                        onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex space-x-4 mt-6 self-end w-full">
-                                <button
-                                    onClick={handleClose}
-                                    className=" btn-secondary"
-                                    disabled={isSubmitting}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className=" btn-primary"
-                                    disabled={isSubmitting}
-                                >
-                                    Create
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+      <>
+        {isOpen && (
+          <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
+            <div className="bg-white p-6 shadow-lg w-1/3">
+              <div className="flex justify-between items-center mb-4">
+                <p className="font-bold text-2xl">New Project</p>
+                <div className={"cursor-pointer"} onClick={handleClose}>
+                  <XMarkIcon className={"w-6 h-6 text-gray-500"} />
                 </div>
-            )}
-        </>
+              </div>
+              <form
+                className={"flex flex-col justify-between h-5/6 mt-10"}
+                onSubmit={createNewProject}
+              >
+                <div className="space-y-4">
+                  <div className="flex-col">
+                    <p className="text-secondary-grey">Prefix</p>
+                    <FormInput
+                      type="text"
+                      name="prefix"
+                      formValues={formValues}
+                      onChange={({ target: { name, value } }) =>
+                        handleFormChange(name, value)
+                      }
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
+                    />
+                  </div>
+                  <div className="flex-col">
+                    <p className="text-secondary-grey">Project Name</p>
+                    <FormInput
+                      type="text"
+                      name="name"
+                      formValues={formValues}
+                      onChange={({ target: { name, value } }) =>
+                        handleFormChange(name, value)
+                      }
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
+                    />
+                  </div>
+                  <div className="flex-col">
+                    <p className="text-secondary-grey">Project Type</p>
+                    <FormSelect
+                      name="projectType"
+                      formValues={formValues}
+                      options={getSelectOptions(projectTypes)}
+                      onChange={({ target: { name, value } }) =>
+                        handleFormChange(name, value)
+                      }
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
+                    />
+                  </div>
+                  <div className="flex-col">
+                    <p className="text-secondary-grey">Group</p>
+                    <FormSelect
+                      name="groupID"
+                      formValues={formValues}
+                      options={getSelectOptions(appConfig.groups)}
+                      onChange={({ target: { name, value } }) =>
+                        handleFormChange(name, value)
+                      }
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
+                    />
+                  </div>
+                </div>
+                <div className="flex space-x-4 mt-6 self-end w-full">
+                  <button
+                    onClick={handleClose}
+                    className=" btn-secondary"
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className=" btn-primary"
+                    disabled={isSubmitting}
+                  >
+                    Create
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </>
     );
 };
 

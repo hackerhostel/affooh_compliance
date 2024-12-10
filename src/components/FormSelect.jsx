@@ -1,24 +1,24 @@
 import React from 'react';
-import {ChevronDownIcon, ExclamationCircleIcon} from '@heroicons/react/24/solid';
+import { ChevronDownIcon, ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import classNames from 'classnames';
 
 function FormSelect({
-                      name,
-                      formValues,
-                      placeholder,
-                      options,
-                      required,
-                      formErrors,
-                      onChange,
-                      onFocus,
-                      showErrors,
-                      size = 'normal',
-                      showLabel = true,
-                      showShadow = true,
-                      disabled = false,
-                      ariaLabel,
-                      ...rest
-                    }, ref) {
+  name,
+  formValues,
+  placeholder,
+  options,
+  required,
+  formErrors,
+  onChange,
+  onFocus,
+  showErrors,
+  size = 'normal',
+  showLabel = true,
+  showShadow = true,
+  disabled = false,
+  ariaLabel,
+  ...rest
+}, ref) {
   const hasError = showErrors && formErrors && formErrors[name];
 
   return (
@@ -38,7 +38,7 @@ function FormSelect({
               name={name}
               value={name.split('.').reduce((a, b) => a?.[b], formValues) ?? ''}
               className={classNames(
-                'w-full p-4 rounded-lg shadow-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white cursor-pointer',
+                'w-full p-3 rounded-lg shadow-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white cursor-pointer',
                 {
                   'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500': hasError,
                   'focus:ring-blue-500 focus:border-blue-500 border-gray-300': !hasError,
@@ -52,12 +52,17 @@ function FormSelect({
               onChange={(e) => onChange?.(e, e.target.value)}
               onFocus={onFocus}
               {...rest}
+              style={{
+                WebkitAppearance: 'none', 
+                MozAppearance: 'none', 
+                appearance: 'none', 
+              }}
             >
-                <option value="" disabled>
-                    Select an option
-                </option>
-                {options.map((option) => (
-                    <option key={option.value} value={option.value}>
+              <option value="" disabled>
+                Select an option
+              </option>
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}

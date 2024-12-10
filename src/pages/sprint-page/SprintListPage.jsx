@@ -11,7 +11,7 @@ import {
   setRedirectSprint,
   setSelectedSprint
 } from "../../state/slice/sprintSlice.js";
-import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
+import {EllipsisVerticalIcon} from "@heroicons/react/24/outline/index.js";
 import SprintDeleteComponent from "./SprintDeleteComponent.jsx";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 
@@ -25,6 +25,7 @@ const SprintListPage = () => {
   const [sprintList, setSprintList] = useState([]);
   const [filteredSprintList, setFilteredSprintList] = useState([]);
   const [toDeleteSprint, setToDeleteSprint] = useState({});
+  const [showDeletePopup, setShowDeletePopup] = useState(false); // New state for delete popup
   const [selectedFilters, setSelectedFilters] = useState({
     inProgress: true,
     toDo: true,
@@ -88,11 +89,17 @@ const SprintListPage = () => {
   };
 
   const handleSprintDeleteClose = (deleted = false) => {
-    setToDeleteSprint({})
+    setShowDeletePopup(false);
+    setToDeleteSprint({});
     if (deleted) {
       dispatch(doGetSprintBreakdown(selectedProject?.id))
       dispatch(setRedirectSprint(0));
     }
+  };
+
+  const handleEllipsisClick = (sprint) => {
+    setToDeleteSprint(sprint);
+    setShowDeletePopup(true);
   };
 
   useEffect(() => {
@@ -102,16 +109,16 @@ const SprintListPage = () => {
   if (sprintListError) return <ErrorAlert message="Failed to fetch sprints at the moment"/>;
 
   return (
-      <div className="h-list-screen  w-full">
+      <div className="h-list-screen w-full">
         {sprintListForLoading ? (
             <div className="p-2"><SkeletonLoader/></div>
         ) : (
             <div className="flex-col gap-4">
-              <div className="flex flex-col gap-4 w-full pl-3">
+              <div className="flex flex-col gap-4  pl-3 pr-3">
                 <SearchBar  onSearch={handleSearch}/>
-                <div className="flex w-full laptopL:w-60 justify-between">
+                <div className="flex w-full  laptopL:w-60 justify-between ml-3">
                   <button
-                      className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.inProgress ? 'bg-black text-white' : 'bg-gray-200'}`}
+                      className={`px-2 py-1 rounded-xl  text-xs ${selectedFilters.inProgress ? 'bg-black text-white' : 'bg-gray-200'}`}
                       onClick={() => handleFilterChange('inProgress')}
                   >
                     In Progress ({filterCounts.inProgress})
@@ -130,7 +137,7 @@ const SprintListPage = () => {
                   </button>
                 </div>
               </div>
-              <div className={"h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-5 pr-1 mt-6"}>
+              <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-1 mt-6">
                 {filteredSprintList.length === 0 ? (
                     <div className="text-center text-gray-600">No sprints found</div>
                 ) : (
@@ -149,15 +156,8 @@ const SprintListPage = () => {
                               </div>
                             </div>
                           </div>
-                          <div className="gap-1 flex">
-                            <div className={`${element?.name === 'BACKLOG' ? 'hidden' : 'flex'}`} onClick={() => {
-                              setToDeleteSprint(element)
-                            }}>
-                              <TrashIcon className="w-4 h-4 text-pink-700"/>
-                            </div>
-                            <div onClick={() => dispatch(setSelectedSprint(element))}>
-                              <ChevronRightIcon className="w-4 h-4 text-black"/>
-                            </div>
+                          <div onClick={() => handleEllipsisClick(element)}>
+                            <EllipsisVerticalIcon className="w-4 h-4 text-black"/>
                           </div>
                         </div>
                     ))
@@ -165,7 +165,12 @@ const SprintListPage = () => {
               </div>
             </div>
         )}
-        <SprintDeleteComponent onClose={handleSprintDeleteClose} sprint={toDeleteSprint}/>
+
+        {showDeletePopup && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <SprintDeleteComponent onClose={handleSprintDeleteClose} sprint={toDeleteSprint} />
+          </div>
+        )}
       </div>
   );
 };

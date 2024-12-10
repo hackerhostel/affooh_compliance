@@ -109,10 +109,10 @@ const SprintHeader = ({
   return (
       <>
         <div className="flex flex-col p-4 gap-4">
-          <div className="flex w-full bg-white h-12 rounded-lg justify-between">
+          <div className="flex w-full mt-14 h-10 bg-white rounded-lg justify-between">
             <div className="flex justify-start items-center">
               <div
-                  className=" flex text-white text-center bg-primary-pink pl-5 pr-14 rounded-l-lg font-semibold h-12 items-center">
+                  className=" flex w-36 text-white text-center bg-primary-pink pl-5 pr-14 rounded-l-lg font-semibold h-10 items-center">
                 <p>{sprint?.name}</p>
               </div>
               <div className="flex text-status-done font-medium pl-4 pr-5 gap-2">
@@ -147,12 +147,13 @@ const SprintHeader = ({
             </div>
           </div>
 
-          <div className="flex w-full h-12 justify-between">
+          <div className="flex w-full h-9 justify-between">
             <div className="flex items-center">
-              <div className={"flex-col min-w-44"}>
+              <div className={"flex-col"}>
                 <FormSelect
                     name="assignee"
                     formValues={{assignee: filters?.assignee}}
+                    className="w-40 h-10"
                     options={assignees}
                     onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
                 />
@@ -161,28 +162,29 @@ const SprintHeader = ({
                 <FormSelect
                     name="status"
                     formValues={{status: filters?.status}}
+                    className="w-40 h-10"
                     options={statusList}
                     onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
                 />
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <button
-                  className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
+                  className="w-24 h-10 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
                   disabled={!configChanges || isSubmitting}
                   onClick={updateDisplayConfig}
               >Save
               </button>
               <button
-                  className="px-6 py-3 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
+                  className="w-36 h-10 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
                   disabled={isBacklog || sprintStatus === "Done" || isSubmitting}
                   onClick={updateSprintStatus}
               >
                 {sprintStatus === "Open" ? 'Start Sprint' : 'Complete Sprint'}
               </button>
               <button
-                  className="px-6 py-3 text-white rounded-lg border border-primary-pink bg-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
+                  className="w-36 h-10 text-white rounded-lg border border-primary-pink bg-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
                   onClick={() => setNewTaskModalOpen(true)}>
                 New Task
               </button>
