@@ -49,7 +49,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
     releaseDate: "",
     type: 1,
     version: "",
-    projectID: selectedProject.id.toString(),
+    projectID: selectedProject?.id.toString() || 0,
     status: "UNRELEASED",
   });
   const [formErrors] = useValidation(ReleaseCreateSchema, formValues);

@@ -1,32 +1,40 @@
-import React, { useState } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import React, {useState} from 'react';
+import {XMarkIcon} from '@heroicons/react/24/outline';
 import FormInput from "../../components/FormInput.jsx";
+import {useToasts} from "react-toast-notifications";
+import axios from "axios";
+import {useDispatch, useSelector} from "react-redux";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {doGetSprintBreakdown, selectSprintFormData} from "../../state/slice/sprintSlice.js";
 
 const CreateSprintPopup = ({
   isOpen,
-  handleFormChange,
   formErrors,
   isValidationErrorsShown,
-  handleFormSubmit,
   handleClosePopup
 }) => {
+  const {addToast} = useToasts();
+  const dispatch = useDispatch();
+  const selectedProject = useSelector(selectSelectedProject);
+  const sprintStatusList = useSelector(selectSprintFormData);
+
   const [createSprintDetails, setCreateSprintDetails] = useState({
-    sprintName: '',
+    name: '',
     startDate: '',
     endDate: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLocalFormChange = (name, value) => {
     setCreateSprintDetails(prevDetails => ({
       ...prevDetails,
       [name]: value
     }));
-    handleFormChange && handleFormChange(name, value);
   };
 
   const resetForm = () => {
     setCreateSprintDetails({
-      sprintName: '',
+      name: '',
       startDate: '',
       endDate: ''
     });
@@ -38,6 +46,33 @@ const CreateSprintPopup = ({
       handleClosePopup();
     }
   };
+
+  const createSprint = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true)
+
+    try {
+      const response = await axios.post("/sprints", {
+        project: {
+          ...createSprintDetails,
+          projectID: selectedProject?.id,
+          statusID: sprintStatusList[0]?.id
+        }
+      })
+      const sprintID = response?.data?.body?.sprintID
+
+      if (sprintID > 0) {
+        addToast('Sprint Successfully Created', {appearance: 'success'});
+        dispatch(doGetSprintBreakdown(selectedProject?.id))
+        handleClose()
+      } else {
+        addToast('Failed To Create The Sprint', {appearance: 'error'});
+      }
+    } catch (error) {
+      addToast('Failed To Create The Sprint', {appearance: 'error'});
+    }
+    setIsSubmitting(false)
+  }
 
   return (
     <>
@@ -52,13 +87,13 @@ const CreateSprintPopup = ({
             </div>
             <form
               className="flex flex-col justify-between h-5/6 mt-10"
-              onSubmit={(e) => handleFormSubmit(e, createSprintDetails)}
+              onSubmit={createSprint}
             >
               <div className="space-y-4">
                 <div className="flex-col">
                   <FormInput
                     type="text"
-                    name="sprintName"
+                    name="name"
                     formValues={createSprintDetails}
                     placeholder="Sprint Name"
                     onChange={({ target: { name, value } }) => handleLocalFormChange(name, value)}
@@ -102,6 +137,7 @@ const CreateSprintPopup = ({
                 <button
                   type="submit"
                   className="btn-primary"
+                  disabled={isSubmitting}
                 >
                   Create New Sprint
                 </button>

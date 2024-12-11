@@ -1,15 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { useLocation, Link, useHistory } from 'react-router-dom';
-import { useDispatch } from "react-redux";
+import {Link, useHistory, useLocation} from 'react-router-dom';
+import {useDispatch} from "react-redux";
 import useValidation from "../utils/use-validation.jsx";
 import FormInput from "../components/FormInput.jsx";
 import LoginImage from '../images/register.jpg';
-import { RegisterSchema } from "../state/domains/authModels.js";
-import {doRegisterUser, fetchUserInvitedOrganization} from "../state/slice/registerSlice.js";
-import {signIn, confirmSignIn} from "aws-amplify/auth";
+import {RegisterSchema} from "../state/domains/authModels.js";
+import {confirmSignIn} from "aws-amplify/auth";
 import {doGetWhoAmI} from "../state/slice/authSlice.js";
 import {useToasts} from "react-toast-notifications";
-import {post} from "aws-amplify/api";
+import {registerInvitedUser} from "../state/slice/registerSlice.js";
 
 const RegisterForm = () => {
   const { addToast } = useToasts();
@@ -23,7 +22,6 @@ const RegisterForm = () => {
   const email = location.state?.email;
 
   useEffect(() => {
-    dispatch(fetchUserInvitedOrganization(email));
     setRegisterDetails({...registerDetails, organization: '1', username: email});
   }, []);
 
@@ -57,25 +55,7 @@ const RegisterForm = () => {
         if (isSignedIn) {
           addToast('Successfully signed in and set new password', {appearance: 'success', autoDismiss: true});
           dispatch(doGetWhoAmI());
-
-          await post({
-            apiName: 'AffoohAPI',
-            path: '/users/complete-registration',
-            options: {
-              body: {
-                user: {
-                  firstName: registerDetails.firstName,
-                  lastName: registerDetails.lastName,
-                  email: registerDetails.username
-                },
-              },
-              headers: {
-                // TODO: hardcoded as a sample. move to a proper config.
-                'X-Api-Key': 'MKEutNn1JZ5l411hLitRu8KLq7Ih8Qh6611OtBR3',
-              },
-            },
-          });
-
+          dispatch(registerInvitedUser(registerDetails))
           history.push('/dashboard');
         }
       } catch (error) {

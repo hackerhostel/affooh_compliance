@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import SearchBar from "../../components/SearchBar.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
+import {ChevronRightIcon, PencilSquareIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import {
   doGetTestPlans,
@@ -13,9 +13,12 @@ import {
   setSelectedTestPlanId,
 } from "../../state/slice/testPlansSlice.js";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
+import {useHistory} from "react-router-dom";
 
 const TestPlanListPage = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
+
   const testPlansError = useSelector(selectIsTestPlanListForProjectError);
   const testPlansLoading = useSelector(selectIsTestPlanListForProjectLoading);
   const testPlans = useSelector(selectTestPlanListForProject);
@@ -89,6 +92,10 @@ const TestPlanListPage = () => {
     dispatch(doGetTestPlans(selectedProject?.id));
   };
 
+  const handleTestPlanEditClick = (test_plan_id) => {
+    history.push(`/test-plans/${test_plan_id}`);
+  };
+
   if (testPlansError) return <ErrorAlert message="Failed to fetch test plans at the moment" />;
 
   return (
@@ -147,11 +154,14 @@ const TestPlanListPage = () => {
                     </div>
                   </div>
                   <div className="gap-1 flex">
+                    <div onClick={() => handleTestPlanEditClick(tp?.id)} className={"cursor-pointer"}>
+                      <PencilSquareIcon className={"w-4 h-4 text-black"}/>
+                    </div>
                     <div onClick={() => handleDeleteClick(tp)}>
-                      <TrashIcon className="w-4 h-4 text-pink-700" />
+                      <TrashIcon className="w-4 h-4 text-pink-700"/>
                     </div>
                     <div onClick={() => dispatch(setSelectedTestPlanId(tp.id))}>
-                      <ChevronRightIcon className="w-4 h-4 text-black" />
+                      <ChevronRightIcon className="w-4 h-4 text-black"/>
                     </div>
                   </div>
                 </div>
@@ -161,9 +171,9 @@ const TestPlanListPage = () => {
         </div>
       )}
       <ConfirmationDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        onConfirm={handleDeleteConfirm}
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onConfirm={handleDeleteConfirm}
         message={`Are you sure you want to delete test plan "${toDeleteTestPlan?.name}"?`}
       />
     </div>

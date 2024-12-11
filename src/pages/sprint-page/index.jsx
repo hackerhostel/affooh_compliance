@@ -28,7 +28,6 @@ const SprintLayout = () => {
     />
     <CreateSprintPopup handleClosePopup = {handleClose} isOpen = {isOpen}/>
     </>
-    
   );
 };
 
