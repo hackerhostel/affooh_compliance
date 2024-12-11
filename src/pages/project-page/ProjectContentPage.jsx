@@ -27,7 +27,7 @@ const ProjectContentPage = () => {
     const projectTypes = useSelector(setProjectType);
     const organizationUsers = useSelector(selectOrganizationUsers);
     const [activeButton, setActiveButton] = useState("Details");
-    const [formValues, setFormValues] = useState({name: "", prefix: "", projectType: "", projectUserIDs: "", status: "", groupID: ""});
+    const [formValues, setFormValues] = useState({name: "", prefix: "", projectType: "", projectUserIDs: "", status: ""});
     const [formErrors] = useValidation(ProjectUpdateSchema, formValues);
     const projectUsersIdList = userListForProject.map(user => user.id);
 
