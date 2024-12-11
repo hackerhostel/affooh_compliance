@@ -67,7 +67,7 @@ function Sidebar() {
           <MenuItem link="/profile" Icon={UserIcon} />
 
         
-          <div className="flex flex-col items-center mt-6">
+          <div className="flex flex-col items-center ">
             {!loading ? (
               <Menu as="div" className="relative inline-block text-left">
                 <Menu.Button className="w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-pink">
@@ -93,7 +93,7 @@ function Sidebar() {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="absolute right-0 mt-2 w-64 bg-white divide-y divide-gray-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <Menu.Items className="absolute top-0 right-[-17rem] mt-2 w-64 bg-white divide-y divide-gray-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div className="px-4 py-3">
                       <p className="text-sm text-gray-500">Signed in as</p>
                       <p className="text-sm font-medium text-gray-900 truncate">

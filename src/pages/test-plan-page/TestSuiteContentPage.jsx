@@ -208,7 +208,7 @@ const TestSuiteContentPage = () => {
                                 <ChevronRightIcon className={"w-4 h-4 text-black cursor-pointer"}/>}
                         </div>
                     </td>
-                    <td className="px-4 py-2">{row?.summary}</td>
+                    <td className="w-36 px-4 py-2">{row?.summary}</td>
                     <td className="px-4 py-2">{row?.platform}</td>
                     <td className="px-4 py-2">{row?.priority}</td>
                     <td className="px-4 py-2">{row?.category}</td>
@@ -224,7 +224,7 @@ const TestSuiteContentPage = () => {
                                 disabled={isUpdating}
                                 onChange={({target: {name, value}}) => handleStatusUpdate(name, value)}
                                 value={status}
-                                className="w-full p-2 border border-gray-300 rounded"
+                                className="w-24 h-8 text-xs border border-gray-300 rounded py-1"
                             >
                                 {testCaseStatuses.map((option) => (
                                     <option key={option?.id} value={option?.id}>
@@ -251,7 +251,7 @@ const TestSuiteContentPage = () => {
                                 type="text"
                                 value={note}
                                 onChange={(e) => onNoteChange(e.target.value)}
-                                className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-20"
+                                className="px-4 py-2 w-44 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-20"
                             />
 
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -330,15 +330,16 @@ const TestSuiteContentPage = () => {
             <div className={"flex w-full justify-between items-center mb-10"}>
                 <div>
                     {testPlan?.id && (
-                        <p className={"text-secondary-grey font-bold text-md align-left"}>{testPlan.name}</p>
+                        <p className={"text-secondary-grey font-bold text-md align-left"}>Projects  <span className="mx-1"> &gt; </span> <span className="text-black">{testPlan.name}</span> </p>
                     )}
-                    <p className={"text-secondary-grey font-bold text-xl align-middle"}>Test Execution List</p>
+                    <p className={"text-secondary-grey font-bold text-xl align-middle mt-11"}>Test Execution List</p>
                 </div>
-                <div className={"flex gap-5  justify-end w-1/2"}>
+                <div className={"flex space-x-1  justify-end w-1/2"}>
                     {testPlanId !== 0 && testExecutionOptions.length > 0 && (
-                        <div className={"w-3/5"}>
+                        <div className={""}>
                             <FormSelect
-                                name="suite"
+                                name="suite" 
+                                className="w-28 h-10"
                                 formValues={{suite: testSuiteId}}
                                 options={testExecutionOptions.length ? getSelectOptions(testExecutionOptions) : []}
                                 onChange={({target: {value}}) => handleSuiteChange(value)}
@@ -346,9 +347,10 @@ const TestSuiteContentPage = () => {
                         </div>
                     )}
                     {testCycleId !== 0 && testExecutionCycles.length > 0 && (
-                        <div className={"w-2/5"}>
+                        <div>
                             <FormSelect
                                 name="cycle"
+                                className="w-32 h-10"
                                 formValues={{cycle: testCycleId}}
                                 options={testExecutionCycles.length ? getSelectOptions(testExecutionCycles) : []}
                                 onChange={({target: {value}}) => handleCycleChange(value)}
@@ -356,7 +358,7 @@ const TestSuiteContentPage = () => {
                         </div>
                     )}
                     {testExecutionOptions.length > 0 && testExecutionCycles.length > 0 && (
-                        <button onClick={openTestSuiteEdit} className="bg-primary-pink text-white px-14 rounded-lg">
+                        <button onClick={openTestSuiteEdit} className="bg-primary-pink text-white px-14 rounded-lg w-32 h-10">
                             Edit
                         </button>
                     )}
@@ -369,31 +371,31 @@ const TestSuiteContentPage = () => {
             ) : testCycleId === 0 ? (
                 <div className="p-8 text-center">No Details Available, Please Select a Test Cycle </div>
             ) : (
-                <div className={"flex-col"}>
-                    <div className={"bg-white p-4 rounded-md"}>
+                <div className={"flex-col "}>
+                    <div className={" p-4 rounded-md "}>
                         {testExecutionLoading ? (
                             <div className="m-10"><SkeletonLoader/></div>
                         ) : (
                             <>
-                                <div className={"bg-white p-4 rounded-md mb-5"}>
-                                    <div className="flex gap-4 justify-around">
+                                <div className={"bg-white p-4 rounded-md mb-5 -mt-7 h-40"}>
+                                    <div className="flex gap-4 justify-around mt-3">
                                         <StatusCount count={statusCounts.all} label="All" variant="default"/>
                                         <StatusCount count={statusCounts.pass} label="Pass" variant="success"/>
                                         <StatusCount count={statusCounts.fail} label="Fail" variant="danger"/>
                                         <StatusCount count={statusCounts.pending} label="Pending" variant="warning"/>
                                     </div>
                                 </div>
-                                <table className="min-w-full border-collapse">
+                                <table className="min-w-full rounded-md border-collapse">
                                     <thead>
-                                    <tr>
+                                    <tr className="bg-white h-16 text-secondary-grey">
                                         <th className="px-4 py-2"></th>
-                                        <th className="px-4 py-2 text-left">Summary</th>
-                                        <th className="px-4 py-2 text-left">Platform</th>
-                                        <th className="px-4 py-2 text-left">Priority</th>
-                                        <th className="px-4 py-2 text-left">Category</th>
-                                        <th className="px-4 py-2 text-left">Assignee</th>
-                                        <th className="px-4 py-2 text-left">Status</th>
-                                        <th className="px-4 py-2 text-left">Notes</th>
+                                        <th className="px-4 py-2 text-center">Summary</th>
+                                        <th className="px-4 py-2 text-center">Platform</th>
+                                        <th className="px-4 py-2 text-center">Priority</th>
+                                        <th className="px-4 py-2 text-center">Issues</th>
+                                        <th className="px-4 py-2 text-center">Assignee</th>
+                                        <th className="px-4 py-2 text-center">Status</th>
+                                        <th className="px-4 py-2 text-center">Notes</th>
                                     </tr>
                                     </thead>
                                     <tbody>
