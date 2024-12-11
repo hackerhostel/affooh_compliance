@@ -1,23 +1,23 @@
-import {useDispatch, useSelector} from "react-redux";
-import React, {useEffect, useState} from "react";
-import {selectSelectedTestPlanId} from "../../state/slice/testPlansSlice.js";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { selectSelectedTestPlanId } from "../../state/slice/testPlansSlice.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/24/outline/index.js";
-import {doGetTestCaseFormData, selectTestCaseStatuses} from "../../state/slice/testCaseFormDataSlice.js";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import { ChevronDownIcon, ChevronRightIcon, PlusCircleIcon } from "@heroicons/react/24/outline/index.js";
+import { doGetTestCaseFormData, selectTestCaseStatuses } from "../../state/slice/testCaseFormDataSlice.js";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import FormSelect from "../../components/FormSelect.jsx";
-import {getInitials, getSelectOptions} from "../../utils/commonUtils.js";
+import { getInitials, getSelectOptions } from "../../utils/commonUtils.js";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
-import {XMarkIcon, CheckIcon} from "@heroicons/react/24/outline";
+import { XMarkIcon, CheckIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
-import {useToasts} from "react-toast-notifications";
-import {useHistory} from "react-router-dom";
+import { useToasts } from "react-toast-notifications";
+import { useHistory } from "react-router-dom";
 
 const TestSuiteContentPage = () => {
     const dispatch = useDispatch();
-    const {addToast} = useToasts();
+    const { addToast } = useToasts();
     const history = useHistory();
 
     const selectedProject = useSelector(selectSelectedProject);
@@ -33,13 +33,13 @@ const TestSuiteContentPage = () => {
     const [testCycleId, setTestCycleId] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
     const [statusCounts, setStatusCounts] = useState({
-      all: 0,
-      pass: 0,
-      fail: 0,
-      pending: 0,
+        all: 0,
+        pass: 0,
+        fail: 0,
+        pending: 0,
     });
 
-    const {loading: testPlanLoading, error: testPlanError, data: testPlanResponse} = useFetchTestPlan(testPlanId)
+    const { loading: testPlanLoading, error: testPlanError, data: testPlanResponse } = useFetchTestPlan(testPlanId)
     const {
         loading: testExecutionLoading,
         error: testExecutionError,
@@ -73,9 +73,9 @@ const TestSuiteContentPage = () => {
     }, [selectedTestPlanId]);
 
     useEffect(() => {
-      if (testExecutionResponse.length) {
-        setTestExecutions(testExecutionResponse);
-      }
+        if (testExecutionResponse.length) {
+            setTestExecutions(testExecutionResponse);
+        }
     }, [testExecutionResponse]);
 
     useEffect(() => {
@@ -121,7 +121,7 @@ const TestSuiteContentPage = () => {
         setIsUpdating(true)
 
         try {
-            const response = await axios.put('/test-case/update', {testExecData: updatedData});
+            const response = await axios.put('/test-case/update', { testExecData: updatedData });
 
             if (response) {
                 setIsUpdating(false);
@@ -132,44 +132,44 @@ const TestSuiteContentPage = () => {
                 //             : row
                 //     )
                 // );
-                addToast('Successfully Update Test Execution Item', {appearance: 'success'});
+                addToast('Successfully Update Test Execution Item', { appearance: 'success' });
                 refetchTextExecution();
             }
         } catch (e) {
             setIsUpdating(false)
-            addToast('Failed To Update Test Execution Item', {appearance: 'error'});
+            addToast('Failed To Update Test Execution Item', { appearance: 'error' });
         }
     }
 
     if (testPlanLoading) {
-        return <div className="m-10"><SkeletonLoader/></div>;
+        return <div className="m-10"><SkeletonLoader /></div>;
     }
 
     if (testPlanError || testExecutionError) {
-        return <ErrorAlert message={error.message}/>;
+        return <ErrorAlert message={error.message} />;
     }
 
     const StatusCount = ({ count, label, variant = "default" }) => {
-      const variants = {
-        default: "border-gray-300 text-gray-600",
-        success: "border-green-500 text-green-600",
-        danger: "border-red-500 text-red-600",
-        warning: "border-yellow-500 text-yellow-600",
-      };
+        const variants = {
+            default: "border-gray-300 text-gray-600",
+            success: "border-green-500 text-green-600",
+            danger: "border-red-500 text-red-600",
+            warning: "border-yellow-500 text-yellow-600",
+        };
 
-      return (
-        <div
-          className={`flex flex-col items-center justify-center p-4 rounded-lg min-w-[200px] border-2 ${variants[variant]}`}
-          style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}
-        >
-          <span className="text-2xl font-semibold mb-1">{count}</span>
-          <span className="text-sm">{label}</span>
-        </div>
-      );
+        return (
+            <div
+                className={`flex flex-col items-center justify-center p-4 rounded-lg min-w-[200px] border-2 ${variants[variant]}`}
+                style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}
+            >
+                <span className="text-2xl font-semibold mb-1">{count}</span>
+                <span className="text-sm">{label}</span>
+            </div>
+        );
     };
 
     const GenerateRow = (props) => {
-        const {row} = props
+        const { row } = props
         const [open, setOpen] = React.useState(false);
         const [status, setStatus] = React.useState(row?.status || 8);
         const [note, setNote] = React.useState(row?.notes || '');
@@ -177,7 +177,7 @@ const TestSuiteContentPage = () => {
 
         const handleStatusUpdate = (name, value) => {
             setStatus(value);
-            props.onUpdate(row.testCycleExecutionID, {...row, status: value});
+            props.onUpdate(row.testCycleExecutionID, { ...row, status: value });
         };
 
         const onNoteChange = (value) => {
@@ -193,25 +193,28 @@ const TestSuiteContentPage = () => {
         const onSaveNote = async () => {
             setNoteChanged(false);
 
-            props.onUpdate(row.testCycleExecutionID, {...row, notes: note});
+            props.onUpdate(row.testCycleExecutionID, { ...row, notes: note });
         }
 
         return (
             <>
-                <tr className="border-b">
+                <tr className="border-b hover:bg-slate-100 ">
                     <td className="px-4 py-2">
                         <div
                             className="text-gray-600 hover:text-gray-900 focus:outline-none"
                             onClick={() => setOpen(!open)}
                         >
-                            {open ? <ChevronDownIcon className={"w-4 h-4 text-black cursor-pointer"}/> :
-                                <ChevronRightIcon className={"w-4 h-4 text-black cursor-pointer"}/>}
+                            {open ? <ChevronDownIcon className={"w-4 h-4 text-black cursor-pointer"} /> :
+                                <ChevronRightIcon className={"w-4 h-4 text-black cursor-pointer"} />}
                         </div>
                     </td>
-                    <td className="w-36 px-4 py-2">{row?.summary}</td>
+                    <td className="w-42 px-4 py-2">{row?.summary}</td>
                     <td className="px-4 py-2">{row?.platform}</td>
                     <td className="px-4 py-2">{row?.priority}</td>
-                    <td className="px-4 py-2">{row?.category}</td>
+                    <div className="flex items-center px-4 py-2">
+                        <td className="px-4 py-2">{row?.category}</td>
+                        <PlusCircleIcon className={"w-8 h-8 items-center text-pink-500 cursor-pointer"} />
+                    </div>
                     <td className="px-4 py-2">
                         <div
                             className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
@@ -222,7 +225,7 @@ const TestSuiteContentPage = () => {
                         <div>
                             <select
                                 disabled={isUpdating}
-                                onChange={({target: {name, value}}) => handleStatusUpdate(name, value)}
+                                onChange={({ target: { name, value } }) => handleStatusUpdate(name, value)}
                                 value={status}
                                 className="w-24 h-8 text-xs border border-gray-300 rounded py-1"
                             >
@@ -262,7 +265,7 @@ const TestSuiteContentPage = () => {
                                             aria-label="Clear input"
                                         >
                                             <XMarkIcon onClick={() => onNoteChange(false)}
-                                                       className="w-5 h-5 text-gray-500"/>
+                                                className="w-5 h-5 text-gray-500" />
                                         </button>
 
                                         <button
@@ -270,7 +273,7 @@ const TestSuiteContentPage = () => {
                                             aria-label="Save input"
                                         >
                                             <CheckIcon onClick={() => onSaveNote()}
-                                                       className="w-5 h-5 text-green-500"/>
+                                                className="w-5 h-5 text-green-500" />
                                         </button>
                                     </div>
                                 )}
@@ -279,55 +282,46 @@ const TestSuiteContentPage = () => {
                     </td>
                 </tr>
                 {row?.steps && row.steps.length > 0 && (
-                    <tr>
-                        <td className="p-0" colSpan={8}>
+                    <tr className="py-0">
+                        <td className="p-2" colSpan={8}>
                             <div
-                                className={`overflow-hidden transition-[max-height] duration-300 ${open ? 'max-h-[1000px]' : 'max-h-0'} mb-4`}>
-                                <table className="min-w-full border-collapse mt-2 rounded-2xl p-20">
-                                    <thead>
-                                    <tr>
-                                        <th className="px-4 py-2"></th>
-                                        <th className="px-4 py-2 text-left bg-secondary-bgc rounded-tl-lg"></th>
-                                        <th className="px-4 py-2 text-left bg-secondary-bgc"></th>
-                                        <th className="px-4 py-2 text-left bg-secondary-bgc rounded-tr-lg"></th>
-                                    </tr>
-                                    <tr>
-                                        <th className="px-4 py-2"></th>
-                                        <th className="px-4 py-2 text-left bg-secondary-bgc">Steps</th>
-                                        <th className="px-4 py-2 text-left bg-secondary-bgc">Input Data</th>
-                                        <th className="px-4 py-2 text-left bg-secondary-bgc">Expected
-                                            Outcome
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {row.steps.map((step) => (
-                                        <tr key={step.id}>
-                                            <td className="px-4 py-2"></td>
-                                            <td className="px-4 py-2 bg-secondary-bgc">{step?.description}</td>
-                                            <td className="px-4 py-2 bg-secondary-bgc">{step?.inputData}</td>
-                                            <td className="px-4 py-2 bg-secondary-bgc">{step?.expectedOutcome}</td>
-                                        </tr>
-                                    ))}
-                                    <tr key={0}>
-                                        <td className="px-4 py-2"></td>
-                                        <td className="px-4 py-2 bg-secondary-bgc rounded-bl-lg"></td>
-                                        <td className="px-4 py-2 bg-secondary-bgc"></td>
-                                        <td className="px-4 py-2 bg-secondary-bgc rounded-br-lg"></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                                className={`overflow-hidden transition-[max-height] duration-300 ${open ? 'max-h-[1000px]' : 'max-h-0'} px-5`}>
+                                <div className="rounded-xl border p-4 bg-slate-50 shadow-sm">
+                                    <p className="text-gray-600 font-medium mb-4">Verify that the system validates the email address</p>
+                                    <table className="min-w-full border-collapse rounded-xl overflow-hidden ">
+                                        <thead>
+                                            <tr>
+                                                <th className="px-4 py-2"></th>
+                                                <th className="px-4 py-2 text-left b font-semibold text-gray-700">Steps</th>
+                                                <th className="px-4 py-2 text-left  font-semibold text-gray-700">Input Data</th>
+                                                <th className="px-4 py-2 text-left  font-semibold text-gray-700">Expected Outcome</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {row.steps.map((step) => (
+                                                <tr key={step.id} className="">
+                                                    <td className="px-4 py-2"></td>
+                                                    <td className="px-4 py-2 w-96">{step?.description}</td>
+                                                    <td className="px-4 py-2">{step?.inputData}</td>
+                                                    <td className="px-4 py-2">{step?.expectedOutcome}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
                             </div>
                         </td>
                     </tr>
                 )}
+
             </>
         );
     };
 
     return (
-        <div className={"p-7 bg-dashboard-bgc h-full"}>
-            <div className={"flex w-full justify-between items-center mb-10"}>
+        <div className={"p-2 bg-dashboard-bgc h-full"}>
+            <div className={"flex w-full justify-between items-center mb-10 mt-6"}>
                 <div>
                     {testPlan?.id && (
                         <p className={"text-secondary-grey font-bold text-md align-left"}>Projects  <span className="mx-1"> &gt; </span> <span className="text-black">{testPlan.name}</span> </p>
@@ -338,11 +332,11 @@ const TestSuiteContentPage = () => {
                     {testPlanId !== 0 && testExecutionOptions.length > 0 && (
                         <div className={""}>
                             <FormSelect
-                                name="suite" 
+                                name="suite"
                                 className="w-28 h-10"
-                                formValues={{suite: testSuiteId}}
+                                formValues={{ suite: testSuiteId }}
                                 options={testExecutionOptions.length ? getSelectOptions(testExecutionOptions) : []}
-                                onChange={({target: {value}}) => handleSuiteChange(value)}
+                                onChange={({ target: { value } }) => handleSuiteChange(value)}
                             />
                         </div>
                     )}
@@ -351,9 +345,9 @@ const TestSuiteContentPage = () => {
                             <FormSelect
                                 name="cycle"
                                 className="w-32 h-10"
-                                formValues={{cycle: testCycleId}}
+                                formValues={{ cycle: testCycleId }}
                                 options={testExecutionCycles.length ? getSelectOptions(testExecutionCycles) : []}
-                                onChange={({target: {value}}) => handleCycleChange(value)}
+                                onChange={({ target: { value } }) => handleCycleChange(value)}
                             />
                         </div>
                     )}
@@ -374,34 +368,34 @@ const TestSuiteContentPage = () => {
                 <div className={"flex-col "}>
                     <div className={" p-4 rounded-md "}>
                         {testExecutionLoading ? (
-                            <div className="m-10"><SkeletonLoader/></div>
+                            <div className="m-10"><SkeletonLoader /></div>
                         ) : (
                             <>
-                                <div className={"bg-white p-4 rounded-md mb-5 -mt-7 h-40"}>
+                                <div className={"bg-white p-4 rounded-md mb-5 -mt-7 h-40 -ml-3"}>
                                     <div className="flex gap-4 justify-around mt-3">
-                                        <StatusCount count={statusCounts.all} label="All" variant="default"/>
-                                        <StatusCount count={statusCounts.pass} label="Pass" variant="success"/>
-                                        <StatusCount count={statusCounts.fail} label="Fail" variant="danger"/>
-                                        <StatusCount count={statusCounts.pending} label="Pending" variant="warning"/>
+                                        <StatusCount count={statusCounts.all} label="All" variant="default" />
+                                        <StatusCount count={statusCounts.pass} label="Pass" variant="success" />
+                                        <StatusCount count={statusCounts.fail} label="Fail" variant="danger" />
+                                        <StatusCount count={statusCounts.pending} label="Pending" variant="warning" />
                                     </div>
                                 </div>
-                                <table className="min-w-full rounded-md border-collapse">
+                                <table className="min-w-full rounded-md border-collapse bg-white -ml-3">
                                     <thead>
-                                    <tr className="bg-white h-16 text-secondary-grey">
-                                        <th className="px-4 py-2"></th>
-                                        <th className="px-4 py-2 text-center">Summary</th>
-                                        <th className="px-4 py-2 text-center">Platform</th>
-                                        <th className="px-4 py-2 text-center">Priority</th>
-                                        <th className="px-4 py-2 text-center">Issues</th>
-                                        <th className="px-4 py-2 text-center">Assignee</th>
-                                        <th className="px-4 py-2 text-center">Status</th>
-                                        <th className="px-4 py-2 text-center">Notes</th>
-                                    </tr>
+                                        <tr className=" h-16 text-secondary-grey">
+                                            <th className="px-4 py-2"></th>
+                                            <th className="px-4 py-2 text-left">Summary</th>
+                                            <th className="px-4 py-2 text-left">Platform</th>
+                                            <th className="px-4 py-2 text-left">Priority</th>
+                                            <th className="px-4 py-2 text-left">Issues</th>
+                                            <th className="px-4 py-2 text-left">Assignee</th>
+                                            <th className="px-4 py-2 text-left">Status</th>
+                                            <th className="px-4 py-2 text-left">Notes</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
-                                    {testExecutions.map((row) => (
-                                        <GenerateRow row={row} key={row.testCycleExecutionID} onUpdate={updateRow}/>
-                                    ))}
+                                        {testExecutions.map((row) => (
+                                            <GenerateRow row={row} key={row.testCycleExecutionID} onUpdate={updateRow} />
+                                        ))}
                                     </tbody>
                                 </table>
                             </>
