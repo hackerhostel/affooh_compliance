@@ -1,10 +1,6 @@
 import {useDispatch, useSelector} from "react-redux";
 import React, {useEffect, useRef, useState} from "react";
-import {
-    selectIsProjectDetailsLoading,
-    selectSelectedProject,
-    setProjectType
-} from "../../state/slice/projectSlice.js";
+import {selectIsProjectDetailsLoading, selectSelectedProject, setProjectType} from "../../state/slice/projectSlice.js";
 import FormInput from "../../components/FormInput.jsx";
 import {EllipsisVerticalIcon} from '@heroicons/react/24/outline';
 import FormSelect from "../../components/FormSelect.jsx";
@@ -31,7 +27,7 @@ const ProjectContentPage = () => {
     const projectTypes = useSelector(setProjectType);
     const organizationUsers = useSelector(selectOrganizationUsers);
     const [activeButton, setActiveButton] = useState("Details");
-    const [formValues, setFormValues] = useState({name: "", prefix: "", projectType: "", projectUserIDs: "", status: "", groupID: ""});
+    const [formValues, setFormValues] = useState({name: "", prefix: "", projectType: "", projectUserIDs: "", status: ""});
     const [formErrors] = useValidation(ProjectUpdateSchema, formValues);
     const projectUsersIdList = userListForProject.map(user => user.id);
 
@@ -157,7 +153,7 @@ const ProjectContentPage = () => {
         } else {
             setIsValidationErrorsShown(false);
             try {
-                const response = await axios.put(`/projects/${selectedProject.id}`, formValues)
+                const response = await axios.put(`/projects/${selectedProject.id}`, {...formValues})
                 const updated = response?.data?.body
 
                 if (updated) {

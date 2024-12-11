@@ -6,7 +6,7 @@ import {
   setSelectedProject
 } from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
-import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
+import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";

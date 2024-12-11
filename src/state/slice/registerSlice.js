@@ -1,6 +1,6 @@
-﻿import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { post } from 'aws-amplify/api';
-import { confirmSignUp } from 'aws-amplify/auth';
+﻿import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import {get, post} from 'aws-amplify/api';
+import {confirmSignUp} from 'aws-amplify/auth';
 import axios from "axios";
 
 const initialState = {
@@ -50,14 +50,15 @@ export const fetchUserInvitedOrganization = createAsyncThunk(
     'register/fetchUserInvitedOrganization',
     async (email, thunkApi) => {
       try {
-        const response = await axios.get(`/users/complete-registration/${email}`);
-
+          const response = await get({
+              apiName: 'AffoohAPI', path: `/users/complete-registration/${email}`, headers: {
+                  'X-Api-Key': 'MKEutNn1JZ5l411hLitRu8KLq7Ih8Qh6611OtBR3',
+              },
+          });
         if (!response?.data?.body?.name) {
           throw new Error('Invalid response format');
         }
-
         return response.data.body.name;
-
       } catch (error) {
         return thunkApi.rejectWithValue(
             error.message || 'Failed to send invitation'
@@ -83,6 +84,34 @@ export const doVerifyOTP = createAsyncThunk(
       } catch (error) {
         return thunkApi.rejectWithValue(error.message);
       }
+    }
+);
+
+export const registerInvitedUser = createAsyncThunk(
+    'register/registerInvitedUser',
+    async (registerDetails, thunkApi) => {
+        try {
+            await post({
+                apiName: 'AffoohAPI',
+                path: '/users/complete-registration',
+                options: {
+                    body: {
+                        user: {
+                            firstName: registerDetails.firstName,
+                            lastName: registerDetails.lastName,
+                            email: registerDetails.username
+                        },
+                    },
+                    headers: {
+                        'X-Api-Key': 'MKEutNn1JZ5l411hLitRu8KLq7Ih8Qh6611OtBR3',
+                    },
+                },
+            });
+        } catch (error) {
+            return thunkApi.rejectWithValue(
+                error.message || 'Failed Register User'
+            );
+        }
     }
 );
 

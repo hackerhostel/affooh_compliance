@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {XMarkIcon} from '@heroicons/react/24/outline';
 import FormInput from "../FormInput.jsx";
 import FormSelect from "../FormSelect.jsx";
-import { getSelectOptions } from "../../utils/commonUtils.js";
-import {selectProjectList, setProjectType} from "../../state/slice/projectSlice.js";
+import {getSelectOptions} from "../../utils/commonUtils.js";
+import {doGetProjectBreakdown, setProjectType} from "../../state/slice/projectSlice.js";
 import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
-import { ProjectCreateSchema } from '../../utils/validationSchemas.js'; 
-import { useToasts } from 'react-toast-notifications';
+import {ProjectCreateSchema} from '../../utils/validationSchemas.js';
+import {useToasts} from 'react-toast-notifications';
 import {doGetWhoAmI} from "../../state/slice/authSlice.js";
 import {selectAppConfig} from "../../state/slice/appSlice.js";
 
@@ -16,16 +16,20 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
     const { addToast } = useToasts();
     const appConfig = useSelector(selectAppConfig);
-    
-    const projects = useSelector(selectProjectList);
+
     const projectTypes = useSelector(setProjectType);
+
+    useEffect(() => {
+        if (!projectTypes || !projectTypes.length) {
+            dispatch(doGetProjectBreakdown())
+        }
+    }, [projectTypes])
 
     // Initial form values
     const [formValues, setFormValues] = useState({
         prefix: '',
         name: '',
-        projectType: '',
-        groupID: 1
+        projectType: ''
     });
     
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);

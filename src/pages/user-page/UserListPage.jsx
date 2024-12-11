@@ -5,23 +5,19 @@ import {selectSelectedProject, setSelectedProjectFromList} from "../../state/sli
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import SearchBar from "../../components/SearchBar.jsx";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
-import {
-  doGetProjectUsers,
-  selectIsProjectUsersError,
-  selectIsProjectUsersLoading,
-  selectProjectUserList
-} from "../../state/slice/projectUsersSlice.js";
+import {doGetProjectUsers} from "../../state/slice/projectUsersSlice.js";
 import {sendInvitation} from "../../state/slice/registerSlice.js";
 import {useToasts} from "react-toast-notifications";
 import axios from "axios";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
+import {selectInitialDataError, selectInitialDataLoading, selectOrganizationUsers} from "../../state/slice/appSlice.js";
 
 const UserListPage = () => {
   const dispatch = useDispatch();
   const { addToast } = useToasts();
-  const userListError = useSelector(selectIsProjectUsersError);
-  const userListForLoading = useSelector(selectIsProjectUsersLoading);
-  const userListForProject = useSelector(selectProjectUserList);
+  const userListError = useSelector(selectInitialDataError);
+  const userListForLoading = useSelector(selectInitialDataLoading);
+  const userListForOrg = useSelector(selectOrganizationUsers);
   const selectedProject = useSelector(selectSelectedProject);
 
   const [filteredUserList, setFilteredUserList] = useState([]);
@@ -32,8 +28,12 @@ const UserListPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    setFilteredUserList(userListForProject)
-  }, [userListForProject]);
+    if (userListForOrg && userListForOrg.length) {
+      setFilteredUserList(userListForOrg)
+    } else {
+      setFilteredUserList([])
+    }
+  }, [userListForOrg]);
 
   useEffect(() => {
     async function fetchRoles(){
@@ -90,9 +90,9 @@ const UserListPage = () => {
 
   const handleSearch = (term) => {
     if (term.trim() === '') {
-      setFilteredUserList(userListForProject);
+      setFilteredUserList(userListForOrg);
     } else {
-      const filtered = userListForProject.filter(user =>
+      const filtered = userListForOrg.filter(user =>
         `${user?.firstName} ${user?.lastName}`.toLowerCase().includes(term.toLowerCase())
       );
       setFilteredUserList(filtered);
@@ -104,7 +104,7 @@ const UserListPage = () => {
 
   return (
     <div className="h-list-screen overflow-y-auto w-full pl-3">
-      <div className="flex flex-col gap-3 laptopL:w-56  w-full ">
+      <div className="flex flex-col gap-3 laptopL:w-64  w-full ">
 
         {/* Invite Section */}
         <div className="flex items-center gap-2">
