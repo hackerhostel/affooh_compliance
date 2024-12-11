@@ -18,7 +18,7 @@ const TestPlanLayout = () => {
     return (
         <>
             <MainPageLayout
-                title="Test Plans"
+                title="Project"
                 leftColumn={<TestPlanListPage/>}
                 rightColumn={<TestPlanContentPage/>}
                 subText={"Add New"}
