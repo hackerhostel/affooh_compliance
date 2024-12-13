@@ -116,42 +116,58 @@ const EditTaskPage = () => {
   }
 
   const updateTaskAttribute = async (fieldId, value) => {
-    const filteredAttribute = taskAttributes.find(ta => ta?.taskFieldID === fieldId)
+    let payload = {
+      taskID: initialTaskData.id,
+      type: "TASK_ATTRIBUTE",
+      attributeDetails: {},
+    };
+
+    const filteredAttribute = taskAttributes.find((ta) => ta?.taskFieldID === fieldId);
     if (filteredAttribute) {
-      setIsEditing(true)
-
-      const payload = {
-        "taskID": initialTaskData.id,
-        "type": "TASK_ATTRIBUTE",
-        "attributeDetails": {
-          attributeKey: filteredAttribute.id,
-          taskFieldID: filteredAttribute.taskFieldID,
-          attributeValue: value
-        }
-      }
-
-      try {
-        const updatedTask = await axios.put(`/tasks/${initialTaskData.id}`, payload)
-        const updatedTaskDetails = updatedTask?.data?.body?.task
-        if (updatedTaskDetails) {
-          updateStates(updatedTaskDetails)
-          addToast(`Task attribute updated!`, {appearance: 'success', autoDismiss: true});
-        }
-      } catch (e) {
-        addToast(e.message, {appearance: 'error'});
-      } finally {
-        setIsEditing(false);
-      }
+      payload.attributeDetails = {
+        attributeKey: filteredAttribute?.id,
+        taskFieldID: filteredAttribute.taskFieldID,
+        attributeValue: value,
+      };
+    } else {
+      payload.attributeDetails = {
+        taskFieldID: fieldId,
+        attributeValue: value,
+        attributeValues: [value]
+      };
     }
-  }
+
+    try {
+      const updatedTask = await axios.put(`/tasks/${initialTaskData.id}`, payload);
+      const updatedTaskDetails = updatedTask?.data?.body?.task;
+      if (updatedTaskDetails) {
+        updateStates(updatedTaskDetails);
+        addToast(`Task attribute updated!`, {appearance: "success", autoDismiss: true});
+      }
+    } catch (e) {
+      addToast(e.message, {appearance: "error"});
+    } finally {
+      setIsEditing(false);
+    }
+  };
 
   const filterTaskFieldValue = (fieldName) => {
-    return taskAttributes.find(ta => ta?.taskFieldName === fieldName)?.values[0] || ''
-  }
+    return taskAttributes.find((ta) => ta?.taskFieldName === fieldName)?.values[0] || "";
+  };
 
   const filterTaskFieldId = (fieldName) => {
-    return taskAttributes.find(ta => ta?.taskFieldName === fieldName)?.taskFieldID || ''
-  }
+    let taskFieldID = "";
+    const taskAttributesFieldID = taskAttributes.find((ta) => ta?.taskFieldName === fieldName)?.taskFieldID || "";
+    if (taskAttributesFieldID !== "") {
+      taskFieldID = taskAttributesFieldID;
+    } else {
+      const taskScreens = taskData?.screen || {};
+      const generalScreen = taskScreens.tabs?.find((t) => t.name === "General");
+      taskFieldID = generalScreen?.fields?.find((f) => f.name === fieldName)?.id || "";
+    }
+
+    return taskFieldID;
+  };
 
   return (
     <div className="flex">
@@ -271,10 +287,9 @@ const EditTaskPage = () => {
             taskAttributes={taskAttributes}
           />
         <TimeTracking timeLogs={timeLogs}
-                      estimationAttribute={taskAttributes.find(ta => ta?.taskFieldName === "Estimation") || {}}
                       initialEstimationAttribute={initialTaskData?.attributes?.find(ta => ta?.taskFieldName === "Estimation") || {}}
-                      handleAdditionalFieldChange={handleAdditionalFieldChange}
                       updateTaskAttribute={updateTaskAttribute} isEditing={isEditing}
+                      taskFieldID={filterTaskFieldId("Estimation")}
         />
       </div>
     </div>

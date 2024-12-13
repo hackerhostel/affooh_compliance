@@ -127,8 +127,8 @@ const ReleaseListPage = () => {
         {releaseLoading ? (
           <div className="p-2"><SkeletonLoader /></div>
         ) : (
-          <div className="flex-col gap-4 ">
-            <div className="flex flex-col gap-4 w-full pl-3 ">
+          <div className="flex-col gap-4 p-3">
+            <div className="flex flex-col gap-4 w-full pl-3 mb-4">
               <SearchBar onSearch={handleSearch} />
               <div className="flex justify-start gap-6 laptopL:w-64 w-full">
                 <button
