@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import FormSelect from "../../FormSelect.jsx";
 import FormInput from "../../FormInput.jsx";
 import FormInputWrapper from "./FormEditInputWrapper.jsx";
@@ -18,8 +18,24 @@ const EditScreenTabField = ({
                             }) => {
     const {addToast} = useToasts();
 
+    const [currentValue, setCurrentValue] = useState('');
+    const [initialValue, setInitialValue] = useState('');
+
+    useEffect(() => {
+        if (initialAttributeData.length) {
+            const filteredTaskAttribute = initialAttributeData.find(ta => ta?.taskFieldName === field?.name);
+            const value = filteredTaskAttribute?.values?.[0] ?? '';
+            setInitialValue(value)
+            setCurrentValue(value)
+        } else {
+            setInitialValue('')
+            setCurrentValue('')
+        }
+    }, [initialAttributeData]);
+
     const handleChange = (value) => {
         onChange(field.id, value);
+        setCurrentValue(value)
     };
 
     const updateAttributes = (value) => {
@@ -39,24 +55,9 @@ const EditScreenTabField = ({
         return undefined
     };
 
-    const getInitialFormValue = (name) => {
-        const filteredTaskAttribute = initialAttributeData.find(ta => ta?.taskFieldName === name)
-        return {[name]: filteredTaskAttribute ? filteredTaskAttribute.values[0] : ''}
-    }
-
     const getFormValue = (name) => {
         const filteredTaskAttribute = taskAttributes.find(ta => ta?.taskFieldName === name)
         return {[name]: filteredTaskAttribute ? filteredTaskAttribute.values[0] : ''}
-    }
-
-    const setToInitialValue = () => {
-        const filteredTaskAttribute = initialAttributeData.find(ta => ta?.taskFieldID === field.id)
-        handleChange(filteredTaskAttribute.values[0])
-    }
-
-    const onAttributeAccept = () => {
-        const filteredTaskAttribute = taskAttributes.find(ta => ta?.taskFieldID === field.id)
-        updateAttributes(filteredTaskAttribute.values[0])
     }
 
     const renderField = () => {
@@ -108,15 +109,15 @@ const EditScreenTabField = ({
                 return (
                     <FormInputWrapper
                         isEditing={isEditing}
-                        initialData={getInitialFormValue(field?.name)}
-                        currentData={getFormValue(field?.name)}
-                        onAccept={onAttributeAccept}
-                        onReject={setToInitialValue}
+                        initialData={{[field?.name]: initialValue}}
+                        currentData={{[field?.name]: currentValue}}
+                        onAccept={() => updateAttributes(currentValue)}
+                        onReject={() => setCurrentValue(initialValue)}
                         actionButtonPlacement={"bottom"}
                     >
                         <FormInput
                             {...commonProps}
-                            formValues={getFormValue(field?.name)}
+                            formValues={{[field?.name]: currentValue}}
                             type="date"
                             placeholder={field.name}
                             onChange={({target: {value}}) => handleChange(value)}
@@ -128,15 +129,15 @@ const EditScreenTabField = ({
                 return (
                     <FormInputWrapper
                         isEditing={isEditing}
-                        initialData={getInitialFormValue(field?.name)}
-                        currentData={getFormValue(field?.name)}
-                        onAccept={onAttributeAccept}
-                        onReject={setToInitialValue}
+                        initialData={{[field?.name]: initialValue}}
+                        currentData={{[field?.name]: currentValue}}
+                        onAccept={() => updateAttributes(currentValue)}
+                        onReject={() => setCurrentValue(initialValue)}
                         actionButtonPlacement={"bottom"}
                     >
                         <FormInput
                             {...commonProps}
-                            formValues={getFormValue(field?.name)}
+                            formValues={{[field?.name]: currentValue}}
                             type="text"
                             placeholder={field.name}
                             onChange={({target: {value}}) => handleChange(value)}

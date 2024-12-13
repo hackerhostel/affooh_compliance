@@ -59,7 +59,6 @@ export const priorityCellRender = (data) => {
 
 export const statusCellRender = (data) => {
     const status = data?.value || "To Do"
-    console.log(status)
 
     const bgColors = {
         "To Do": "bg-task-status-to-do",
