@@ -359,7 +359,7 @@ const TestSuiteContentPage = () => {
             <div className={"flex w-full justify-between items-center mb-10 mt-6"}>
                 <div>
                     {testPlan?.id && (
-                        <p className={"text-secondary-grey font-bold text-md align-left"}>Projects  <span className="mx-1"> &gt; </span> <span className="text-black">{testPlan.name}</span> </p>
+                        <p className={"text-secondary-grey font-bold text-sm align-left"}>Projects  <span className="mx-1"> &gt; </span> <span className="text-black">{testPlan.name}</span> </p>
                     )}
                     <p className={"text-secondary-grey font-bold text-xl align-middle mt-11"}>Test Execution List</p>
                 </div>
@@ -421,7 +421,7 @@ const TestSuiteContentPage = () => {
                                             <th className="px-4 py-2 text-left">Summary</th>
                                             <th className="px-4 py-2 text-left">Platform</th>
                                             <th className="px-4 py-2 text-left">Priority</th>
-                                            <th className="px-4 py-2 text-left">Issues</th>
+                                            <th className="px-4 py-2 text-center">Issues</th>
                                             <th className="px-4 py-2 text-left">Assignee</th>
                                             <th className="px-4 py-2 text-left">Status</th>
                                             <th className="px-4 py-2 text-left">Notes</th>
