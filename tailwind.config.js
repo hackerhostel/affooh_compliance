@@ -8,6 +8,7 @@ module.exports = {
       colors: {
         'primary-pink': '#EB5A84',
         'secondary-pink': '#fdd6db',
+        'secondary-text-color': ' RGB(88, 88, 88)',
         'text-color': 'rgba(116, 122, 136, 1)',
         'card-white': '#FFFFFF',
         'cancel-button':"rgba(116, 122, 136, 1)",
