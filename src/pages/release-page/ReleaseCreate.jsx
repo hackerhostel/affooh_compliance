@@ -80,11 +80,11 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
       setIsValidationErrorsShown(false);
 
       try {
-        // const response = await axios.post("releases", {
-        //   release: formValues,
-        // });
-        //
-        // const releaseId = response?.data?.body?.releaseId;
+        const response = await axios.post("releases", {
+          release: formValues,
+        });
+
+        const releaseId = response?.data?.body?.releaseId;
 
         if (true || releaseId > 0) {
           dispatch(doGetReleases(selectedProject?.id));

@@ -5,14 +5,15 @@ import {getSpendTime} from "../../../utils/commonUtils.js";
 import FormInputWrapper from "./FormEditInputWrapper.jsx";
 
 const TimeTracking = ({
-                          estimationAttribute = {},
                           initialEstimationAttribute = {},
                           timeLogs,
                           isEditing,
-                          handleAdditionalFieldChange,
-                          updateTaskAttribute
+                          updateTaskAttribute,
+                          taskFieldID,
                       }) => {
     const [spendTime, setSpendTime] = useState('');
+    const [estimation, setEstimation] = useState('');
+    const [initialEstimation, setInitialEstimation] = useState('');
 
     useEffect(() => {
         if (timeLogs && timeLogs.length) {
@@ -21,6 +22,16 @@ const TimeTracking = ({
             setSpendTime('')
         }
     }, [timeLogs]);
+
+    useEffect(() => {
+        if (initialEstimationAttribute.taskFieldID) {
+            setInitialEstimation(initialEstimationAttribute?.values ? initialEstimationAttribute?.values[0] : '')
+            setEstimation(initialEstimationAttribute?.values ? initialEstimationAttribute?.values[0] : '')
+        } else {
+            setInitialEstimation('')
+            setEstimation('')
+        }
+    }, [initialEstimationAttribute]);
 
     return (
         <div className="w-full p-5 bg-white rounded-lg shadow-lg flex-col">
@@ -31,17 +42,17 @@ const TimeTracking = ({
                 <p className={"text-secondary-grey"}>Estimation</p>
                 <FormInputWrapper
                     isEditing={isEditing}
-                    initialData={{estimation: initialEstimationAttribute?.values ? initialEstimationAttribute?.values[0] : ''}}
-                    currentData={{estimation: estimationAttribute?.values ? estimationAttribute?.values[0] : ''}}
-                    onAccept={() => updateTaskAttribute(estimationAttribute?.taskFieldID, estimationAttribute?.values[0])}
-                    onReject={() => handleAdditionalFieldChange(initialEstimationAttribute?.taskFieldID, initialEstimationAttribute?.values[0])}
+                    initialData={{estimation: initialEstimation}}
+                    currentData={{estimation: estimation}}
+                    onAccept={() => updateTaskAttribute(taskFieldID, estimation)}
+                    onReject={() => setEstimation(initialEstimation)}
                     actionButtonPlacement={"bottom"}
                 >
                     <FormInput
                         type="text"
                         name="estimation"
-                        formValues={{estimation: estimationAttribute?.values ? estimationAttribute?.values[0] : ''}}
-                        onChange={({target: {value}}) => handleAdditionalFieldChange(estimationAttribute?.taskFieldID, value)}
+                        formValues={{estimation: estimation}}
+                        onChange={({target: {value}}) => setEstimation(value)}
                     />
                 </FormInputWrapper>
             </div>

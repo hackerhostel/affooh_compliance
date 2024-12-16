@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useToasts} from "react-toast-notifications";
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 import {TestSuiteCreateSchema} from "../../utils/validationSchemas.js";
 import useValidation from "../../utils/use-validation.jsx";
 import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
@@ -15,18 +15,18 @@ import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import Select from "react-select";
 import axios from "axios";
 import TestCaseCreateComponent from "./TestCaseCreateComponent.jsx";
-import {doGetTestCases, selectTestCasesForProject} from "../../state/slice/testCaseSlice.js";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import TestCaseContentComponent from "./TestCaseContentComponent.jsx";
+import useFetchTestCases from "../../hooks/custom-hooks/test-plan/useFetchTestCases.jsx";
 
 const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
     const {addToast} = useToasts();
-    const dispatch = useDispatch();
-
-    const {loading: testSuiteLoading, data: testSuiteResponse} = useFetchTestSuite(testSuiteId)
 
     const projectUserList = useSelector(selectProjectUserList);
     const selectedProject = useSelector(selectSelectedProject);
-    const testCasesForProject = useSelector(selectTestCasesForProject)
+
+    const {loading: testSuiteLoading, data: testSuiteResponse} = useFetchTestSuite(testSuiteId)
+    const {data: testCasesForProject, refetch: refetchTestCases} = useFetchTestCases(selectedProject?.id)
 
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,8 +77,6 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
         if (testCasesForProject.length) {
             setTestCases(testCasesForProject)
             setFilteredTestCases(testCasesForProject)
-        } else {
-            dispatch(doGetTestCases(selectedProject.id))
         }
     }, [testCasesForProject]);
 
@@ -184,7 +182,7 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
     const handleTestCaseCreateClose = (created) => {
         setIsTestCaseCreateOpen(false);
         if (created === true) {
-            dispatch(doGetTestCases(selectedProject.id))
+            refetchTestCases()
         }
     };
 
@@ -367,7 +365,7 @@ const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
                 </>
             )
         ) : (
-            <></>
+            <TestCaseContentComponent testCasesForProject={testCasesForProject} refetchTestCases={refetchTestCases}/>
         )
     );
 };
