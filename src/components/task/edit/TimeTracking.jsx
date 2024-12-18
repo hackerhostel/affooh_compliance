@@ -34,7 +34,7 @@ const TimeTracking = ({
     }, [initialEstimationAttribute]);
 
     return (
-        <div className="w-full p-5 bg-white rounded-lg shadow-lg flex-col">
+        <div className="w-full p-5 bg-white rounded-md mt-5 flex-col">
             <div className={"mb-6"}>
                 <ProgressBar label="Time Tracking" progress={75}/>
             </div>

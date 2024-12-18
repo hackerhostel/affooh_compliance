@@ -11,16 +11,16 @@ const CommentAndTimeTabs = ({timeLogs, taskId, refetchTimeLogs}) => {
     return (
         <div className="w-full mt-10">
             <TabGroup>
-                <TabList className="flex gap-4">
+                <TabList className="flex gap-4 justify-end rounded-full  text-sm ">
                     <Tab
                         key={'comments'}
-                        className="w-28 rounded-full py-2 px-3 text-sm bg-white text-secondary-grey data-[selected]:bg-black data-[selected]:text-white"
+                        className="w-28 h-7 rounded-full px-3 text-sm bg-white text-secondary-grey data-[selected]:bg-black data-[selected]:text-white"
                     >
                         Comments
                     </Tab>
                     <Tab
                         key={'timelogs'}
-                        className="w-28 rounded-full py-2 px-3 text-sm bg-white text-secondary-grey data-[selected]:bg-black data-[selected]:text-white"
+                        className="w-28 h-7 rounded-full  px-3 text-sm bg-white text-secondary-grey data-[selected]:bg-black data-[selected]:text-white"
                     >
                         Time log
                     </Tab>

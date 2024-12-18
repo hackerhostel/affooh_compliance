@@ -355,12 +355,12 @@ const ReleaseEdit = ({ releaseId }) => {
       <div className="p-2">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div className="text-start">
-            <div className="text-lg mb-2 flex items-center">
+            <div className="text-lg mt-5 flex items-center">
               <span className="font-semibold">Edit Staging Release</span>
 
               <ChevronRightIcon className="w-5 h-5 text-gray-500 " />
 
-              <span>{SelectedRelease?.name}</span>
+              <span className="text-gray-500">{SelectedRelease?.name}</span>
             </div>
             <div className="flex flex-col sm:flex-row">
               <span className="mr-2">Created Date: {createdDate}</span>
@@ -380,13 +380,13 @@ const ReleaseEdit = ({ releaseId }) => {
           </div>
         </div>
         <div>
-          <div className="p-5 bg-white rounded-lg">
+          <div className="p-5 mt-8 bg-white rounded-lg">
             <form
               id="editReleaseForm"
               onSubmit={editRelease}
               className="text-start"
             >
-              <div className=" mt-5">
+              <div className=" mt-4">
                 <FormInput
                   type="text"
                   name="name"
@@ -418,7 +418,7 @@ const ReleaseEdit = ({ releaseId }) => {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-3">
                 <div>
                   <FormInput
                     isDate={true}
@@ -475,10 +475,10 @@ const ReleaseEdit = ({ releaseId }) => {
           </div>
         </div>
         <div className="py-4">
-          <div className="font-semibold text-start text-secondary-grey mb-4">
+          <div className="font-semibold text-start text-xl text-secondary-grey mt-9">
             Check List Items
           </div>
-          <div className="w-full mt-8">
+          <div className="w-full ">
             <div className="flex w-full mb-3 justify-end pr-5">
               <div className="flex gap-1 items-center">
                 <PlusCircleIcon
@@ -492,7 +492,7 @@ const ReleaseEdit = ({ releaseId }) => {
               {releaseCheckListItems.length || showNewRow ? (
                 <table className="min-w-full border-collapse">
                   <thead>
-                    <tr>
+                    <tr className="text-text-color">
                       <th className="px-4 py-2 text-left">Name</th>
                       <th className="px-4 py-2 text-left">Status</th>
                       <th className="px-4 py-2 text-left">Assignee</th>

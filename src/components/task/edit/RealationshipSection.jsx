@@ -157,7 +157,7 @@ const RelationshipSection = ({
                     <table className="table-auto w-full border-collapse">
                         <thead>
                         <tr className="text-left text-secondary-grey border-b border-gray-200">
-                            <th className="py-5 px-4">Task Name</th>
+                            <th className="py-5 px-4">Name</th>
                             <th className="py-5 px-4">Assignee</th>
                             <th className="py-5 px-4">Status</th>
                             <th className="py-5 px-4">Action</th>
