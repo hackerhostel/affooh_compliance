@@ -157,72 +157,72 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
                 <div>
                   <FormInput
-                      type="date"
-                      name="releaseDate"
-                      formValues={formValues}
-                      placeholder="Release Date"
-                      onChange={({target: {name, value}}) =>
-                          handleFormChange(name, value, true)
-                      }
-                      formErrors={formErrors}
-                      showErrors={isValidationErrorsShown}
+                    type="date"
+                    name="releaseDate"
+                    formValues={formValues}
+                    placeholder="Release Date"
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value, true)
+                    }
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
 
                 <div className="flex-col">
                   <FormSelect
-                      name="status"
-                      disabled={true}
-                      placeholder="Status"
-                      formValues={formValues}
-                      options={releaseStatus}
-                      formErrors={formErrors}
-                      onChange={({target: {name, value}}) =>
-                          handleFormChange(name, value, true)
-                      }
-                      showErrors={isValidationErrorsShown}
+                    name="status"
+                    disabled={true}
+                    placeholder="Status"
+                    formValues={formValues}
+                    options={releaseStatus}
+                    formErrors={formErrors}
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value, true)
+                    }
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
 
                 <div>
                   <FormInput
-                      type="text"
-                      name="version"
-                      formValues={formValues}
-                      placeholder="Version"
-                      onChange={({target: {name, value}}) =>
-                          handleFormChange(name, value, true)
-                      }
-                      formErrors={formErrors}
-                      showErrors={isValidationErrorsShown}
+                    type="text"
+                    name="version"
+                    formValues={formValues}
+                    placeholder="Version"
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value, true)
+                    }
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
                 <div className="flex-col">
                   <FormSelect
-                      name="type"
-                      placeholder="Type"
-                      formValues={formValues}
-                      options={getSelectOptions(releaseTypes)}
-                      formErrors={formErrors}
-                      onChange={({target: {name, value}}) =>
-                          handleFormChange(name, value)
-                      }
-                      showErrors={isValidationErrorsShown}
+                    name="type"
+                    placeholder="Type"
+                    formValues={formValues}
+                    options={getSelectOptions(releaseTypes)}
+                    formErrors={formErrors}
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value)
+                    }
+                    showErrors={isValidationErrorsShown}
                   />
                 </div>
               </div>
               <div className="flex space-x-4 mt-6 self-end w-full">
                 <button
-                    onClick={onClose}
-                    className="btn-secondary"
-                    disabled={isSubmitting}
+                  onClick={onClose}
+                  className="btn-secondary"
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
-                    type="submit"
-                    className="btn-primary"
-                    disabled={isSubmitting}
+                  type="submit"
+                  className="btn-primary"
+                  disabled={isSubmitting}
                 >
                   Create
                 </button>

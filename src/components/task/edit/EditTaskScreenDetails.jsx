@@ -14,22 +14,12 @@ const EditTaskScreenDetails =
        taskAttributes
    }) => {
     return (
-      <div className="w-full">
+      <div className="w-full bg-white rounded-md">
         <TabGroup>
-          <TabList className="flex gap-4 mt-5">
-            {screenDetails?.tabs.map(({id, name}) => (
-              <Tab
-                key={id}
-                className="rounded-full py-1 px-3 text-sm/6 font-semibold bg-gray-900 text-white focus:outline-none data-[selected]:bg-primary-pink data-[hover]:bg-secondary-grey data-[selected]:data-[hover]:bg-primary-pink data-[focus]:outline-1 data-[focus]:outline-white"
-              >
-                {name}
-              </Tab>
-            ))}
-          </TabList>
-          <TabPanels className="mt-5 rounded-md">
+          <TabPanels className="mt-5 p-5 rounded-sm">
               {screenDetails?.tabs.map(({id, name, fields}) => (
                   <TabPanel key={id} className="rounded-xl bg-white/5">
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="gap-4">
                           {name === "General"
                               ? fields
                                   .filter((field) => {
