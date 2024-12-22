@@ -46,6 +46,10 @@ const SprintTable = ({
     setFilteredTaskList(taskList)
   }, [taskList]);
 
+  useEffect(() => {
+    console.log('typeList', typeList)
+  },[typeList])
+
   const taskTitleComponent = (data) => {
     return <button
         className="px-2 py-1 text-sm hover:bg-gray-50 rounded-lg text-wrap text-start"

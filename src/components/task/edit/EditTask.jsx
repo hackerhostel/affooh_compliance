@@ -31,7 +31,7 @@ const EditTaskPage = () => {
   const projectUserList = useSelector(selectProjectUserList);
   const selectedProject = useSelector(selectSelectedProject);
   const Sprint = useSelector(selectSelectedSprint);
-  
+
 
   const [initialTaskData, setInitialTaskData] = useState({});
   const [taskData, setTaskData] = useState({});
@@ -76,6 +76,7 @@ const EditTaskPage = () => {
   useEffect(() => {
     if (taskDetails?.id) {
       updateStates(taskDetails)
+      console.log('task details', taskDetails)
     }
   }, [taskDetails]);
 
@@ -174,12 +175,28 @@ const EditTaskPage = () => {
     return taskFieldID;
   };
 
+
+
+
+
   return (
     <div className="flex">
       <div className="w-8/12 p-5 bg-dashboard-bgc">
-      <div className="mt-3 text-sm">
-        <span>{selectedProject?.name || "No project selected"} Loading page  {Sprint?.name}  </span>
-      </div>
+        <div className="flex mt-3 text-sm">
+          <div className="flex flex-col">
+            <span className="text-sm text-text-color"><span className="text-project-name-content-pages-color font-semibold ">{selectedProject?.name || "No project selected"} Landing page</span>  &gt;  {Sprint?.name} &gt; {initialTaskData.name}  </span>
+            <span className="text-text-color mt-2">
+              <span>Created date: {taskDetails?.createdAt ? new Date(taskDetails.createdAt).toLocaleDateString() : "N/A"} </span>
+              <span className="ml-3">Created by: {taskDetails?.createdBy ? `${taskDetails.createdBy.firstName} ${taskDetails.createdBy.lastName}` : "Unknown"}</span>
+            </span>
+          </div>
+          <div>
+  <div className="bg-primary-pink text-white rounded-full px-6 py-1 inline-block">
+    {taskDetails?.taskType?.name}
+  </div>
+</div>
+
+        </div>
         <div className="bg-white p-5 rounded-md mt-5">
           <div className="mb-6">
             <FormInputWrapper
@@ -244,53 +261,53 @@ const EditTaskPage = () => {
         <CommentAndTimeTabs timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs} />
       </div>
       <div className=" p-5 bg-dashboard-bgc">
-      <div className="bg-white p-5 rounded-md" style={{ marginTop: "51px" }}>
+        <div className="bg-white p-5 rounded-md" style={{ marginTop: "80px" }}>
 
-        <div className="mb-6 mt-5">
-          <FormSelect
-            name="assignee"
-            disabled={isEditing}
-            placeholder="Assignee"
-            formValues={taskData}
-            options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
-            onChange={({ target: { name, value } }) => {
-              handleFormChange(name, value);
-              updateTaskDetails("assigneeID", value)
-            }}
-            formErrors={formErrors}
-            showErrors={isValidationErrorsShown}
-          />
+          <div className="mb-6 mt-5">
+            <FormSelect
+              name="assignee"
+              disabled={isEditing}
+              placeholder="Assignee"
+              formValues={taskData}
+              options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
+              onChange={({ target: { name, value } }) => {
+                handleFormChange(name, value);
+                updateTaskDetails("assigneeID", value)
+              }}
+              formErrors={formErrors}
+              showErrors={isValidationErrorsShown}
+            />
+          </div>
+          <div className="mb-6">
+            <FormSelect
+              name="owner"
+              disabled={isEditing}
+              placeholder="Task Owner"
+              formValues={{ owner: filterTaskFieldValue("Task Owner") }}
+              options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
+              onChange={({ target: { value } }) => {
+                handleAdditionalFieldChange(filterTaskFieldId("Task Owner"), value)
+                updateTaskAttribute(filterTaskFieldId("Task Owner"), value);
+              }}
+              formErrors={formErrors}
+              showErrors={isValidationErrorsShown}
+            />
+          </div>
+          <div className="mb-6">
+            <FormSelect
+              placeholder="Epic"
+              name="epicID"
+              formValues={{ epicID: taskData?.epicID }}
+              options={getSelectOptions(epics)}
+              onChange={({ target: { name, value } }) => {
+                handleFormChange(name, value);
+                updateTaskDetails("epicID", value)
+              }}
+              disabled={isEditing}
+            />
+          </div>
         </div>
-        <div className="mb-6">
-          <FormSelect
-            name="owner"
-            disabled={isEditing}
-            placeholder="Task Owner"
-            formValues={{ owner: filterTaskFieldValue("Task Owner") }}
-            options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
-            onChange={({ target: { value } }) => {
-              handleAdditionalFieldChange(filterTaskFieldId("Task Owner"), value)
-              updateTaskAttribute(filterTaskFieldId("Task Owner"), value);
-            }}
-            formErrors={formErrors}
-            showErrors={isValidationErrorsShown}
-          />
-        </div>
-        <div className="mb-6">
-          <FormSelect
-            placeholder="Epic"
-            name="epicID"
-            formValues={{ epicID: taskData?.epicID }}
-            options={getSelectOptions(epics)}
-            onChange={({ target: { name, value } }) => {
-              handleFormChange(name, value);
-              updateTaskDetails("epicID", value)
-            }}
-            disabled={isEditing}
-          />
-        </div>
-      </div>
-        
+
         <EditTaskScreenDetails
           isEditing={isEditing}
           initialTaskData={initialTaskData}
