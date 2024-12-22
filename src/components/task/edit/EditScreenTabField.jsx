@@ -64,14 +64,14 @@ const EditScreenTabField = ({
         const errorMessage = getErrorMessage();
         const commonProps = {
             name: field.name,
-            formErrors: errorMessage ? {[field.name]: errorMessage} : {},
+            formErrors: errorMessage ? { [field.name]: errorMessage } : {},
             showErrors: isValidationErrorsShown,
         };
-
+    
         switch (field.fieldType.name) {
             case "DDL":
             case "MULTI_SELECT":
-            case "TASK_PICKER_MULTI_SELECT": // TODO: need to remove task list comes with response
+            case "TASK_PICKER_MULTI_SELECT":
             case "TASK_PICKER":
             case "RELEASE_PICKER":
                 return (
@@ -83,9 +83,9 @@ const EditScreenTabField = ({
                         placeholder={field.name}
                         options={getSelectOptions(field?.fieldValues && field.fieldValues.length ? field?.fieldValues : [])}
                         isMulti={field.fieldType.canSelectMultiValues === 1}
-                        onChange={({target: {value}}) => {
-                            handleChange(value)
-                            updateAttributes(value)
+                        onChange={({ target: { value } }) => {
+                            handleChange(value);
+                            updateAttributes(value);
                         }}
                     />
                 );
@@ -99,9 +99,9 @@ const EditScreenTabField = ({
                         placeholder={field.name}
                         options={users.length ? getUserSelectOptions(users) : []}
                         isMulti={field.fieldType.canSelectMultiValues === 1}
-                        onChange={({target: {value}}) => {
-                            handleChange(value)
-                            updateAttributes(value)
+                        onChange={({ target: { value } }) => {
+                            handleChange(value);
+                            updateAttributes(value);
                         }}
                     />
                 );
@@ -109,43 +109,60 @@ const EditScreenTabField = ({
                 return (
                     <FormInputWrapper
                         isEditing={isEditing}
-                        initialData={{[field?.name]: initialValue}}
-                        currentData={{[field?.name]: currentValue}}
+                        initialData={{ [field?.name]: initialValue }}
+                        currentData={{ [field?.name]: currentValue }}
                         onAccept={() => updateAttributes(currentValue)}
                         onReject={() => setCurrentValue(initialValue)}
                         actionButtonPlacement={"bottom"}
                     >
                         <FormInput
                             {...commonProps}
-                            formValues={{[field?.name]: currentValue}}
+                            formValues={{ [field?.name]: currentValue }}
                             type="date"
                             placeholder={field.name}
-                            onChange={({target: {value}}) => handleChange(value)}
+                            onChange={({ target: { value } }) => handleChange(value)}
                         />
                     </FormInputWrapper>
+                );
+            case "LABELS":
+                return (
+                    <FormSelect
+                        {...commonProps}
+                        disabled={isEditing}
+                        showLabel
+                        formValues={getFormValue(field?.name)}
+                        placeholder={field.name}
+                        options={field?.fieldValues.map((value) => ({ label: value, value }))}
+                        isMulti
+                        onChange={({ target: { value } }) => {
+                            handleChange(value);
+                            updateAttributes(value);
+                        }}
+                    />
                 );
             case "TEXT":
             default:
                 return (
                     <FormInputWrapper
                         isEditing={isEditing}
-                        initialData={{[field?.name]: initialValue}}
-                        currentData={{[field?.name]: currentValue}}
+                        initialData={{ [field?.name]: initialValue }}
+                        currentData={{ [field?.name]: currentValue }}
                         onAccept={() => updateAttributes(currentValue)}
                         onReject={() => setCurrentValue(initialValue)}
                         actionButtonPlacement={"bottom"}
                     >
                         <FormInput
                             {...commonProps}
-                            formValues={{[field?.name]: currentValue}}
+                            formValues={{ [field?.name]: currentValue }}
                             type="text"
                             placeholder={field.name}
-                            onChange={({target: {value}}) => handleChange(value)}
+                            onChange={({ target: { value } }) => handleChange(value)}
                         />
                     </FormInputWrapper>
                 );
         }
     };
+    
 
     return (
         <div className="mb-6">
