@@ -52,7 +52,7 @@ const TaskRelationTabs = ({
                             <Tab
                                 key={tab.key}
                                 className={({selected}) =>
-                                    `w-18 h-7 rounded-full px-3 text-sm 
+                                    `w-18 h-7 rounded-full px-3 text-xs 
                                 ${selected ? 'bg-black text-white' : 'bg-white text-secondary-grey'}`
                                 }
                             >
