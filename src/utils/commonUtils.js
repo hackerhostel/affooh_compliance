@@ -38,6 +38,7 @@ export const getSelectOptions = (options) => {
   }
 };
 
+
 export const getUserSelectOptions = (options) => {
   return options.map(o => ({value: Number(o.id), label: `${o.firstName} ${o.lastName}`}));
 };

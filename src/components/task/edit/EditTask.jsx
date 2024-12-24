@@ -76,7 +76,6 @@ const EditTaskPage = () => {
   useEffect(() => {
     if (taskDetails?.id) {
       updateStates(taskDetails)
-      console.log('task details', taskDetails)
     }
   }, [taskDetails]);
 

@@ -39,7 +39,8 @@ module.exports = {
         'task-status-uat-bold': "#FF9820",
         'task-status-done': "#C9F6BF",
         'task-status-done-bold': "#41A936",
-        'light-red': "#FFE1E1"
+        'light-red': "#FFE1E1",
+        'popup-screen-header' : '#585858'
       },
       height: {
         'list-screen': 'calc(100vh - 148px)',
