@@ -25,9 +25,6 @@ const EditTaskScreenDetails = ({
       <TabGroup>
         <TabPanels className="mt-5 p-5 rounded-sm">
           {screenDetails?.tabs.map(({ id, name, fields }) => {
-            // Log fields to the console
-            console.log(`Fields for tab "${name}":`, fields);
-
             return (
               <TabPanel key={id} className="rounded-xl bg-white/5">
                 <div className="gap-4">
