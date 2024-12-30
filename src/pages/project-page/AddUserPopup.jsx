@@ -4,22 +4,20 @@ import { doGetProjectUsers, selectProjectUserList } from "../../state/slice/proj
 import { useDispatch, useSelector } from "react-redux";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import axios from "axios";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const AddUserPopup = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
-  const userListForProject = useSelector(selectProjectUserList) || []; 
+  const userListForProject = useSelector(selectProjectUserList) || [];
   const [formValues, setFormValues] = useState({ projectUserIDs: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  
   useEffect(() => {
     if (selectedProject) {
       dispatch(doGetProjectUsers(selectedProject.id));
     }
   }, [selectedProject, dispatch]);
-
-  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,7 +27,6 @@ const AddUserPopup = ({ isOpen, onClose }) => {
     }));
   };
 
-  
   const handleUserAdd = async () => {
     if (!formValues.projectUserIDs) {
       alert("Please select a user to add.");
@@ -40,7 +37,7 @@ const AddUserPopup = ({ isOpen, onClose }) => {
     try {
       const payload = {
         projectUserIDs: [
-          ...(userListForProject.map((user) => user.id) || []), 
+          ...(userListForProject.map((user) => user.id) || []),
           parseInt(formValues.projectUserIDs, 10),
         ],
       };
@@ -65,8 +62,17 @@ const AddUserPopup = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-md p-6 w-96">
-        <span className="text-xl font-semibold ">Add New Member</span>
+      <div className="bg-white rounded-md p-6 w-96 relative">
+        {/* Close Icon */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none"
+          aria-label="Close"
+        >
+          <XMarkIcon className="h-6 w-6" />
+        </button>
+
+        <span className="text-xl font-semibold">Add New Member</span>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -74,7 +80,7 @@ const AddUserPopup = ({ isOpen, onClose }) => {
           }}
         >
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
+            <label className="block text-secondary-grey mt-10 text-sm font-medium mb-2">
               Select User
             </label>
             <FormSelect
@@ -82,29 +88,26 @@ const AddUserPopup = ({ isOpen, onClose }) => {
               value={formValues.projectUserIDs}
               options={userListForProject.map((user) => ({
                 value: user.id,
-                label: `${user.firstName} ${user.lastName}`.trim(), 
+                label: `${user.firstName} ${user.lastName}`.trim(),
               }))}
               onChange={handleChange}
               className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue"
               required
             />
-
-            
-
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md"
+              className="btn-secondary w-32"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-pink text-white rounded-md"
+              className="btn-primary w-32"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Saving..." : "Save"}
