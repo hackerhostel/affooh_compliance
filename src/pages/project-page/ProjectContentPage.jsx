@@ -42,6 +42,10 @@ const ProjectContentPage = () => {
     setFormValues({ ...selectedProject, projectUserIDs: projectUsersIdList });
   }, [selectedProject]);
 
+  useEffect(() => {
+    console.log('user', userListForProject)
+  }, [userListForProject])
+
   const handleButtonClick = (buttonName) => {
     setActiveButton(buttonName);
   };
@@ -114,6 +118,9 @@ const ProjectContentPage = () => {
 
     setIsDialogOpen(false);
   };
+
+
+
 
   const handleIssueFormChange = (name, value) => {
     setIssueFormValues({
@@ -205,7 +212,7 @@ const ProjectContentPage = () => {
             <span className="text-black text-sm font-bold">{selectedProject.name}</span>
           </div>
           <div className="text flex gap-3 mt-3 text-xs justify-end">
-            {["Details", "People", "Configuration", "Workflows"].map(
+            {["Overview", "People", "Configuration", "Workflows"].map(
               (buttonName) => (
                 <button
                   key={buttonName}
@@ -238,17 +245,21 @@ const ProjectContentPage = () => {
                 </div>
                 <div className="flex-col">
                   <p className="text-secondary-grey">Name</p>
-                  <FormInput
-                    type="text"
-                    name="prefix"
-                    value={formValues.name}
-                    formValues={formValues}
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value, true)
-                    }
-                    formErrors={formErrors}
-                    showErrors={isValidationErrorsShown}
-                  />
+                  <div className="">
+                    <FormInput
+                      type="text"
+                      name="prefix"
+
+                      value={formValues.name}
+                      formValues={formValues}
+                      onChange={({ target: { name, value } }) =>
+                        handleFormChange(name, value, true)
+                      }
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
+                    />
+                  </div>
+
                 </div>
 
                 <div className="flex-col">
@@ -330,8 +341,8 @@ const ProjectContentPage = () => {
               </form>
             </div>
 
-            {activeButton === "Details" && (
-              <div>overview</div>
+            {activeButton === "Overview" && (
+              <div><span className="text-secondary-grey font-semibold text-base">Overview</span></div>
             )}
 
             {activeButton === "People" && (
@@ -339,7 +350,7 @@ const ProjectContentPage = () => {
                 <div className="flex items-center space-x-4">
                   <span className="text-secondary-grey font-semibold text-base">People</span>
                   <div className="flex items-center space-x-1">
-                    <PlusCircleIcon onClick={openPopUp} className="w-6 cursor-pointer text-primary-pink"/>
+                    <PlusCircleIcon onClick={openPopUp} className="w-6 cursor-pointer text-primary-pink" />
                     <span className="text-popup-screen-header text-sm">Add New</span>
                   </div>
                 </div>
@@ -374,10 +385,10 @@ const ProjectContentPage = () => {
                 </div>
 
                 <OpenPopUp
-        isOpen={isOpenPopUp}
-        onClose={closePopUp}
-        onSubmit={handleSubmitPopup}
-      />
+                  isOpen={isOpenPopUp}
+                  onClose={closePopUp}
+                  onSubmit={handleSubmitPopup}
+                />
 
               </div>
 
@@ -390,19 +401,19 @@ const ProjectContentPage = () => {
                   <table className="w-full text-sm text-left text-gray-500">
                     <thead className="text-sm text-secondary-grey">
                       <tr>
-                        <th scope="col" className="px-6 py-3">
+                        <th scope="col" className="px-6 py-3 text-secondary-grey">
                           Title
                         </th>
-                        <th scope="col" className="px-6 py-3">
+                        <th scope="col" className="px-6 py-3 text-secondary-grey">
                           Priority
                         </th>
-                        <th scope="col" className="px-6 py-3">
+                        <th scope="col" className="px-6 py-3 text-secondary-grey">
                           Severity
                         </th>
-                        <th scope="col" className="px-6 py-3">
+                        <th scope="col" className="px-6 py-3 text-secondary-grey">
                           Status
                         </th>
-                        <th scope="col" className="px-6 py-3">
+                        <th scope="col" className="px-6 py-3 text-secondary-grey">
                           Action
                         </th>
                       </tr>
@@ -410,11 +421,11 @@ const ProjectContentPage = () => {
 
                     <tbody>
                       <tr className="bg-white border-b hover:bg-gray-50">
-                        <td className="px-6 py-4 h-16 font-medium text-gray-900">
+                        <td className="px-6 py-4 h-16 font-medium text-secondary-grey">
                           Task
                         </td>
                         <td className="px-6 py-4">
-                          <span className="px-5 py-2 rounded bg-priority-button-high text-white">
+                          <span className="px-5 py-1 rounded bg-priority-button-high text-sm text-white">
                             High
                           </span>
                         </td>
@@ -431,71 +442,7 @@ const ProjectContentPage = () => {
                         </td>
                       </tr>
 
-                      <tr className="bg-white border-b h-16 hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">
-                          Subtask
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-5 py-2 rounded bg-priority-button-medium text-black">
-                            Low
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">Sprint 2</td>
-                        <td className="px-6 py-4">
-                          <span className="bg-blue-100 text-blue-800 text-xs px-3 py-2 rounded">
-                            To-do
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button className="text-gray-500 hover:text-gray-700">
-                            <EllipsisVerticalIcon className="h-6 w-6" />
-                          </button>
-                        </td>
-                      </tr>
-
-                      <tr className="bg-white h-16 border-b hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">
-                          Epic
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-5 py-2 rounded bg-priority-button-low text-black">
-                            Medium
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">Sprint 3</td>
-                        <td className="px-6 py-4">
-                          <span className="bg-blue-100 text-blue-800 text-xs px-3 py-2 rounded">
-                            In Progress
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button className="text-gray-500 hover:text-gray-700">
-                            <EllipsisVerticalIcon className="h-6 w-6" />
-                          </button>
-                        </td>
-                      </tr>
-
-                      <tr className="bg-white border-b  hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">
-                          Bugs
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-5 py-2 rounded bg-priority-button-high text-white">
-                            High
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">Sprint 4</td>
-                        <td className="px-6 py-4">
-                          <span className="bg-blue-100 text-blue-800 text-xs px-3 py-2 rounded">
-                            To-do
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button className="text-gray-500 hover:text-gray-700">
-                            <EllipsisVerticalIcon className="h-6 w-6" />
-                          </button>
-                        </td>
-                      </tr>
+                      
                     </tbody>
                   </table>
                 </div>
