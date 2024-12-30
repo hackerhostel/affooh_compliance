@@ -6,14 +6,14 @@ import {
   setSelectedProject
 } from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
-import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
+import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import axios from "axios";
-import {useToasts} from "react-toast-notifications";
-import {doGetWhoAmI} from "../../state/slice/authSlice.js";
+import { useToasts } from "react-toast-notifications";
+import { doGetWhoAmI } from "../../state/slice/authSlice.js";
 
 const ProjectListPage = () => {
-  const {addToast} = useToasts();
+  const { addToast } = useToasts();
   const dispatch = useDispatch();
   const projectList = useSelector(selectProjectList);
   const selectedProject = useSelector(selectSelectedProject);
@@ -92,12 +92,12 @@ const ProjectListPage = () => {
   const handleConfirmDelete = () => {
     if (selectedProject) {
       axios.delete(`/projects/${selectedProject.id}`)
-          .then(response => {
-            addToast('Project Successfully Deleted', {appearance: 'success'});
-            dispatch(doGetWhoAmI());
-          }).catch(() => {
-        addToast('Project delete request failed ', {appearance: 'error'});
-      });
+        .then(response => {
+          addToast('Project Successfully Deleted', { appearance: 'success' });
+          dispatch(doGetWhoAmI());
+        }).catch(() => {
+          addToast('Project delete request failed ', { appearance: 'error' });
+        });
     }
     setIsDialogOpen(false);
     setSelectedProject(null);
@@ -105,28 +105,30 @@ const ProjectListPage = () => {
 
   return (
     <div className="h-list-screen w-full">
-      <div className="flex flex-col gap-4  w-full pl-3">
-        <SearchBar onSearch={handleSearch} />
-        <div className="flex w-full laptopL:w-60 justify-between ">
-          {["active", "onHold", "closed"].map((filter) => (
-            <button
-              key={filter}
-              className={`px-2 py-1 rounded-xl text-xs ${
-                selectedFilters[filter] ? "bg-black text-white" : "bg-gray-200"
-              }`}
-              onClick={() => handleFilterChange(filter)}
-            >
-              {filter.charAt(0).toUpperCase() + filter.slice(1)} ({filterCounts[filter]})
-            </button>
-          ))}
+      <div className="flex-col gap-4">
+        <div className='flex flex-col gap-4  pl-3 pr-3'>
+          <SearchBar onSearch={handleSearch} />
+          <div className="flex w-full laptopL:w-60 justify-between ml-3">
+            {["active", "onHold", "closed"].map((filter) => (
+              <button
+                key={filter}
+                className={`px-2 py-1 rounded-xl text-xs ${selectedFilters[filter] ? "bg-black text-white" : "bg-gray-200"
+                  }`}
+                onClick={() => handleFilterChange(filter)}
+              >
+                {filter.charAt(0).toUpperCase() + filter.slice(1)} ({filterCounts[filter]})
+              </button>
+            ))}
+          </div>
         </div>
+
       </div>
 
       <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-5 pr-1 mt-6">
         {filteredList.length === 0 ? (
           <div className="text-center text-gray-600">No projects found</div>
         ) : (
-            filteredList.map((project) => (
+          filteredList.map((project) => (
             <div
               key={project.id}
               className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer"
@@ -151,13 +153,13 @@ const ProjectListPage = () => {
       </div>
 
       <ConfirmationDialog
-          isOpen={isDialogOpen}
-          onClose={() => {
-            setIsDialogOpen(false);
-            setSelectedProject(null);
-          }}
-          onConfirm={handleConfirmDelete}
-          message={selectedProject ? `To delete project - ${selectedProject.name} ?` : ''}
+        isOpen={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setSelectedProject(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        message={selectedProject ? `To delete project - ${selectedProject.name} ?` : ''}
       />
     </div>
   );
