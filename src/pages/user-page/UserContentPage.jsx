@@ -58,44 +58,48 @@ const UserContentPage = () => {
     );
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="p-6 bg-dashboard-bgc min-h-screen">
             <div className="flex flex-wrap gap-6 pb-6">
                 {/* Left Sidebar */}
-                <div className="w-64 bg-white rounded-lg p-6 h-fit">
+                <div className="w-72 bg-white mt-16 rounded-lg p-6 h-fit">
                     <div className="flex flex-col items-center">
-                        <div className="w-20 h-20 bg-gray-200 rounded-full mb-4"></div>
-                        <h5 className="text-lg font-semibold mb-1">Nilanga Pathirana</h5>
-                        <span className="text-sm text-gray-500 mb-6">Administrator</span>
-
-                        <div className="w-full space-y-4">
-                            <div className="flex items-center gap-3 text-gray-600">
-                                <EnvelopeIcon size={18}/>
-                                <span className="text-sm">nilangapathirana@gmail.com</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-gray-600">
-                                <PhoneIcon className="h-5 w-5"/>
-                                <span className="text-sm">+94 71 234 6678</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-gray-600">
-                                <MapPinIcon className="h-5 w-5"/>
-                                <span className="text-sm">2239 Hog Camp Road<br/>New Zealand</span>
-                            </div>
+                        <div className="w-24 h-24 bg-gray-200 rounded-full mt-2"></div>
+                        <span className="text-xl font-semibold mt-5  text-secondary-grey mb-1">Nilanga Pathirana</span>
+                        <div className='bg-task-status-qa px-2 mt-1 rounded-md'>
+                        <span className="text-xs">Admin</span>
                         </div>
-
-                        <div className="mt-8 w-full">
-                            <div className="rounded-full bg-pink-100 p-4">
-                                <div className="text-center">
-                                    <span className="text-3xl font-bold text-pink-500">73</span>
-                                    <p className="text-sm text-gray-500">Hours</p>
+                        <hr className="w-full mt-6 border-t  border-gray-200" />
+                        <div className="w-full space-y-4 mt-6">
+                            <div className='flex flex-col'>
+                                <label className='text-xs' htmlFor="">Email</label>
+                                <div className='user-details-left-column-detail-box'>
+                                    <p className='p-2 text-xs'>nilangaPathiran12@gmail.com</p>
+                                </div>
+                            </div><div className='flex flex-col'>
+                                <label className='text-xs' htmlFor="">Contact Number</label>
+                                <div className='user-details-left-column-detail-box'>
+                                    <p className='p-2 text-xs'><span className='mr-1 text-secondary-grey'>+94</span>76564534</p>
                                 </div>
                             </div>
-                            <p className="text-center mt-2 text-sm text-gray-500">Total Time Logs</p>
+                            <div className='flex flex-col'>
+                                <label className='text-xs' htmlFor="">Team</label>
+                                <div className='user-details-left-column-detail-box'>
+                                    <p className='p-2 text-xs'>Admin Department</p>
+                                </div>
+                            </div>
+
+                            <div className='flex flex-col'>
+                                <label className='text-xs' htmlFor="">Role</label>
+                                <div className='user-details-left-column-detail-box'>
+                                    <p className='p-2 text-xs'>Administrator</p>
+                                </div>
+                            </div>                           
                         </div>
                     </div>
                 </div>
 
                 {/* Time log Section */}
-                <div className="flex-1 bg-white rounded-lg p-6">
+                {/* <div className="flex-1 bg-white rounded-lg p-6">
                     <h6 className="font-semibold mb-3">Time logs</h6>
                     <div className="flex gap-4 mb-6">
                         {Object.entries(timeData).map(([period, hours]) => (
@@ -131,10 +135,10 @@ const UserContentPage = () => {
                         ))}
                         </tbody>
                     </table>
-                </div>
+                </div> */}
 
                 {/* Tasks Section */}
-                <div className="flex-1 bg-white rounded-lg p-6">
+                {/* <div className="flex-1 bg-white rounded-lg p-6">
                     <div className="flex justify-between items-center mb-6">
                         <h6 className="font-semibold">Tasks</h6>
                         <div className="flex gap-4">
@@ -181,12 +185,12 @@ const UserContentPage = () => {
                         </tr>
                         </tbody>
                     </table>
-                </div>
+                </div> */}
             </div>
 
             <div className="flex gap-6 pb-6">
                 {/* Estimation Deviations */}
-                <div className="flex-1 bg-white rounded-lg p-6">
+                {/* <div className="flex-1 bg-white rounded-lg p-6">
                     <div className="flex justify-between items-center mb-6">
                         <h6 className="font-semibold">Estimation Deviations</h6>
                         <span className="text-gray-600">+14 hrs</span>
@@ -195,10 +199,10 @@ const UserContentPage = () => {
                         headers={['Task ID', 'Task Summary', 'Estimation', 'Actual', 'Deviation']}
                         data={estimationDeviations}
                     />
-                </div>
+                </div> */}
 
                 {/* Schedule Deviations */}
-                <div className="flex-1 bg-white rounded-lg p-6">
+                {/* <div className="flex-1 bg-white rounded-lg p-6">
                     <div className="flex justify-between items-center mb-6">
                         <h6 className="font-semibold">Schedule Deviations</h6>
                         <span className="text-gray-600">+4d</span>
@@ -207,11 +211,11 @@ const UserContentPage = () => {
                         headers={['Task ID', 'Task Summary', 'Estimation', 'Actual', 'Deviation']}
                         data={scheduleDeviations}
                     />
-                </div>
+                </div> */}
             </div>
 
             {/* Produced Bugs */}
-            <div className="flex gap-6">
+            {/* <div className="flex gap-6">
                 <div className="flex-1 bg-white rounded-lg p-6">
                     <div className="flex justify-between items-center mb-6">
                         <h6 className="font-semibold">Produced Bugs</h6>
@@ -222,7 +226,7 @@ const UserContentPage = () => {
                         data={producedBugs}
                     />
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 };

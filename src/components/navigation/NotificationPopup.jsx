@@ -88,13 +88,13 @@ const NotificationPopup = ({ isOpen, onClose }) => {
                             className="w-10 h-10 rounded-full"
                         />
                         <div className="flex-1">
-                            <p className="text-sm">
-                                <strong>{notif.name}</strong> {notif.message}
+                            <p className="text-xs text-secondary-grey">
+                                {notif.name} {notif.message}
                             </p>
                             <span className="text-xs text-gray-500">{notif.time}</span>
                         </div>
                         {notif.status === "unread" && (
-                            <span className="text-xs text-blue-500 mt-10 font-medium">Unread</span>
+                            <span className="text-xs text-secondary-grey mt-10 font-medium">Unread</span>
                         )}
                     </div>
                 ))}
