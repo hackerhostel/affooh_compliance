@@ -85,7 +85,7 @@ const CommentSection = ({taskId, userDetails}) => {
             try {
                 const response = await axios.put(`/tasks/${taskId}/comments/${id}`, {comment: editedComment})
                 const updated = response?.status
-                if (updated === 204) {
+                if (updated === 200) {
                     setEditing(null);
                     setEditedComment("");
                     await reFetchComments()
