@@ -6,7 +6,7 @@ import {useParams} from "react-router-dom";
 import axios from "axios";
 import SkeletonLoader from "../../SkeletonLoader.jsx";
 import ErrorAlert from "../../ErrorAlert.jsx";
-import {getSelectOptions, getUserSelectOptions} from "../../../utils/commonUtils.js";
+import {getSelectOptions, getUserOptions} from "../../../utils/commonUtils.js";
 import FormSelect from "../../FormSelect.jsx";
 import {useSelector} from "react-redux";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
@@ -21,6 +21,7 @@ import useFetchTask from "../../../hooks/custom-hooks/task/useFetchTask.jsx";
 import useFetchFlatTasks from "../../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
 import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 import WYSIWYGInput from "../../WYSIWYGInput.jsx";
+import UserSelect from "../../UserSelect.jsx";
 
 const EditTaskPage = () => {
   const {code} = useParams();
@@ -46,6 +47,7 @@ const EditTaskPage = () => {
   const {data: tasksList} = useFetchFlatTasks(initialTaskData?.project?.id)
 
   const handleFormChange = (name, value) => {
+    console.log(name, value)
     const newForm = {...taskData, [name]: value};
     setTaskData(newForm);
   };
@@ -234,33 +236,27 @@ const EditTaskPage = () => {
       </div>
       <div className="w-2/5 py-5 bg-dashboard-bgc">
           <div className="mb-6">
-            <FormSelect
-              name="assignee"
-              disabled={isEditing}
-              placeholder="Assignee"
-              formValues={taskData}
-              options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
-              onChange={({target: {name, value}}) => {
-                handleFormChange(name, value);
-                updateTaskDetails("assigneeID", value)
-              }}
-              formErrors={formErrors}
-              showErrors={isValidationErrorsShown}
+            <UserSelect
+                name="assignee"
+                value={taskData.assignee}
+                onChange={({target: {name, value}}) => {
+                  handleFormChange(name, value)
+                  updateTaskDetails("assigneeID", value)
+                }}
+                users={projectUserList && projectUserList.length ? getUserOptions(projectUserList) : []}
+                label={"Assignee"}
             />
           </div>
           <div className="mb-6">
-            <FormSelect
+            <UserSelect
                 name="owner"
-                disabled={isEditing}
-                placeholder="Task Owner"
-                formValues={{owner: filterTaskFieldValue("Task Owner")}}
-                options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
+                value={filterTaskFieldValue("Task Owner")}
                 onChange={({target: {value}}) => {
                   handleAdditionalFieldChange(filterTaskFieldId("Task Owner"), value)
                   updateTaskAttribute(filterTaskFieldId("Task Owner"), value);
                 }}
-                formErrors={formErrors}
-                showErrors={isValidationErrorsShown}
+                users={projectUserList && projectUserList.length ? getUserOptions(projectUserList) : []}
+                label={"Task Owner"}
             />
           </div>
           <div className="mb-6">
