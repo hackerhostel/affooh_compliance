@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
-
 import FormTextArea from "../../components/FormTextArea.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import { ReleaseEditSchema } from "../../utils/validationSchemas.js";
@@ -379,14 +378,15 @@ const ReleaseEdit = ({ releaseId }) => {
             </button>
           </div>
         </div>
-        <div>
-          <div className="p-5 mt-8 bg-white rounded-lg">
+
+        <div className="flex space-x-5">
+          <div className="p-5 mt-8 w-72 bg-white rounded-lg">
             <form
               id="editReleaseForm"
               onSubmit={editRelease}
               className="text-start"
             >
-              <div className=" mt-4">
+              <div className=" mt-4 ">
                 <FormInput
                   type="text"
                   name="name"
@@ -473,13 +473,13 @@ const ReleaseEdit = ({ releaseId }) => {
               </div>
             </form>
           </div>
-        </div>
-        <div className="py-4">
-          <div className="font-semibold text-start text-xl text-secondary-grey mt-9">
+
+          <div className="py-7">
+          <div className="font-semibold text-start  text-xl text-secondary-grey ">
             Check List Items
           </div>
           <div className="w-full ">
-            <div className="flex w-full mb-3 justify-end pr-5">
+            <div className="flex w-full justify-end pr-5">
               <div className="flex gap-1 items-center">
                 <PlusCircleIcon
                   onClick={handleAddNewRow}
@@ -488,7 +488,7 @@ const ReleaseEdit = ({ releaseId }) => {
                 <span className="font-thin text-xs text-gray-600">Add New</span>
               </div>
             </div>
-            <div className="w-full p-6 bg-white rounded-lg shadow-lg flex-col">
+            <div style={{width:"800px"}} className=" p-6 bg-white rounded-lg flex-col">
               {releaseCheckListItems.length || showNewRow ? (
                 <table className="min-w-full border-collapse">
                   <thead>
@@ -512,7 +512,7 @@ const ReleaseEdit = ({ releaseId }) => {
                             }
                           />
                         </td>
-                        <td className="px-4 py-2 w-36">
+                        <td className="px-4 py-2 ">
                           <FormSelect
                             name="status"
                             formValues={newRow}
@@ -563,6 +563,8 @@ const ReleaseEdit = ({ releaseId }) => {
             </div>
           </div>
         </div>
+        </div>
+        
       </div>
 
       <ConfirmationDialog
