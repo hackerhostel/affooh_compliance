@@ -34,6 +34,7 @@
     .btn-login {
       @apply w-full py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer;
     }
+
   }
 
   

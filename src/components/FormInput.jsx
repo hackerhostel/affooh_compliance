@@ -22,7 +22,7 @@ function FormInput(
     onMouseDown,
     ariaLabel,
     showPasswordVisibilityIcon = false,
-    showDropdownIcon = false, // New prop for ChevronDownIcon
+    showDropdownIcon = false, 
     autocomplete,
     ...rest
   },

@@ -79,7 +79,7 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
         <>
             {isOpen && (
                 <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
-                    <div className="bg-white p-6 shadow-lg w-1/3">
+                    <div className="bg-white p-6 shadow-lg w-2/4">
                         <div className="flex justify-between items-center mb-4">
                             <p className="font-bold text-2xl">New Test Plan</p>
                             <div className={"cursor-pointer"} onClick={handleClose}>

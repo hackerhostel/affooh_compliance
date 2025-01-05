@@ -1,18 +1,27 @@
-import {useSelector} from "react-redux";
-import {selectSelectedProjectFromList} from "../../state/slice/projectSlice.js";
+import { useSelector } from "react-redux";
+import { selectSelectedProjectFromList } from "../../state/slice/projectSlice.js";
+import ReleaseEdit from "./ReleaseEdit.jsx";
 
 const ReleaseContentPage = () => {
   const selectedProject = useSelector(selectSelectedProjectFromList);
 
   return (
     <>
-      {!selectedProject ? (
-        <div className="p-4 text-center">No Details</div>
+
+    <div>
+      <ReleaseEdit/>
+    </div>
+      {/* {!selectedProject ? (
+        <div className="p-4 text-center">No Details
+        
+        </div>
       ) : (
         <div className="p-4 text-center">
-          Selected Project Name: {selectedProject}
+          <div>Selected Project Name: {selectedProject.name}
+            
+          </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };

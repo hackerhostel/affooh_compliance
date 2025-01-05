@@ -24,7 +24,7 @@ const ReleaseLayout = () => {
           leftColumn={<ReleaseListPage/>}
           rightColumn={
             <div className={"bg-dashboard-bgc"}>
-              <ReleaseEdit />
+              <ReleaseContentPage />
               <ReleaseCreate onClose={handleClose} isOpen={isOpen}/>
             </div>
           }

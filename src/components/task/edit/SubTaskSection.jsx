@@ -275,7 +275,7 @@ const SubTaskSection = ({
     };
 
     return (
-        <div className="w-full mt-8 px-6 py-4 bg-white rounded-md shadow-lg">
+        <div className="w-full mt-8 px-6 py-4 bg-white rounded-md">
             {(subtasks && subtasks.length) || showNewRow ? (
                 <>
                     <table className="table-auto w-full border-collapse">

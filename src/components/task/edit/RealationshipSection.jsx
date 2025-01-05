@@ -79,10 +79,7 @@ const RelationshipSection = ({
     const linkTask = async () => {
         const payload = {
             taskID: taskId,
-            linkedTasks: [{
-                taskID: newRow?.task > 0 ? newRow.task : projectTaskList[0].id,
-                linkTypeID: newRow?.type > 0 ? newRow.type : linkTypes[0].value
-            }]
+            linkedTasks: [{taskID: newRow.task, linkTypeID: newRow.type}],
         }
 
         try {

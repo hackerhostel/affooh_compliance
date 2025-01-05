@@ -38,27 +38,10 @@ export const getSelectOptions = (options) => {
   }
 };
 
+
 export const getUserSelectOptions = (options) => {
   return options.map(o => ({value: Number(o.id), label: `${o.firstName} ${o.lastName}`}));
 };
-
-export const getUserOptions = (options) => {
-  const uniqueObjects = new Map();
-
-  options.forEach((o) => {
-    const id = Number(o.id);
-    if (!uniqueObjects.has(id)) {
-      uniqueObjects.set(id, {
-        id,
-        name: `${o.firstName} ${o.lastName}`,
-        initials: `${o.firstName[0]}${o.lastName[0]}`.toUpperCase(),
-      });
-    }
-  });
-
-  return Array.from(uniqueObjects.values());
-};
-
 
 export const getMultiSelectOptions = (options, ids) => {
   return options.filter(item => ids.includes(item.value));

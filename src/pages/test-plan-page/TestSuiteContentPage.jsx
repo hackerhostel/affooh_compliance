@@ -171,6 +171,7 @@ const TestSuiteContentPage = () => {
     const GenerateRow = (props) => {
         const { row } = props
         const [open, setOpen] = React.useState(false);
+        const [isExpanded, setIsExpanded] = useState(false);
         const [status, setStatus] = React.useState(row?.status || 8);
         const [note, setNote] = React.useState(row?.notes || '');
         const [noteChanged, setNoteChanged] = React.useState(false);
@@ -195,7 +196,10 @@ const TestSuiteContentPage = () => {
 
             props.onUpdate(row.testCycleExecutionID, { ...row, notes: note });
         }
-
+        const handleExpandToggle = () => {
+            setIsExpanded(!isExpanded);
+        };
+    
         return (
             <>
                 <tr className="border-b hover:bg-slate-100 ">
@@ -204,24 +208,48 @@ const TestSuiteContentPage = () => {
                             className="text-gray-600 hover:text-gray-900 focus:outline-none"
                             onClick={() => setOpen(!open)}
                         >
-                            {open ? <ChevronDownIcon className={"w-4 h-4 text-black cursor-pointer"} /> :
-                                <ChevronRightIcon className={"w-4 h-4 text-black cursor-pointer"} />}
+                            {open ? (
+                                <ChevronDownIcon className={"w-4 h-4 text-black cursor-pointer"} />
+                            ) : (
+                                <ChevronRightIcon className={"w-4 h-4 text-black cursor-pointer"} />
+                            )}
                         </div>
                     </td>
-                    <td className="w-42 px-4 py-2">{row?.summary}</td>
-                    <td className="px-4 py-2">{row?.platform}</td>
-                    <td className="px-4 py-2">{row?.priority}</td>
-                    <div className="flex items-center px-4 py-2">
+                    <td className="w-42 px-4 py-2 text-secondary-text-color">
+                        {isExpanded ? (
+                            <>
+                                {row?.summary}
+                                <span
+                                    className="text-secondary-text-color ml-2 cursor-pointer hover:underline"
+                                    onClick={handleExpandToggle}
+                                >
+                                    ....
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                {row?.summary?.slice(0, 20)}
+                                <span
+                                    className="text-secondary-text-color ml-2 cursor-pointer hover:underline"
+                                    onClick={handleExpandToggle}
+                                >
+                                    ....
+                                </span>
+                            </>
+                        )}
+                    </td>
+                    <td className="px-4 py-2 text-secondary-text-color">{row?.platform}</td>
+                    <td className="px-4 py-2 text-secondary-text-color">{row?.priority}</td>
+                    <div className="flex items-center px-4 py-2 text-secondary-text-color">
                         <td className="px-4 py-2">{row?.category}</td>
                         <PlusCircleIcon className={"w-8 h-8 items-center text-pink-500 cursor-pointer"} />
                     </div>
                     <td className="px-4 py-2">
-                        <div
-                            className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
-                            {row?.assignee ? (getInitials(row?.assignee)) : "N/A"}
+                        <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
+                            {row?.assignee ? getInitials(row?.assignee) : "N/A"}
                         </div>
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-2 text-secondary-text-color">
                         <div>
                             <select
                                 disabled={isUpdating}
@@ -235,16 +263,6 @@ const TestSuiteContentPage = () => {
                                     </option>
                                 ))}
                             </select>
-                            {/*{statusChanged && (*/}
-                            {/*    <div className="flex justify-center mt-2">*/}
-                            {/*        <button className="p-1 text-green-600" onClick={() => handleStatusActions(true)}>*/}
-                            {/*            <CheckIcon/>*/}
-                            {/*        </button>*/}
-                            {/*        <button className="p-1 text-red-600" onClick={() => handleStatusActions(false)}>*/}
-                            {/*            <ClearIcon/>*/}
-                            {/*        </button>*/}
-                            {/*    </div>*/}
-                            {/*)}*/}
                         </div>
                     </td>
                     <td className="px-4 py-2">
@@ -254,9 +272,9 @@ const TestSuiteContentPage = () => {
                                 type="text"
                                 value={note}
                                 onChange={(e) => onNoteChange(e.target.value)}
-                                className="px-4 py-2 w-44 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-20"
+                                className="px-4 py-2 w-44 border rounded-lg focus:outline-none focus:ring-2 text-secondary-text-color focus:ring-blue-500 pr-20"
                             />
-
+    
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
                                 {noteChanged && (
                                     <div>
@@ -264,16 +282,20 @@ const TestSuiteContentPage = () => {
                                             className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                                             aria-label="Clear input"
                                         >
-                                            <XMarkIcon onClick={() => onNoteChange(false)}
-                                                className="w-5 h-5 text-gray-500" />
+                                            <XMarkIcon
+                                                onClick={() => onNoteChange(false)}
+                                                className="w-5 h-5 text-gray-500"
+                                            />
                                         </button>
-
+    
                                         <button
                                             className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                                             aria-label="Save input"
                                         >
-                                            <CheckIcon onClick={() => onSaveNote()}
-                                                className="w-5 h-5 text-green-500" />
+                                            <CheckIcon
+                                                onClick={() => onSaveNote()}
+                                                className="w-5 h-5 text-green-500"
+                                            />
                                         </button>
                                     </div>
                                 )}
@@ -285,36 +307,49 @@ const TestSuiteContentPage = () => {
                     <tr className="py-0">
                         <td className="p-2" colSpan={8}>
                             <div
-                                className={`overflow-hidden transition-[max-height] duration-300 ${open ? 'max-h-[1000px]' : 'max-h-0'} px-5`}>
+                                className={`overflow-hidden transition-[max-height] duration-300 ${
+                                    open ? "max-h-[1000px]" : "max-h-0"
+                                } px-5`}
+                            >
                                 <div className="rounded-xl border p-4 bg-slate-50 shadow-sm">
-                                    <p className="text-gray-600 font-medium mb-4">Verify that the system validates the email address</p>
+                                    <p className="text-gray-600 font-medium mb-4">
+                                        Verify that the system validates the email address
+                                    </p>
                                     <table className="min-w-full border-collapse rounded-xl overflow-hidden ">
                                         <thead>
                                             <tr>
                                                 <th className="px-4 py-2"></th>
-                                                <th className="px-4 py-2 text-left b font-semibold text-gray-700">Steps</th>
-                                                <th className="px-4 py-2 text-left  font-semibold text-gray-700">Input Data</th>
-                                                <th className="px-4 py-2 text-left  font-semibold text-gray-700">Expected Outcome</th>
+                                                <th className="px-4 py-2 text-left font-semibold text-gray-700">Steps</th>
+                                                <th className="px-4 py-2 text-left font-semibold text-gray-700">
+                                                    Input Data
+                                                </th>
+                                                <th className="px-4 py-2 text-left font-semibold text-gray-700">
+                                                    Expected Outcome
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {row.steps.map((step) => (
-                                                <tr key={step.id} className="">
+                                                <tr key={step.id}>
                                                     <td className="px-4 py-2"></td>
-                                                    <td className="px-4 py-2 w-96">{step?.description}</td>
-                                                    <td className="px-4 py-2">{step?.inputData}</td>
-                                                    <td className="px-4 py-2">{step?.expectedOutcome}</td>
+                                                    <td className="px-4 py-2 w-96 text-secondary-text-color">
+                                                        {step?.description}
+                                                    </td>
+                                                    <td className="px-4 py-2 text-secondary-text-color">
+                                                        {step?.inputData}
+                                                    </td>
+                                                    <td className="px-4 py-2 text-secondary-text-color">
+                                                        {step?.expectedOutcome}
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 </div>
-
                             </div>
                         </td>
                     </tr>
                 )}
-
             </>
         );
     };
@@ -324,7 +359,7 @@ const TestSuiteContentPage = () => {
             <div className={"flex w-full justify-between items-center mb-10 mt-6"}>
                 <div>
                     {testPlan?.id && (
-                        <p className={"text-secondary-grey font-bold text-md align-left"}>Projects  <span className="mx-1"> &gt; </span> <span className="text-black">{testPlan.name}</span> </p>
+                        <p className={"text-secondary-grey font-bold text-sm align-left"}>Projects  <span className="mx-1"> &gt; </span> <span className="text-black">{testPlan.name}</span> </p>
                     )}
                     <p className={"text-secondary-grey font-bold text-xl align-middle mt-11"}>Test Execution List</p>
                 </div>
@@ -386,7 +421,7 @@ const TestSuiteContentPage = () => {
                                             <th className="px-4 py-2 text-left">Summary</th>
                                             <th className="px-4 py-2 text-left">Platform</th>
                                             <th className="px-4 py-2 text-left">Priority</th>
-                                            <th className="px-4 py-2 text-left">Issues</th>
+                                            <th className="px-4 py-2 text-center">Issues</th>
                                             <th className="px-4 py-2 text-left">Assignee</th>
                                             <th className="px-4 py-2 text-left">Status</th>
                                             <th className="px-4 py-2 text-left">Notes</th>

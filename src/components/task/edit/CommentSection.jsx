@@ -85,7 +85,7 @@ const CommentSection = ({taskId, userDetails}) => {
             try {
                 const response = await axios.put(`/tasks/${taskId}/comments/${id}`, {comment: editedComment})
                 const updated = response?.status
-                if (updated === 200) {
+                if (updated === 204) {
                     setEditing(null);
                     setEditedComment("");
                     await reFetchComments()
@@ -186,7 +186,7 @@ const CommentSection = ({taskId, userDetails}) => {
     }
 
     return (
-        <div className="w-full mt-8 p-6 bg-white rounded-lg shadow-lg flex-col">
+        <div className="w-full mt-8 p-6 bg-white rounded-lg flex-col">
             <div className="flex gap-5 items-center">
                 <div
                     className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
