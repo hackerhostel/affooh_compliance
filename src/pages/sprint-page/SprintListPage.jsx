@@ -14,9 +14,11 @@ import {
 import {EllipsisVerticalIcon} from "@heroicons/react/24/outline/index.js";
 import SprintDeleteComponent from "./SprintDeleteComponent.jsx";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {useHistory} from "react-router-dom";
 
 const SprintListPage = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const sprintListError = useSelector(selectIsSprintListForProjectError);
   const sprintListForLoading = useSelector(selectIsSprintListForProjectLoading);
   const sprintListForProject = useSelector(selectSprintListForProject);
@@ -106,6 +108,11 @@ const SprintListPage = () => {
     handleSearch('');
   }, [selectedFilters]);
 
+  const handleSprintClick = (sprint) => {
+    dispatch(setSelectedSprint(sprint))
+    history.push(`/sprints/${sprint?.id}`);
+  };
+
   if (sprintListError) return <ErrorAlert message="Failed to fetch sprints at the moment"/>;
 
   return (
@@ -147,7 +154,7 @@ const SprintListPage = () => {
                             className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer"
                         >
                           <div className="col-span-2 text-left flex gap-2"
-                               onClick={() => dispatch(setSelectedSprint(element))}>
+                               onClick={() => handleSprintClick(element)}>
                             <div
                                 className={`min-w-1 rounded-md ${element?.status?.value === 'Open' ? 'bg-status-todo' : element?.status?.value === 'Done' ? 'bg-status-done' : 'bg-status-in-progress'}`}></div>
                             <div className="flex flex-col gap-2 justify-center">
