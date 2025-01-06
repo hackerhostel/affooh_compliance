@@ -81,6 +81,10 @@ const Dashboard = () => {
               <SprintLayout />
             </Route>
 
+            <Route path="/sprints/:sprint_id">
+              <SprintLayout />
+            </Route>
+
             <Route path="/task/:code">
               <EditTaskPage />
             </Route>

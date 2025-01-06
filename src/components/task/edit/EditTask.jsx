@@ -1,28 +1,27 @@
 import FormInput from "../../FormInput.jsx";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import useValidation from "../../../utils/use-validation.jsx";
-import { LoginSchema } from "../../../state/domains/authModels.js";
-import { useParams } from "react-router-dom";
+import {LoginSchema} from "../../../state/domains/authModels.js";
+import {useParams} from "react-router-dom";
 import axios from "axios";
 import SkeletonLoader from "../../SkeletonLoader.jsx";
 import ErrorAlert from "../../ErrorAlert.jsx";
-import { getSelectOptions, getUserSelectOptions } from "../../../utils/commonUtils.js";
+import {getSelectOptions, getUserSelectOptions} from "../../../utils/commonUtils.js";
 import FormSelect from "../../FormSelect.jsx";
-import { useSelector } from "react-redux";
-import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
+import {useSelector} from "react-redux";
+import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
 import FormInputWrapper from "./FormEditInputWrapper.jsx";
 import EditTaskScreenDetails from "./EditTaskScreenDetails.jsx";
-import { useToasts } from "react-toast-notifications";
+import {useToasts} from "react-toast-notifications";
 import TimeTracking from "./TimeTracking.jsx";
 import useFetchTimeLogs from "../../../hooks/custom-hooks/task/useFetchTimeLogs.jsx";
 import CommentAndTimeTabs from "./CommentAndTimeTabs.jsx";
 import TaskRelationTabs from "./TaskRelationTabs.jsx";
 import useFetchTask from "../../../hooks/custom-hooks/task/useFetchTask.jsx";
 import useFetchFlatTasks from "../../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
-import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 import WYSIWYGInput from "../../WYSIWYGInput.jsx";
-import { selectSelectedSprint, selectSprintFormData } from '../../../state/slice/sprintSlice.js';
-
+import {selectSelectedSprint} from '../../../state/slice/sprintSlice.js';
 
 
 const EditTaskPage = () => {
@@ -106,11 +105,10 @@ const EditTaskPage = () => {
 
     try {
       const updatedTask = await axios.put(`/tasks/${initialTaskData.id}`, payload)
-
-      addToast(`Task successfully updated!`, { appearance: 'success', autoDismiss: true });
       const updatedTaskDetails = updatedTask?.data?.body?.task
       if (updatedTaskDetails) {
-        updateStates(updatedTaskDetails)
+        await refetchTask(true)
+        addToast(`Task successfully updated!`, {appearance: 'success', autoDismiss: true});
       }
     } catch (e) {
       setTaskData(initialTaskData)
@@ -146,7 +144,7 @@ const EditTaskPage = () => {
       const updatedTask = await axios.put(`/tasks/${initialTaskData.id}`, payload);
       const updatedTaskDetails = updatedTask?.data?.body?.task;
       if (updatedTaskDetails) {
-        updateStates(updatedTaskDetails);
+        await refetchTask(true)
         addToast(`Task attribute updated!`, { appearance: "success", autoDismiss: true });
       }
     } catch (e) {
@@ -173,10 +171,6 @@ const EditTaskPage = () => {
 
     return taskFieldID;
   };
-
-
-
-
 
   return (
     <div className="flex">
