@@ -1,20 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useRef, useState} from 'react';
 import FormInput from "../../FormInput.jsx";
 import useValidation from "../../../utils/use-validation.jsx";
-import { TaskCreateSchema } from "../../../state/domains/authModels.js";
+import {TaskCreateSchema} from "../../../state/domains/authModels.js";
 import FormSelect from "../../FormSelect.jsx";
 import TaskScreenDetails from "./TaskScreenDetails.jsx";
 import axios from "axios";
-import { useSelector } from "react-redux";
-import { selectAppConfig } from "../../../state/slice/appSlice.js";
-import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import {useSelector} from "react-redux";
+import {selectAppConfig} from "../../../state/slice/appSlice.js";
+import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 import SkeletonLoader from "../../SkeletonLoader.jsx";
 import ErrorAlert from "../../ErrorAlert.jsx";
-import { useToasts } from "react-toast-notifications";
-import { XMarkIcon, ArrowUpOnSquareIcon } from "@heroicons/react/24/outline/index.js";
-import { getUserSelectOptions } from "../../../utils/commonUtils.js";
-import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
-import WYSIWYGInput from "../../WYSIWYGInput.jsx";
+import {useToasts} from "react-toast-notifications";
+import {XMarkIcon} from "@heroicons/react/24/outline/index.js";
+import {getUserSelectOptions} from "../../../utils/commonUtils.js";
+import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
 
 function getRequiredAdditionalFieldList(fieldsArray) {
     const requiredFields = [];
@@ -32,15 +31,14 @@ function getRequiredAdditionalFieldList(fieldsArray) {
     return requiredFields;
 }
 
-const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }) => {
+const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) => {
     const appConfig = useSelector(selectAppConfig);
     const selectedProject = useSelector(selectSelectedProject);
     const users = useSelector(selectProjectUserList);
-    const { addToast } = useToasts();
+    const {addToast} = useToasts();
 
-    const [selectedPriority, setSelectedPriority] = useState("Low");
     const [loading, setLoading] = useState(false);
-    const [createTaskForm, setCreateTaskForm] = useState({ name: '', taskTypeID: '' });
+    const [createTaskForm, setCreateTaskForm] = useState({name: '', taskTypeID: ''});
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const formRef = useRef(null);
     const [formErrors] = useValidation(TaskCreateSchema, createTaskForm);
@@ -54,10 +52,6 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
     const [additionalFormValues, setAdditionalFormValues] = useState({});
     const [requiredAdditionalFieldList, setRequiredAdditionalFieldList] = useState([]);
 
-    useEffect(() => {
-        console.log("data", appConfig)
-    }, [appConfig])
-
     const handleFormChange = (name, value) => {
         if (name === 'taskTypeID') {
             const selectedTaskType = appConfig.taskTypes.find(tt => tt.id === parseInt(value))
@@ -67,7 +61,7 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
             }
         }
 
-        const newForm = { ...createTaskForm, [name]: value };
+        const newForm = {...createTaskForm, [name]: value};
         setCreateTaskForm(newForm);
     };
 
@@ -78,12 +72,11 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
     };
 
     const handleTaskCreateClose = () => {
-        setCreateTaskForm({ name: '', taskTypeID: '' })
+        setCreateTaskForm({name: '', taskTypeID: ''})
         onClose()
     }
 
     const fetchScreenForTask = async (screenId) => {
-        console.log('fetchScreenForTask called with screenId:', screenId);
         setIsTaskTypeLoading(true)
         try {
             const response = await axios.get(`screens/${screenId}?projectID=${selectedProject.id}`)
@@ -91,12 +84,10 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                 const screenData = response.data.screen
 
                 setScreenDetails(screenData)
-                console.log('Fetched screen details:', screenData);
                 setRequiredAdditionalFieldList(getRequiredAdditionalFieldList(screenData.tabs))
             }
             setIsTaskTypeApiError(false)
         } catch (e) {
-            console.error('Error fetching screen details:', e);
             setIsTaskTypeApiError(true)
         } finally {
             setIsTaskTypeLoading(false)
@@ -165,8 +156,8 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
         }
 
         try {
-            const response = await axios.post("tasks", { task: payload });
-            addToast(`New task ID: ${response.data.id} added`, { appearance: 'success', autoDismiss: true });
+            const response = await axios.post("tasks", {task: payload});
+            addToast(`New task ID: ${response.data.id} added`, {appearance: 'success', autoDismiss: true});
             handleTaskCreateClose();
             refetchSprint();
         } catch (e) {
@@ -180,11 +171,11 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
 
     const getTaskAdditionalDetailsComponent = () => {
         if (isTaskTypeLoading) {
-            return <div className="my-5"><SkeletonLoader /></div>
+            return <div className="my-5"><SkeletonLoader/></div>
         }
 
         if (isTaskTypeApiError) {
-            return <div className="my-5"><ErrorAlert message="Cannot get task additional details at the moment" /></div>
+            return <div className="my-5"><ErrorAlert message="Cannot get task additional details at the moment"/></div>
         }
 
         if (!screenDetails) {
@@ -199,27 +190,14 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
         />
     }
 
-    const priorities = [
-        { label: "Low", value: "low", bgColor: "bg-gray-100", textColor: "text-gray-600" },
-        { label: "Medium", value: "medium", bgColor: "bg-gray-100", textColor: "text-gray-600" },
-        { label: "High", value: "high", bgColor: "bg-red-100", textColor: "text-red-600" },
-    ];
-
-    const handlePriorityClick = (priorityValue) => {
-        setSelectedPriority(priorityValue); // Update the selected priority
-        if (onChange) {
-            onChange(priorityValue); // Trigger the onChange callback
-        }
-    };
-
     return (<>
         {isOpen && (
             <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm z-10">
-                <div style={{ width: '715px' }} className="bg-white pl-10 pt-6 pr-6 pb-10 shadow-lg h-screen overflow-y-auto">
+                <div className="bg-white pl-10 pt-6 pr-6 pb-10 shadow-lg w-3/6 h-screen overflow-y-auto">
                     <div className="flex justify-between items-center mb-4">
-                        <p className="text-xl text-popup-screen-header">Create New Task</p>
+                        <p className="font-bold text-2xl">Create New Task</p>
                         <div className={"cursor-pointer"} onClick={handleTaskCreateClose}>
-                            <XMarkIcon className={"w-6 h-6 text-gray-500"} />
+                            <XMarkIcon className={"w-6 h-6 text-gray-500"}/>
                         </div>
                     </div>
                     <form className="space-y-4 mt-10" ref={formRef} onSubmit={handleCreateTask}>
@@ -234,28 +212,23 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                                         label: tt.value, value: tt.id
                                     }
                                 })}
-                                onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                                formErrors={formErrors}
-                                showErrors={isValidationErrorsShown}
-                            />
-
-                            <FormSelect
-                                showLabel
-                                placeholder="Task Type"
-                                name="taskTypeID"
-                                formValues={createTaskForm}
-                                options={appConfig.taskTypes.map(tt => {
-                                    return {
-                                        label: tt.value, value: tt.id
-                                    }
-                                })}
-                                onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                onChange={({target: {name, value}}) => handleFormChange(name, value)}
                                 formErrors={formErrors}
                                 showErrors={isValidationErrorsShown}
                             />
                         </div>
 
-
+                        <div className="mb-6">
+                            <FormInput
+                                type="text"
+                                name="name"
+                                formValues={createTaskForm}
+                                placeholder="Task Title"
+                                onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                formErrors={formErrors}
+                                showErrors={isValidationErrorsShown}
+                            />
+                        </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -263,16 +236,22 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                                 <div className="flex space-x-2 mb-2">
                                     <button type="button" className="p-1 rounded hover:bg-gray-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            className="w-4 h-4">
+                                             stroke="currentColor"
+                                             className="w-4 h-4">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                d="M4 6h16M4 12h16M4 18h16" />
+                                                  d="M4 6h16M4 12h16M4 18h16"/>
                                         </svg>
                                     </button>
                                 </div>
                                 <div className="mb-6">
-                                    <WYSIWYGInput value={createTaskForm.description} name={"description"}
-                                        onchange={handleFormChange} />
+                                    <FormInput
+                                        type="text"
+                                        name="description"
+                                        formValues={createTaskForm}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -285,7 +264,7 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                                     name="epicID"
                                     formValues={createTaskForm}
                                     options={epics}
-                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
                                 />
                             </div>
                         )}
@@ -298,7 +277,7 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                                     name="assigneeID"
                                     formValues={createTaskForm}
                                     options={getUserSelectOptions(users)}
-                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
                                 />
                             </div>
                             <div className="w-2/4">
@@ -308,122 +287,33 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                                     name="taskOwner"
                                     formValues={createTaskForm}
                                     options={getUserSelectOptions(users)}
-                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
                                 />
                             </div>
                         </div>
 
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center flex flex-col items-center justify-center">
-                            <div className="w-6 h-6">
-                                <ArrowUpOnSquareIcon className='text-text-color' />
-                            </div>
-                            <p className="mt-1 text-sm text-gray-500">
-                                Drag & Drop attachment <br /> OR 
-                            </p>
-
-                            <button className='bg-primary-pink px-4 py-2 rounded-md text-white mt-5'>
-                                Brows Files
-                            </button>
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 className="w-6 h-6 mx-auto text-gray-400">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/>
+                            </svg>
+                            <p className="mt-1 text-sm text-gray-500">Drop attachment or <span
+                                className="text-pink-500">browse files</span></p>
                         </div>
-
-
-                        <div className='flex justify-between space-x-5'>
-                            <div className='w-48'>
-                                <FormSelect
-                                    showLabel
-                                    placeholder="Status"
-                                    name="status"
-                                    formValues={createTaskForm}
-                                    options={appConfig.sprintStatuses.map(tt => {
-                                        return {
-                                            label: tt.value, value: tt.id
-                                        }
-                                    })}
-                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                                />
-                            </div>
-
-                            <div className=''>
-                                <label className=" text-text-color font-medium">Priority</label>
-                                <div className="mt-1 flex border border-gray-300 text-text-color rounded-lg overflow-hidden h-11">
-                                    {priorities.map(({ label, value, bgColor, textColor }) => (
-                                        <button
-                                            key={value}
-                                            onClick={() => handlePriorityClick(value)}
-                                            className={`flex-1 px-4 py-2 text-center text-text-color ${selectedPriority === value ? `font-bold ${bgColor} ${textColor}` : "font-medium bg-white text-gray-600"
-                                                } border-r last:border-r-0 hover:${bgColor}`}
-                                        >
-                                            {label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className='w-48'>
-                                <FormInput
-                                    showLabel
-                                    placeholder="estimation"
-                                    type="text"
-                                    name="estimation"
-                                    formValues="createTaskForm"
-                                    formErrors={formErrors}
-                                    showErrors={isValidationErrorsShown}
-                                />
-                            </div>
-                        </div>
-
-                        <div className='flex justify-between'>
-                            <div className='w-48'>
-                                <FormInput
-                                    showLabel
-                                    placeholder="Start Date"
-                                    type="date"
-                                    name="startDate"
-                                    formValues="createTaskForm"
-                                    formErrors={formErrors}
-                                    showErrors={isValidationErrorsShown}
-                                />
-                            </div>
-
-                            <div className='w-48'>
-                                <FormInput
-                                    showLabel
-                                    placeholder="End date"
-                                    type="date"
-                                    name="endDate"
-                                    formValues="createTaskForm"
-                                    formErrors={formErrors}
-                                    showErrors={isValidationErrorsShown}
-                                />
-                            </div>
-
-                            <div className='w-48'>
-                                <FormInput
-                                    showLabel
-                                    placeholder="Release"
-                                    type="text"
-                                    name="release"
-                                    formValues="createTaskForm"
-                                    formErrors={formErrors}
-                                    showErrors={isValidationErrorsShown}
-                                />
-                            </div>
-                        </div>
-
-
 
                         {getTaskAdditionalDetailsComponent()}
 
                         <div className="flex space-x-4 mt-10 self-end w-full">
                             <button
                                 onClick={handleTaskCreateClose}
-                                className="btn-secondary"
+                                className="px-4 py-2 text-gray-700 rounded w-2/6 border border-black cursor-pointer disabled:cursor-not-allowed"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="btn-primary"
+                                className="px-4 py-2 bg-primary-pink text-white rounded hover:bg-pink-600 w-4/6 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
                                 disabled={isSubmitting}
                             >
                                 Continue
