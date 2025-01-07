@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, {useEffect, useState} from 'react';
+import {useSelector} from 'react-redux';
 import SprintTable from '../../components/sprint-table/index.jsx';
-import { selectSelectedSprint, selectSprintFormData } from '../../state/slice/sprintSlice.js';
+import {selectSelectedSprint, selectSprintFormData} from '../../state/slice/sprintSlice.js';
 import SkeletonLoader from '../../components/SkeletonLoader.jsx';
 import ErrorAlert from '../../components/ErrorAlert.jsx';
 import SprintHeader from './SprintHeader.jsx';
 import useFetchSprint from '../../hooks/custom-hooks/sprint/useFetchSprint.jsx';
-import { areObjectArraysEqual } from '../../components/sprint-table/utils.jsx';
+import {areObjectArraysEqual} from '../../components/sprint-table/utils.jsx';
 import useFetchTaskAttributes from '../../hooks/custom-hooks/sprint/useFetchTaskAttributes.jsx';
-import { selectProjectUserList } from '../../state/slice/projectUsersSlice.js';
+import {selectProjectUserList} from '../../state/slice/projectUsersSlice.js';
 
 const transformTask = (task) => {
   return {
@@ -75,43 +75,51 @@ const SprintContentPage = () => {
       const taskListResponse = sprintResponse?.tasks;
       const taskListConverted = [];
       if (taskListResponse && Array.isArray(taskListResponse)) {
-        const assignees = new Set();
-        assignees.add(JSON.stringify({ value: -1, label: 'All Assignees' }));
-        const status = new Set();
-        status.add(JSON.stringify({ value: -1, label: 'All Status' }));
-        const types = new Set();
-        types.add(JSON.stringify({ value: -1, label: 'All Types' }));
-        let typeCounter = 1;
-        const typeIdMap = {};
-        const epicList = [];
+        if (taskListResponse.length) {
+          const assignees = new Set();
+          assignees.add(JSON.stringify({value: -1, label: 'All Assignees'}));
+          const status = new Set();
+          status.add(JSON.stringify({value: -1, label: 'All Status'}));
+          const types = new Set();
+          types.add(JSON.stringify({value: -1, label: 'All Types'}));
+          let typeCounter = 1;
+          const typeIdMap = {};
+          const epicList = [];
 
-        taskListResponse.map((task) => {
-          const transformedTask = transformTask(task);
+          taskListResponse.map((task) => {
+            const transformedTask = transformTask(task);
 
-          assignees.add(JSON.stringify({ value: transformedTask.assigneeId, label: transformedTask.assignee }));
-          status.add(JSON.stringify({ value: transformedTask.statusId, label: transformedTask.status }));
+            assignees.add(JSON.stringify({value: transformedTask.assigneeId, label: transformedTask.assignee}));
+            status.add(JSON.stringify({value: transformedTask.statusId, label: transformedTask.status}));
 
-          if (![...types].some((item) => JSON.parse(item).label === transformedTask.type)) {
-            types.add(JSON.stringify({ value: typeCounter, label: transformedTask.type }));
-            typeIdMap[transformedTask.type] = typeCounter;
-            transformedTask['typeId'] = typeCounter++;
-          } else {
-            transformedTask['typeId'] = typeIdMap[transformedTask.type];
-          }
+            if (![...types].some((item) => JSON.parse(item).label === transformedTask.type)) {
+              types.add(JSON.stringify({value: typeCounter, label: transformedTask.type}));
+              typeIdMap[transformedTask.type] = typeCounter;
+              transformedTask['typeId'] = typeCounter++;
+            } else {
+              transformedTask['typeId'] = typeIdMap[transformedTask.type];
+            }
 
-          if (transformedTask.type === 'Epic') {
-            epicList.push({ value: Number(transformedTask.id), label: transformedTask.title });
-          }
+            if (transformedTask.type === 'Epic') {
+              epicList.push({value: Number(transformedTask.id), label: transformedTask.title});
+            }
 
-          taskListConverted.push(transformedTask);
-        });
+            taskListConverted.push(transformedTask);
+          });
 
-        setTaskList(taskListConverted);
+          setTaskList(taskListConverted);
 
-        setAssigneeList(Array.from(assignees).map((item) => JSON.parse(item)));
-        setStatusList(Array.from(status).map((item) => JSON.parse(item)));
-        setTypeList(Array.from(types).map((item) => JSON.parse(item)));
-        setEpics(epicList);
+          setAssigneeList(Array.from(assignees).map((item) => JSON.parse(item)));
+          setStatusList(Array.from(status).map((item) => JSON.parse(item)));
+          setTypeList(Array.from(types).map((item) => JSON.parse(item)));
+          setEpics(epicList);
+        } else {
+          setTaskList([]);
+          setAssigneeList([]);
+          setStatusList([]);
+          setTypeList([]);
+          setEpics([]);
+        }
       }
     }
   }, [sprintResponse]);
@@ -144,6 +152,8 @@ const SprintContentPage = () => {
       );
 
       setFilteredList(typeFilteredTasks);
+    } else {
+      setFilteredList([])
     }
   }, [taskList, filters]);
 
