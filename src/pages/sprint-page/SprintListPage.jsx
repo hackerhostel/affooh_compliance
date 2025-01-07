@@ -7,6 +7,7 @@ import {
   doGetSprintBreakdown,
   selectIsSprintListForProjectError,
   selectIsSprintListForProjectLoading,
+  selectSelectedSprint,
   selectSprintListForProject,
   setRedirectSprint,
   setSelectedSprint
@@ -23,11 +24,12 @@ const SprintListPage = () => {
   const sprintListForLoading = useSelector(selectIsSprintListForProjectLoading);
   const sprintListForProject = useSelector(selectSprintListForProject);
   const selectedProject = useSelector(selectSelectedProject);
+  const selectedSprint = useSelector(selectSelectedSprint);
 
   const [sprintList, setSprintList] = useState([]);
   const [filteredSprintList, setFilteredSprintList] = useState([]);
   const [toDeleteSprint, setToDeleteSprint] = useState({});
-  const [showDeletePopup, setShowDeletePopup] = useState(false); // New state for delete popup
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     inProgress: true,
     toDo: true,
@@ -58,9 +60,24 @@ const SprintListPage = () => {
     }
   }, [sprintListForProject]);
 
+  const sortSprints = (array) => {
+    return array.sort((a, b) => {
+      if (a.endDate === null && b.endDate === null) {
+        return 0;
+      }
+      if (a.endDate === null) {
+        return -1;
+      }
+      if (b.endDate === null) {
+        return 1;
+      }
+      return new Date(b.endDate) - new Date(a.endDate);
+    });
+  };
+
   useEffect(() => {
     if (sprintList.length) {
-      setFilteredSprintList([...sprintList]);
+      setFilteredSprintList(sortSprints(sprintList));
     }
   }, [sprintList]);
 
@@ -80,7 +97,7 @@ const SprintListPage = () => {
       return false;
     });
 
-    setFilteredSprintList(filtered);
+    setFilteredSprintList(sortSprints(filtered));
   };
 
   const handleFilterChange = (filterName) => {
@@ -151,7 +168,7 @@ const SprintListPage = () => {
                     filteredSprintList.map((element, index) => (
                         <div
                             key={index}
-                            className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer"
+                            className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedSprint?.id === element.id ? 'border-primary-pink' : 'border-gray-200'}`}
                         >
                           <div className="col-span-2 text-left flex gap-2"
                                onClick={() => handleSprintClick(element)}>

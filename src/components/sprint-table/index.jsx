@@ -46,10 +46,6 @@ const SprintTable = ({
     setFilteredTaskList(taskList)
   }, [taskList]);
 
-  useEffect(() => {
-    console.log('typeList', typeList)
-  },[typeList])
-
   const taskTitleComponent = (data) => {
     return <button
         className="px-2 py-1 text-sm hover:bg-gray-50 rounded-lg text-wrap text-start"
@@ -146,9 +142,6 @@ const SprintTable = ({
               />
             </div>
             <SearchBar onSearch={handleSearch}/>
-          </div>
-          <div className="flex items-center w-1/2  ">
-            <img src={MenuTabs} alt="Menu tabs"/>
           </div>
         </div>
         <DataGrid
