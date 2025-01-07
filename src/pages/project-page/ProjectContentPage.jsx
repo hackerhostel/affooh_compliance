@@ -29,22 +29,23 @@ const ProjectContentPage = () => {
   const userListForProject = useSelector(selectProjectUserList);
   const projectTypes = useSelector(setProjectType);
   const organizationUsers = useSelector(selectOrganizationUsers);
-  const [activeButton, setActiveButton] = useState("Details");
+  const [activeButton, setActiveButton] = useState("People");
   const [formValues, setFormValues] = useState({ name: "", prefix: "", projectType: "", projectUserIDs: "", status: "" });
   const [formErrors] = useValidation(ProjectUpdateSchema, formValues);
   const projectUsersIdList = userListForProject.map(user => user.id);
 
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isOpenPopUp, setIsOpenPopUp] = useState(false)
+  const [isOpenPopUp, setIsOpenPopUp] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
 
   useEffect(() => {
     setFormValues({ ...selectedProject, projectUserIDs: projectUsersIdList });
   }, [selectedProject]);
 
-  useEffect(() => {
-    console.log('user', userListForProject)
-  }, [userListForProject])
+   const toggleEditable = () => {
+    setIsEditable(!isEditable)
+   };
 
   const handleButtonClick = (buttonName) => {
     setActiveButton(buttonName);
@@ -204,7 +205,7 @@ const ProjectContentPage = () => {
           <h5 className="text-black">No Project Selected</h5>
         </div>
       ) : (
-        <div className="p-3 bg-dashboard-bgc h-content-screen ">
+        <div className="p-3 bg-dashboard-bgc h-full ">
           <div className="py-5 flex gap-4">
             <span className="text-popup-screen-header text-sm">
               Project &gt;
@@ -236,7 +237,7 @@ const ProjectContentPage = () => {
                 className="flex p-5 flex-col w-72 gap-4  bg-white rounded-lg"
               >
                 <div>
-                  <div className="flex justify-end"><PencilIcon className="w-4 text-secondary-grey" /></div>
+                  <div className="flex justify-end"><PencilIcon onClick={toggleEditable} className="w-4 text-secondary-grey cursor-pointer" /></div>
                   <div className="flex justify-center">
                     <img src={Icon} alt="Icon" className="w-24" />
                   </div>
@@ -248,8 +249,13 @@ const ProjectContentPage = () => {
                   <div className="">
                     <FormInput
                       type="text"
-                      name="prefix"
-
+                      name="name"
+                      className={`w-full p-2 border rounded-md ${
+                        isEditable
+                          ? "bg-white text-secondary-grey border-gray-300"
+                          : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                      }`}
+                      disabled={!isEditable}
                       value={formValues.name}
                       formValues={formValues}
                       onChange={({ target: { name, value } }) =>
@@ -267,6 +273,12 @@ const ProjectContentPage = () => {
                   <FormInput
                     type="text"
                     name="prefix"
+                    className={`w-full p-2 border rounded-md ${
+                      isEditable
+                        ? "bg-white text-secondary-grey border-gray-300"
+                        : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                    }`}
+                    disabled={!isEditable}
                     value={formValues.prefix}
                     formValues={formValues}
                     onChange={({ target: { name, value } }) =>
@@ -282,6 +294,12 @@ const ProjectContentPage = () => {
                     <p className="text-secondary-grey">Type</p>
                     <FormSelect
                       name="projectType"
+                      className={`w-full p-2 border rounded-md ${
+                        isEditable
+                          ? "bg-white text-secondary-grey border-gray-300"
+                          : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                      }`}
+                      disabled={!isEditable}
                       formValues={formValues}
                       value={formValues.projectType}
                       options={getSelectOptions(projectTypes)}
@@ -299,6 +317,12 @@ const ProjectContentPage = () => {
                     <p className="text-secondary-grey">Status</p>
                     <FormSelect
                       name="status"
+                      className={`w-full p-2 border rounded-md ${
+                        isEditable
+                          ? "bg-white text-secondary-grey border-gray-300"
+                          : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                      }`}
+                      disabled={!isEditable}
                       formValues={formValues}
                       value={formValues.status}
                       options={projectStatus}
@@ -311,7 +335,7 @@ const ProjectContentPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-10">
+                {/* <div className="flex gap-10">
                   <div className="flex-col w-full">
                     <p className="text-secondary-grey">Group</p>
                     <FormSelect
@@ -325,7 +349,7 @@ const ProjectContentPage = () => {
                       showErrors={isValidationErrorsShown}
                     />
                   </div>
-                </div>
+                </div> */}
 
                 <div className="flex gap-10 justify-end">
                   <div className="flex-col">
