@@ -129,7 +129,7 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
                       showErrors={isValidationErrorsShown}
                     />
                   </div>
-                  <div className="flex-col">
+                  {/* <div className="flex-col">
                     <p className="text-secondary-grey">Group</p>
                     <FormSelect
                       name="groupID"
@@ -141,7 +141,7 @@ const CreateNewProjectPopup = ({ isOpen, onClose }) => {
                       formErrors={formErrors}
                       showErrors={isValidationErrorsShown}
                     />
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex space-x-4 mt-6 self-end w-full">
                   <button
