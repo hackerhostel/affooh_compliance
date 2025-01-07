@@ -40,7 +40,11 @@ module.exports = {
         'task-status-done': "#C9F6BF",
         'task-status-done-bold': "#41A936",
         'light-red': "#FFE1E1",
-        'popup-screen-header' : '#585858'
+        'popup-screen-header' : '#585858',
+        'count-notification' : '#E6E6E6',
+        'user-detail-box' : 'F4F5FB',
+        'border-color' : 'E6E6E6',
+
       },
       height: {
         'list-screen': 'calc(100vh - 148px)',

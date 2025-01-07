@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {
-    ArrowTopRightOnSquareIcon,
     CheckBadgeIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
@@ -208,7 +207,7 @@ const SubTaskSection = ({
             <tr className="border-b border-gray-200">
                 {!isEditing ? (
                     <>
-                        <td className="py-5 px-4 text-text-color">{subTask?.name}</td>
+                        <td className="py-5 px-4 text-text-color cursor-pointer" onClick={onRedirectClick}>{subTask?.name}</td>
                         <td className="py-5 px-4 flex gap-3 items-center text-text-color">
                             <div
                                 className="w-8 h-8 rounded-full bg-primary-pink flex items-center justify-center text-white text-md font-semibold">
@@ -225,9 +224,6 @@ const SubTaskSection = ({
                             <div className={"flex gap-5"}>
                                 <div className="cursor-pointer" onClick={() => setIsEditing(true)}>
                                     <PencilSquareIcon className={"w-5 h-5 text-secondary-grey cursor-pointer"}/>
-                                </div>
-                                <div className={"cursor-pointer"} onClick={onRedirectClick}>
-                                    <ArrowTopRightOnSquareIcon className={"w-5 h-5 text-text-color"}/>
                                 </div>
                             </div>
                         </td>

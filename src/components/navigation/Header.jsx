@@ -6,6 +6,7 @@ import { Link, useLocation } from "react-router-dom";
 import FormSelect from "../FormSelect.jsx";
 import { doSwitchProject, selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
 import { selectUser } from "../../state/slice/authSlice.js";
+import Notification from "./NotificationPopup.jsx"
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -14,6 +15,7 @@ const Header = () => {
   const userDetails = useSelector(selectUser);
   const location = useLocation();
   const [loading, setLoading] = useState(false);
+  const [isOpenPopUp, setIsOpenPopUp] = useState(false);
 
   const handleChange = (e, value) => {
     dispatch(doSwitchProject(Number(value)));
@@ -36,6 +38,15 @@ const Header = () => {
     }));
   }, [projectList]);
 
+  const openPopUp = () =>{
+    setIsOpenPopUp((prevState) => !prevState);
+  }
+
+  const closePopUp = () => {
+    setIsOpenPopUp(false);
+  }
+
+
   return (
     <div className="flex justify-between h-16 w-full">
       {/* Left Section */}
@@ -52,8 +63,19 @@ const Header = () => {
 
       {/* Right Section */}
       <div className="flex items-center mr-6 space-x-3">
-        {/* Notification Icon */}
-        <BellIcon className="w-7 h-7 m-3" />
+        <div>
+        <BellIcon onClick={openPopUp} className="w-7 h-7 m-3 cursor-pointer" />
+        </div>
+
+        <div className="z-50">
+        <Notification
+        isOpen = {isOpenPopUp}
+        onClose = {closePopUp}
+        />
+        </div>
+
+        
+        
 
         {/* Divider */}
         <div className="border-l border-gray-300 h-8"></div>
