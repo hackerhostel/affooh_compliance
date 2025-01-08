@@ -19,6 +19,7 @@ import Icon from "../../../public/Icon.png"
 import OpenPopUp from "./AddUserPopup.jsx"
 
 
+
 const ProjectContentPage = () => {
   const dispatch = useDispatch();
   const { addToast } = useToasts();
@@ -38,6 +39,7 @@ const ProjectContentPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
+  
 
   useEffect(() => {
     setFormValues({ ...selectedProject, projectUserIDs: projectUsersIdList });

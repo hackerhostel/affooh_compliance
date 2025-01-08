@@ -7,7 +7,7 @@ import { ReleaseEditSchema } from "../../utils/validationSchemas.js";
 import { useToasts } from "react-toast-notifications";
 import {
   CheckBadgeIcon,
-  ChevronRightIcon,
+  PencilIcon,
   PlusCircleIcon,
   TrashIcon,
   XCircleIcon,
@@ -41,6 +41,7 @@ const ReleaseEdit = ({ releaseId }) => {
   const [createdDate, setCreatedDate] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [toDeleteItem, setToDeleteItem] = useState({});
+    const [isEditable, setIsEditable] = useState(false);
 
   const [showNewRow, setShowNewRow] = useState(false);
   const [newRow, setNewRow] = useState({
@@ -63,6 +64,10 @@ const ReleaseEdit = ({ releaseId }) => {
   const handleAddNewRow = () => {
     setShowNewRow(true);
   };
+
+  const toggleEditable = () => {
+    setIsEditable(!isEditable)
+   };
 
   const handleCancelNewRow = () => {
     setShowNewRow(false);
@@ -355,32 +360,20 @@ const ReleaseEdit = ({ releaseId }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div className="text-start">
             <div className="text-lg mt-5 flex items-center">
-              <span className="font-semibold">Edit Staging Release</span>
-
-              <ChevronRightIcon className="w-5 h-5 text-gray-500 " />
-
+              <span className="font-semibold font-xs">Release &gt;</span>
               <span className="text-gray-500">{SelectedRelease?.name}</span>
             </div>
-            <div className="flex flex-col sm:flex-row">
-              <span className="mr-2">Created Date: {createdDate}</span>
-              <span>Created By: {getCreatedUser()}</span>
-            </div>
+
           </div>
 
           <div className="flex items-center justify-end">
-            <button
-              form="editReleaseForm"
-              type="submit"
-              disabled={isSubmitting}
-              className="px-9 py-2 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
-            >
-              Edit
-            </button>
+            
           </div>
         </div>
 
         <div className="flex space-x-5">
           <div className="p-5 mt-8 w-72 bg-white rounded-lg">
+          <div className="flex justify-end"><PencilIcon onClick={toggleEditable} className="w-4 text-secondary-grey cursor-pointer" /></div>
             <form
               id="editReleaseForm"
               onSubmit={editRelease}
@@ -390,6 +383,12 @@ const ReleaseEdit = ({ releaseId }) => {
                 <FormInput
                   type="text"
                   name="name"
+                  className={`w-full p-2 border rounded-md ${
+                    isEditable
+                      ? "bg-white text-secondary-grey border-gray-300"
+                      : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                  }`}
+                  disabled={!isEditable}
                   formValues={formValues}
                   placeholder="Name"
                   onChange={({ target: { name, value } }) =>
@@ -406,6 +405,12 @@ const ReleaseEdit = ({ releaseId }) => {
                 </label>
                 <FormTextArea
                   name="description"
+                  className={`w-full p-2 border rounded-md ${
+                    isEditable
+                      ? "bg-white text-secondary-grey border-gray-300"
+                      : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                  }`}
+                  disabled={!isEditable}
                   showShadow={false}
                   formValues={formValues}
                   onChange={({ target: { name, value } }) =>
@@ -418,12 +423,17 @@ const ReleaseEdit = ({ releaseId }) => {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-3">
                 <div>
                   <FormInput
                     isDate={true}
                     type="date"
                     name="releaseDate"
+                    className={`w-full p-2 border rounded-md ${
+                      isEditable
+                        ? "bg-white text-secondary-grey border-gray-300"
+                        : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                    }`}
+                    disabled={!isEditable}
                     formValues={formValues}
                     placeholder="Release Date"
                     onChange={({ target: { name, value } }) =>
@@ -434,6 +444,12 @@ const ReleaseEdit = ({ releaseId }) => {
                 <div className="flex-col">
                   <FormSelect
                     name="status"
+                    className={`w-full p-2 border rounded-md ${
+                      isEditable
+                        ? "bg-white text-secondary-grey border-gray-300"
+                        : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                    }`}
+                    disabled={!isEditable}
                     placeholder="Status"
                     formValues={formValues}
                     options={releaseStatus}
@@ -448,6 +464,12 @@ const ReleaseEdit = ({ releaseId }) => {
                   <FormInput
                     type="text"
                     name="version"
+                    className={`w-full p-2 border rounded-md ${
+                      isEditable
+                        ? "bg-white text-secondary-grey border-gray-300"
+                        : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                    }`}
+                    disabled={!isEditable}
                     formValues={formValues}
                     placeholder="Version"
                     onChange={({ target: { name, value } }) =>
@@ -461,6 +483,12 @@ const ReleaseEdit = ({ releaseId }) => {
                   <FormSelect
                     formValues={formValues}
                     name="type"
+                    className={`w-full p-2 border rounded-md ${
+                      isEditable
+                        ? "bg-white text-secondary-grey border-gray-300"
+                        : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                    }`}
+                    disabled={!isEditable}
                     placeholder="Type"
                     options={getSelectOptions(releaseTypes)}
                     formErrors={formErrors}
@@ -470,7 +498,19 @@ const ReleaseEdit = ({ releaseId }) => {
                     showErrors={isValidationErrorsShown}
                   />
                 </div>
-              </div>
+
+                <div className="flex justify-end">
+                  <button
+              form="editReleaseForm"
+              type="submit"
+              disabled={isSubmitting}
+              className="px-9 py-2 rounded-lg bg-primary-pink text-white font-bold  cursor-pointer"
+            >
+              Edit
+            </button>
+                </div>
+              
+              
             </form>
           </div>
 
@@ -479,7 +519,7 @@ const ReleaseEdit = ({ releaseId }) => {
             Check List Items
           </div>
           <div className="w-full ">
-            <div className="flex w-full justify-end pr-5">
+            <div className="flex w-full justify-end pr-5 mb-2">
               <div className="flex gap-1 items-center">
                 <PlusCircleIcon
                   onClick={handleAddNewRow}
