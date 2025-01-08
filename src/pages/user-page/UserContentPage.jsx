@@ -1,13 +1,30 @@
-import React from 'react';
-import { ClockIcon, MapPinIcon, EnvelopeIcon, PhoneIcon, PencilIcon } from '@heroicons/react/24/outline/index.js';
+import React, { useState } from 'react';
+import { PencilIcon } from '@heroicons/react/24/outline/index.js';
+import FormInput from '../../components/FormInput.jsx';
 
 const UserContentPage = () => {
+
+    const [formErrors, setFormErrors] = useState({});
+    const [isEditable, setIsEditable] = useState(false);
+    // const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const toggleEditable = () => {
+        setIsEditable(!isEditable)
+    };
+
     const timeData = {
         Today: 4,
         Yesterday: 8,
         Week: 40,
         Month: 150
     };
+
+    const [formValues, setFormValues] = useState({
+        email: 'nilangaPathiran12@gmail.com',
+        contactNumber: '+9476564534',
+        team: 'Admin Department',
+        role: 'Administrator',
+    });
 
     const taskCounts = {
         all: 22,
@@ -30,29 +47,37 @@ const UserContentPage = () => {
         { id: '10001', summary: 'hjhdasdjhajsd', estimation: 'Low', actual: 'Ongoing', deviation: '- 2 hrs' }
     ];
 
+    const handleInputChange = (e, value) => {
+        const { name } = e.target;
+        setFormValues((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
     const DeviationTable = ({ headers, data }) => (
         <table className="w-full">
             <thead className="text-left text-sm text-gray-500">
-            <tr>
-                {headers.map(header => (
-                    <th key={header} className="pb-3">{header}</th>
-                ))}
-            </tr>
+                <tr>
+                    {headers.map(header => (
+                        <th key={header} className="pb-3">{header}</th>
+                    ))}
+                </tr>
             </thead>
             <tbody className="text-sm">
-            {data.map((row, idx) => (
-                <tr key={idx} className="border-t">
-                    <td className="py-3">{row.id}</td>
-                    <td className="py-3">{row.summary}</td>
-                    <td className="py-3">{row.estimation}</td>
-                    <td className="py-3">{row.actual}</td>
-                    <td className="py-3">
-              <span className={`${row.deviation.includes('+') ? 'text-green-500' : 'text-red-500'}`}>
-                {row.deviation}
-              </span>
-                    </td>
-                </tr>
-            ))}
+                {data.map((row, idx) => (
+                    <tr key={idx} className="border-t">
+                        <td className="py-3">{row.id}</td>
+                        <td className="py-3">{row.summary}</td>
+                        <td className="py-3">{row.estimation}</td>
+                        <td className="py-3">{row.actual}</td>
+                        <td className="py-3">
+                            <span className={`${row.deviation.includes('+') ? 'text-green-500' : 'text-red-500'}`}>
+                                {row.deviation}
+                            </span>
+                        </td>
+                    </tr>
+                ))}
             </tbody>
         </table>
     );
@@ -62,38 +87,84 @@ const UserContentPage = () => {
             <div className="flex flex-wrap gap-6 pb-6">
                 {/* Left Sidebar */}
                 <div className="w-72 bg-white mt-16 rounded-lg p-6 h-fit">
+                    <div className='flex justify-end'>
+                        <PencilIcon onClick={toggleEditable} className='w-4  text-secondary-grey cursor-pointer' />
+                    </div>
                     <div className="flex flex-col items-center">
                         <div className="w-24 h-24 bg-gray-200 rounded-full mt-2"></div>
                         <span className="text-xl font-semibold mt-5  text-secondary-grey mb-1">Nilanga Pathirana</span>
                         <div className='bg-task-status-qa px-2 mt-1 rounded-md'>
-                        <span className="text-xs">Admin</span>
+                            <span className="text-xs">Admin</span>
                         </div>
                         <hr className="w-full mt-6 border-t  border-gray-200" />
                         <div className="w-full space-y-4 mt-6">
-                            <div className='flex flex-col'>
-                                <label className='text-xs' htmlFor="">Email</label>
-                                <div className='user-details-left-column-detail-box'>
-                                    <p className='p-2 text-xs'>nilangaPathiran12@gmail.com</p>
-                                </div>
-                            </div><div className='flex flex-col'>
-                                <label className='text-xs' htmlFor="">Contact Number</label>
-                                <div className='user-details-left-column-detail-box'>
-                                    <p className='p-2 text-xs'><span className='mr-1 text-secondary-grey'>+94</span>76564534</p>
-                                </div>
-                            </div>
-                            <div className='flex flex-col'>
-                                <label className='text-xs' htmlFor="">Team</label>
-                                <div className='user-details-left-column-detail-box'>
-                                    <p className='p-2 text-xs'>Admin Department</p>
-                                </div>
-                            </div>
+                            <div className="w-full space-y-4 mt-6">
+                                <FormInput
+                                    name="email"
+                                    formValues={formValues}
+                                    placeholder="Email"
+                                    onChange={handleInputChange}
+                                    className={`w-full p-2 border rounded-md ${isEditable
+                                            ? "bg-white text-secondary-grey border-gray-300"
+                                            : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                                        }`}
+                                    disabled={!isEditable}
+                                    formErrors={formErrors}
+                                    showErrors={true}
+                                    showLabel={true}
+                                />
 
-                            <div className='flex flex-col'>
-                                <label className='text-xs' htmlFor="">Role</label>
-                                <div className='user-details-left-column-detail-box'>
-                                    <p className='p-2 text-xs'>Administrator</p>
-                                </div>
-                            </div>                           
+                                <FormInput
+                                    name="contactNumber"
+                                    formValues={formValues}
+                                    placeholder="Contact Number"
+                                    onChange={handleInputChange}
+                                    className={`w-full p-2 border rounded-md ${isEditable
+                                            ? "bg-white text-secondary-grey border-gray-300"
+                                            : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                                        }`}
+                                    disabled={!isEditable}
+                                    formErrors={formErrors}
+                                    showErrors={true}
+                                    showLabel={true}
+                                />
+
+                                <FormInput
+                                    name="team"
+                                    formValues={formValues}
+                                    placeholder="Team"
+                                    onChange={handleInputChange}
+                                    className={`w-full p-2 border rounded-md ${isEditable
+                                            ? "bg-white text-secondary-grey border-gray-300"
+                                            : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                                        }`}
+                                    disabled={!isEditable}
+                                    formErrors={formErrors}
+                                    showErrors={true}
+                                    showLabel={true}
+                                />
+                                <FormInput
+                                    name="role"
+                                    formValues={formValues}
+                                    placeholder="Role"
+                                    onChange={handleInputChange}
+                                    className={`w-full p-2 border rounded-md ${isEditable
+                                            ? "bg-white text-secondary-grey border-gray-300"
+                                            : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                                        }`}
+                                    disabled={!isEditable}
+                                    formErrors={formErrors}
+                                    showErrors={true}
+                                    showLabel={true}
+                                />
+                            </div>
+                            <button
+                                // disabled={isSubmitting}
+                                type="submit"
+                                className="px-4 py-2 bg-primary-pink w-full text-white rounded-md"
+                            >
+                                Update
+                            </button>
                         </div>
                     </div>
                 </div>
