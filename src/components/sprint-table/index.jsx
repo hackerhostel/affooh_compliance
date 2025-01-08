@@ -23,7 +23,6 @@ import {
   removeObjectFromArrayByDataField,
   statusCellRender
 } from "./utils.jsx";
-import MenuTabs from '../../assets/menu_tabs.png'
 import FormSelect from "../FormSelect.jsx";
 import SearchBar from "../SearchBar.jsx";
 import TaskAttriEditPopUp from "../popupForms/taskAttriEditPopUp.jsx";
