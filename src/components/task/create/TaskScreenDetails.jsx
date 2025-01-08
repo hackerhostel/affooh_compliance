@@ -26,7 +26,13 @@ const TaskScreenDetails =
             {screenDetails?.tabs.map(({id, fields}) => (
               <TabPanel key={id} className="rounded-xl bg-white/5">
                 <div className="grid grid-cols-3 gap-4">
-                  {fields.map((field) => (
+                    {fields.filter((field) => {
+                        return (
+                            field.name !== "Task Owner" &&
+                            field.name !== "Predecessors" &&
+                            field.name !== "Labels"
+                        );
+                    }).map((field) => (
                     <ScreenTabField
                       field={field}
                       onChange={handleFormChange}

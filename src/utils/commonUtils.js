@@ -9,8 +9,7 @@ export const getAPIBaseURL = () => {
 
 export const formatDateIfDate = (dateObj) => {
   if (dateObj instanceof Date) {
-    // Format: YYYY-MM-DD
-    return dateObj.toISOString().split('T')[0];
+    return moment(dateObj).format('YYYY-MM-DD')
   }
   // If it's not a Date object, return the original value
   return dateObj;

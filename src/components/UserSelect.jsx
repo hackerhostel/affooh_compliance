@@ -7,7 +7,6 @@ const UserSelect = ({name, value, onChange, users, label = ''}) => {
     const [selected, setSelected] = useState({});
     const ref = useRef(null);
 
-    console.log(users)
     useEffect(() => {
         setSelected(users.find(u => u.id === value));
     }, [value, users]);
