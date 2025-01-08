@@ -1,7 +1,6 @@
 module.exports = {
   ignorePatterns: [
     '**/charting_library/**',
-    '**/datafeeds/**',
     '**/node_modules/**',
     '**/build/**',
     '**/vite.config.ts',
@@ -16,7 +15,7 @@ module.exports = {
     'plugin:react-hooks/recommended',
     'airbnb',
     'prettier',
-    'eslint-config-prettier'
+    'eslint-config-prettier',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -26,7 +25,7 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: 'module',
   },
-  plugins: ['react','prettier','@typescript-eslint'],
+  plugins: ['react', 'prettier', '@typescript-eslint'],
   settings: {
     'import/resolver': {
       node: {
@@ -37,7 +36,10 @@ module.exports = {
   },
 
   rules: {
-    'react/jsx-filename-extension': [2, { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
+    'react/jsx-filename-extension': [
+      2,
+      { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
+    ],
     'import/extensions': [
       'error',
       'ignorePackages',
@@ -57,8 +59,12 @@ module.exports = {
     'no-underscore-dangle': ['error', { allowAfterThis: true }],
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': [
-      'error',
-      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      'warn',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      },
     ],
     'prettier/prettier': ['error', { singleQuote: true }],
     'import/prefer-default-export': 'off',
@@ -81,7 +87,10 @@ module.exports = {
     // Restricting absolute imports - do not disable this rule
     // Fix your IDE to use absolute imports
     'no-restricted-imports': 'off',
-    'no-param-reassign': ['error', { props: true, ignorePropertyModificationsFor: ['state'] }],
+    'no-param-reassign': [
+      'error',
+      { props: true, ignorePropertyModificationsFor: ['state'] },
+    ],
     'react/jsx-boolean-value': 'off',
     'array-callback-return': 'error',
     'no-restricted-syntax': 'off',
@@ -112,7 +121,14 @@ module.exports = {
     'import/order': [
       'error',
       {
-        groups: ['external', 'builtin', 'internal', 'sibling', 'parent', 'index'],
+        groups: [
+          'external',
+          'builtin',
+          'internal',
+          'sibling',
+          'parent',
+          'index',
+        ],
         pathGroups: [
           {
             pattern: 'src/**',
