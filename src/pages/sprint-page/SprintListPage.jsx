@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import SearchBar from "../../components/SearchBar.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
@@ -31,7 +31,6 @@ const SprintListPage = () => {
   const [toDeleteSprint, setToDeleteSprint] = useState({});
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
-  const menuRefs = useRef([]);
   const [selectedFilters, setSelectedFilters] = useState({
     inProgress: true,
     toDo: true,
@@ -133,8 +132,17 @@ const SprintListPage = () => {
     history.push(`/sprints/${sprint?.id}`);
   };
 
-  const toggleMenuOpen = (index) => {
-    setOpenMenu((prev) => (prev === index ? null : index));
+  const toggleMenuOpen = (index, event) => {
+    if (openMenu?.index === index) {
+      setOpenMenu(null);
+    } else {
+      setOpenMenu({
+        index: index,
+        position: {
+          top: event.screenY,
+        },
+      });
+    }
   };
 
   if (sprintListError) return <ErrorAlert message="Failed to fetch sprints at the moment"/>;
@@ -188,13 +196,17 @@ const SprintListPage = () => {
                             </div>
                           </div>
                           {element?.name !== "BACKLOG" && (
-                              <div onClick={() => toggleMenuOpen(index)}>
+                              <div onClick={(event) => toggleMenuOpen(index, event)}>
                                 <EllipsisVerticalIcon className="w-4 h-4 text-black"/>
                               </div>
                           )}
-                          {openMenu === index && (
+                          {openMenu?.index === index && (
                               <div
-                                  className="absolute left-full mt-2 w-24 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                                  style={{
+                                    position: "absolute",
+                                    top: `calc(${openMenu.position.top}px - 215px)`,
+                                  }}
+                                  className="mt-2 w-24 left-full bg-white rounded-md shadow-lg z-10 border border-gray-200">
                                 <button
                                     className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none cursor-pointer z-20"
                                     onClick={() => handleSprintDelete(element)}>

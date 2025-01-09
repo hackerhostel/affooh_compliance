@@ -15,18 +15,14 @@ import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import Select from "react-select";
 import axios from "axios";
 import TestCaseCreateComponent from "./TestCaseCreateComponent.jsx";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import TestCaseContentComponent from "./TestCaseContentComponent.jsx";
-import useFetchTestCases from "../../hooks/custom-hooks/test-plan/useFetchTestCases.jsx";
 
-const TestSuiteEditComponent = ({onClose, testSuiteId}) => {
+const TestSuiteEditComponent = ({onClose, testSuiteId, testCasesForProject, refetchTestCases}) => {
     const {addToast} = useToasts();
 
     const projectUserList = useSelector(selectProjectUserList);
-    const selectedProject = useSelector(selectSelectedProject);
 
     const {loading: testSuiteLoading, data: testSuiteResponse} = useFetchTestSuite(testSuiteId)
-    const {data: testCasesForProject, refetch: refetchTestCases} = useFetchTestCases(selectedProject?.id)
 
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
