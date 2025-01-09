@@ -1,19 +1,19 @@
-import { useDispatch, useSelector } from "react-redux";
-import React, { useEffect, useState } from "react";
-import { selectSelectedTestPlanId } from "../../state/slice/testPlansSlice.js";
+import {useDispatch, useSelector} from "react-redux";
+import React, {useEffect, useState} from "react";
+import {selectSelectedTestPlanId} from "../../state/slice/testPlansSlice.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import { ChevronDownIcon, ChevronRightIcon, PlusCircleIcon } from "@heroicons/react/24/outline/index.js";
-import { doGetTestCaseFormData, selectTestCaseStatuses } from "../../state/slice/testCaseFormDataSlice.js";
-import { selectSelectedProject } from "../../state/slice/projectSlice.js";
+import {ChevronDownIcon, ChevronRightIcon, PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
+import {doGetTestCaseFormData, selectTestCaseStatuses} from "../../state/slice/testCaseFormDataSlice.js";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import FormSelect from "../../components/FormSelect.jsx";
-import { getInitials, getSelectOptions } from "../../utils/commonUtils.js";
+import {getInitials, getSelectOptions} from "../../utils/commonUtils.js";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
-import { XMarkIcon, CheckIcon } from "@heroicons/react/24/outline";
+import {CheckIcon, XMarkIcon} from "@heroicons/react/24/outline";
 import axios from "axios";
-import { useToasts } from "react-toast-notifications";
-import { useHistory } from "react-router-dom";
+import {useToasts} from "react-toast-notifications";
+import {useHistory} from "react-router-dom";
 
 const TestSuiteContentPage = () => {
     const dispatch = useDispatch();
@@ -396,11 +396,16 @@ const TestSuiteContentPage = () => {
             {testPlanId === 0 ? (
                 <div className="p-8 text-center">No Details Available, Please Select a Test Plan </div>
             ) : testExecutionOptions?.length === 0 ? (
-                <div className="p-8 text-center">No Test Suites Available, Please Create a Test Suite </div>
+                <div className="p-8 text-center flex flex-col gap-4 items-center">
+                    <p>No Test Suites Available, Please Create a Test Suite</p>
+                    <button className="btn-primary w-24"
+                            onClick={() => history.push(`/test-plans/${selectedTestPlanId}`)}>Start
+                    </button>
+                </div>
             ) : testCycleId === 0 ? (
                 <div className="p-8 text-center">No Details Available, Please Select a Test Cycle </div>
             ) : (
-                <div className={"flex-col "}>
+                <div className={"flex-col h-[calc(100vh-250px)] overflow-y-auto"}>
                     <div className={" p-4 rounded-md "}>
                         {testExecutionLoading ? (
                             <div className="m-10"><SkeletonLoader /></div>
