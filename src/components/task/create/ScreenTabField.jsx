@@ -1,8 +1,9 @@
-import React, {useCallback} from "react";
+import React, {useCallback, useEffect} from "react";
 import FormSelect from "../../FormSelect.jsx";
 import FormInput from "../../FormInput.jsx";
 import {useSelector} from "react-redux";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
+import {isNotEmptyObj} from "../../../utils/commonUtils.js";
 
 const ScreenTabField = ({ field, formValues, onChange, isValidationErrorsShown }) => {
   const userListForProject = useSelector(selectProjectUserList);
@@ -24,6 +25,42 @@ const ScreenTabField = ({ field, formValues, onChange, isValidationErrorsShown }
     return undefined
   };
 
+  const getObjectByTaskFieldID = (inputObj, targetID) => {
+    const foundObject = Object.values(inputObj).find(obj => obj.taskFieldID === targetID);
+    return foundObject || null;
+  }
+
+  const handleDefaultValue = (defaultValue) => {
+    const fieldValues = field?.fieldValues;
+    if (fieldValues && fieldValues.length) {
+      const defaultFieldValue = fieldValues.find(fv => fv.value === defaultValue);
+      if (defaultFieldValue) {
+        handleChange(field?.name, defaultFieldValue?.id);
+      }
+    }
+  }
+
+  const handleField = (defaultValue) => {
+    if (formValues && !isNotEmptyObj(formValues)) {
+      handleDefaultValue(defaultValue);
+    } else {
+      const exists = getObjectByTaskFieldID(formValues, field.id);
+      if (!exists) {
+        handleDefaultValue(defaultValue);
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (field.name === "Status") {
+      handleField("To Do");
+    }
+
+    if (field.name === "Priority") {
+      handleField("Medium");
+    }
+  }, [field, formValues]);
+
   const renderField = useCallback(() => {
     const errorMessage = getErrorMessage();
     const commonProps = {
@@ -36,8 +73,9 @@ const ScreenTabField = ({ field, formValues, onChange, isValidationErrorsShown }
     switch (field.fieldType.name) {
       case "DDL":
       case "MULTI_SELECT":
-      case "TASK_PICKER_MULTI_SELECT": // TODO: need to remove task list comes with response
+      case "TASK_PICKER_MULTI_SELECT":
       case "TASK_PICKER":
+      case "RELEASE_PICKER":
         return (
           <FormSelect
             {...commonProps}

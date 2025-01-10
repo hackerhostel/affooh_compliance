@@ -1,11 +1,10 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import TaskCreateComponent from "../../components/task/create/TaskCreateComponent.jsx";
 import timeCalender from '../../assets/Time_Calender.png'
 import EditIcon from '../../assets/Edit_Icon.png'
 import {formatShortDate} from "../../utils/commonUtils.js";
 import ToggleButton from "../../components/ToggleButton.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
-import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
 import DateRangeSelector from "../../components/DateRangeSelector.jsx";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
@@ -36,8 +35,21 @@ const SprintHeader = ({
   const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
   const [dateRangelOpen, setDateRangelOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [canClose, setCanClose] = useState(false);
 
   let sprintStatus = sprint?.status?.value || "OPEN"
+
+  useEffect(() => {
+    let complete;
+
+    const requiredLabels = ['Done', 'All Status'];
+    const filtered = statusList.filter(item => requiredLabels.includes(item.label));
+
+    complete = !!(filtered.length === 2 && requiredLabels.every(label => filtered.some(item => item.label === label)));
+
+    setCanClose((complete && sprintStatus !== "Done") || (!complete && sprintStatus === "Open"));
+
+  }, [statusList]);
 
   const updateSprint = async (payload, successMessage, errorMessage, pullSprints = false) => {
     setIsSubmitting(true)
@@ -178,7 +190,7 @@ const SprintHeader = ({
               </button>
               <button
                   className="w-36 h-10 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
-                  disabled={isBacklog || sprintStatus === "Done" || isSubmitting}
+                  disabled={isBacklog || sprintStatus === "Done" || isSubmitting || !canClose}
                   onClick={updateSprintStatus}
               >
                 {sprintStatus === "Open" ? 'Start Sprint' : 'Complete Sprint'}
