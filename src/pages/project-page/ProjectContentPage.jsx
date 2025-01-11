@@ -254,8 +254,8 @@ const ProjectContentPage = () => {
                       name="name"
                       className={`w-full p-2 border rounded-md ${
                         isEditable
-                          ? "bg-white text-secondary-grey border-gray-300"
-                          : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                          ? "bg-white text-secondary-grey border-border-color"
+                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                       }`}
                       disabled={!isEditable}
                       value={formValues.name}
@@ -277,8 +277,8 @@ const ProjectContentPage = () => {
                     name="prefix"
                     className={`w-full p-2 border rounded-md ${
                       isEditable
-                        ? "bg-white text-secondary-grey border-gray-300"
-                        : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                        ? "bg-white text-secondary-grey border-border-color"
+                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                     }`}
                     disabled={!isEditable}
                     value={formValues.prefix}
@@ -298,8 +298,8 @@ const ProjectContentPage = () => {
                       name="projectType"
                       className={`w-full p-2 border rounded-md ${
                         isEditable
-                          ? "bg-white text-secondary-grey border-gray-300"
-                          : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                          ? "bg-white text-secondary-grey border-border-color"
+                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                       }`}
                       disabled={!isEditable}
                       formValues={formValues}
@@ -321,8 +321,8 @@ const ProjectContentPage = () => {
                       name="status"
                       className={`w-full p-2 border rounded-md ${
                         isEditable
-                          ? "bg-white text-secondary-grey border-gray-300"
-                          : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
+                          ? "bg-white text-secondary-grey border-border-color"
+                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                       }`}
                       disabled={!isEditable}
                       formValues={formValues}
