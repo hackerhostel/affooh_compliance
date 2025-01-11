@@ -104,10 +104,11 @@ const UserContentPage = () => {
                                     formValues={formValues}
                                     placeholder="Email"
                                     onChange={handleInputChange}
-                                    className={`w-full p-2 border rounded-md ${isEditable
-                                            ? "bg-white text-secondary-grey border-gray-300"
-                                            : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
-                                        }`}
+                                    className={`w-full p-2 border rounded-md ${
+                                        isEditable
+                                          ? "bg-white text-secondary-grey border-border-color"
+                                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                                      }`}
                                     disabled={!isEditable}
                                     formErrors={formErrors}
                                     showErrors={true}
@@ -119,10 +120,11 @@ const UserContentPage = () => {
                                     formValues={formValues}
                                     placeholder="Contact Number"
                                     onChange={handleInputChange}
-                                    className={`w-full p-2 border rounded-md ${isEditable
-                                            ? "bg-white text-secondary-grey border-gray-300"
-                                            : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
-                                        }`}
+                                    className={`w-full p-2 border rounded-md ${
+                                        isEditable
+                                          ? "bg-white text-secondary-grey border-border-color"
+                                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                                      }`}
                                     disabled={!isEditable}
                                     formErrors={formErrors}
                                     showErrors={true}
@@ -134,10 +136,11 @@ const UserContentPage = () => {
                                     formValues={formValues}
                                     placeholder="Team"
                                     onChange={handleInputChange}
-                                    className={`w-full p-2 border rounded-md ${isEditable
-                                            ? "bg-white text-secondary-grey border-gray-300"
-                                            : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
-                                        }`}
+                                    className={`w-full p-2 border rounded-md ${
+                                        isEditable
+                                          ? "bg-white text-secondary-grey border-border-color"
+                                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                                      }`}
                                     disabled={!isEditable}
                                     formErrors={formErrors}
                                     showErrors={true}
@@ -148,10 +151,11 @@ const UserContentPage = () => {
                                     formValues={formValues}
                                     placeholder="Role"
                                     onChange={handleInputChange}
-                                    className={`w-full p-2 border rounded-md ${isEditable
-                                            ? "bg-white text-secondary-grey border-gray-300"
-                                            : "bg-in-progress text-secondary-grey border-gray-300 cursor-not-allowed"
-                                        }`}
+                                    className={`w-full p-2 border rounded-md ${
+                                        isEditable
+                                          ? "bg-white text-secondary-grey border-border-color"
+                                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                                      }`}
                                     disabled={!isEditable}
                                     formErrors={formErrors}
                                     showErrors={true}
