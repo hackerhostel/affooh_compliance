@@ -1,16 +1,37 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { PencilIcon } from '@heroicons/react/24/outline/index.js';
 import FormInput from '../../components/FormInput.jsx';
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
+import {getSelectOptions} from "../../utils/commonUtils.js";
+import FormSelect from "../../components/FormSelect.jsx";
 
 const UserContentPage = () => {
 
+    const { addToast } = useToasts();
     const [formErrors, setFormErrors] = useState({});
     const [isEditable, setIsEditable] = useState(false);
+    const [roles, setRoles] = useState([]);
     // const [isSubmitting, setIsSubmitting] = useState(false);
 
     const toggleEditable = () => {
         setIsEditable(!isEditable)
     };
+
+    useEffect(() => {
+        async function fetchRoles(){
+            try {
+                const response = await axios.get('/organizations/form-data');
+                const roles = response?.data.body;
+
+                return Object.values(roles).map(role => role);
+            } catch (error) {
+                addToast(error.message || 'Failed to fetch user roles', { appearance: "error" });
+            }
+        }
+
+        fetchRoles().then(r => setRoles(r));
+    }, []);
 
     const timeData = {
         Today: 4,
@@ -23,7 +44,7 @@ const UserContentPage = () => {
         email: 'nilangaPathiran12@gmail.com',
         contactNumber: '+9476564534',
         team: 'Admin Department',
-        role: 'Administrator',
+        role: 1,
     });
 
     const taskCounts = {
@@ -146,16 +167,17 @@ const UserContentPage = () => {
                                     showErrors={true}
                                     showLabel={true}
                                 />
-                                <FormInput
+                                <FormSelect
                                     name="role"
                                     formValues={formValues}
-                                    placeholder="Role"
+                                    options={getSelectOptions(roles)}
+                                    placeholder="Roles"
                                     onChange={handleInputChange}
                                     className={`w-full p-2 border rounded-md ${
                                         isEditable
-                                          ? "bg-white text-secondary-grey border-border-color"
-                                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                                      }`}
+                                            ? "bg-white text-secondary-grey border-border-color"
+                                            : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                                    }`}
                                     disabled={!isEditable}
                                     formErrors={formErrors}
                                     showErrors={true}

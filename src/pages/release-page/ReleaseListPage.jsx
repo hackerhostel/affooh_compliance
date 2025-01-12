@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
-import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/outline/index.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import {
@@ -25,6 +25,8 @@ const ReleaseListPage = () => {
     const releaseError = useSelector(selectIsReleaseListForProjectError)
     const selectedRelease = useSelector(selectSelectedRelease)
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [openMenu, setOpenMenu] = useState(null);
+
 
     const [filteredReleases, setFilteredReleases] = useState([]);
     const [toDeleteRelease, setToDeleteRelease] = useState({});
@@ -38,7 +40,7 @@ const ReleaseListPage = () => {
       released: 0,
     });
 
-    const filteredReleaseList = filteredReleases.filter((release) => {
+    const filteredReleaseList = releases.filter((release) => {
         // If both filters are unchecked, show nothing
         if (!selectedFilters.unreleased && !selectedFilters.released) {
             return false;
@@ -68,15 +70,14 @@ const ReleaseListPage = () => {
 
     useEffect(() => {
       if (releases.length) {
-        setFilteredReleases(releases);
-
-        const unreleasedCount = filteredReleases.filter(
+        const unreleasedCount = releases.filter(
           (release) => release.status === "UNRELEASED",
         ).length;
-        const releasedCount = filteredReleases.filter(
+        const releasedCount = releases.filter(
           (release) => release.status === "RELEASED",
         ).length;
 
+        setFilteredReleases(releases);
         setFilterCounts({
           unreleased: unreleasedCount,
           released: releasedCount,
@@ -119,13 +120,30 @@ const ReleaseListPage = () => {
         setIsDialogOpen(false);
     };
 
+    const toggleMenuOpen = (index, event) => {
+        if (openMenu?.index === index) {
+            setOpenMenu(null);
+        } else {
+            setOpenMenu({
+                index: index,
+                position: {
+                    top: event.screenY,
+                },
+            });
+        }
+    };
+
+
+
     if (releaseLoading) return <div className="p-2"><SkeletonLoader/></div>;
     if (releaseError) return <ErrorAlert message="Cannot get release list"/>;
 
     return (
       <div className="h-list-screen overflow-y-auto w-full">
         {releaseLoading ? (
-          <div className="p-2"><SkeletonLoader /></div>
+          <div className="p-2">
+            <SkeletonLoader />
+          </div>
         ) : (
           <div className="flex-col gap-4">
             <div className="flex flex-col gap-4  pl-3 pr-3">
@@ -145,37 +163,44 @@ const ReleaseListPage = () => {
                 </button>
               </div>
             </div>
-            <div className='h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-1 mt-6'>
-            {filteredReleaseList.map((element, index) => (
-              <button
-                key={index}
-                className={`flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 ${
-                    selectedRelease?.id === element.id ? 'bg-gray-100' : ''
-                }`}
-                onClick={() => {
-                  dispatch(setSelectedRelease(element));
-                }}
-              >
-                <div className="text-left">
-                  <div className="font-bold mb-1">{element?.name}</div>
-                  <div className="flex text-xs text-gray-600 items-center">
-                    {element?.type?.name}
+            <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-1 mt-6">
+              {filteredReleaseList.map((element, index) => (
+                <button
+                  key={index}
+                  className={`flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 ${selectedRelease?.id === element.id ? 'border-primary-pink' : 'border-gray-200'}
+                  }`}
+                  onClick={() => {
+                    dispatch(setSelectedRelease(element));
+                  }}
+                >
+                  <div className="text-left">
+                    <div className="font-bold mb-1">{element?.name}</div>
+                    <div className="flex text-xs text-gray-600 items-center">
+                      {element?.type?.name}
+                    </div>
                   </div>
-                </div>
-                <div className={"flex gap-1"}>
-                  <div
-                    onClick={() => handleDeleteClick(element)}
-                    className={"cursor-pointer"}
-                  >
-                    <TrashIcon className={"w-4 h-4 text-pink-700"} />
+                  <div className={"flex gap-1"}>
+                    <div onClick={(event) => toggleMenuOpen(index, event)}>
+                      <EllipsisVerticalIcon className="w-4 h-4 text-black" />
+                    </div>
+                      {openMenu?.index === index && (
+                          <div
+                              style={{
+                                  position: "absolute",
+                                  top: `calc(${openMenu.position.top}px - 215px)`,
+                              }}
+                              className="mt-2 w-24 left-full bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                              <button
+                                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none cursor-pointer z-20"
+                                  onClick={() => handleDeleteClick(element)}>
+                                  DELETE
+                              </button>
+                          </div>
+                      )}
                   </div>
-                  <ChevronRightIcon className={"w-4 h-4 text-black"} />
-                </div>
-              </button>
-            ))}
-              
+                </button>
+              ))}
             </div>
-            
           </div>
         )}
 
