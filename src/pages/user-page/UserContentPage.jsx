@@ -5,13 +5,19 @@ import axios from "axios";
 import {useToasts} from "react-toast-notifications";
 import {getSelectOptions} from "../../utils/commonUtils.js";
 import FormSelect from "../../components/FormSelect.jsx";
+import {useDispatch, useSelector} from "react-redux";
+import {clickedUser, doGetProjectUsers} from "../../state/slice/projectUsersSlice.js";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 
 const UserContentPage = () => {
 
     const { addToast } = useToasts();
+    const dispatch = useDispatch();
     const [formErrors, setFormErrors] = useState({});
     const [isEditable, setIsEditable] = useState(false);
     const [roles, setRoles] = useState([]);
+    const selectedUser = useSelector(clickedUser);
+    const selectedProject = useSelector(selectSelectedProject);
     // const [isSubmitting, setIsSubmitting] = useState(false);
 
     const toggleEditable = () => {
@@ -41,11 +47,27 @@ const UserContentPage = () => {
     };
 
     const [formValues, setFormValues] = useState({
-        email: 'nilangaPathiran12@gmail.com',
-        contactNumber: '+9476564534',
+        email: selectedUser.email,
+        contactNumber: selectedUser.contactNumber,
         team: 'Admin Department',
-        role: 1,
+        userRole: selectedUser.userRole,
     });
+    
+    useEffect(() => {
+      setFormValues({...formValues, ...selectedUser});
+    }, [selectedUser]);
+
+    const updateUser = () => {
+        if (selectedUser) {
+            axios.put(`/users/${selectedUser.id}`, {...formValues})
+                .then(() => {
+                    addToast('User Successfully Updated', {appearance: 'success'});
+                    dispatch(doGetProjectUsers(selectedProject?.id));
+                }).catch(() => {
+                addToast('User update request failed ', {appearance: 'error'});
+            });
+        }
+    };
 
     const taskCounts = {
         all: 22,
@@ -112,8 +134,20 @@ const UserContentPage = () => {
                         <PencilIcon onClick={toggleEditable} className='w-4  text-secondary-grey cursor-pointer' />
                     </div>
                     <div className="flex flex-col items-center">
-                        <div className="w-24 h-24 bg-gray-200 rounded-full mt-2"></div>
-                        <span className="text-xl font-semibold mt-5  text-secondary-grey mb-1">Nilanga Pathirana</span>
+                        {selectedUser.avatar ? (
+                            <img
+                                src={selectedUser.avatar}
+                                alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                                className="w-10 h-10 rounded-full object-cover"
+                            />
+                        ) : (
+                            <div
+                                className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold inline-block">
+                                {selectedUser.firstName?.[0]}
+                                {selectedUser.lastName?.[0]}
+                            </div>
+                        )}
+                        <span className="text-xl font-semibold mt-5  text-secondary-grey mb-1">{selectedUser?.firstName} {selectedUser?.lastName}</span>
                         <div className='bg-task-status-qa px-2 mt-1 rounded-md'>
                             <span className="text-xs">Admin</span>
                         </div>
@@ -168,7 +202,7 @@ const UserContentPage = () => {
                                     showLabel={true}
                                 />
                                 <FormSelect
-                                    name="role"
+                                    name="userRole"
                                     formValues={formValues}
                                     options={getSelectOptions(roles)}
                                     placeholder="Roles"
@@ -186,6 +220,7 @@ const UserContentPage = () => {
                             </div>
                             <button
                                 // disabled={isSubmitting}
+                                onClick={updateUser}
                                 type="submit"
                                 className="px-4 py-2 bg-primary-pink w-full text-white rounded-md"
                             >

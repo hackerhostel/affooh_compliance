@@ -5,11 +5,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import axios from "axios";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import {selectOrganizationUsers} from "../../state/slice/appSlice.js";
 
 const AddUserPopup = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
-  const userListForProject = useSelector(selectProjectUserList) || [];
+  const userListForProject = useSelector(selectProjectUserList);
+  const organizationUsers = useSelector(selectOrganizationUsers);
+  const usersNotInProject = organizationUsers.filter(orgUser =>
+      !userListForProject.some(projectUser => projectUser.id === orgUser.id)
+  );
   const [formValues, setFormValues] = useState({ projectUserIDs: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,7 +42,7 @@ const AddUserPopup = ({ isOpen, onClose }) => {
     try {
       const payload = {
         projectUserIDs: [
-          ...(userListForProject.map((user) => user.id) || []),
+          ...(usersNotInProject.map((user) => user.id) || []),
           parseInt(formValues.projectUserIDs, 10),
         ],
       };
@@ -86,7 +91,7 @@ const AddUserPopup = ({ isOpen, onClose }) => {
             <FormSelect
               name="projectUserIDs"
               value={formValues.projectUserIDs}
-              options={userListForProject.map((user) => ({
+              options={usersNotInProject.map((user) => ({
                 value: user.id,
                 label: `${user.firstName} ${user.lastName}`.trim(),
               }))}
