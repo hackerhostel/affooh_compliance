@@ -1,5 +1,7 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
 import axios from "axios";
+import {setRedirectSprint} from "./sprintSlice.js";
+import {setClickedUser} from "./projectUsersSlice.js";
 
 const initialState = {
   appConfig: {},
@@ -35,6 +37,7 @@ export const doGetOrganizationUsers = createAsyncThunk(
 
         const responseData = response.data.body;
         if (responseData) {
+          thunkApi.dispatch(setClickedUser(responseData[0]));
           return responseData;
         } else {
           return thunkApi.rejectWithValue('Organization users not found');

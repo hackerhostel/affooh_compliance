@@ -87,7 +87,7 @@ function Sidebar() {
 
             <div className="flex flex-col items-center ">
               {!loading ? (
-                  <Menu as="div" className="relative inline-block text-left">
+                  <Menu as="div" className="relative inline-block text-left z-10">
                     <Menu.Button
                         className="w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-pink">
                       {userDetails.avatar ? (

@@ -180,6 +180,7 @@ const ReleaseEdit = ({ releaseId }) => {
         const status = response?.data?.status;
 
         if (status) {
+          dispatch(doGetReleases(selectedProject?.id));
           addToast("Release Successfully Updated", { appearance: "success" });
         } else {
           addToast("Failed To Update The Release ", { appearance: "error" });
