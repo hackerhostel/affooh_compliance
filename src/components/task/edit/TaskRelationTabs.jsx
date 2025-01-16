@@ -31,9 +31,14 @@ const TaskRelationTabs = ({
     const [selectedTab, setSelectedTab] = useState('sub_task');
     const [addingNew, setAddingNew] = useState(false)
 
+    const handleTabSelect = (key) => {
+        setSelectedTab(key)
+        setAddingNew(false)
+    }
+
     return (
         <div className="w-full mt-10">
-            <TabGroup onChange={(index) => setSelectedTab(tabs[index].key)}>
+            <TabGroup onChange={(index) => handleTabSelect(tabs[index].key)}>
                 <div className={"flex justify-between"}>
                     <div className={"flex"}>
                         <span className="font-semibold text-secondary-grey text-lg mt-1">
