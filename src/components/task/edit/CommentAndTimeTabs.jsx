@@ -5,7 +5,7 @@ import CommentSection from "./CommentSection.jsx";
 import {useSelector} from "react-redux";
 import {selectUser} from "../../../state/slice/authSlice.js";
 
-const CommentAndTimeTabs = ({timeLogs, taskId, refetchTimeLogs}) => {
+const CommentAndTimeTabs = ({timeLogs, taskId, refetchTimeLogs, comments, reFetchComments}) => {
     const userDetails = useSelector(selectUser);
 
     return (
@@ -27,7 +27,8 @@ const CommentAndTimeTabs = ({timeLogs, taskId, refetchTimeLogs}) => {
                 </TabList>
                 <TabPanels>
                     <TabPanel key={'comments'}>
-                        <CommentSection userDetails={userDetails} taskId={taskId}/>
+                        <CommentSection userDetails={userDetails} taskId={taskId} initialComments={comments}
+                                        reFetchComments={reFetchComments}/>
                     </TabPanel>
                     <TabPanel key={'timelogs'}>
                         <TimeLogging timeLogs={timeLogs} taskId={taskId} refetchTimeLogs={refetchTimeLogs}

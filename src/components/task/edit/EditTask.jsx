@@ -23,6 +23,7 @@ import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 import {selectSelectedSprint} from '../../../state/slice/sprintSlice.js';
 import UserSelect from "../../UserSelect.jsx";
+import useFetchComments from "../../../hooks/custom-hooks/task/useFetchComments.jsx";
 
 
 const EditTaskPage = () => {
@@ -31,7 +32,6 @@ const EditTaskPage = () => {
   const projectUserList = useSelector(selectProjectUserList);
   const selectedProject = useSelector(selectSelectedProject);
   const Sprint = useSelector(selectSelectedSprint);
-
 
   const [initialTaskData, setInitialTaskData] = useState({});
   const [taskData, setTaskData] = useState({});
@@ -48,11 +48,19 @@ const EditTaskPage = () => {
     refetch: refetchTask
   } = useFetchTask(code)
   const { data: timeLogs, refetch: refetchTimeLogs } = useFetchTimeLogs(initialTaskData?.id)
+  const {data: comments, refetch: reFetchComments} = useFetchComments(initialTaskData?.id || 0)
   const { data: tasksList } = useFetchFlatTasks(initialTaskData?.project?.id)
 
   const handleFormChange = (name, value) => {
-    const newForm = { ...taskData, [name]: value };
-    setTaskData(newForm);
+    if (name === 'description') {
+      if (value !== '<p><br></p>') {
+        const newForm = {...taskData, [name]: value};
+        setTaskData(newForm);
+      }
+    } else {
+      const newForm = {...taskData, [name]: value};
+      setTaskData(newForm);
+    }
   };
 
   const handleAdditionalFieldChange = (fieldId, value) => {
@@ -70,7 +78,7 @@ const EditTaskPage = () => {
   const updateStates = (task) => {
     setTaskData({ ...task, assignee: task?.assignee?.id })
     setTaskAttributes(JSON.parse(JSON.stringify(task?.attributes)));
-    setInitialTaskData(task)
+    setInitialTaskData({...task})
   }
 
   useEffect(() => {
@@ -240,7 +248,8 @@ const EditTaskPage = () => {
                   }}
                   actionButtonPlacement={"bottom"}
                 >
-                  <WYSIWYGInput value={taskData.description} name={"description"} onchange={handleFormChange} />
+                  <WYSIWYGInput initialValue={initialTaskData?.description} value={taskData.description}
+                                name={"description"} onchange={handleFormChange}/>
                 </FormInputWrapper>
               </div>
             </div>
@@ -252,11 +261,11 @@ const EditTaskPage = () => {
           sprintId={taskData?.sprint?.id} refetchTask={refetchTask} projectId={selectedProject?.id}
           linkedTasks={taskData?.linkedTasks} projectTaskList={tasksList}
           acceptedCriteria={taskData?.acceptedCriteria} testCases={taskData?.testCases} />
-        <CommentAndTimeTabs timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs} />
+        <CommentAndTimeTabs timeLogs={timeLogs} taskId={initialTaskData?.id || ''} refetchTimeLogs={refetchTimeLogs}
+                            comments={comments} reFetchComments={reFetchComments}/>
       </div>
       <div className=" p-5 bg-dashboard-bgc">
         <div className="bg-white p-5 rounded-md" style={{ marginTop: "80px" }}>
-
           <div className="mb-6 mt-5">
             <UserSelect
                 name="assignee"

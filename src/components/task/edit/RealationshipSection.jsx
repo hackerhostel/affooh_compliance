@@ -78,7 +78,10 @@ const RelationshipSection = ({
     const linkTask = async () => {
         const payload = {
             taskID: taskId,
-            linkedTasks: [{taskID: newRow.task, linkTypeID: newRow.type}],
+            linkedTasks: [{
+                taskID: newRow.task === 0 ? projectTaskList[0]?.id : newRow.task,
+                linkTypeID: newRow.type === 0 ? linkTypes[0].value : newRow.type
+            }],
         }
 
         try {
@@ -88,10 +91,9 @@ const RelationshipSection = ({
                 addToast('Task link successfully', {appearance: 'success'});
                 refetchTask(true)
                 onHideNew()
-            } else {
-                addToast('Failed link the task', {appearance: 'error'});
             }
         } catch (error) {
+            console.log(error)
             addToast('Failed link the task', {appearance: 'error'});
         }
     };
