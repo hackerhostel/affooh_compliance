@@ -6,8 +6,10 @@ const useFetchTestExecution = (testSuiteID, testCycleID) => {
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const fetchTestExecution = async () => {
-        setLoading(true)
+    const fetchTestExecution = async (skipLoading = false) => {
+        if (!skipLoading) {
+            setLoading(true);
+        }
         setError(false)
         try {
             const response = await axios.get(`/test-plans/test-suites/${testSuiteID}/test-cycle/${testCycleID}`)
@@ -19,7 +21,10 @@ const useFetchTestExecution = (testSuiteID, testCycleID) => {
             }
         } catch (error) {
             setError(true)
-            setLoading(false)
+        } finally {
+            if (!skipLoading) {
+                setLoading(false);
+            }
         }
     };
 
