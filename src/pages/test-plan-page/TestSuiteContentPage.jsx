@@ -125,15 +125,8 @@ const TestSuiteContentPage = () => {
 
             if (response) {
                 setIsUpdating(false);
-                // setTestExecutions((prevRows) =>
-                //     prevRows.map((row) =>
-                //         row.testCycleExecutionID === rowID
-                //             ? {...row, ...updatedData}
-                //             : row
-                //     )
-                // );
                 addToast('Successfully Update Test Execution Item', { appearance: 'success' });
-                refetchTextExecution();
+                refetchTextExecution(true);
             }
         } catch (e) {
             setIsUpdating(false)

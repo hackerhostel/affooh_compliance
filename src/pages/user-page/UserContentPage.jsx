@@ -47,10 +47,10 @@ const UserContentPage = () => {
     };
 
     const [formValues, setFormValues] = useState({
-        email: selectedUser.email,
-        contactNumber: selectedUser.contactNumber,
+        email: selectedUser?.email,
+        contactNumber: selectedUser?.contactNumber,
         team: 'Admin Department',
-        userRole: selectedUser.userRole,
+        userRole: selectedUser?.userRole,
     });
     
     useEffect(() => {
@@ -134,7 +134,7 @@ const UserContentPage = () => {
                         <PencilIcon onClick={toggleEditable} className='w-4  text-secondary-grey cursor-pointer' />
                     </div>
                     <div className="flex flex-col items-center">
-                        {selectedUser.avatar ? (
+                        {selectedUser?.avatar ? (
                             <img
                                 src={selectedUser.avatar}
                                 alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
@@ -143,8 +143,8 @@ const UserContentPage = () => {
                         ) : (
                             <div
                                 className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold inline-block">
-                                {selectedUser.firstName?.[0]}
-                                {selectedUser.lastName?.[0]}
+                                {selectedUser?.firstName?.[0]}
+                                {selectedUser?.lastName?.[0]}
                             </div>
                         )}
                         <span className="text-xl font-semibold mt-5  text-secondary-grey mb-1">{selectedUser?.firstName} {selectedUser?.lastName}</span>

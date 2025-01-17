@@ -15,8 +15,11 @@ import {
 } from "../../state/slice/testPlansSlice.js";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import {useHistory} from "react-router-dom";
+import {useToasts} from "react-toast-notifications";
+import axios from "axios";
 
 const TestPlanListPage = () => {
+  const {addToast} = useToasts();
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -56,6 +59,9 @@ const TestPlanListPage = () => {
 
       setFilterCounts({ todo: todoCount, inProgress: inProgressCount, done: doneCount });
       handleSearch("");
+    }else{
+      setFilterCounts({ todo: 0, inProgress: 0, done: 0 });
+      handleSearch("");
     }
   }, [testPlans]);
 
@@ -83,21 +89,46 @@ const TestPlanListPage = () => {
     }));
   };
 
+  useEffect(() => {
+    handleSearch('');
+  }, [selectedFilters]);
+
   const handleDeleteClick = (testPlan) => {
     setToDeleteTestPlan(testPlan);
     setIsDialogOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    // Assume delete API call and state update here
-    setIsDialogOpen(false);
-    dispatch(doGetTestPlans(selectedProject?.id));
-    setOpenMenu(null)
-  };
-
   const handleTestPlanEditClick = (test_plan_id) => {
     setOpenMenu(null)
     history.push(`/test-plans/${test_plan_id}`);
+  };
+
+  const handleTestPlanExecutionClick = (test_plan_id) => {
+    dispatch(setSelectedTestPlanId(test_plan_id))
+    history.push(`/test-plans/`);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      const test_plan_id = toDeleteTestPlan?.id
+      setIsDialogOpen(false);
+      setOpenMenu(null)
+
+      const response = await axios.delete(`/test-plans/${test_plan_id}`)
+      const deleted = response?.data?.status
+
+      if (deleted) {
+        addToast('Test Plan Successfully Deleted', {appearance: 'success'});
+        dispatch(doGetTestPlans(selectedProject?.id));
+        if (test_plan_id === selectedTestPlanId) {
+          handleTestPlanExecutionClick(0)
+        }
+      } else {
+        addToast('Failed To Deleted The Test Plan ', {appearance: 'error'});
+      }
+    } catch (error) {
+      addToast('Failed To Deleted The Test Plan ', {appearance: 'error'});
+    }
   };
 
   const toggleMenuOpen = (index, event) => {
@@ -124,29 +155,29 @@ const TestPlanListPage = () => {
       ) : (
         <div className="flex-col gap-4">
           <div className="flex flex-col gap-4  pl-3 pr-3">
-            <SearchBar onSearch={handleSearch} />
+            <SearchBar onSearch={handleSearch}/>
             <div className="flex w-full laptopL:w-60 justify-between ml-3">
-            <button
-                className={`px-2 py-1 rounded-xl text-xs ${
-                  selectedFilters.inProgress ? "bg-black text-white" : "bg-gray-200"
-                }`}
-                onClick={() => handleFilterChange("inProgress")}
-              >
-                Active ({filterCounts.inProgress})
-              </button>
               <button
-                className={`px-2 py-1 rounded-xl text-xs ${
-                  selectedFilters.todo ? "bg-black text-white" : "bg-gray-200"
-                }`}
-                onClick={() => handleFilterChange("todo")}
+                  className={`px-2 py-1 rounded-xl text-xs ${
+                      selectedFilters.todo ? "bg-black text-white" : "bg-gray-200"
+                  }`}
+                  onClick={() => handleFilterChange("todo")}
               >
                 Todo ({filterCounts.todo})
               </button>
               <button
-                className={`px-2 py-1 rounded-xl text-xs ${
-                  selectedFilters.done ? "bg-black text-white" : "bg-gray-200"
-                }`}
-                onClick={() => handleFilterChange("done")}
+                  className={`px-2 py-1 rounded-xl text-xs ${
+                      selectedFilters.inProgress ? "bg-black text-white" : "bg-gray-200"
+                  }`}
+                  onClick={() => handleFilterChange("inProgress")}
+              >
+                In Progress ({filterCounts.inProgress})
+              </button>
+              <button
+                  className={`px-2 py-1 rounded-xl text-xs ${
+                      selectedFilters.done ? "bg-black text-white" : "bg-gray-200"
+                  }`}
+                  onClick={() => handleFilterChange("done")}
               >
                 Done ({filterCounts.done})
               </button>
@@ -154,7 +185,7 @@ const TestPlanListPage = () => {
           </div>
           <div className="h-[calc(100vh-300px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-1 mt-6">
             {filteredTestPlans.length === 0 ? (
-              <div className="text-center text-gray-600">No test plans found</div>
+                <div className="text-center text-gray-600">No test plans found</div>
             ) : (
                 filteredTestPlans.slice().reverse().map((tp, index) => (
                 <div
@@ -163,7 +194,7 @@ const TestPlanListPage = () => {
                 >
                   <div
                       className="col-span-2 text-left flex gap-2 flex-grow"
-                    onClick={() => dispatch(setSelectedTestPlanId(tp.id))}
+                      onClick={() => handleTestPlanExecutionClick(tp.id)}
                   >
                     <div className="flex flex-col gap-2 justify-center">
                       <div className="font-bold">{tp.name}</div>

@@ -31,7 +31,10 @@ export const getFirstName = (name) => {
 
 export const getSelectOptions = (options) => {
   if (options && options.length) {
-    return options.map(o => ({value: Number(o.id), label: o?.name || o?.value || o?.summary}));
+    return options.map(o => ({
+      value: o?.id ? Number(o?.id) : Number(o?.checklistID),
+      label: o?.name || o?.value || o?.summary
+    }));
   } else {
     return []
   }
