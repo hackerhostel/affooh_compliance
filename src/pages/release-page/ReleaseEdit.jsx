@@ -102,7 +102,7 @@ const ReleaseEdit = ({ releaseId }) => {
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
 
   const [formValues, setFormValues] = useState({
-    id: SelectedRelease?.id,
+    id: SelectedRelease?.rID,
     name: SelectedRelease?.name,
     description: SelectedRelease?.description,
     releaseDate: formatDateToMMDDYYYY(SelectedRelease?.releaseDate),
@@ -115,7 +115,7 @@ const ReleaseEdit = ({ releaseId }) => {
   useEffect(() => {
     if (SelectedRelease) {
       setFormValues({
-        id: SelectedRelease.id,
+        id: SelectedRelease.rID,
         name: SelectedRelease.name,
         description: SelectedRelease?.description,
         releaseDate: formatDateToMMDDYYYY(SelectedRelease?.releaseDate),
@@ -174,7 +174,7 @@ const ReleaseEdit = ({ releaseId }) => {
     } else {
       setIsValidationErrorsShown(false);
       try {
-        const response = await axios.put(`releases/${SelectedRelease.id}`, {
+        const response = await axios.put(`releases/${SelectedRelease.rID}`, {
           release: formValues,
         });
         const status = response?.data?.status;

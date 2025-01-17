@@ -8,6 +8,7 @@ import FormSelect from "../../components/FormSelect.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {clickedUser, doGetProjectUsers} from "../../state/slice/projectUsersSlice.js";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {doGetOrganizationUsers, selectAppConfig} from "../../state/slice/appSlice.js";
 
 const UserContentPage = () => {
 
@@ -18,6 +19,7 @@ const UserContentPage = () => {
     const [roles, setRoles] = useState([]);
     const selectedUser = useSelector(clickedUser);
     const selectedProject = useSelector(selectSelectedProject);
+    const appConfig = useSelector(selectAppConfig);
     // const [isSubmitting, setIsSubmitting] = useState(false);
 
     const toggleEditable = () => {
@@ -49,7 +51,7 @@ const UserContentPage = () => {
     const [formValues, setFormValues] = useState({
         email: selectedUser?.email,
         contactNumber: selectedUser?.contactNumber,
-        team: 'Admin Department',
+        teamID: selectedUser?.teamID,
         userRole: selectedUser?.userRole,
     });
     
@@ -62,7 +64,7 @@ const UserContentPage = () => {
             axios.put(`/users/${selectedUser.id}`, {...formValues})
                 .then(() => {
                     addToast('User Successfully Updated', {appearance: 'success'});
-                    dispatch(doGetProjectUsers(selectedProject?.id));
+                    dispatch(doGetOrganizationUsers());
                 }).catch(() => {
                 addToast('User update request failed ', {appearance: 'error'});
             });
@@ -186,16 +188,17 @@ const UserContentPage = () => {
                                     showLabel={true}
                                 />
 
-                                <FormInput
-                                    name="team"
+                                <FormSelect
+                                    name="teamID"
                                     formValues={formValues}
-                                    placeholder="Team"
+                                    options={getSelectOptions(appConfig.teams)}
+                                    placeholder="Roles"
                                     onChange={handleInputChange}
                                     className={`w-full p-2 border rounded-md ${
                                         isEditable
-                                          ? "bg-white text-secondary-grey border-border-color"
-                                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                                      }`}
+                                            ? "bg-white text-secondary-grey border-border-color"
+                                            : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                                    }`}
                                     disabled={!isEditable}
                                     formErrors={formErrors}
                                     showErrors={true}
