@@ -188,22 +188,22 @@ const UserContentPage = () => {
                                     showLabel={true}
                                 />
 
-                                <FormSelect
-                                    name="teamID"
-                                    formValues={formValues}
-                                    options={getSelectOptions(appConfig.teams)}
-                                    placeholder="Roles"
-                                    onChange={handleInputChange}
-                                    className={`w-full p-2 border rounded-md ${
-                                        isEditable
-                                            ? "bg-white text-secondary-grey border-border-color"
-                                            : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                                    }`}
-                                    disabled={!isEditable}
-                                    formErrors={formErrors}
-                                    showErrors={true}
-                                    showLabel={true}
-                                />
+                                {/*<FormSelect*/}
+                                {/*    name="teamID"*/}
+                                {/*    formValues={formValues}*/}
+                                {/*    options={getSelectOptions(appConfig.teams)}*/}
+                                {/*    placeholder="Roles"*/}
+                                {/*    onChange={handleInputChange}*/}
+                                {/*    className={`w-full p-2 border rounded-md ${*/}
+                                {/*        isEditable*/}
+                                {/*            ? "bg-white text-secondary-grey border-border-color"*/}
+                                {/*            : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"*/}
+                                {/*    }`}*/}
+                                {/*    disabled={!isEditable}*/}
+                                {/*    formErrors={formErrors}*/}
+                                {/*    showErrors={true}*/}
+                                {/*    showLabel={true}*/}
+                                {/*/>*/}
                                 <FormSelect
                                     name="userRole"
                                     formValues={formValues}
