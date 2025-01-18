@@ -23,7 +23,6 @@ import {
   removeObjectFromArrayByDataField,
   statusCellRender
 } from "./utils.jsx";
-import MenuTabs from '../../assets/menu_tabs.png'
 import FormSelect from "../FormSelect.jsx";
 import SearchBar from "../SearchBar.jsx";
 import TaskAttriEditPopUp from "../popupForms/taskAttriEditPopUp.jsx";
@@ -142,9 +141,6 @@ const SprintTable = ({
               />
             </div>
             <SearchBar onSearch={handleSearch}/>
-          </div>
-          <div className="flex items-center w-1/2  ">
-            <img src={MenuTabs} alt="Menu tabs"/>
           </div>
         </div>
         <DataGrid

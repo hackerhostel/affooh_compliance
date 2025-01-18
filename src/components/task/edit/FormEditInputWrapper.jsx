@@ -10,7 +10,8 @@ const FormInputWrapper = ({
                               currentData,
                               onAccept,
                               onReject,
-                              actionButtonPlacement = "side"
+                              actionButtonPlacement = "side",
+                              blockSave = false
                           }) => {
   const [isChanged, setIsChanged] = useState(false);
 
@@ -39,8 +40,8 @@ const FormInputWrapper = ({
               <div className="flex space-x-1">
                   <button
                       onClick={onAccept}
-                      className="p-1 rounded-full bg-green-500 text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                      disabled={isEditing}
+                      className="p-1 rounded-full bg-green-500 text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-500"
+                      disabled={isEditing || blockSave}
                   >
                       <CheckIcon className="h-5 w-5"/>
                   </button>

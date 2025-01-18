@@ -16,7 +16,7 @@ import SprintLayout from "./sprint-page/index.jsx";
 import SettingLayout from "./setting-page/index.jsx";
 import {doGetProjectBreakdown, selectSelectedProject} from "../state/slice/projectSlice.js";
 import {isNotEmptyObj} from "../utils/commonUtils.js";
-import EditTaskPage from "../components/task/edit/EditTask.jsx";
+import EditTaskPage from "../pages/sprint-page/editTask/index.jsx"
 import {doGetMasterData, selectInitialDataError, selectInitialDataLoading} from "../state/slice/appSlice.js";
 
 const Dashboard = () => {
@@ -78,6 +78,10 @@ const Dashboard = () => {
             </Route>
 
             <Route path="/sprints">
+              <SprintLayout />
+            </Route>
+
+            <Route path="/sprints/:sprint_id">
               <SprintLayout />
             </Route>
 

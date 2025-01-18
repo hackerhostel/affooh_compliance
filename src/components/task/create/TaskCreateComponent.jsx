@@ -14,7 +14,6 @@ import {useToasts} from "react-toast-notifications";
 import {XMarkIcon} from "@heroicons/react/24/outline/index.js";
 import {getUserSelectOptions} from "../../../utils/commonUtils.js";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
-import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 
 function getRequiredAdditionalFieldList(fieldsArray) {
     const requiredFields = [];
@@ -196,7 +195,7 @@ const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) 
             <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm z-10">
                 <div className="bg-white pl-10 pt-6 pr-6 pb-10 shadow-lg w-3/6 h-screen overflow-y-auto">
                     <div className="flex justify-between items-center mb-4">
-                        <p className="font-bold text-2xl">Create New Task</p>
+                        <p className="text-2xl">Create New Task</p>
                         <div className={"cursor-pointer"} onClick={handleTaskCreateClose}>
                             <XMarkIcon className={"w-6 h-6 text-gray-500"}/>
                         </div>
@@ -245,8 +244,14 @@ const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) 
                                     </button>
                                 </div>
                                 <div className="mb-6">
-                                    <WYSIWYGInput value={createTaskForm.description} name={"description"}
-                                                  onchange={handleFormChange}/>
+                                    <FormInput
+                                        type="text"
+                                        name="description"
+                                        formValues={createTaskForm}
+                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                        formErrors={formErrors}
+                                        showErrors={isValidationErrorsShown}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -302,13 +307,13 @@ const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) 
                         <div className="flex space-x-4 mt-10 self-end w-full">
                             <button
                                 onClick={handleTaskCreateClose}
-                                className="px-4 py-2 text-gray-700 rounded w-2/6 border border-black cursor-pointer disabled:cursor-not-allowed"
+                                className="btn-secondary"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 bg-primary-pink text-white rounded hover:bg-pink-600 w-4/6 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                className="btn-primary"
                                 disabled={isSubmitting}
                             >
                                 Continue

@@ -22,13 +22,14 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
     const releases = useSelector(selectReleaseListForProject)
     const selectedProject = useSelector(selectSelectedProject);
 
-    useEffect(() => {
-        if (selectedProject?.id && !releases.length) {
-            dispatch(doGetReleases(selectedProject?.id));
-        }
-    }, [selectedProject]);
-
-    const [formValues, setFormValues] = useState({name: '', sprintId: 1, projectId: selectedProject?.id, releaseId: 41, status: 'TODO'});
+    const [project, setProject] = useState(selectedProject);
+    const [formValues, setFormValues] = useState({
+        name: '',
+        sprintId: 0,
+        projectId: project?.id,
+        releaseId: 0,
+        status: 'TODO'
+    });
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors] = useValidation(TestPlanCreateSchema, formValues);
@@ -38,6 +39,32 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
         {value: 'DONE', label: 'DONE'}
     ];
 
+    useEffect(() => {
+        if (selectedProject?.id) {
+            setProject(selectedProject)
+            setFormValues({...formValues, projectId: selectedProject.id})
+        }
+        if (selectedProject?.id && !releases.length) {
+            dispatch(doGetReleases(selectedProject?.id));
+        }
+    }, [selectedProject]);
+
+    useEffect(() => {
+        if (releases.length) {
+            setFormValues({...formValues, releaseId: releases[0].checklistID})
+        } else {
+            setFormValues({...formValues, releaseId: 0})
+        }
+    }, [releases]);
+
+    useEffect(() => {
+        if (sprintListForProject.length) {
+            setFormValues({...formValues, sprintId: sprintListForProject[0].id})
+        } else {
+            setFormValues({...formValues, sprintId: 0})
+        }
+    }, [sprintListForProject]);
+
     const handleFormChange = (name, value, isText) => {
         setFormValues({...formValues, [name]: isText ? value : Number(value)});
         setIsValidationErrorsShown(false)
@@ -45,7 +72,7 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
 
     const handleClose = () => {
         onClose()
-        setFormValues({name: '', sprintId: 0, projectId: selectedProject.id, releaseId: 0, status: 'TODO'})
+        setFormValues({name: '', sprintId: 0, projectId: project.id, releaseId: 0, status: 'TODO'})
         setIsValidationErrorsShown(false)
     };
 
@@ -63,7 +90,7 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
 
                 if (testPlanId > 0) {
                     addToast('Test Plan Successfully Created', {appearance: 'success'});
-                    dispatch(doGetTestPlans(selectedProject?.id));
+                    dispatch(doGetTestPlans(project?.id));
                     handleClose()
                 } else {
                     addToast('Failed To Create The Test Plan ', {appearance: 'error'});
@@ -79,7 +106,7 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
         <>
             {isOpen && (
                 <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
-                    <div className="bg-white p-6 shadow-lg w-1/3">
+                    <div className="bg-white p-6 shadow-lg w-2/4">
                         <div className="flex justify-between items-center mb-4">
                             <p className="font-bold text-2xl">New Test Plan</p>
                             <div className={"cursor-pointer"} onClick={handleClose}>

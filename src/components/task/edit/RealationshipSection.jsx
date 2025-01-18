@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {
-    ArrowTopRightOnSquareIcon,
     CheckBadgeIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
@@ -80,9 +79,9 @@ const RelationshipSection = ({
         const payload = {
             taskID: taskId,
             linkedTasks: [{
-                taskID: newRow?.task > 0 ? newRow.task : projectTaskList[0].id,
-                linkTypeID: newRow?.type > 0 ? newRow.type : linkTypes[0].value
-            }]
+                taskID: newRow.task === 0 ? projectTaskList[0]?.id : newRow.task,
+                linkTypeID: newRow.type === 0 ? linkTypes[0].value : newRow.type
+            }],
         }
 
         try {
@@ -92,10 +91,9 @@ const RelationshipSection = ({
                 addToast('Task link successfully', {appearance: 'success'});
                 refetchTask(true)
                 onHideNew()
-            } else {
-                addToast('Failed link the task', {appearance: 'error'});
             }
         } catch (error) {
+            console.log(error)
             addToast('Failed link the task', {appearance: 'error'});
         }
     };
@@ -126,7 +124,8 @@ const RelationshipSection = ({
 
         return (
             <tr className="border-b border-gray-200">
-                <td className="py-5 px-4 text-text-color">{linkedTask?.name}</td>
+                <td className="py-5 px-4 text-text-color cursor-pointer"
+                    onClick={onRedirectClick}>{linkedTask?.name}</td>
                 <td className="py-5 px-4 flex gap-3 items-center text-text-color">
                     <div
                         className="w-8 h-8 rounded-full bg-primary-pink flex items-center justify-center text-white text-md font-semibold">
@@ -143,9 +142,6 @@ const RelationshipSection = ({
                     <div className={"flex gap-5"}>
                         <div className="cursor-pointer" onClick={removeTaskLink}>
                             <TrashIcon className={"w-5 h-5 text-red-600 cursor-pointer"}/>
-                        </div>
-                        <div className={"cursor-pointer"} onClick={onRedirectClick}>
-                            <ArrowTopRightOnSquareIcon className={"w-5 h-5 text-text-color"}/>
                         </div>
                     </div>
                 </td>

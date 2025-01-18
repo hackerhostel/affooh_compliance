@@ -7,7 +7,9 @@ module.exports = {
     extend: {
       colors: {
         'primary-pink': '#EB5A84',
+        'project-name-content-pages-color': '#232633',
         'secondary-pink': '#fdd6db',
+        'secondary-text-color': ' RGB(88, 88, 88)',
         'text-color': 'rgba(116, 122, 136, 1)',
         'card-white': '#FFFFFF',
         'cancel-button':"rgba(116, 122, 136, 1)",
@@ -37,7 +39,12 @@ module.exports = {
         'task-status-uat-bold': "#FF9820",
         'task-status-done': "#C9F6BF",
         'task-status-done-bold': "#41A936",
-        'light-red': "#FFE1E1"
+        'light-red': "#FFE1E1",
+        'popup-screen-header' : '#585858',
+        'count-notification' : '#E6E6E6',
+        'user-detail-box' : 'F4F5FB',
+        'border-color' : 'E6E6E6',
+
       },
       height: {
         'list-screen': 'calc(100vh - 148px)',

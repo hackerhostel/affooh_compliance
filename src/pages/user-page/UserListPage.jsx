@@ -5,7 +5,7 @@ import {selectSelectedProject, setSelectedProjectFromList} from "../../state/sli
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import SearchBar from "../../components/SearchBar.jsx";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
-import {doGetProjectUsers} from "../../state/slice/projectUsersSlice.js";
+import {doGetProjectUsers, setClickedUser} from "../../state/slice/projectUsersSlice.js";
 import {sendInvitation} from "../../state/slice/registerSlice.js";
 import {useToasts} from "react-toast-notifications";
 import axios from "axios";
@@ -149,7 +149,7 @@ const UserListPage = () => {
             key={index}
             className="items-center p-3 border border-gray-200 rounded-md w-full grid grid-cols-3 gap-2 hover:bg-gray-100"
             onClick={() => {
-              dispatch(setSelectedProjectFromList(index))
+              dispatch(setClickedUser(element))
             }}
           >
             <div className="col-span-2 text-left">

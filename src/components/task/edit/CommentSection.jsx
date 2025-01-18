@@ -9,16 +9,15 @@ import {useSelector} from "react-redux";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
 import useFetchFlatTasks from "../../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
 import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
-import {useHistory} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 
-const CommentSection = ({taskId, userDetails}) => {
+const CommentSection = ({taskId, userDetails, initialComments, reFetchComments}) => {
     const {addToast} = useToasts();
     const history = useHistory();
     const projectUserList = useSelector(selectProjectUserList);
     const selectedProject = useSelector(selectSelectedProject);
 
     const {data: tasksList} = useFetchFlatTasks(selectedProject?.id)
-    const {data: commentResponse, refetch: reFetchComments} = useFetchComments(taskId)
 
     const [users, setUsers] = useState([]);
     const [tasks, setTasks] = useState([]);
@@ -43,8 +42,8 @@ const CommentSection = ({taskId, userDetails}) => {
     }, [tasksList]);
 
     useEffect(() => {
-        setComments(commentResponse);
-    }, [commentResponse]);
+       setComments(initialComments)
+    }, [initialComments]);
 
     const handleAddComment = async (parentId = 0) => {
         setIsSubmitting(true)
@@ -186,7 +185,7 @@ const CommentSection = ({taskId, userDetails}) => {
     }
 
     return (
-        <div className="w-full mt-8 p-6 bg-white rounded-lg shadow-lg flex-col">
+        <div className="w-full mt-8 p-6 bg-white rounded-lg flex-col">
             <div className="flex gap-5 items-center">
                 <div
                     className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">

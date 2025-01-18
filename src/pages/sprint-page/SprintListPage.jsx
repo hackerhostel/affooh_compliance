@@ -7,6 +7,7 @@ import {
   doGetSprintBreakdown,
   selectIsSprintListForProjectError,
   selectIsSprintListForProjectLoading,
+  selectSelectedSprint,
   selectSprintListForProject,
   setRedirectSprint,
   setSelectedSprint
@@ -14,18 +15,22 @@ import {
 import {EllipsisVerticalIcon} from "@heroicons/react/24/outline/index.js";
 import SprintDeleteComponent from "./SprintDeleteComponent.jsx";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {useHistory} from "react-router-dom";
 
 const SprintListPage = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const sprintListError = useSelector(selectIsSprintListForProjectError);
   const sprintListForLoading = useSelector(selectIsSprintListForProjectLoading);
   const sprintListForProject = useSelector(selectSprintListForProject);
   const selectedProject = useSelector(selectSelectedProject);
+  const selectedSprint = useSelector(selectSelectedSprint);
 
   const [sprintList, setSprintList] = useState([]);
   const [filteredSprintList, setFilteredSprintList] = useState([]);
   const [toDeleteSprint, setToDeleteSprint] = useState({});
-  const [showDeletePopup, setShowDeletePopup] = useState(false); // New state for delete popup
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState({
     inProgress: true,
     toDo: true,
@@ -56,9 +61,24 @@ const SprintListPage = () => {
     }
   }, [sprintListForProject]);
 
+  const sortSprints = (array) => {
+    return array.sort((a, b) => {
+      if (a.endDate === null && b.endDate === null) {
+        return 0;
+      }
+      if (a.endDate === null) {
+        return -1;
+      }
+      if (b.endDate === null) {
+        return 1;
+      }
+      return new Date(b.endDate) - new Date(a.endDate);
+    });
+  };
+
   useEffect(() => {
     if (sprintList.length) {
-      setFilteredSprintList([...sprintList]);
+      setFilteredSprintList(sortSprints(sprintList));
     }
   }, [sprintList]);
 
@@ -78,7 +98,7 @@ const SprintListPage = () => {
       return false;
     });
 
-    setFilteredSprintList(filtered);
+    setFilteredSprintList(sortSprints(filtered));
   };
 
   const handleFilterChange = (filterName) => {
@@ -94,10 +114,11 @@ const SprintListPage = () => {
     if (deleted) {
       dispatch(doGetSprintBreakdown(selectedProject?.id))
       dispatch(setRedirectSprint(0));
+      toggleMenuOpen(null)
     }
   };
 
-  const handleEllipsisClick = (sprint) => {
+  const handleSprintDelete = (sprint) => {
     setToDeleteSprint(sprint);
     setShowDeletePopup(true);
   };
@@ -105,6 +126,24 @@ const SprintListPage = () => {
   useEffect(() => {
     handleSearch('');
   }, [selectedFilters]);
+
+  const handleSprintClick = (sprint) => {
+    dispatch(setSelectedSprint(sprint))
+    history.push(`/sprints/${sprint?.id}`);
+  };
+
+  const toggleMenuOpen = (index, event) => {
+    if (openMenu?.index === index) {
+      setOpenMenu(null);
+    } else {
+      setOpenMenu({
+        index: index,
+        position: {
+          top: event.screenY,
+        },
+      });
+    }
+  };
 
   if (sprintListError) return <ErrorAlert message="Failed to fetch sprints at the moment"/>;
 
@@ -144,10 +183,10 @@ const SprintListPage = () => {
                     filteredSprintList.map((element, index) => (
                         <div
                             key={index}
-                            className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer"
+                            className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedSprint?.id === element.id ? 'border-primary-pink' : 'border-gray-200'}`}
                         >
                           <div className="col-span-2 text-left flex gap-2"
-                               onClick={() => dispatch(setSelectedSprint(element))}>
+                               onClick={() => handleSprintClick(element)}>
                             <div
                                 className={`min-w-1 rounded-md ${element?.status?.value === 'Open' ? 'bg-status-todo' : element?.status?.value === 'Done' ? 'bg-status-done' : 'bg-status-in-progress'}`}></div>
                             <div className="flex flex-col gap-2 justify-center">
@@ -156,9 +195,25 @@ const SprintListPage = () => {
                               </div>
                             </div>
                           </div>
-                          <div onClick={() => handleEllipsisClick(element)}>
-                            <EllipsisVerticalIcon className="w-4 h-4 text-black"/>
-                          </div>
+                          {element?.name !== "BACKLOG" && (
+                              <div onClick={(event) => toggleMenuOpen(index, event)}>
+                                <EllipsisVerticalIcon className="w-4 h-4 text-black"/>
+                              </div>
+                          )}
+                          {openMenu?.index === index && (
+                              <div
+                                  style={{
+                                    position: "absolute",
+                                    top: `calc(${openMenu.position.top}px - 215px)`,
+                                  }}
+                                  className="mt-2 w-24 left-full bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                                <button
+                                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none cursor-pointer z-20"
+                                    onClick={() => handleSprintDelete(element)}>
+                                  DELETE
+                                </button>
+                              </div>
+                          )}
                         </div>
                     ))
                 )}

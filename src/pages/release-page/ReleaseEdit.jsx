@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
-
 import FormTextArea from "../../components/FormTextArea.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import { ReleaseEditSchema } from "../../utils/validationSchemas.js";
 import { useToasts } from "react-toast-notifications";
 import {
   CheckBadgeIcon,
-  ChevronRightIcon,
+  PencilIcon,
   PlusCircleIcon,
   TrashIcon,
   XCircleIcon,
+  FolderIcon
 } from "@heroicons/react/24/outline/index.js";
 import {
   doGetReleases,
@@ -42,13 +42,17 @@ const ReleaseEdit = ({ releaseId }) => {
   const [createdDate, setCreatedDate] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [toDeleteItem, setToDeleteItem] = useState({});
+  const [isEditable, setIsEditable] = useState(false);
 
   const [showNewRow, setShowNewRow] = useState(false);
-  const [newRow, setNewRow] = useState({
+
+  const initialNewRowState = {
     name: "",
     status: "TODO",
-    assignee: 1,
-  });
+    assignee: "", 
+  };
+  const [newRow, setNewRow] = useState({initialNewRowState});
+
   const [dateSelectorOpen, setDateSelectorOpen] = useState(false);
   // const [releaseCheckListItems, setReleaseCheckListItems] = useState([]);
   const checkListStatuses = [
@@ -65,9 +69,13 @@ const ReleaseEdit = ({ releaseId }) => {
     setShowNewRow(true);
   };
 
+  const toggleEditable = () => {
+    setIsEditable(!isEditable)
+  };
+
   const handleCancelNewRow = () => {
     setShowNewRow(false);
-    setNewRow({ name: "", status: "", assignee: "" });
+    setNewRow(initialNewRowState);
   };
 
   const handleInputChange = (name, value) => {
@@ -94,7 +102,7 @@ const ReleaseEdit = ({ releaseId }) => {
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
 
   const [formValues, setFormValues] = useState({
-    id: SelectedRelease?.id,
+    id: SelectedRelease?.rID,
     name: SelectedRelease?.name,
     description: SelectedRelease?.description,
     releaseDate: formatDateToMMDDYYYY(SelectedRelease?.releaseDate),
@@ -107,7 +115,7 @@ const ReleaseEdit = ({ releaseId }) => {
   useEffect(() => {
     if (SelectedRelease) {
       setFormValues({
-        id: SelectedRelease.id,
+        id: SelectedRelease.rID,
         name: SelectedRelease.name,
         description: SelectedRelease?.description,
         releaseDate: formatDateToMMDDYYYY(SelectedRelease?.releaseDate),
@@ -166,12 +174,13 @@ const ReleaseEdit = ({ releaseId }) => {
     } else {
       setIsValidationErrorsShown(false);
       try {
-        const response = await axios.put(`releases/${SelectedRelease.id}`, {
+        const response = await axios.put(`releases/${SelectedRelease.rID}`, {
           release: formValues,
         });
         const status = response?.data?.status;
 
         if (status) {
+          dispatch(doGetReleases(selectedProject?.id));
           addToast("Release Successfully Updated", { appearance: "success" });
         } else {
           addToast("Failed To Update The Release ", { appearance: "error" });
@@ -194,6 +203,7 @@ const ReleaseEdit = ({ releaseId }) => {
         })
         .then((r) => {
           if (r) {
+            setNewRow(initialNewRowState);
             setShowNewRow(false);
             addToast("Check List Item Created Successfully", {
               appearance: "success",
@@ -352,78 +362,87 @@ const ReleaseEdit = ({ releaseId }) => {
 
   return (
     <>
-      <div className="p-2">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-          <div className="text-start">
-            <div className="text-lg mb-2 flex items-center">
-              <span className="font-semibold">Edit Staging Release</span>
-
-              <ChevronRightIcon className="w-5 h-5 text-gray-500 " />
-
-              <span>{SelectedRelease?.name}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row">
-              <span className="mr-2">Created Date: {createdDate}</span>
-              <span>Created By: {getCreatedUser()}</span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end">
-            <button
-              form="editReleaseForm"
-              type="submit"
-              disabled={isSubmitting}
-              className="px-9 py-2 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
-            >
-              Edit
-            </button>
-          </div>
+      {!SelectedRelease ? (
+        <div className="flex flex-col items-center justify-center h-screen">
+          <FolderIcon className="w-10 text-secondary-grey" />
+          <p className="text-gray-500 text-sm">No Data Available.</p>
         </div>
-        <div>
-          <div className="p-5 bg-white rounded-lg">
-            <form
-              id="editReleaseForm"
-              onSubmit={editRelease}
-              className="text-start"
-            >
-              <div className=" mt-5">
-                <FormInput
-                  type="text"
-                  name="name"
-                  formValues={formValues}
-                  placeholder="Name"
-                  onChange={({ target: { name, value } }) =>
-                    handleFormChange(name, value, true)
-                  }
-                  formErrors={formErrors}
-                  showErrors={isValidationErrorsShown}
+      ) : (
+        <div className="p-2">
+          {/* Header Section */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div className="text-start">
+              <div className="text-lg mt-5 flex items-center">
+                <span className="font-semibold font-xs">Release &gt;</span>
+                <span className="text-gray-500">{SelectedRelease?.name}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-end"></div>
+          </div>
+
+          {/* Release Details Section */}
+          <div className="flex space-x-5">
+            <div className="p-5 mt-8 w-72 bg-white rounded-lg">
+              <div className="flex justify-end">
+                <PencilIcon
+                  onClick={toggleEditable}
+                  className="w-4 text-secondary-grey cursor-pointer"
                 />
               </div>
+              <form id="editReleaseForm" onSubmit={editRelease} className="text-start">
+                {/* Name Input */}
+                <div className="mt-4">
+                  <FormInput
+                    type="text"
+                    name="name"
+                    className={`w-full p-2 border rounded-md ${isEditable
+                        ? "bg-white text-secondary-grey border-border-color"
+                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      }`}
+                    disabled={!isEditable}
+                    formValues={formValues}
+                    placeholder="Name"
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value, true)
+                    }
+                    formErrors={formErrors}
+                    showErrors={isValidationErrorsShown}
+                  />
+                </div>
 
-              <div className="mt-5">
-                <label className="block text-sm text-text-color">
-                  Description
-                </label>
-                <FormTextArea
-                  name="description"
-                  showShadow={false}
-                  formValues={formValues}
-                  onChange={({ target: { name, value } }) =>
-                    handleFormChange(name, value, true)
-                  }
-                  rows={6}
-                />
-                {isValidationErrorsShown && formErrors.description && (
-                  <span className="text-red-500">{formErrors.description}</span>
-                )}
-              </div>
+                {/* Description Input */}
+                <div className="mt-5">
+                  <label className="block text-sm text-text-color">Description</label>
+                  <FormTextArea
+                    name="description"
+                    className={`w-full p-2 border rounded-md ${isEditable
+                        ? "bg-white text-secondary-grey border-border-color"
+                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      }`}
+                    disabled={!isEditable}
+                    showShadow={false}
+                    formValues={formValues}
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value, true)
+                    }
+                    rows={6}
+                  />
+                  {isValidationErrorsShown && formErrors.description && (
+                    <span className="text-red-500">{formErrors.description}</span>
+                  )}
+                </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
-                <div>
+                {/* Release Date Input */}
+                <div className="mt-5">
                   <FormInput
                     isDate={true}
                     type="date"
                     name="releaseDate"
+                    className={`w-full p-2 border rounded-md ${isEditable
+                        ? "bg-white text-secondary-grey border-border-color"
+                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      }`}
+                    disabled={!isEditable}
                     formValues={formValues}
                     placeholder="Release Date"
                     onChange={({ target: { name, value } }) =>
@@ -431,9 +450,16 @@ const ReleaseEdit = ({ releaseId }) => {
                     }
                   />
                 </div>
-                <div className="flex-col">
+
+                {/* Status Select */}
+                <div className="mt-5">
                   <FormSelect
                     name="status"
+                    className={`w-full p-2 border rounded-md ${isEditable
+                        ? "bg-white text-secondary-grey border-border-color"
+                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      }`}
+                    disabled={!isEditable}
                     placeholder="Status"
                     formValues={formValues}
                     options={releaseStatus}
@@ -444,10 +470,17 @@ const ReleaseEdit = ({ releaseId }) => {
                     showErrors={isValidationErrorsShown}
                   />
                 </div>
-                <div>
+
+                {/* Version Input */}
+                <div className="mt-5">
                   <FormInput
                     type="text"
                     name="version"
+                    className={`w-full p-2 border rounded-md ${isEditable
+                        ? "bg-white text-secondary-grey border-border-color"
+                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      }`}
+                    disabled={!isEditable}
                     formValues={formValues}
                     placeholder="Version"
                     onChange={({ target: { name, value } }) =>
@@ -457,10 +490,17 @@ const ReleaseEdit = ({ releaseId }) => {
                     showErrors={isValidationErrorsShown}
                   />
                 </div>
-                <div>
+
+                {/* Type Select */}
+                <div className="mt-5">
                   <FormSelect
                     formValues={formValues}
                     name="type"
+                    className={`w-full p-2 border rounded-md ${isEditable
+                        ? "bg-white text-secondary-grey border-border-color"
+                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      }`}
+                    disabled={!isEditable}
                     placeholder="Type"
                     options={getSelectOptions(releaseTypes)}
                     formErrors={formErrors}
@@ -470,110 +510,129 @@ const ReleaseEdit = ({ releaseId }) => {
                     showErrors={isValidationErrorsShown}
                   />
                 </div>
-              </div>
-            </form>
-          </div>
-        </div>
-        <div className="py-4">
-          <div className="font-semibold text-start text-secondary-grey mb-4">
-            Check List Items
-          </div>
-          <div className="w-full mt-8">
-            <div className="flex w-full mb-3 justify-end pr-5">
-              <div className="flex gap-1 items-center">
-                <PlusCircleIcon
-                  onClick={handleAddNewRow}
-                  className={`w-6 h-6 ${showNewRow ? "text-gray-300 cursor-not-allowed" : "text-pink-500 cursor-pointer"}`}
-                />
-                <span className="font-thin text-xs text-gray-600">Add New</span>
-              </div>
-            </div>
-            <div className="w-full p-6 bg-white rounded-lg shadow-lg flex-col">
-              {releaseCheckListItems.length || showNewRow ? (
-                <table className="min-w-full border-collapse">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-2 text-left">Name</th>
-                      <th className="px-4 py-2 text-left">Status</th>
-                      <th className="px-4 py-2 text-left">Assignee</th>
-                      <th className="px-4 py-2 text-left">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {showNewRow && (
-                      <tr className="border-b">
-                        <td className="px-4 py-2">
-                          <FormInput
-                            type="text"
-                            name="name"
-                            formValues={newRow}
-                            onChange={({ target: { name, value } }) =>
-                              handleInputChange(name, value)
-                            }
-                          />
-                        </td>
-                        <td className="px-4 py-2 w-36">
-                          <FormSelect
-                            name="status"
-                            formValues={newRow}
-                            options={checkListStatuses}
-                            onChange={({ target: { name, value } }) =>
-                              handleInputChange(name, value)
-                            }
-                          />
-                        </td>
-                        <td className="px-4 py-2">
-                          <FormSelect
-                            name="assignee"
-                            formValues={newRow}
-                            options={getProjectUsers()}
-                            onChange={({ target: { name, value } }) =>
-                              handleInputChange(name, value)
-                            }
-                          />
-                        </td>
-                        <td className="px-4 py-2 ">
-                          <div className={"flex gap-5"}>
-                            <XCircleIcon
-                              onClick={handleCancelNewRow}
-                              className="w-5 h-5 text-gray-500 cursor-pointer"
-                            />
-                            <CheckBadgeIcon
-                              onClick={addChecklist}
-                              className="w-5 h-5 text-pink-700 cursor-pointer"
-                            />
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                    {releaseCheckListItems &&
-                      releaseCheckListItems.map((row, index) => (
-                        <GenerateRow
-                          row={row}
-                          key={index}
-                          onUpdate={updateCheckLitItem}
-                          onDelete={handleDeleteClick}
-                        />
-                      ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-text-color">No Check List Items Available</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
 
+                {/* Submit Button */}
+                <div className="flex justify-end mt-5">
+                  <button
+                    form="editReleaseForm"
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-9 py-2 rounded-lg bg-primary-pink text-white font-bold cursor-pointer"
+                  >
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Checklist Section */}
+            <div className="py-7">
+              <div className="font-semibold text-start text-xl text-secondary-grey">
+                Check List Items
+              </div>
+              <div className="w-full">
+                <div className="flex w-full justify-end pr-5 mb-2">
+                  <div className="flex gap-1 items-center">
+                    <PlusCircleIcon
+                      onClick={handleAddNewRow}
+                      className={`w-6 h-6 ${showNewRow
+                          ? "text-gray-300 cursor-not-allowed"
+                          : "text-pink-500 cursor-pointer"
+                        }`}
+                    />
+                    <span className="font-thin text-xs text-gray-600">Add New</span>
+                  </div>
+                </div>
+                <div
+                  style={{ width: "800px" }}
+                  className="p-6 bg-white rounded-lg flex-col"
+                >
+                  {releaseCheckListItems.length || showNewRow ? (
+                    <table className="min-w-full border-collapse">
+                      <thead>
+                        <tr className="text-text-color">
+                          <th className="px-4 py-2 text-left">Name</th>
+                          <th className="px-4 py-2 text-left">Status</th>
+                          <th className="px-4 py-2 text-left">Assignee</th>
+                          <th className="px-4 py-2 text-left">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {showNewRow && (
+                          <tr className="border-b">
+                            <td className="px-4 py-2">
+                              <FormInput
+                                type="text"
+                                name="name"
+                                formValues={newRow}
+                                onChange={({ target: { name, value } }) =>
+                                  handleInputChange(name, value)
+                                }
+                              />
+                            </td>
+                            <td className="px-4 py-2">
+                              <FormSelect
+                                name="status"
+                                formValues={newRow}
+                                options={checkListStatuses}
+                                onChange={({ target: { name, value } }) =>
+                                  handleInputChange(name, value)
+                                }
+                              />
+                            </td>
+                            <td className="px-4 py-2">
+                              <FormSelect
+                                name="assignee"
+                                formValues={newRow}
+                                options={getProjectUsers()}
+                                onChange={({ target: { name, value } }) =>
+                                  handleInputChange(name, value)
+                                }
+                              />
+                            </td>
+                            <td className="px-4 py-2">
+                              <div className="flex gap-5">
+                                <XCircleIcon
+                                  onClick={handleCancelNewRow}
+                                  className="w-5 h-5 text-gray-500 cursor-pointer"
+                                />
+                                <CheckBadgeIcon
+                                  onClick={addChecklist}
+                                  className="w-5 h-5 text-pink-700 cursor-pointer"
+                                />
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                        {releaseCheckListItems.map((row, index) => (
+                          <GenerateRow
+                            row={row}
+                            key={index}
+                            onUpdate={updateCheckLitItem}
+                            onDelete={handleDeleteClick}
+                          />
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="text-text-color">No Check List Items Available</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Dialog */}
       <ConfirmationDialog
         isOpen={isDialogOpen}
-        onClose={() => {
-          setIsDialogOpen(false);
-        }}
+        onClose={() => setIsDialogOpen(false)}
         onConfirm={handleConfirmDelete}
         message={toDeleteItem ? `To delete item - ${toDeleteItem.name} ?` : ""}
       />
     </>
+
   );
 };
 

@@ -34,6 +34,12 @@
     .btn-login {
       @apply w-full py-3 rounded-lg bg-primary-pink text-white font-bold cursor-pointer;
     }
+
+    .user-details-left-column-detail-box {
+      @apply w-full h-8 bg-dashboard-bgc rounded-md border border-border-color;
+    }
+    
+
   }
 
   

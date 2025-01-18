@@ -1,228 +1,273 @@
-import {useDispatch, useSelector} from "react-redux";
-import React, {useEffect, useRef, useState} from "react";
-import {selectIsProjectDetailsLoading, selectSelectedProject, setProjectType} from "../../state/slice/projectSlice.js";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import { selectIsProjectDetailsLoading, selectSelectedProject, setProjectType } from "../../state/slice/projectSlice.js";
 import FormInput from "../../components/FormInput.jsx";
-import {EllipsisVerticalIcon} from '@heroicons/react/24/outline';
+import { EllipsisVerticalIcon, PencilIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import FormSelect from "../../components/FormSelect.jsx";
-import {getSelectOptions} from "../../utils/commonUtils.js";
+import { getSelectOptions } from "../../utils/commonUtils.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
-import {doGetProjectUsers, selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
-import {useToasts} from "react-toast-notifications";
+import { doGetProjectUsers, selectProjectUserList } from "../../state/slice/projectUsersSlice.js";
+import { useToasts } from "react-toast-notifications";
 import axios from "axios";
 import useValidation from "../../utils/use-validation.jsx";
-import {ProjectUpdateSchema} from "../../utils/validationSchemas.js";
-import {selectAppConfig, selectOrganizationUsers} from "../../state/slice/appSlice.js";
-import {doGetWhoAmI} from "../../state/slice/authSlice.js";
-import {TrashIcon} from "@heroicons/react/24/outline/index.js";
+import { ProjectUpdateSchema } from "../../utils/validationSchemas.js";
+import { selectAppConfig, selectOrganizationUsers } from "../../state/slice/appSlice.js";
+import { doGetWhoAmI } from "../../state/slice/authSlice.js";
+import { TrashIcon } from "@heroicons/react/24/outline/index.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
+import Icon from "../../../public/Icon.png"
+import OpenPopUp from "./AddUserPopup.jsx"
+
+
 
 const ProjectContentPage = () => {
-    const dispatch = useDispatch();
-    const {addToast} = useToasts();
-    const formRef = useRef(null);
-    const selectedProject = useSelector(selectSelectedProject);
-    const appConfig = useSelector(selectAppConfig);
-    const isProjectDetailsLoading = useSelector(selectIsProjectDetailsLoading);
-    const userListForProject = useSelector(selectProjectUserList);
-    const projectTypes = useSelector(setProjectType);
-    const organizationUsers = useSelector(selectOrganizationUsers);
-    const [activeButton, setActiveButton] = useState("Details");
-    const [formValues, setFormValues] = useState({name: "", prefix: "", projectType: "", projectUserIDs: "", status: ""});
-    const [formErrors] = useValidation(ProjectUpdateSchema, formValues);
-    const projectUsersIdList = userListForProject.map(user => user.id);
+  const dispatch = useDispatch();
+  const { addToast } = useToasts();
+  const formRef = useRef(null);
+  const selectedProject = useSelector(selectSelectedProject);
+  const appConfig = useSelector(selectAppConfig);
+  const isProjectDetailsLoading = useSelector(selectIsProjectDetailsLoading);
+  const userListForProject = useSelector(selectProjectUserList);
+  const projectTypes = useSelector(setProjectType);
+  const organizationUsers = useSelector(selectOrganizationUsers);
+  const [activeButton, setActiveButton] = useState("People");
+  const [formValues, setFormValues] = useState({ name: "", prefix: "", projectType: "", projectUserIDs: "", status: "" });
+  const [formErrors] = useValidation(ProjectUpdateSchema, formValues);
+  const projectUsersIdList = userListForProject.map(user => user.id);
 
-    const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpenPopUp, setIsOpenPopUp] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
+  
 
-    useEffect(() => {
-        setFormValues({...selectedProject, projectUserIDs: projectUsersIdList});
-    }, [selectedProject]);
+  useEffect(() => {
+    setFormValues({ ...selectedProject, projectUserIDs: projectUsersIdList });
+  }, [selectedProject]);
 
-    const handleButtonClick = (buttonName) => {
-        setActiveButton(buttonName);
-    };
+   const toggleEditable = () => {
+    setIsEditable(!isEditable)
+   };
 
-    // Handle form input changes
-    const handleFormChange = (name, value) => {
-        setFormValues({...formValues, [name]: value});
-    };
+  const handleButtonClick = (buttonName) => {
+    setActiveButton(buttonName);
+  };
 
-    const [issueFormValues, setIssueFormValues] = useState({
-        issueType: "",
-        priority: "",
-        severity: "",
-        status: ""
-    });
+  // Handle form input changes
+  const handleFormChange = (name, value) => {
+    setFormValues({ ...formValues, [name]: value });
+  };
 
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [toDeleteItem, setToDeleteItem] = useState({});
-    const projectStatus = [
-      { value: "Active", label: "Active" },
-      { value: "On Hold", label: "On Hold" },
-      { value: "Closed", label: "Closed" },
-    ];
+  //handle open popup
 
-    const handleDeleteClick = (user) => {
-      setToDeleteItem(user);
-      setIsDialogOpen(true);
-    };
+  const openPopUp = () => {
+    setIsOpenPopUp(true)
+  }
 
-    const handleConfirmDelete = async () => {
-      const updatedList = projectUsersIdList.filter(
-        (user) => user !== toDeleteItem.id,
+  const closePopUp = () => {
+    setIsOpenPopUp(false)
+  }
+
+  const handleSubmitPopup = (userData) => {
+    console.log('User Data Submitted:', userData);
+    // Add your logic to save the user data to the state or backend
+  };
+
+  const [issueFormValues, setIssueFormValues] = useState({
+    issueType: "",
+    priority: "",
+    severity: "",
+    status: ""
+  });
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [toDeleteItem, setToDeleteItem] = useState({});
+  const projectStatus = [
+    { value: "Active", label: "Active" },
+    { value: "On Hold", label: "On Hold" },
+    { value: "Closed", label: "Closed" },
+  ];
+
+  const handleDeleteClick = (user) => {
+    setToDeleteItem(user);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    const updatedList = projectUsersIdList.filter(
+      (user) => user !== toDeleteItem.id,
+    );
+
+    try {
+      const payLoad = {
+        ...formValues,
+        projectUserIDs: [...updatedList],
+      };
+      const response = await axios.put(
+        `/projects/${selectedProject.id}`,
+        payLoad,
       );
+      const updated = response?.data?.body;
 
+      if (updated) {
+        addToast("User Deleted Successfully", { appearance: "success" });
+        dispatch(doGetProjectUsers(selectedProject?.id));
+      } else {
+        addToast("Failed To Delete User", { appearance: "error" });
+      }
+    } catch (error) {
+      addToast("Failed To Delete User", { appearance: "error" });
+    }
+
+    setIsDialogOpen(false);
+  };
+
+
+
+
+  const handleIssueFormChange = (name, value) => {
+    setIssueFormValues({
+      ...issueFormValues,
+      [name]: value
+    });
+  };
+
+  const handleUserAdd = async () => {
+    if (formValues.projectUserIDs === "") {
+      addToast('Please select a user to add', { appearance: "error" });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    if (formErrors && Object.keys(formErrors).length > 0) {
+      setIsValidationErrorsShown(true);
+    } else {
+      setIsValidationErrorsShown(false);
       try {
         const payLoad = {
           ...formValues,
-          projectUserIDs: [...updatedList],
-        };
-        const response = await axios.put(
-          `/projects/${selectedProject.id}`,
-          payLoad,
-        );
-        const updated = response?.data?.body;
+          projectUserIDs: [...projectUsersIdList, parseInt(formValues.projectUserIDs)]
+        }
+        const response = await axios.put(`/projects/${selectedProject.id}`, payLoad)
+        const updated = response?.data?.body
 
         if (updated) {
-          addToast("User Deleted Successfully", { appearance: "success" });
+          addToast('User Added Successfully Updated', { appearance: 'success' });
           dispatch(doGetProjectUsers(selectedProject?.id));
         } else {
-          addToast("Failed To Delete User", { appearance: "error" });
+          addToast('Failed To Add User', { appearance: 'error' });
         }
       } catch (error) {
-        addToast("Failed To Delete User", { appearance: "error" });
+        addToast('Failed To Add User', { appearance: 'error' });
       }
+    }
+    setIsSubmitting(false)
+  };
 
-      setIsDialogOpen(false);
-    };
-    
-    const handleIssueFormChange = (name, value) => {
-        setIssueFormValues({
-            ...issueFormValues,
-            [name]: value
-        });
-    };
+  const userList = (users) => {
+    const nonProjectUsers = organizationUsers.filter(orgUser =>
+      !userListForProject.some(projUser => projUser.id === orgUser.id)
+    );
 
-    const handleUserAdd = async () => {
-        if (formValues.projectUserIDs === "") {
-            addToast('Please select a user to add', {appearance: "error"});
-            return;
-        }
+    return nonProjectUsers.map(users => ({ value: users.id, label: `${users.firstName} ${users.lastName}` }));
+  };
 
-        setIsSubmitting(true);
+  const updateProject = async (event) => {
+    setIsSubmitting(true)
+    event.preventDefault();
 
-        if (formErrors && Object.keys(formErrors).length > 0) {
-            setIsValidationErrorsShown(true);
+    if (formErrors && Object.keys(formErrors).length > 0) {
+      setIsValidationErrorsShown(true);
+    } else {
+      setIsValidationErrorsShown(false);
+      try {
+        const response = await axios.put(`/projects/${selectedProject.id}`, { ...formValues })
+        const updated = response?.data?.body
+
+        if (updated) {
+          dispatch(doGetWhoAmI());
+          addToast('Project Successfully Updated', { appearance: 'success' });
         } else {
-            setIsValidationErrorsShown(false);
-            try {
-                const payLoad = {
-                    ...formValues,
-                    projectUserIDs: [...projectUsersIdList, parseInt(formValues.projectUserIDs)]
-                }
-                const response = await axios.put(`/projects/${selectedProject.id}`, payLoad)
-                const updated = response?.data?.body
-
-                if (updated) {
-                    addToast('User Added Successfully Updated', {appearance: 'success'});
-                    dispatch(doGetProjectUsers(selectedProject?.id));
-                } else {
-                    addToast('Failed To Add User', {appearance: 'error'});
-                }
-            } catch (error) {
-                addToast('Failed To Add User', {appearance: 'error'});
-            }
+          addToast('Failed To Updated The Project', { appearance: 'error' });
         }
-        setIsSubmitting(false)
-    };
+      } catch (error) {
+        addToast('Failed To Updated The Project', { appearance: 'error' });
+      }
+    }
+    setIsSubmitting(false)
+  };
 
-    const userList = (users) => {
-        const nonProjectUsers = organizationUsers.filter(orgUser =>
-            !userListForProject.some(projUser => projUser.id === orgUser.id)
-        );
+  if (isProjectDetailsLoading) return <div className="p-2"><SkeletonLoader /></div>;
 
-        return nonProjectUsers.map(users => ({value: users.id, label: `${users.firstName} ${users.lastName}`}));
-    };
-
-    const updateProject = async (event) => {
-        setIsSubmitting(true)
-        event.preventDefault();
-
-        if (formErrors && Object.keys(formErrors).length > 0) {
-            setIsValidationErrorsShown(true);
-        } else {
-            setIsValidationErrorsShown(false);
-            try {
-                const response = await axios.put(`/projects/${selectedProject.id}`, {...formValues})
-                const updated = response?.data?.body
-
-                if (updated) {
-                    dispatch(doGetWhoAmI());
-                    addToast('Project Successfully Updated', {appearance: 'success'});
-                } else {
-                    addToast('Failed To Updated The Project', {appearance: 'error'});
-                }
-            } catch (error) {
-                addToast('Failed To Updated The Project', {appearance: 'error'});
-            }
-        }
-        setIsSubmitting(false)
-    };
-
-    if (isProjectDetailsLoading) return <div className="p-2"><SkeletonLoader/></div>;
-
-    return (
-      <>
-        {!selectedProject ? (
-          <div>
-            <h5 className="text-black">No Project Selected</h5>
+  return (
+    <>
+      {!selectedProject ? (
+        <div>
+          <h5 className="text-black">No Project Selected</h5>
+        </div>
+      ) : (
+        <div className="p-3 bg-dashboard-bgc h-full ">
+          <div className="py-5 flex gap-4">
+            <span className="text-popup-screen-header text-sm">
+              Project &gt;
+            </span>
+            <span className="text-black text-sm font-bold">{selectedProject.name}</span>
           </div>
-        ) : (
-          <div className="p-7 bg-dashboard-bgc h-content-screen overflow-y-auto">
-            <div className="p-4 flex gap-4">
-              <h5 className="text-black font-bold text-lg">
-                Project Configuration &gt;
-              </h5>
-              <span className="text-black text-lg">{selectedProject.name}</span>
-            </div>
-            <div className="text flex gap-3 mt-6 ml-8">
-              {["Details", "People", "Configuration", "Workflows"].map(
-                (buttonName) => (
-                  <button
-                    key={buttonName}
-                    onClick={() => handleButtonClick(buttonName)}
-                    className={`px-4 py-2 rounded-full ${
-                      activeButton === buttonName
-                        ? "bg-black text-white"
-                        : "bg-white text-black"
+          <div className="text flex gap-3 mt-3 text-xs justify-end">
+            {["Overview", "People", "Configuration", "Workflows"].map(
+              (buttonName) => (
+                <button
+                  key={buttonName}
+                  onClick={() => handleButtonClick(buttonName)}
+                  className={`px-4 py-2 rounded-full ${activeButton === buttonName
+                    ? "bg-black text-white"
+                    : "bg-white text-black"
                     }`}
-                  >
-                    {buttonName}
-                  </button>
-                ),
-              )}
-            </div>
+                >
+                  {buttonName}
+                </button>
+              ),
+            )}
+          </div>
 
-            {activeButton === "Details" && (
+          <div className="flex space-x-4">
+            <div>
               <form
                 onSubmit={updateProject}
                 ref={formRef}
-                className="flex p-5 flex-col gap-4 mt-4 bg-white rounded-lg"
+                className="flex p-5 flex-col w-72 gap-4  bg-white rounded-lg"
               >
+                <div>
+                  <div className="flex justify-end"><PencilIcon onClick={toggleEditable} className="w-4 text-secondary-grey cursor-pointer" /></div>
+                  <div className="flex justify-center">
+                    <img src={Icon} alt="Icon" className="w-24" />
+                  </div>
+                  <span className="mt-2 flex justify-center text-secondary-grey text-xl font-bold">{selectedProject.name}</span>
+
+                </div>
                 <div className="flex-col">
                   <p className="text-secondary-grey">Name</p>
-                  <FormInput
-                    type="text"
-                    name="name"
-                    style={inputStyle}
-                    formValues={formValues}
-                    value={formValues.name}
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value, true)
-                    }
-                    formErrors={formErrors}
-                    showErrors={isValidationErrorsShown}
-                  />
+                  <div className="">
+                    <FormInput
+                      type="text"
+                      name="name"
+                      className={`w-full p-2 border rounded-md ${
+                        isEditable
+                          ? "bg-white text-secondary-grey border-border-color"
+                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      }`}
+                      disabled={!isEditable}
+                      value={formValues.name}
+                      formValues={formValues}
+                      onChange={({ target: { name, value } }) =>
+                        handleFormChange(name, value, true)
+                      }
+                      formErrors={formErrors}
+                      showErrors={isValidationErrorsShown}
+                    />
+                  </div>
+
                 </div>
 
                 <div className="flex-col">
@@ -230,6 +275,12 @@ const ProjectContentPage = () => {
                   <FormInput
                     type="text"
                     name="prefix"
+                    className={`w-full p-2 border rounded-md ${
+                      isEditable
+                        ? "bg-white text-secondary-grey border-border-color"
+                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                    }`}
+                    disabled={!isEditable}
                     value={formValues.prefix}
                     formValues={formValues}
                     onChange={({ target: { name, value } }) =>
@@ -245,6 +296,12 @@ const ProjectContentPage = () => {
                     <p className="text-secondary-grey">Type</p>
                     <FormSelect
                       name="projectType"
+                      className={`w-full p-2 border rounded-md ${
+                        isEditable
+                          ? "bg-white text-secondary-grey border-border-color"
+                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      }`}
+                      disabled={!isEditable}
                       formValues={formValues}
                       value={formValues.projectType}
                       options={getSelectOptions(projectTypes)}
@@ -262,6 +319,12 @@ const ProjectContentPage = () => {
                     <p className="text-secondary-grey">Status</p>
                     <FormSelect
                       name="status"
+                      className={`w-full p-2 border rounded-md ${
+                        isEditable
+                          ? "bg-white text-secondary-grey border-border-color"
+                          : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      }`}
+                      disabled={!isEditable}
                       formValues={formValues}
                       value={formValues.status}
                       options={projectStatus}
@@ -274,7 +337,7 @@ const ProjectContentPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-10">
+                {/* <div className="flex gap-10">
                   <div className="flex-col w-full">
                     <p className="text-secondary-grey">Group</p>
                     <FormSelect
@@ -288,7 +351,7 @@ const ProjectContentPage = () => {
                       showErrors={isValidationErrorsShown}
                     />
                   </div>
-                </div>
+                </div> */}
 
                 <div className="flex gap-10 justify-end">
                   <div className="flex-col">
@@ -302,39 +365,43 @@ const ProjectContentPage = () => {
                   </div>
                 </div>
               </form>
+            </div>
+
+            {activeButton === "Overview" && (
+              <div><span className="text-secondary-grey font-semibold text-base">Overview</span></div>
             )}
 
             {activeButton === "People" && (
-              <div className="flex mt-4">
-                {/* Left: User List */}
-                <div className="rounded-md w-1/2 bg-white pt-3 py-10">
-                  <table className="w-full table-auto text-center">
+              <div>
+                <div className="flex items-center space-x-4">
+                  <span className="text-secondary-grey font-semibold text-base">People</span>
+                  <div className="flex items-center space-x-1">
+                    <PlusCircleIcon onClick={openPopUp} className="w-6 cursor-pointer text-primary-pink" />
+                    <span className="text-popup-screen-header text-sm">Add New</span>
+                  </div>
+                </div>
+                <div style={{ width: '759px' }} className="rounded-lg bg-white mt-5 p-4">
+                  <table className="table-auto w-full text-left">
                     <thead>
-                      <tr className="border-b">
-                        <th className="p-2 text-center">User</th>
-                        <th className="p-2 text-center">Role</th>
+                      <tr className="text-secondary-grey text-sm h-16 font-medium border-b">
+                        <th className="py-3 px-4">User</th>
+                        <th className="py-3 px-4">Role</th>
+                        <th className="py-3 px-4 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="text-sm text-gray-800">
                       {userListForProject.map((user, idx) => (
-                        <tr key={idx} className="border-b">
-                          <td className="p-2 flex items-center justify-center">
-                            <img
-                              src="https://via.placeholder.com/32"
-                              alt="User"
-                              className="rounded-full w-8 h-8 mr-2"
-                            />
+                        <tr key={idx} className="border-b hover:bg-gray-50">
+                          <td className="py-6 px-4 flex items-center space-x-3">
                             <span>{`${user.firstName} ${user.lastName}`}</span>
                           </td>
-                          <td className="w-1/2 p-2 text-center">User</td>
-                          <td>
+                          <td className="py-3 px-4">{user.role}</td>
+                          <td className="py-3 px-4">
                             <div
-                              onClick={() => {
-                                handleDeleteClick(user);
-                              }}
-                              className={"cursor-pointer"}
+                              onClick={() => handleDeleteClick(user)}
+                              className="cursor-pointer flex justify-end"
                             >
-                              <TrashIcon className={"w-5 h-5 text-pink-700"} />
+                              <TrashIcon className="w-5 h-5 text-gray-500" />
                             </div>
                           </td>
                         </tr>
@@ -343,60 +410,36 @@ const ProjectContentPage = () => {
                   </table>
                 </div>
 
-                {/* Right: Role Assignment Form */}
-                <div
-                  style={{ height: "253px", width: "711px" }}
-                  className="w-1/2 bg-white p-4 ml-4 rounded-md"
-                >
-                  <div className="flex-col">
-                    <p className="text-secondary-grey">User</p>
-                    <FormSelect
-                      name="projectUserIDs"
-                      formValues={formValues}
-                      value={formValues.projectUserIDs}
-                      options={userList(organizationUsers)}
-                      onChange={({ target: { name, value } }) =>
-                        handleFormChange(name, value)
-                      }
-                    />
-                  </div>
-                  <div className="flex gap-1 justify-between mt-6">
-                    <button
-                      style={{ width: "186px" }}
-                      className="px-4 py-2 border border-cancel-button rounded-md text-cancel-button"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleUserAdd}
-                      className="px-4 py-2 bg-primary-pink w-full text-white rounded-md"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
+                <OpenPopUp
+                  isOpen={isOpenPopUp}
+                  onClose={closePopUp}
+                  onSubmit={handleSubmitPopup}
+                />
+
               </div>
+
             )}
 
             {activeButton === "Configuration" && (
-              <div className="mt-6">
-                <div className="overflow-x-auto bg-white p-4 rounded-md shadow-sm">
+              <div>
+                <div><span className="text-secondary-grey font-semibold text-base">Configuration</span></div>
+                <div style={{ width: '759px' }} className=" bg-white p-4 rounded-md mt-5">
                   <table className="w-full text-sm text-left text-gray-500">
-                    <thead className="text-sm text-gray-700">
+                    <thead className="text-sm text-secondary-grey">
                       <tr>
-                        <th scope="col" className="px-6 py-3">
+                        <th scope="col" className="px-6 py-3 text-secondary-grey">
                           Title
                         </th>
-                        <th scope="col" className="px-6 py-3">
+                        <th scope="col" className="px-6 py-3 text-secondary-grey">
                           Priority
                         </th>
-                        <th scope="col" className="px-6 py-3">
+                        <th scope="col" className="px-6 py-3 text-secondary-grey">
                           Severity
                         </th>
-                        <th scope="col" className="px-6 py-3">
+                        <th scope="col" className="px-6 py-3 text-secondary-grey">
                           Status
                         </th>
-                        <th scope="col" className="px-6 py-3">
+                        <th scope="col" className="px-6 py-3 text-secondary-grey">
                           Action
                         </th>
                       </tr>
@@ -404,11 +447,11 @@ const ProjectContentPage = () => {
 
                     <tbody>
                       <tr className="bg-white border-b hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">
+                        <td className="px-6 py-4 h-16 font-medium text-secondary-grey">
                           Task
                         </td>
                         <td className="px-6 py-4">
-                          <span className="px-5 py-2 rounded bg-priority-button-high text-white">
+                          <span className="px-5 py-1 rounded bg-priority-button-high text-sm text-white">
                             High
                           </span>
                         </td>
@@ -425,77 +468,13 @@ const ProjectContentPage = () => {
                         </td>
                       </tr>
 
-                      <tr className="bg-white border-b hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">
-                          Subtask
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-5 py-2 rounded bg-priority-button-medium text-black">
-                            Low
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">Sprint 2</td>
-                        <td className="px-6 py-4">
-                          <span className="bg-blue-100 text-blue-800 text-xs px-3 py-2 rounded">
-                            To-do
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button className="text-gray-500 hover:text-gray-700">
-                            <EllipsisVerticalIcon className="h-6 w-6" />
-                          </button>
-                        </td>
-                      </tr>
-
-                      <tr className="bg-white border-b hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">
-                          Epic
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-5 py-2 rounded bg-priority-button-low text-black">
-                            Medium
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">Sprint 3</td>
-                        <td className="px-6 py-4">
-                          <span className="bg-blue-100 text-blue-800 text-xs px-3 py-2 rounded">
-                            In Progress
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button className="text-gray-500 hover:text-gray-700">
-                            <EllipsisVerticalIcon className="h-6 w-6" />
-                          </button>
-                        </td>
-                      </tr>
-
-                      <tr className="bg-white border-b hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">
-                          Bugs
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-5 py-2 rounded bg-priority-button-high text-white">
-                            High
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">Sprint 4</td>
-                        <td className="px-6 py-4">
-                          <span className="bg-blue-100 text-blue-800 text-xs px-3 py-2 rounded">
-                            To-do
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button className="text-gray-500 hover:text-gray-700">
-                            <EllipsisVerticalIcon className="h-6 w-6" />
-                          </button>
-                        </td>
-                      </tr>
+                      
                     </tbody>
                   </table>
                 </div>
 
                 {/* Form */}
-                <div className="bg-white mt-6 p-6 rounded-md shadow-sm">
+                {/* <div className="bg-white mt-6 p-6 rounded-md shadow-sm">
                   <form className="flex gap-2">
                     <FormInput
                       type="text"
@@ -545,33 +524,32 @@ const ProjectContentPage = () => {
                       Add
                     </button>
                   </div>
-                </div>
+                </div> */}
               </div>
             )}
           </div>
-        )}
+        </div>
+      )}
 
-        <ConfirmationDialog
-          isOpen={isDialogOpen}
-          onClose={() => {
-            setIsDialogOpen(false);
-          }}
-          onConfirm={() => {
-            handleConfirmDelete(toDeleteItem.id);
-          }}
-          message={
-            toDeleteItem
-              ? `To delete user - ${toDeleteItem.firstName} ${toDeleteItem.lastName} ?`
-              : ""
-          }
-        />
-      </>
-    );
+      <ConfirmationDialog
+        isOpen={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+        }}
+        onConfirm={() => {
+          handleConfirmDelete(toDeleteItem.id);
+        }}
+        message={
+          toDeleteItem
+            ? `To delete user - ${toDeleteItem.firstName} ${toDeleteItem.lastName} ?`
+            : ""
+        }
+      />
+    </>
+  );
 };
 
 export default ProjectContentPage;
 
-const inputStyle = {
-    border: '1px solid rgba(230, 230, 230, 1)'
-};
+
 
