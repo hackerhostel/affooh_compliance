@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import {useDispatch, useSelector} from "react-redux";
-import {selectSelectedProject, setSelectedProjectFromList} from "../../state/slice/projectSlice.js";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import SearchBar from "../../components/SearchBar.jsx";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
