@@ -1,31 +1,33 @@
-import { useDispatch, useSelector } from "react-redux";
-import React, { useEffect, useRef, useState } from "react";
-import { selectIsProjectDetailsLoading, selectSelectedProject, setProjectType } from "../../state/slice/projectSlice.js";
+import {useDispatch, useSelector} from "react-redux";
+import React, {useEffect, useRef, useState} from "react";
+import {
+  selectIsProjectDetailsLoading,
+  selectSelectedProjectFromList,
+  setProjectType
+} from "../../state/slice/projectSlice.js";
 import FormInput from "../../components/FormInput.jsx";
-import { EllipsisVerticalIcon, PencilIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
+import {EllipsisVerticalIcon, PencilIcon, PlusCircleIcon} from '@heroicons/react/24/outline';
 import FormSelect from "../../components/FormSelect.jsx";
-import { getSelectOptions } from "../../utils/commonUtils.js";
+import {getSelectOptions} from "../../utils/commonUtils.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
-import { doGetProjectUsers, selectProjectUserList } from "../../state/slice/projectUsersSlice.js";
-import { useToasts } from "react-toast-notifications";
+import {doGetProjectUsers, selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
+import {useToasts} from "react-toast-notifications";
 import axios from "axios";
 import useValidation from "../../utils/use-validation.jsx";
-import { ProjectUpdateSchema } from "../../utils/validationSchemas.js";
-import { selectAppConfig, selectOrganizationUsers } from "../../state/slice/appSlice.js";
-import { doGetWhoAmI } from "../../state/slice/authSlice.js";
-import { TrashIcon } from "@heroicons/react/24/outline/index.js";
+import {ProjectUpdateSchema} from "../../utils/validationSchemas.js";
+import {selectOrganizationUsers} from "../../state/slice/appSlice.js";
+import {doGetWhoAmI} from "../../state/slice/authSlice.js";
+import {TrashIcon} from "@heroicons/react/24/outline/index.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import Icon from "../../../public/Icon.png"
 import OpenPopUp from "./AddUserPopup.jsx"
-
 
 
 const ProjectContentPage = () => {
   const dispatch = useDispatch();
   const { addToast } = useToasts();
   const formRef = useRef(null);
-  const selectedProject = useSelector(selectSelectedProject);
-  const appConfig = useSelector(selectAppConfig);
+  const selectedProject = useSelector(selectSelectedProjectFromList);
   const isProjectDetailsLoading = useSelector(selectIsProjectDetailsLoading);
   const userListForProject = useSelector(selectProjectUserList);
   const projectTypes = useSelector(setProjectType);

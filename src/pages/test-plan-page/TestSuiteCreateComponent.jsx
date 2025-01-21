@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {XMarkIcon} from "@heroicons/react/24/outline";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
-import {getSelectOptions, getUserSelectOptions} from "../../utils/commonUtils.js";
+import {getSelectOptions, getUserOptions} from "../../utils/commonUtils.js";
 import {useToasts} from "react-toast-notifications";
 import {useDispatch, useSelector} from "react-redux";
 import {TestSuiteCreateSchema} from "../../utils/validationSchemas.js";
@@ -17,6 +17,7 @@ import FormTextArea from "../../components/FormTextArea.jsx";
 import Select from 'react-select';
 import {doGetTestCases, selectTestCasesForProject} from "../../state/slice/testCaseSlice.js";
 import axios from "axios";
+import UserSelect from "../../components/UserSelect.jsx";
 
 const TestSuiteCreateComponent = ({isOpen, onClose}) => {
     const {addToast} = useToasts();
@@ -29,6 +30,13 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
     const releases = useSelector(selectReleaseListForProject)
     const platforms = useSelector(selectPlatformList);
     const testCases = useSelector(selectTestCasesForProject)
+
+    useEffect(() => {
+        if (selectedProject?.id) {
+            dispatch(doGetPlatforms())
+            dispatch(doGetTestCases(selectedProject.id))
+        }
+    }, [selectedProject]);
 
     useEffect(() => {
         if (!platforms.length) {
@@ -187,13 +195,13 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
                                     </div>
                                     <div className={"flex-col w-2/4"}>
                                         <p className={"text-secondary-grey"}>Assignee</p>
-                                        <FormSelect
+                                        <UserSelect
                                             name="assignee"
-                                            formValues={formValues}
-                                            options={projectUserList && projectUserList.length ? getUserSelectOptions(projectUserList) : []}
-                                            onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
-                                            formErrors={formErrors}
-                                            showErrors={isValidationErrorsShown}
+                                            value={formValues.assignee}
+                                            onChange={({target: {name, value}}) => {
+                                                handleFormChange(name, value, false)
+                                            }}
+                                            users={projectUserList && projectUserList.length ? getUserOptions(projectUserList) : []}
                                         />
                                     </div>
                                 </div>

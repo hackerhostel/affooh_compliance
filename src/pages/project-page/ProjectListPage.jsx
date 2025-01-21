@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from "react-redux";
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from "react-redux";
 import {
   selectProjectList,
-  selectSelectedProject,
-  setSelectedProject
+  selectSelectedProjectFromList,
+  setSelectedProject,
+  setSelectedProjectFromList
 } from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
-import { ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
+import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import axios from "axios";
-import { useToasts } from "react-toast-notifications";
-import { doGetWhoAmI } from "../../state/slice/authSlice.js";
+import {useToasts} from "react-toast-notifications";
+import {doGetWhoAmI} from "../../state/slice/authSlice.js";
 
 const ProjectListPage = () => {
   const { addToast } = useToasts();
   const dispatch = useDispatch();
   const projectList = useSelector(selectProjectList);
-  const selectedProject = useSelector(selectSelectedProject);
+  const selectedProject = useSelector(selectSelectedProjectFromList);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // const [selectedProject, setSelectedProject] = useState(null);
 
   const [filteredProjectList, setFilteredProjectList] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState({
@@ -130,8 +130,9 @@ const ProjectListPage = () => {
         ) : (
           filteredList.map((project) => (
             <div
+                onClick={() => dispatch(setSelectedProjectFromList(project))}
               key={project.id}
-              className="flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer"
+                className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedProject?.id === project.id ? 'border-primary-pink' : 'border-gray-200'}`}
             >
               <div className="col-span-2 text-left flex flex-col gap-1">
                 <div className="font-bold">{project.name}</div>
@@ -140,10 +141,9 @@ const ProjectListPage = () => {
               <div className="flex gap-1">
                 <TrashIcon
                   onClick={() => handleDeleteClick(project)}
-                  className="w-4 h-4 text-pink-700 cursor-pointer"
+                  className="w-4 h-4 text-pink-700 cursor-pointer z-10"
                 />
                 <ChevronRightIcon
-                  onClick={() => dispatch(setSelectedProject(project))}
                   className="w-4 h-4 text-black cursor-pointer"
                 />
               </div>
