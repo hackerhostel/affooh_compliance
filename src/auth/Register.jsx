@@ -24,6 +24,7 @@ function Register() {
   const [formErrors] = useValidation(RegisterSchema, registerDetails);
   const location = useLocation();
 
+
   const handleFormChange = (name, value) => {
     const newForm = { ...registerDetails, [name]: value };
     setRegisterDetails(newForm);

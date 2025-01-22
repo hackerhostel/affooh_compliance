@@ -38,7 +38,7 @@ const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) 
     const {addToast} = useToasts();
 
     const [loading, setLoading] = useState(false);
-    const [createTaskForm, setCreateTaskForm] = useState({name: '', taskTypeID: ''});
+    const [createTaskForm, setCreateTaskForm] = useState({name: '', taskTypeID: '', sprintID: sprintId ? sprintId : 0});
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const formRef = useRef(null);
     const [formErrors] = useValidation(TaskCreateSchema, createTaskForm);
@@ -120,7 +120,6 @@ const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) 
         const payload = {
             ...createTaskForm,
             projectID: selectedProject?.id,
-            sprintID: sprintId,
             attributes: Object.entries(additionalFormValues).map(([key, value]) => value),
         };
 
@@ -159,7 +158,9 @@ const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) 
             const response = await axios.post("tasks", {task: payload});
             addToast(`New task ID: ${response.data.id} added`, {appearance: 'success', autoDismiss: true});
             handleTaskCreateClose();
-            refetchSprint();
+            if (refetchSprint) {
+                refetchSprint();
+            }
         } catch (e) {
             addToast(e.message || 'An error occurred while creating the task.', {
                 appearance: 'error'

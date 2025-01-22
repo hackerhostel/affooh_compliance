@@ -1,11 +1,10 @@
-import React, { useCallback, useState, Fragment } from "react";
-import { Menu, Transition } from "@headlessui/react";
-import { useDispatch, useSelector } from "react-redux";
-import { BellIcon } from "@heroicons/react/24/outline";
-import { Link, useLocation } from "react-router-dom";
+import React, {Fragment, useCallback, useState} from "react";
+import {Menu, Transition} from "@headlessui/react";
+import {useDispatch, useSelector} from "react-redux";
+import {BellIcon} from "@heroicons/react/24/outline";
 import FormSelect from "../FormSelect.jsx";
-import { doSwitchProject, selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
-import { selectUser } from "../../state/slice/authSlice.js";
+import {doSwitchProject, selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {selectUser} from "../../state/slice/authSlice.js";
 import Notification from "./NotificationPopup.jsx"
 
 const Header = () => {
@@ -13,9 +12,9 @@ const Header = () => {
   const selectedProject = useSelector(selectSelectedProject);
   const projectList = useSelector(selectProjectList);
   const userDetails = useSelector(selectUser);
-  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
+  const [newHeaderTaskModalOpen, setNewHeaderTaskModalOpen] = useState(false);
 
   const handleChange = (e, value) => {
     dispatch(doSwitchProject(Number(value)));
@@ -46,6 +45,7 @@ const Header = () => {
     setIsOpenPopUp(false);
   }
 
+  const closeHeaderCreateTaskModal = () => setNewHeaderTaskModalOpen(false)
 
   return (
     <div className="flex justify-between h-16 w-full">
@@ -68,14 +68,8 @@ const Header = () => {
         </div>
 
         <div className="z-50">
-        <Notification
-        isOpen = {isOpenPopUp}
-        onClose = {closePopUp}
-        />
+          <Notification isOpen={isOpenPopUp} onClose={closePopUp}/>
         </div>
-
-        
-        
 
         {/* Divider */}
         <div className="border-l border-gray-300 h-8"></div>

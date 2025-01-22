@@ -8,7 +8,7 @@ import {RegisterSchema} from "../state/domains/authModels.js";
 import {confirmSignIn} from "aws-amplify/auth";
 import {doGetWhoAmI} from "../state/slice/authSlice.js";
 import {useToasts} from "react-toast-notifications";
-import {registerInvitedUser} from "../state/slice/registerSlice.js";
+import {fetchUserInvitedOrganization, registerInvitedUser} from "../state/slice/registerSlice.js";
 
 const RegisterForm = () => {
   const { addToast } = useToasts();
@@ -20,6 +20,9 @@ const RegisterForm = () => {
   const [formErrors] = useValidation(RegisterSchema, registerDetails);
   const location = useLocation();
   const email = location.state?.email;
+  dispatch(fetchUserInvitedOrganization(email));
+
+  // const {data: userInvites} = useFetchUserInvites(paramEmail)
 
   useEffect(() => {
     setRegisterDetails({...registerDetails, organization: '1', username: email});
