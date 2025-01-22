@@ -1,8 +1,8 @@
-﻿import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { get, post } from "aws-amplify/api";
-import { confirmSignUp } from "aws-amplify/auth";
+﻿import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {get, post} from "aws-amplify/api";
+import {confirmSignUp} from "aws-amplify/auth";
 import axios from "axios";
-import { getBuildConstant } from "../../constants/build-constants.jsx";
+import {getBuildConstant} from "../../constants/build-constants.jsx";
 
 const initialState = {
   user: null,
@@ -47,26 +47,23 @@ export const doRegisterUser = createAsyncThunk(
 );
 
 export const fetchUserInvitedOrganization = createAsyncThunk(
-  "register/fetchUserInvitedOrganization",
-  async (email, thunkApi) => {
-    try {
-      const response = await get({
-        apiName: "AffoohAPI",
-        path: `/users/complete-registration/${email}`,
-        headers: {
-          "X-Api-Key": getBuildConstant("REACT_APP_X_API_KEY"),
-        },
-      });
-      if (!response?.data?.body?.name) {
-        return new Error("Invalid response format");
+    "register/fetchUserInvitedOrganization",
+    async (email, thunkApi) => {
+      try {
+        const response = await get({
+          apiName: "AffoohAPI",
+          path: `/users/complete-registration/${email}`,
+          options: {
+            headers: {
+              "X-Api-Key": getBuildConstant("REACT_APP_X_API_KEY"),
+            },
+          },
+        });
+        console.log(response)
+      } catch (error) {
+        return thunkApi.rejectWithValue(error.message || "Failed to get details");
       }
-      return response.data.body.name;
-    } catch (error) {
-      return thunkApi.rejectWithValue(
-        error.message || "Failed to send invitation",
-      );
-    }
-  },
+    },
 );
 
 export const doVerifyOTP = createAsyncThunk(
