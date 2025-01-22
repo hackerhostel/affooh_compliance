@@ -102,7 +102,7 @@ export const registerInvitedUser = createAsyncThunk(
             },
           },
           headers: {
-            "X-Api-Key": "MKEutNn1JZ5l411hLitRu8KLq7Ih8Qh6611OtBR3",
+            "X-Api-Key": getBuildConstant("REACT_APP_X_API_KEY"),
           },
         },
       });
