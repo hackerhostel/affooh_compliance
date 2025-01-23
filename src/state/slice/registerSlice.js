@@ -1,5 +1,5 @@
 ﻿import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {get, post} from "aws-amplify/api";
+import {post} from "aws-amplify/api";
 import {confirmSignUp} from "aws-amplify/auth";
 import axios from "axios";
 import {getBuildConstant} from "../../constants/build-constants.jsx";
@@ -50,20 +50,19 @@ export const fetchUserInvitedOrganization = createAsyncThunk(
     "register/fetchUserInvitedOrganization",
     async (email, thunkApi) => {
       try {
-        const response = await get({
-          apiName: "AffoohAPI",
-          path: `/users/complete-registration/${email}`,
-          options: {
-            headers: {
-              "X-Api-Key": getBuildConstant("REACT_APP_X_API_KEY"),
-            },
-          },
-        });
-        console.log(response)
+        const response = await axios.get(
+            `/users/complete-registration/${email}`,
+            {
+              headers: {
+                "X-Api-Key": getBuildConstant("REACT_APP_X_API_KEY"),
+              },
+            }
+        );
+        return response?.data?.body?.inviteDetails || {};
       } catch (error) {
         return thunkApi.rejectWithValue(error.message || "Failed to get details");
       }
-    },
+    }
 );
 
 export const doVerifyOTP = createAsyncThunk(
