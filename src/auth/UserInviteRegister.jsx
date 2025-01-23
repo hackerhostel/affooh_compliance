@@ -7,8 +7,8 @@ import LoginImage from '../images/register.jpg';
 import {RegisterSchema} from "../state/domains/authModels.js";
 import {confirmSignIn} from "aws-amplify/auth";
 import {doGetWhoAmI} from "../state/slice/authSlice.js";
-import {useToasts} from "react-toast-notifications";
 import {fetchUserInvitedOrganization, registerInvitedUser} from "../state/slice/registerSlice.js";
+import {useToasts} from "react-toast-notifications";
 
 const RegisterForm = () => {
   const { addToast } = useToasts();
@@ -16,16 +16,29 @@ const RegisterForm = () => {
   const dispatch = useDispatch();
   const [registerDetails, setRegisterDetails] = useState({ username: '', organization: '', firstName: '', lastName: '', password: '', confirmPassword: '' });
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+  const [organization, setOrganization] = useState('');
   const formRef = useRef(null);
   const [formErrors] = useValidation(RegisterSchema, registerDetails);
   const location = useLocation();
   const email = location.state?.email;
-  dispatch(fetchUserInvitedOrganization(email));
 
-  // const {data: userInvites} = useFetchUserInvites(paramEmail)
+  const handleFetchData = async () => {
+    try {
+      const inviteDetails = await dispatch(fetchUserInvitedOrganization(email)).unwrap();
+      setOrganization(inviteDetails?.name || '')
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   useEffect(() => {
-    setRegisterDetails({...registerDetails, organization: '1', username: email});
+    if (email && email !== '') {
+      handleFetchData()
+    }
+  }, [email]);
+
+  useEffect(() => {
+    setRegisterDetails({...registerDetails, username: email});
   }, []);
 
   const handleFormChange = (name, value) => {
@@ -84,9 +97,9 @@ const RegisterForm = () => {
                 <FormInput
                   type="text"
                   name="organization"
-                  formValues={registerDetails}
+                  formValues={{organization: organization}}
                   placeholder="Organization"
-                  onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                  disabled={true}
                   formErrors={formErrors}
                   showErrors={isValidationErrorsShown}
                 />
