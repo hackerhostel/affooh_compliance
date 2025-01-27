@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, {useEffect, useState} from "react";
 import FormSelect from "../../components/FormSelect.jsx";
-import { doGetProjectUsers, selectProjectUserList } from "../../state/slice/projectUsersSlice.js";
-import { useDispatch, useSelector } from "react-redux";
-import { selectSelectedProject } from "../../state/slice/projectSlice.js";
+import {doGetProjectUsers, selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
+import {useDispatch, useSelector} from "react-redux";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import axios from "axios";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import {XMarkIcon} from "@heroicons/react/24/outline";
 import {selectOrganizationUsers} from "../../state/slice/appSlice.js";
+import {useToasts} from "react-toast-notifications";
 
 const AddUserPopup = ({ isOpen, onClose }) => {
+  const {addToast} = useToasts();
   const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
   const userListForProject = useSelector(selectProjectUserList);
@@ -41,6 +43,9 @@ const AddUserPopup = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
     try {
       const payload = {
+        prefix: selectedProject.prefix,
+        projectType: selectedProject.projectType,
+        name: selectedProject.name,
         projectUserIDs: [
           ...(usersNotInProject.map((user) => user.id) || []),
           parseInt(formValues.projectUserIDs, 10),
@@ -49,15 +54,15 @@ const AddUserPopup = ({ isOpen, onClose }) => {
 
       const response = await axios.put(`/projects/${selectedProject.id}`, payload);
       if (response?.data?.body) {
-        alert("User successfully added.");
+        addToast('User successfully added.', {appearance: 'success'});
         dispatch(doGetProjectUsers(selectedProject?.id));
         onClose();
       } else {
-        alert("Failed to add user.");
+        addToast('Failed to add user.', {appearance: 'error'});
       }
     } catch (error) {
       console.error(error);
-      alert("An error occurred while adding the user.");
+      addToast('Failed to add user.', {appearance: 'error'});
     } finally {
       setIsSubmitting(false);
     }
