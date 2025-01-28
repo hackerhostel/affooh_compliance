@@ -38,7 +38,7 @@ const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) 
     const {addToast} = useToasts();
 
     const [loading, setLoading] = useState(false);
-    const [createTaskForm, setCreateTaskForm] = useState({name: '', taskTypeID: '', sprintID: sprintId ? sprintId : 0});
+    const [createTaskForm, setCreateTaskForm] = useState({name: '', taskTypeID: ''});
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const formRef = useRef(null);
     const [formErrors] = useValidation(TaskCreateSchema, createTaskForm);
@@ -119,6 +119,7 @@ const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) 
 
         const payload = {
             ...createTaskForm,
+            sprintID: sprintId,
             projectID: selectedProject?.id,
             attributes: Object.entries(additionalFormValues).map(([key, value]) => value),
         };
