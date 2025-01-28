@@ -40,3 +40,13 @@ export const TaskCreateSchema = yup.object({
   epic: yup.number(),
   assignee: yup.number()
 });
+
+export const HeaderTaskCreateSchema = yup.object({
+  sprintID: yup.string().required("sprint is required"),
+  taskTypeID: yup.string().required("task type is required"),
+  name: yup.string().required("task title is required"),
+  description: yup.string(),
+  taskOwner: yup.number(),
+  epic: yup.number(),
+  assignee: yup.number()
+});
