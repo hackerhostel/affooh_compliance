@@ -6,6 +6,7 @@ import FormSelect from "../FormSelect.jsx";
 import {doSwitchProject, selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
 import {selectUser} from "../../state/slice/authSlice.js";
 import Notification from "./NotificationPopup.jsx"
+import HeaderTaskCreateComponent from "../task/create/HeaderTaskCreateComponent.jsx";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -64,7 +65,14 @@ const Header = () => {
       {/* Right Section */}
       <div className="flex items-center mr-6 space-x-3">
         <div>
-        <BellIcon onClick={openPopUp} className="w-7 h-7 m-3 cursor-pointer" />
+          <button
+              className="w-24 h-10 text-white rounded-lg border border-primary-pink bg-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
+              onClick={() => setNewHeaderTaskModalOpen(true)}>
+            New Task
+          </button>
+        </div>
+        <div>
+          <BellIcon onClick={openPopUp} className="w-7 h-7 m-3 cursor-pointer"/>
         </div>
 
         <div className="z-50">
@@ -134,6 +142,7 @@ const Header = () => {
           )}
         </div>
       </div>
+      <HeaderTaskCreateComponent isOpen={newHeaderTaskModalOpen} onClose={closeHeaderCreateTaskModal}/>
     </div>
   );
 };
