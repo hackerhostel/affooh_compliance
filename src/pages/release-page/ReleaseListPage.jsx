@@ -148,26 +148,28 @@ const ReleaseListPage = () => {
           <div className="flex-col gap-4">
             <div className="flex flex-col gap-4  pl-3 pr-3">
               <SearchBar onSearch={handleSearch} />
-              <div className="flex w-full laptopL:w-60 justify-between ml-3">
-                <button
-                  className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.unreleased ? "bg-black text-white" : "bg-gray-200"}`}
-                  onClick={() => handleFilterChange("unreleased")}
-                >
-                  Unreleased ({filterCounts.unreleased})
-                </button>
-                <button
-                  className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.released ? "bg-black text-white" : "bg-gray-200"}`}
+              <div className="flex w-full laptopL:w-60 gap-5 justify-start ml-3">
+              <button
+                  className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.released ? "bg-primary-pink text-white" : "bg-gray-200"}`}
                   onClick={() => handleFilterChange("released")}
                 >
                   Released ({filterCounts.released})
                 </button>
+                <button
+                  className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.unreleased ? "bg-primary-pink text-white" : "bg-gray-200"}`}
+                  onClick={() => handleFilterChange("unreleased")}
+                >
+                  Unreleased ({filterCounts.unreleased})
+                </button>
+               
               </div>
             </div>
             <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-1 mt-6">
               {filteredReleaseList.map((element, index) => (
                 <button
                   key={index}
-                  className={`flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 ${selectedRelease?.id === element.id ? 'border-primary-pink' : 'border-gray-200'}
+                  style={{width:"266px"}}
+                  className={`flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 hover:border-primary-pink ${selectedRelease?.id === element.id ? 'border-count-notification' : 'border-gray-200'}
                   }`}
                   onClick={() => {
                     dispatch(setSelectedRelease(element));
