@@ -47,7 +47,7 @@ const AddUserPopup = ({ isOpen, onClose }) => {
         projectType: selectedProject.projectType,
         name: selectedProject.name,
         projectUserIDs: [
-          ...(usersNotInProject.map((user) => user.id) || []),
+          ...(userListForProject.map((user) => user.id) || []),
           parseInt(formValues.projectUserIDs, 10),
         ],
       };
