@@ -1,20 +1,21 @@
-import React, {useRef, useState} from 'react';
+import React, { useRef, useState } from 'react';
 import FormInput from "../../FormInput.jsx";
 import useValidation from "../../../utils/use-validation.jsx";
-import {HeaderTaskCreateSchema} from "../../../state/domains/authModels.js";
+import { HeaderTaskCreateSchema } from "../../../state/domains/authModels.js";
 import FormSelect from "../../FormSelect.jsx";
 import TaskScreenDetails from "./TaskScreenDetails.jsx";
+import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import axios from "axios";
-import {useSelector} from "react-redux";
-import {selectAppConfig} from "../../../state/slice/appSlice.js";
-import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
+import { useSelector } from "react-redux";
+import { selectAppConfig } from "../../../state/slice/appSlice.js";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
 import SkeletonLoader from "../../SkeletonLoader.jsx";
 import ErrorAlert from "../../ErrorAlert.jsx";
-import {useToasts} from "react-toast-notifications";
-import {XMarkIcon} from "@heroicons/react/24/outline/index.js";
-import {getSelectOptions, getUserSelectOptions} from "../../../utils/commonUtils.js";
-import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
-import {selectSprintListForProject} from "../../../state/slice/sprintSlice.js";
+import { useToasts } from "react-toast-notifications";
+import { XMarkIcon } from "@heroicons/react/24/outline/index.js";
+import { getSelectOptions, getUserSelectOptions } from "../../../utils/commonUtils.js";
+import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
+import { selectSprintListForProject } from "../../../state/slice/sprintSlice.js";
 import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 
 function getRequiredAdditionalFieldList(fieldsArray) {
@@ -33,15 +34,15 @@ function getRequiredAdditionalFieldList(fieldsArray) {
     return requiredFields;
 }
 
-const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
-    const {addToast} = useToasts();
+const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
+    const { addToast } = useToasts();
     const appConfig = useSelector(selectAppConfig);
     const selectedProject = useSelector(selectSelectedProject);
     const users = useSelector(selectProjectUserList);
     const sprintListForProject = useSelector(selectSprintListForProject);
 
     const [loading, setLoading] = useState(false);
-    const [createTaskForm, setCreateTaskForm] = useState({name: '', taskTypeID: '', sprintID: ''});
+    const [createTaskForm, setCreateTaskForm] = useState({ name: '', taskTypeID: '', sprintID: '' });
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const formRef = useRef(null);
     const [formErrors] = useValidation(HeaderTaskCreateSchema, createTaskForm);
@@ -62,7 +63,7 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
             }
         }
 
-        const newForm = {...createTaskForm, [name]: value};
+        const newForm = { ...createTaskForm, [name]: value };
         setCreateTaskForm(newForm);
     };
 
@@ -73,7 +74,7 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
     };
 
     const handleTaskCreateClose = () => {
-        setCreateTaskForm({name: '', taskTypeID: '', sprintID: ''})
+        setCreateTaskForm({ name: '', taskTypeID: '', sprintID: '' })
         onClose()
     }
 
@@ -156,8 +157,8 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
         }
 
         try {
-            const response = await axios.post("tasks", {task: payload});
-            addToast(`New task ID: ${response.data.id} added`, {appearance: 'success', autoDismiss: true});
+            const response = await axios.post("tasks", { task: payload });
+            addToast(`New task ID: ${response.data.id} added`, { appearance: 'success', autoDismiss: true });
             handleTaskCreateClose();
         } catch (e) {
             addToast(e.message || 'An error occurred while creating the task.', {
@@ -170,11 +171,11 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
 
     const getTaskAdditionalDetailsComponent = () => {
         if (isTaskTypeLoading) {
-            return <div className="my-5"><SkeletonLoader/></div>
+            return <div className="my-5"><SkeletonLoader /></div>
         }
 
         if (isTaskTypeApiError) {
-            return <div className="my-5"><ErrorAlert message="Cannot get task additional details at the moment"/></div>
+            return <div className="my-5"><ErrorAlert message="Cannot get task additional details at the moment" /></div>
         }
 
         if (!screenDetails) {
@@ -194,9 +195,9 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
             <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm z-10">
                 <div className="bg-white pl-10 pt-6 pr-6 pb-10 shadow-lg w-3/6 h-screen overflow-y-auto">
                     <div className="flex justify-between items-center mb-4">
-                        <p className="text-2xl">Create New Task</p>
+                        <p className="text-2xl font-semibold">Create New Task</p>
                         <div className={"cursor-pointer"} onClick={handleTaskCreateClose}>
-                            <XMarkIcon className={"w-6 h-6 text-gray-500"}/>
+                            <XMarkIcon className={"w-6 h-6 text-gray-500"} />
                         </div>
                     </div>
                     <form className="space-y-4 mt-10" ref={formRef} onSubmit={handleCreateTask}>
@@ -207,7 +208,7 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
                                 name="sprintID"
                                 formValues={createTaskForm}
                                 options={getSelectOptions(sprintListForProject)}
-                                onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                 formErrors={formErrors}
                                 showErrors={isValidationErrorsShown}
                             />
@@ -223,7 +224,7 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
                                         label: tt.value, value: tt.id
                                     }
                                 })}
-                                onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                 formErrors={formErrors}
                                 showErrors={isValidationErrorsShown}
                             />
@@ -234,29 +235,29 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
                                 name="name"
                                 formValues={createTaskForm}
                                 placeholder="Task Title"
-                                onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                 formErrors={formErrors}
                                 showErrors={isValidationErrorsShown}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <label className="block text-sm font-medium text-text-color mb-1">Description</label>
                             <div className="border border-gray-300 rounded-md p-2">
                                 <div className="flex space-x-2 mb-2">
                                     <button type="button" className="p-1 rounded hover:bg-gray-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke="currentColor"
-                                             className="w-4 h-4">
+                                            stroke="currentColor"
+                                            className="w-4 h-4">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                  d="M4 6h16M4 12h16M4 18h16"/>
+                                                d="M4 6h16M4 12h16M4 18h16" />
                                         </svg>
                                     </button>
                                 </div>
                                 <div className="mb-6">
-                                    <WYSIWYGInput initialValue={{description: ''}}
-                                                  value={createTaskForm.description}
-                                                  name={"description"} onchange={handleFormChange}/>
+                                    <WYSIWYGInput initialValue={{ description: '' }}
+                                        value={createTaskForm.description}
+                                        name={"description"} onchange={handleFormChange} />
                                 </div>
                             </div>
                         </div>
@@ -268,7 +269,7 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
                                     name="assigneeID"
                                     formValues={createTaskForm}
                                     options={getUserSelectOptions(users)}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                 />
                             </div>
                             <div className="w-2/4">
@@ -278,19 +279,18 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
                                     name="taskOwner"
                                     formValues={createTaskForm}
                                     options={getUserSelectOptions(users)}
-                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                 />
                             </div>
                         </div>
 
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor"
-                                 className="w-6 h-6 mx-auto text-gray-400">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/>
-                            </svg>
-                            <p className="mt-1 text-sm text-gray-500">Drop attachment or <span
-                                className="text-pink-500">browse files</span></p>
+                            <div className='flex justify-center items-center'>
+                                <ArrowUpTrayIcon className='w-6 text-text-color' />
+                            </div>
+
+                            <p className="mt-1 text-sm text-gray-500">Drop attachment or </p>
+                            <button className='bg-primary-pink text-white text-xs  px-3 py-2 rounded-md'>Brows Files</button>
                         </div>
 
                         {getTaskAdditionalDetailsComponent()}

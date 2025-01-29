@@ -198,7 +198,7 @@ const TaskCreateComponent = ({sprintId, onClose, isOpen, epics, refetchSprint}) 
             <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm z-10">
                 <div className="bg-white pl-10 pt-6 pr-6 pb-10 shadow-lg w-3/6 h-screen overflow-y-auto">
                     <div className="flex justify-between items-center mb-4">
-                        <p className="text-2xl">Create New Task</p>
+                        <p className="text-2xl font-semibold">Create New Task</p>
                         <div className={"cursor-pointer"} onClick={handleTaskCreateClose}>
                             <XMarkIcon className={"w-6 h-6 text-gray-500"}/>
                         </div>
