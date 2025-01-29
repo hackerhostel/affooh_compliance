@@ -15,6 +15,7 @@ import {XMarkIcon} from "@heroicons/react/24/outline/index.js";
 import {getSelectOptions, getUserSelectOptions} from "../../../utils/commonUtils.js";
 import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
 import {selectSprintListForProject} from "../../../state/slice/sprintSlice.js";
+import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 
 function getRequiredAdditionalFieldList(fieldsArray) {
     const requiredFields = [];
@@ -253,14 +254,9 @@ const HeaderTaskCreateComponent = ({onClose, isOpen}) => {
                                     </button>
                                 </div>
                                 <div className="mb-6">
-                                    <FormInput
-                                        type="text"
-                                        name="description"
-                                        formValues={createTaskForm}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
+                                    <WYSIWYGInput initialValue={{description: ''}}
+                                                  value={createTaskForm.description}
+                                                  name={"description"} onchange={handleFormChange}/>
                                 </div>
                             </div>
                         </div>

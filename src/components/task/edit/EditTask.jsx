@@ -36,6 +36,8 @@ const EditTaskPage = () => {
     const [initialTaskData, setInitialTaskData] = useState({});
     const [taskData, setTaskData] = useState({});
     const [taskAttributes, setTaskAttributes] = useState([]);
+    const [description, setDescription] = useState('');
+    const [initialDescription, setInitialDescription] = useState('');
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isEditing, setIsEditing] = useState(false)
     const [epics, setEpics] = useState([]);
@@ -49,15 +51,12 @@ const EditTaskPage = () => {
     const {data: tasksList} = useFetchFlatTasks(initialTaskData?.project?.id)
 
     const handleFormChange = (name, value) => {
-        if (name === 'description') {
-            if (value !== '<p><br></p>') {
-                const newForm = {...taskData, [name]: value};
-                setTaskData(newForm);
-            }
-        } else {
-            const newForm = {...taskData, [name]: value};
-            setTaskData(newForm);
-        }
+        const newForm = {...taskData, [name]: value};
+        setTaskData(newForm);
+    };
+
+    const handleDescription = (name, value) => {
+        setDescription(value);
     };
 
     const handleAdditionalFieldChange = (fieldId, value) => {
@@ -70,6 +69,8 @@ const EditTaskPage = () => {
 
     const updateStates = (task) => {
         setTaskData({...task, assignee: task?.assignee?.id})
+        setInitialDescription(task?.description || '')
+        setDescription(task?.description || '')
         setTaskAttributes(JSON.parse(JSON.stringify(task?.attributes)));
         setInitialTaskData({...task})
     }
@@ -226,19 +227,19 @@ const EditTaskPage = () => {
                             <div className="mb-6">
                                 <FormInputWrapper
                                     isEditing={isEditing}
-                                    initialData={initialTaskData}
-                                    currentData={taskData}
+                                    initialData={{description: initialDescription}}
+                                    currentData={{description: description}}
                                     onAccept={() => {
-                                        updateTaskDetails("Description", taskData.description);
+                                        updateTaskDetails("Description", description);
                                     }}
                                     onReject={() => {
-                                        handleFormChange('description', initialTaskData.description);
+                                        setDescription(initialDescription)
                                     }}
                                     actionButtonPlacement={"bottom"}
                                 >
-                                    <WYSIWYGInput initialValue={initialTaskData?.description}
-                                                  value={taskData.description}
-                                                  name={"description"} onchange={handleFormChange}/>
+                                    <WYSIWYGInput initialValue={initialDescription}
+                                                  value={description}
+                                                  name={"description"} onchange={handleDescription}/>
                                 </FormInputWrapper>
                             </div>
                         </div>
