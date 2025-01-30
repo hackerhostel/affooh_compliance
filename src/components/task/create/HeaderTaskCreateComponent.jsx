@@ -17,6 +17,7 @@ import { getSelectOptions, getUserSelectOptions } from "../../../utils/commonUti
 import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
 import { selectSprintListForProject } from "../../../state/slice/sprintSlice.js";
 import WYSIWYGInput from "../../WYSIWYGInput.jsx";
+import UserSelect from "../../UserSelect.jsx";
 
 function getRequiredAdditionalFieldList(fieldsArray) {
     const requiredFields = [];
@@ -66,6 +67,8 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
         const newForm = { ...createTaskForm, [name]: value };
         setCreateTaskForm(newForm);
     };
+
+    console.log("Users for Assignee:", users); 
 
     const handleAdditionalFieldChange = (fieldData) => {
         setAdditionalFormValues(prevValues => ({
@@ -263,22 +266,20 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
                         </div>
                         <div className="flex space-x-4 mb-6">
                             <div className="w-2/4">
-                                <FormSelect
-                                    showLabel
-                                    placeholder="Assignee"
+                                <UserSelect
+                                    label="Assignee"
                                     name="assigneeID"
-                                    formValues={createTaskForm}
-                                    options={getUserSelectOptions(users)}
+                                    value={createTaskForm.assigneeID}
+                                    users={users}
                                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                 />
                             </div>
                             <div className="w-2/4">
-                                <FormSelect
-                                    showLabel
-                                    placeholder="Task Owner"
+                                <UserSelect
+                                    label='Task Owner'
                                     name="taskOwner"
-                                    formValues={createTaskForm}
-                                    options={getUserSelectOptions(users)}
+                                    value="createTaskForm"
+                                    users={users}
                                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                 />
                             </div>
@@ -289,8 +290,8 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
                                 <ArrowUpTrayIcon className='w-6 text-text-color' />
                             </div>
 
-                            <p className="mt-1 text-sm text-gray-500">Drop attachment or </p>
-                            <button className='bg-primary-pink text-white text-xs  px-3 py-2 rounded-md'>Brows Files</button>
+                            <p className="mt-1 text-sm text-gray-500">Drop & Drag attachment <br /> OR </p>
+                            <button className='bg-primary-pink mt-2 text-white text-xs  px-3 py-2 rounded-md'>Brows Files</button>
                         </div>
 
                         {getTaskAdditionalDetailsComponent()}
