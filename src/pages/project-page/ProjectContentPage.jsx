@@ -44,7 +44,11 @@ const ProjectContentPage = () => {
   
 
   useEffect(() => {
-    setFormValues({ ...selectedProject, projectUserIDs: projectUsersIdList });
+    if (selectedProject?.id) {
+      setFormValues({...selectedProject, projectUserIDs: projectUsersIdList});
+      dispatch(doGetProjectUsers(selectedProject.id))
+    }
+
   }, [selectedProject]);
 
    const toggleEditable = () => {

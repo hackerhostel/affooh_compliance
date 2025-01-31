@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import FormSelect from "../../components/FormSelect.jsx";
 import {doGetProjectUsers, selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
 import {useDispatch, useSelector} from "react-redux";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {selectSelectedProjectFromList} from "../../state/slice/projectSlice.js";
 import axios from "axios";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 import {selectOrganizationUsers} from "../../state/slice/appSlice.js";
@@ -11,7 +11,7 @@ import {useToasts} from "react-toast-notifications";
 const AddUserPopup = ({ isOpen, onClose }) => {
   const {addToast} = useToasts();
   const dispatch = useDispatch();
-  const selectedProject = useSelector(selectSelectedProject);
+  const selectedProject = useSelector(selectSelectedProjectFromList);
   const userListForProject = useSelector(selectProjectUserList);
   const organizationUsers = useSelector(selectOrganizationUsers);
   const usersNotInProject = organizationUsers.filter(orgUser =>
@@ -19,12 +19,6 @@ const AddUserPopup = ({ isOpen, onClose }) => {
   );
   const [formValues, setFormValues] = useState({ projectUserIDs: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (selectedProject) {
-      dispatch(doGetProjectUsers(selectedProject.id));
-    }
-  }, [selectedProject, dispatch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

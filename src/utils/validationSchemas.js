@@ -2,8 +2,8 @@ import * as yup from "yup";
 
 export const TestPlanCreateSchema = yup.object({
     name: yup.string().required('Name is required'),
-    sprintId: yup.number().required().min(1, 'Select an Sprint'),
-    releaseId: yup.number().required().moreThan(0, 'Select an Release'),
+    sprintId: yup.number().typeError('Sprint required').required('Sprint required'),
+    releaseId: yup.number().typeError('Release required').required('Release required'),
 });
 
 export const TestPlanEditSchema = yup.object({
@@ -22,7 +22,6 @@ export const TestSuiteCreateSchema = yup.object().shape({
 
 export const TestCaseCreateSchema = yup.object().shape({
     summary: yup.string().required('Summary is required'),
-    status: yup.number().typeError('Status is required').required('Status is required').min(1, 'Status is required'),
     priority: yup.number().typeError('Priority is required').required('Priority is required').min(1, 'Priority is required'),
     category: yup.number().typeError('Category is required').required('Category is required').min(1, 'Category is required'),
     estimate: yup.string().required('Estimate is required'),
@@ -31,7 +30,11 @@ export const TestCaseCreateSchema = yup.object().shape({
 });
 
 export const ProjectCreateSchema = yup.object().shape({
-    prefix: yup.string().required('Prefix is required').max(5, 'Prefix must be at most 5 characters long'),
+    prefix: yup
+        .string()
+        .required('Prefix is required')
+        .max(5, 'Prefix must be at most 5 characters long')
+        .matches(/^[A-Za-z]+$/, 'Prefix must contain only letters'),
     name: yup.string().required('Project name is required').min(3, 'Project name must be at least 3 characters long').max(50, 'Project name must be at most 50 characters long'),
     projectType: yup.string().required('Project type is required'),
 });

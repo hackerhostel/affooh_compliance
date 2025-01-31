@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import useValidation from "../../utils/use-validation.jsx";
-import { ReleaseEditSchema } from "../../utils/validationSchemas.js";
-import { useToasts } from "react-toast-notifications";
+import {ReleaseEditSchema} from "../../utils/validationSchemas.js";
+import {useToasts} from "react-toast-notifications";
 import {
   CheckBadgeIcon,
+  FolderIcon,
   PencilIcon,
   PlusCircleIcon,
   TrashIcon,
-  XCircleIcon,
-  FolderIcon
+  XCircleIcon
 } from "@heroicons/react/24/outline/index.js";
 import {
   doGetReleases,
@@ -19,14 +19,11 @@ import {
   selectCheckListItems,
   selectSelectedRelease,
 } from "../../state/slice/releaseSlice.js";
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import axios from "axios";
-import { getInitials, getSelectOptions } from "../../utils/commonUtils.js";
-import { selectSelectedProject } from "../../state/slice/projectSlice.js";
-import moment from "moment/moment.js";
-import DateSelector from "../../components/DateSelector.jsx";
-import { selectProjectUserList } from "../../state/slice/projectUsersSlice.js";
-import errorAlert from "../../components/ErrorAlert.jsx";
+import {getSelectOptions} from "../../utils/commonUtils.js";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 
 const ReleaseEdit = ({ releaseId }) => {
@@ -135,7 +132,7 @@ const ReleaseEdit = ({ releaseId }) => {
   }, []);
 
   let releaseCheckListItems = checkListItems.filter(
-    (item) => item.releaseID === SelectedRelease?.id,
+      (item) => item.releaseID === SelectedRelease?.rID,
   );
 
   const getProjectUsers = useCallback(() => {
@@ -194,38 +191,38 @@ const ReleaseEdit = ({ releaseId }) => {
 
   const addChecklist = async () => {
     if (newRow.name !== "") {
-      await axios
-        .post(`releases/${SelectedRelease.id}/checkListItem`, {
+      try {
+        const response = await axios.post(`releases/${SelectedRelease.rID}/checkListItem`, {
           checkListItem: {
             ...newRow,
             checkListID: SelectedRelease.checklistID,
           },
-        })
-        .then((r) => {
-          if (r) {
-            setNewRow(initialNewRowState);
-            setShowNewRow(false);
-            addToast("Check List Item Created Successfully", {
-              appearance: "success",
-            });
-            dispatch(doGetReleasesCheckListItems());
-          } else {
-            addToast("Failed To Create Check List Item", {
-              appearance: "error",
-            });
-          }
-        })
-        .catch((e) => {
-          addToast("Failed To Create Check List Item", { appearance: "error" });
         });
+
+        const status = response?.status;
+        if (status === 201) {
+          setNewRow(initialNewRowState);
+          setShowNewRow(false);
+          addToast("Check List Item Created Successfully", {
+            appearance: "success",
+          });
+          dispatch(doGetReleasesCheckListItems());
+        } else {
+          addToast("Failed To Create Check List Item", {
+            appearance: "error",
+          });
+        }
+      } catch (error) {
+        addToast("Failed To Create Check List Item", {appearance: "error"});
+      }
     } else {
-      addToast("Please Enter a name", { appearance: "warning" });
+      addToast("Please Enter a name", {appearance: "warning"});
     }
   };
 
   const updateCheckLitItem = async (row) => {
     await axios
-      .put(`releases/${SelectedRelease.id}/checkListItem`, {
+        .put(`releases/${SelectedRelease?.rID}/checkListItem`, {
         checkListItem: row,
       })
       .then((r) => {
@@ -252,7 +249,7 @@ const ReleaseEdit = ({ releaseId }) => {
     if (toDeleteItem) {
       try {
         const response = await axios.delete(
-          `releases/${SelectedRelease.id}/checkListItem/${toDeleteItem.checklistItemID}`,
+            `releases/${SelectedRelease.rID}/checkListItem/${toDeleteItem.checklistItemID}`,
         );
         const deleted = response?.data?.body?.checkListItem;
 
@@ -374,7 +371,7 @@ const ReleaseEdit = ({ releaseId }) => {
             <div className="text-start">
               <div className="text-lg mt-5 flex items-center">
                 <span className="font-semibold font-xs">Release &gt;</span>
-                <span className="text-gray-500">{SelectedRelease?.name}</span>
+                <span className="text-gray-500 ml-2">{SelectedRelease?.name}</span>
               </div>
             </div>
             <div className="flex items-center justify-end"></div>
