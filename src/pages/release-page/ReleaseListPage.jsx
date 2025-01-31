@@ -2,14 +2,15 @@ import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import SearchBar from "../../components/SearchBar.jsx";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline/index.js";
+import {EllipsisVerticalIcon} from "@heroicons/react/24/outline/index.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import {
     doGetReleases,
     selectIsReleaseListForProjectError,
     selectIsReleaseListForProjectLoading,
-    selectReleaseListForProject, selectSelectedRelease,
+    selectReleaseListForProject,
+    selectSelectedRelease,
     setSelectedRelease
 } from "../../state/slice/releaseSlice.js";
 import axios from "axios";
@@ -26,7 +27,6 @@ const ReleaseListPage = () => {
     const selectedRelease = useSelector(selectSelectedRelease)
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [openMenu, setOpenMenu] = useState(null);
-
 
     const [filteredReleases, setFilteredReleases] = useState([]);
     const [toDeleteRelease, setToDeleteRelease] = useState({});
@@ -167,7 +167,7 @@ const ReleaseListPage = () => {
               {filteredReleaseList.map((element, index) => (
                 <button
                   key={index}
-                  className={`flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 ${selectedRelease?.id === element.id ? 'border-primary-pink' : 'border-gray-200'}
+                  className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 ${selectedRelease?.rID === element?.rID ? 'border-primary-pink' : 'border-gray-200'}
                   }`}
                   onClick={() => {
                     dispatch(setSelectedRelease(element));

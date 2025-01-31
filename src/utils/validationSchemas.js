@@ -2,8 +2,8 @@ import * as yup from "yup";
 
 export const TestPlanCreateSchema = yup.object({
     name: yup.string().required('Name is required'),
-    sprintId: yup.number().required().min(1, 'Select an Sprint'),
-    releaseId: yup.number().required().moreThan(0, 'Select an Release'),
+    sprintId: yup.number().typeError('Sprint required').required('Sprint required'),
+    releaseId: yup.number().typeError('Release required').required('Release required'),
 });
 
 export const TestPlanEditSchema = yup.object({
@@ -31,7 +31,11 @@ export const TestCaseCreateSchema = yup.object().shape({
 });
 
 export const ProjectCreateSchema = yup.object().shape({
-    prefix: yup.string().required('Prefix is required').max(5, 'Prefix must be at most 5 characters long'),
+    prefix: yup
+        .string()
+        .required('Prefix is required')
+        .max(5, 'Prefix must be at most 5 characters long')
+        .matches(/^[A-Za-z]+$/, 'Prefix must contain only letters'),
     name: yup.string().required('Project name is required').min(3, 'Project name must be at least 3 characters long').max(50, 'Project name must be at most 50 characters long'),
     projectType: yup.string().required('Project type is required'),
 });
