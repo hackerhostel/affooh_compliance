@@ -146,7 +146,7 @@ const TestPlanEditComponent = ({test_plan_id}) => {
     }
 
     return (
-        <div className={"p-4 bg-dashboard-bgc h-content-screen overflow-y-auto"}>
+        <div className={"p-4 bg-dashboard-bgc"}>
             <div className="mt-3">
                 {testPlan?.id && (
                     <p className={"text-secondary-grey font-bold text-sm align-left"}>Projects <span
