@@ -1,18 +1,22 @@
-import { Menu, Transition } from '@headlessui/react';
+import {Menu, Transition} from '@headlessui/react';
+import {signOut} from 'aws-amplify/auth';
 import {
   ArrowRightStartOnRectangleIcon,
-  Square3Stack3DIcon,
-  TableCellsIcon,
-  DocumentTextIcon,
-  UsersIcon,
+  BellIcon,
+  CalendarIcon,
   CogIcon,
-  UserIcon, CalendarIcon, Squares2X2Icon, BellIcon
+  DocumentTextIcon,
+  Square3Stack3DIcon,
+  Squares2X2Icon,
+  TableCellsIcon,
+  UserIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline';
 import {Link, useHistory, useLocation} from 'react-router-dom';
 import AffoohLogo from '../../assets/affooh_logo.png';
-import { useSelector } from 'react-redux';
-import { selectUser } from '../../state/slice/authSlice';
-import React, { Fragment, useState } from 'react';
+import {useSelector} from 'react-redux';
+import {selectUser} from '../../state/slice/authSlice';
+import React, {Fragment, useState} from 'react';
 import Notification from "./NotificationPopup.jsx";
 
 function Sidebar() {
@@ -114,7 +118,7 @@ function Sidebar() {
                         leaveTo="transform opacity-0 scale-95"
                     >
                       <Menu.Items
-                          className="absolute top-0 right-[-17rem] mt-2 w-64 bg-white divide-y divide-gray-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                          className="absolute -top-16 right-[-17rem] mt-2 w-64 bg-white divide-y divide-gray-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div className="flex items-center gap-3 px-4 py-3">
                           {userDetails.avatar ? (
                               <img

@@ -4,7 +4,7 @@ import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import {getSelectOptions} from "../../utils/commonUtils.js";
 import {useToasts} from "react-toast-notifications";
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 import {TestCaseCreateSchema} from "../../utils/validationSchemas.js";
 import useValidation from "../../utils/use-validation.jsx";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
@@ -22,7 +22,6 @@ import axios from "axios";
 
 const TestCaseCreateComponent = ({isOpen, onClose}) => {
     const {addToast} = useToasts();
-    const dispatch = useDispatch();
 
     const selectedProject = useSelector(selectSelectedProject);
     const testCaseStatuses = useSelector(selectTestCaseStatuses);
@@ -34,7 +33,6 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
     const [formValues, setFormValues] = useState({
         summary: '',
         description: '',
-        status: testCaseStatuses.filter(ts => ts.value === 'Open')[0]?.id || 1,
         projectId: selectedProject.id,
         priority: '',
         category: '',
@@ -67,7 +65,6 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
         setFormValues({
             summary: '',
             description: '',
-            status: '',
             projectId: selectedProject.id,
             priority: '',
             category: '',
@@ -97,6 +94,7 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
                 addToast(warningMsg.trim(), {appearance: 'warning'});
             }
         } else {
+            formValues["status"] = testCaseStatuses.filter(ts => ts.value === 'Open')[0]?.id || 1
             setIsValidationErrorsShown(false);
             try {
                 await axios.post("/test-plans/test-cases", {testCase: formValues});

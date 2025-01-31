@@ -49,8 +49,6 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
         }
     }, [selectedProject]);
 
-    console.log(formValues)
-
     const handleFormChange = (name, value, isText) => {
         setFormValues({...formValues, [name]: isText ? value : Number(value)});
         setIsValidationErrorsShown(false)

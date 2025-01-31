@@ -100,7 +100,6 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
 
     const createTestSuite = async (event) => {
         event.preventDefault();
-        console.log(formValues);
         setIsSubmitting(true);
 
         if (formErrors && Object.keys(formErrors).length > 0) {
@@ -115,6 +114,9 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
             }
             if (formErrors?.testCases && formErrors.testCases.length > 0) {
                 warningMsg += '\n' + formErrors.testCases[0];
+            }
+            if (formErrors?.assignee && formErrors.assignee.length > 0) {
+                warningMsg += '\n' + formErrors.assignee[0];
             }
 
             if (warningMsg.trim() !== '') {
