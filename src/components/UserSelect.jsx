@@ -44,7 +44,7 @@ const UserSelect = ({ name, value, onChange, users, label = '' }) => {
         <div className="relative w-full" ref={ref}>
             <label className="block text-sm font-medium text-gray-500">{label}</label>
             <div
-                className="mt-2 flex items-center space-x-2 bg-white border border-gray-300 rounded-lg p-2 cursor-pointer"
+                className="-mt-1 flex items-center space-x-2 bg-white border border-gray-300 rounded-lg p-2 cursor-pointer"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 {selected?.id ? (
