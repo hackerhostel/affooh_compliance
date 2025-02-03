@@ -216,8 +216,8 @@ const ProjectContentPage = () => {
             </span>
             <span className="text-black text-sm font-bold">{selectedProject.name}</span>
           </div>
-          <div className="text flex gap-3 mt-3 text-xs justify-end">
-            {["Overview", "People", "Configuration", "Workflows"].map(
+          <div className="text flex gap-3 mt-3 text-xs justify-end mr-6">
+            {["Overview", "People"].map(
               (buttonName) => (
                 <button
                   key={buttonName}
