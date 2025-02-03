@@ -68,7 +68,6 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
         setCreateTaskForm(newForm);
     };
 
-    console.log("Users for Assignee:", users); 
 
     const handleAdditionalFieldChange = (fieldData) => {
         setAdditionalFormValues(prevValues => ({
