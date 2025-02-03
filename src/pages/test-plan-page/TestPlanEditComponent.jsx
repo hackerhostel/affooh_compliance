@@ -24,6 +24,7 @@ import {TestPlanEditSchema} from "../../utils/validationSchemas.js";
 import {useToasts} from "react-toast-notifications";
 import axios from "axios";
 import useFetchTestCases from "../../hooks/custom-hooks/test-plan/useFetchTestCases.jsx";
+import {getSelectOptions} from "../../utils/commonUtils.js";
 
 const TestPlanEditComponent = ({test_plan_id}) => {
     const dispatch = useDispatch();
@@ -86,10 +87,6 @@ const TestPlanEditComponent = ({test_plan_id}) => {
         }
     }, [testPlan]);
 
-    const getOptions = (options) => {
-        return options.map(o => ({value: Number(o.id), label: o.name}));
-    };
-
     const handleFormChange = (name, value, isText) => {
         setFormValues({...formValues, [name]: isText ? value : Number(value)});
         setIsValidationErrorsShown(false)
@@ -130,10 +127,11 @@ const TestPlanEditComponent = ({test_plan_id}) => {
                     dispatch(doGetTestPlans(selectedProject?.id));
                     await reFetchTestPlan()
                 } else {
-                    addToast('Failed To Updated The Test Plan ', {appearance: 'error'});
+                    addToast('Failed To Update The Test Plan ', {appearance: 'error'});
                 }
             } catch (error) {
-                addToast('Failed To Updated The Test Plan ', {appearance: 'error'});
+                console.log(error)
+                addToast('Failed To Update The Test Plan ', {appearance: 'error'});
             }
         }
         setIsSubmitting(false)
@@ -148,7 +146,7 @@ const TestPlanEditComponent = ({test_plan_id}) => {
     }
 
     return (
-        <div className={"p-4 bg-dashboard-bgc h-content-screen overflow-y-auto"}>
+        <div className={"p-4 bg-dashboard-bgc"}>
             <div className="mt-3">
                 {testPlan?.id && (
                     <p className={"text-secondary-grey font-bold text-sm align-left"}>Projects <span
@@ -181,7 +179,7 @@ const TestPlanEditComponent = ({test_plan_id}) => {
                                         <FormSelect
                                             name="sprintId"
                                             formValues={formValues}
-                                            options={sprintListForProject.length ? getOptions(sprintListForProject) : []}
+                                            options={sprintListForProject.length ? getSelectOptions(sprintListForProject) : []}
                                             onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                         />
                                     </div>
@@ -190,7 +188,7 @@ const TestPlanEditComponent = ({test_plan_id}) => {
                                         <FormSelect
                                             name="projectId"
                                             formValues={formValues}
-                                            options={projects.length ? getOptions(projects) : []}
+                                            options={projects.length ? getSelectOptions(projects) : []}
                                             onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                             disabled={true}
                                         />
@@ -200,7 +198,7 @@ const TestPlanEditComponent = ({test_plan_id}) => {
                                         <FormSelect
                                             name="releaseId"
                                             formValues={formValues}
-                                            options={releases.length ? getOptions(releases) : []}
+                                            options={releases.length ? getSelectOptions(releases) : []}
                                             onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
                                         />
                                     </div>
