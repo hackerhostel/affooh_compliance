@@ -1,26 +1,26 @@
-import React, {useEffect, useState} from 'react';
-import {XMarkIcon} from "@heroicons/react/24/outline";
+import React, { useEffect, useState } from 'react';
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
-import {getSelectOptions, getUserOptions} from "../../utils/commonUtils.js";
-import {useToasts} from "react-toast-notifications";
-import {useDispatch, useSelector} from "react-redux";
-import {TestSuiteCreateSchema} from "../../utils/validationSchemas.js";
+import { getSelectOptions, getUserOptions } from "../../utils/commonUtils.js";
+import { useToasts } from "react-toast-notifications";
+import { useDispatch, useSelector } from "react-redux";
+import { TestSuiteCreateSchema } from "../../utils/validationSchemas.js";
 import useValidation from "../../utils/use-validation.jsx";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
-import {selectSelectedTestPlan} from "../../state/slice/testPlansSlice.js";
-import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
-import {selectReleaseListForProject} from "../../state/slice/releaseSlice.js";
-import {selectTestCaseStatuses} from "../../state/slice/testCaseFormDataSlice.js";
-import {doGetPlatforms, selectPlatformList} from "../../state/slice/platformSlice.js";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
+import { selectSelectedTestPlan } from "../../state/slice/testPlansSlice.js";
+import { selectProjectUserList } from "../../state/slice/projectUsersSlice.js";
+import { selectReleaseListForProject } from "../../state/slice/releaseSlice.js";
+import { selectTestCaseStatuses } from "../../state/slice/testCaseFormDataSlice.js";
+import { doGetPlatforms, selectPlatformList } from "../../state/slice/platformSlice.js";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import Select from 'react-select';
-import {doGetTestCases, selectTestCasesForProject} from "../../state/slice/testCaseSlice.js";
+import { doGetTestCases, selectTestCasesForProject } from "../../state/slice/testCaseSlice.js";
 import axios from "axios";
 import UserSelect from "../../components/UserSelect.jsx";
 
-const TestSuiteCreateComponent = ({isOpen, onClose}) => {
-    const {addToast} = useToasts();
+const TestSuiteCreateComponent = ({ isOpen, onClose }) => {
+    const { addToast } = useToasts();
     const dispatch = useDispatch();
 
     const selectedProject = useSelector(selectSelectedProject);
@@ -67,17 +67,17 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
     const filterStatus = testCaseStatuses.filter(status => testSuiteStatus.includes(status.value));
 
     const handleMultiSelect = (selectedOptions, actionMeta) => {
-        const {name} = actionMeta;
+        const { name } = actionMeta;
         if (selectedOptions.length) {
-            setFormValues({...formValues, [name]: selectedOptions.map(sp => (sp.value))})
+            setFormValues({ ...formValues, [name]: selectedOptions.map(sp => (sp.value)) })
         } else {
-            setFormValues({...formValues, [name]: []})
+            setFormValues({ ...formValues, [name]: [] })
         }
         setIsValidationErrorsShown(false);
     };
 
     const handleFormChange = (name, value, isText) => {
-        setFormValues({...formValues, [name]: isText ? value : Number(value)});
+        setFormValues({ ...formValues, [name]: isText ? value : Number(value) });
         setIsValidationErrorsShown(false);
     };
 
@@ -120,18 +120,18 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
             }
 
             if (warningMsg.trim() !== '') {
-                addToast(warningMsg.trim(), {appearance: 'warning', placement: 'top-right'});
+                addToast(warningMsg.trim(), { appearance: 'warning', placement: 'top-right' });
             }
         } else {
             setIsValidationErrorsShown(false);
             try {
                 formValues.testPlanId = selectedTestPlan.id
-                await axios.post("/test-plans/test-suites", {testSuite: formValues});
-                addToast('Test Suite Successfully Created', {appearance: 'success'});
+                await axios.post("/test-plans/test-suites", { testSuite: formValues });
+                addToast('Test Suite Successfully Created', { appearance: 'success' });
                 handleClose(true);
             } catch (error) {
                 console.log(error)
-                addToast('Failed to create Test Suite', {appearance: 'error'});
+                addToast('Failed to create Test Suite', { appearance: 'error' });
             }
         }
 
@@ -146,7 +146,7 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
                         <div className="flex justify-between items-center">
                             <p className="font-bold text-2xl">New Test Suite</p>
                             <div className="cursor-pointer" onClick={handleClose}>
-                                <XMarkIcon className="w-6 h-6 text-gray-500"/>
+                                <XMarkIcon className="w-6 h-6 text-gray-500" />
                             </div>
                         </div>
                         <form className={"flex flex-col justify-between mt-5"} onSubmit={createTestSuite}>
@@ -157,7 +157,7 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
                                         type="text"
                                         name="summary"
                                         formValues={formValues}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                        onChange={({ target: { name, value } }) => handleFormChange(name, value, true)}
                                         formErrors={formErrors}
                                         showErrors={isValidationErrorsShown}
                                     />
@@ -167,40 +167,41 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
                                     <FormTextArea
                                         name="description"
                                         formValues={formValues}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-                                <div className={"flex-col"}>
-                                    <p className={"text-secondary-grey"}>Build Name</p>
-                                    <FormInput
-                                        type="text"
-                                        name="build"
-                                        formValues={formValues}
-                                        onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                        onChange={({ target: { name, value } }) => handleFormChange(name, value, true)}
                                         formErrors={formErrors}
                                         showErrors={isValidationErrorsShown}
                                     />
                                 </div>
                                 <div className={"flex w-full justify-between gap-10"}>
                                     <div className={"flex-col w-2/4"}>
+                                        <p className={"text-secondary-grey"}>Build Name</p>
+                                        <FormInput
+                                            type="text"
+                                            name="build"
+                                            formValues={formValues}
+                                            onChange={({ target: { name, value } }) => handleFormChange(name, value, true)}
+                                            formErrors={formErrors}
+                                            showErrors={isValidationErrorsShown}
+                                        />
+                                    </div>
+
+                                    <div className={"flex-col w-2/4"}>
                                         <p className={"text-secondary-grey"}>Status</p>
                                         <FormSelect
                                             name="status"
                                             formValues={formValues}
                                             options={filterStatus && filterStatus.length ? getSelectOptions(filterStatus) : []}
-                                            onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                                            onChange={({ target: { name, value } }) => handleFormChange(name, value, false)}
                                             formErrors={formErrors}
                                             showErrors={isValidationErrorsShown}
                                         />
                                     </div>
                                     <div className={"flex-col w-2/4"}>
-                                        <p className={"text-secondary-grey"}>Assignee</p>
                                         <UserSelect
+                                        label='Assignee'
                                             name="assignee"
                                             value={formValues.assignee}
-                                            onChange={({target: {name, value}}) => {
+                                            onChange={({ target: { name, value } }) => {
                                                 handleFormChange(name, value, false)
                                             }}
                                             users={projectUserList && projectUserList.length ? getUserOptions(projectUserList) : []}
@@ -209,7 +210,7 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
                                 </div>
                                 <div className={"flex-col"}>
                                     <p className={"text-secondary-grey mb-2"}>Associated Release(s)</p>
-                                    <Select
+                                    <FormSelect
                                         name="releases"
                                         defaultValue={formValues.releases}
                                         onChange={handleMultiSelect}
@@ -220,7 +221,7 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
                                 </div>
                                 <div className={"flex-col"}>
                                     <p className={"text-secondary-grey mb-2"}>Platforms</p>
-                                    <Select
+                                    <FormSelect
                                         name="platforms"
                                         defaultValue={formValues.platforms}
                                         onChange={handleMultiSelect}
@@ -231,7 +232,7 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
                                 </div>
                                 <div className={"flex-col"}>
                                     <p className={"text-secondary-grey mb-2"}>Test Cases</p>
-                                    <Select
+                                    <FormSelect
                                         name="testCases"
                                         defaultValue={formValues.testCases}
                                         onChange={handleMultiSelect}
@@ -244,14 +245,14 @@ const TestSuiteCreateComponent = ({isOpen, onClose}) => {
                             <div className="flex space-x-4 mt-6 self-end w-full">
                                 <button
                                     onClick={handleClose}
-                                    className="px-4 py-2 text-gray-700 rounded w-1/4 border border-black cursor-pointer disabled:cursor-not-allowed"
+                                    className="btn-secondary"
                                     disabled={isSubmitting}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 bg-primary-pink text-white rounded hover:bg-pink-600 w-3/4 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                    className="btn-primary"
                                     disabled={isSubmitting}
                                 >
                                     Create

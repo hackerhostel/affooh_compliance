@@ -104,6 +104,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
   return (
     <>
       {isOpen && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-end z-[999">
         <div
           className="fixed top-[420px] right-0 transform -translate-y-1/2
   w-[797px] h-[840px] p-5 bg-white shadow-md 
@@ -113,12 +114,12 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
             onClick={onClose}
             className="
   absolute top-2.5 right-2.5 bg-transparent border-none 
-  text-[16px] cursor-pointer
+  text-[16px] cursor-pointer backdrop-blur-sm
 "
           >
             <XMarkIcon className="w-6 h-6" />
           </button>
-          <div className="p-2">
+          <div className="p-2 ">
             <div className="text-3xl border-b border-gray-300/40 pb-2">
               New Release
             </div>
@@ -154,8 +155,8 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
-                <div>
+              <div className="flex w-full justify-between gap-10 mt-4">
+                <div className="w-2/4">
                   <FormInput
                     type="date"
                     name="releaseDate"
@@ -169,7 +170,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                   />
                 </div>
 
-                <div className="flex-col">
+                {/* <div className="flex-col">
                   <FormSelect
                     name="status"
                     disabled={true}
@@ -182,9 +183,9 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                     }
                     showErrors={isValidationErrorsShown}
                   />
-                </div>
+                </div> */}
 
-                <div>
+                <div className="w-2/4">
                   <FormInput
                     type="text"
                     name="version"
@@ -197,7 +198,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                     showErrors={isValidationErrorsShown}
                   />
                 </div>
-                <div className="flex-col">
+                <div className="w-2/4">
                   <FormSelect
                     name="type"
                     placeholder="Type"
@@ -211,7 +212,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
                   />
                 </div>
               </div>
-              <div className="flex space-x-4 mt-6 self-end w-full">
+              <div className="flex space-x-4 mt-44 self-end w-full">
                 <button
                   onClick={onClose}
                   className="btn-secondary"
@@ -229,6 +230,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
               </div>
             </form>
           </div>
+        </div>
         </div>
       )}
     </>
