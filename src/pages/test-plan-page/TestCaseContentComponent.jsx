@@ -56,7 +56,7 @@ const TestCaseContentComponent = ({testCasesForProject, refetchTestCases}) => {
                         <p className={"text-secondary-grey text-xs text-center w-full"}>No available test
                             cases</p>
                     ) : (
-                        <table className="min-w-full border-collapse border border-gray-300">
+                        <table className="min-w-full ">
                             <thead>
                             <tr className="w-full">
                                 <th className="p-2">Summary</th>
@@ -70,14 +70,14 @@ const TestCaseContentComponent = ({testCasesForProject, refetchTestCases}) => {
                                 <tr key={row.id}
                                     className="w-full">
                                     <td className="border border-gray-300 p-2 w-3/6">{row.summary}</td>
-                                    <td className="border border-gray-300 p-2 w-1/6">
+                                    <td className="border border-gray-300 text-center p-2 w-1/6">
                                             <span
                                                 className={`px-2 py-1 rounded`}>
                                                 {row.priority.value}
                                             </span>
                                     </td>
-                                    <td className="border border-gray-300 p-2 w-1/6">{row.category.value}</td>
-                                    <td className="border border-gray-300 p-2 w-1/6">{row.status.value}</td>
+                                    <td className="border border-gray-300 text-center p-2 w-1/6">{row.category.value}</td>
+                                    <td className="border border-gray-300 text-center p-2 w-1/6">{row.status.value}</td>
                                 </tr>
                             ))}
                             </tbody>
