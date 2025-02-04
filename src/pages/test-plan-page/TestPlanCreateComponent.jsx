@@ -25,9 +25,9 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
     const [project, setProject] = useState(selectedProject);
     const [formValues, setFormValues] = useState({
         name: '',
-        sprintId: 0,
+        sprintId: '',
         projectId: project?.id,
-        releaseId: 0,
+        releaseId: '',
         status: 'TODO'
     });
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
@@ -49,22 +49,6 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
         }
     }, [selectedProject]);
 
-    useEffect(() => {
-        if (releases.length) {
-            setFormValues({...formValues, releaseId: releases[0].checklistID})
-        } else {
-            setFormValues({...formValues, releaseId: 0})
-        }
-    }, [releases]);
-
-    useEffect(() => {
-        if (sprintListForProject.length) {
-            setFormValues({...formValues, sprintId: sprintListForProject[0].id})
-        } else {
-            setFormValues({...formValues, sprintId: 0})
-        }
-    }, [sprintListForProject]);
-
     const handleFormChange = (name, value, isText) => {
         setFormValues({...formValues, [name]: isText ? value : Number(value)});
         setIsValidationErrorsShown(false)
@@ -72,7 +56,7 @@ const TestPlanCreateComponent = ({isOpen, onClose}) => {
 
     const handleClose = () => {
         onClose()
-        setFormValues({name: '', sprintId: 0, projectId: project.id, releaseId: 0, status: 'TODO'})
+        setFormValues({name: '', sprintId: '', projectId: project.id, releaseId: '', status: 'TODO'})
         setIsValidationErrorsShown(false)
     };
 

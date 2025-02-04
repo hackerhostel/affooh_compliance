@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import FormInput from "../../FormInput.jsx";
 import useValidation from "../../../utils/use-validation.jsx";
-import { TaskCreateSchema } from "../../../state/domains/authModels.js";
+import { HeaderTaskCreateSchema } from "../../../state/domains/authModels.js";
 import FormSelect from "../../FormSelect.jsx";
 import TaskScreenDetails from "./TaskScreenDetails.jsx";
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
@@ -13,8 +13,9 @@ import SkeletonLoader from "../../SkeletonLoader.jsx";
 import ErrorAlert from "../../ErrorAlert.jsx";
 import { useToasts } from "react-toast-notifications";
 import { XMarkIcon } from "@heroicons/react/24/outline/index.js";
-import { getUserSelectOptions } from "../../../utils/commonUtils.js";
+import { getSelectOptions, getUserSelectOptions } from "../../../utils/commonUtils.js";
 import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
+import { selectSprintListForProject } from "../../../state/slice/sprintSlice.js";
 import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 import UserSelect from "../../UserSelect.jsx";
 
@@ -34,22 +35,22 @@ function getRequiredAdditionalFieldList(fieldsArray) {
     return requiredFields;
 }
 
-const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }) => {
+const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
+    const { addToast } = useToasts();
     const appConfig = useSelector(selectAppConfig);
     const selectedProject = useSelector(selectSelectedProject);
     const users = useSelector(selectProjectUserList);
-    const { addToast } = useToasts();
+    const sprintListForProject = useSelector(selectSprintListForProject);
 
     const [loading, setLoading] = useState(false);
-    const [createTaskForm, setCreateTaskForm] = useState({ name: '', taskTypeID: '', description: '' });
+    const [createTaskForm, setCreateTaskForm] = useState({ name: '', taskTypeID: '', sprintID: '' });
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const formRef = useRef(null);
-    const [formErrors] = useValidation(TaskCreateSchema, createTaskForm);
+    const [formErrors] = useValidation(HeaderTaskCreateSchema, createTaskForm);
 
     const [isTaskTypeLoading, setIsTaskTypeLoading] = useState(false);
     const [isTaskTypeApiError, setIsTaskTypeApiError] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isEpicScreen, setIsEpicScreen] = useState(false);
 
     const [screenDetails, setScreenDetails] = useState(null);
     const [additionalFormValues, setAdditionalFormValues] = useState({});
@@ -60,13 +61,13 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
             const selectedTaskType = appConfig.taskTypes.find(tt => tt.id === parseInt(value))
             if (selectedTaskType?.screenID) {
                 fetchScreenForTask(selectedTaskType.screenID)
-                setIsEpicScreen(selectedTaskType.value === 'Epic')
             }
         }
 
         const newForm = { ...createTaskForm, [name]: value };
         setCreateTaskForm(newForm);
     };
+
 
     const handleAdditionalFieldChange = (fieldData) => {
         setAdditionalFormValues(prevValues => ({
@@ -75,7 +76,7 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
     };
 
     const handleTaskCreateClose = () => {
-        setCreateTaskForm({ name: '', taskTypeID: '' })
+        setCreateTaskForm({ name: '', taskTypeID: '', sprintID: '' })
         onClose()
     }
 
@@ -122,7 +123,6 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
 
         const payload = {
             ...createTaskForm,
-            sprintID: sprintId,
             projectID: selectedProject?.id,
             attributes: Object.entries(additionalFormValues).map(([key, value]) => value),
         };
@@ -162,9 +162,6 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
             const response = await axios.post("tasks", { task: payload });
             addToast(`New task ID: ${response.data.id} added`, { appearance: 'success', autoDismiss: true });
             handleTaskCreateClose();
-            if (refetchSprint) {
-                refetchSprint();
-            }
         } catch (e) {
             addToast(e.message || 'An error occurred while creating the task.', {
                 appearance: 'error'
@@ -209,6 +206,18 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                         <div className="mb-6">
                             <FormSelect
                                 showLabel
+                                placeholder="Sprint"
+                                name="sprintID"
+                                formValues={createTaskForm}
+                                options={getSelectOptions(sprintListForProject)}
+                                onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                formErrors={formErrors}
+                                showErrors={isValidationErrorsShown}
+                            />
+                        </div>
+                        <div className="mb-6">
+                            <FormSelect
+                                showLabel
                                 placeholder="Task Type"
                                 name="taskTypeID"
                                 formValues={createTaskForm}
@@ -222,7 +231,6 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                                 showErrors={isValidationErrorsShown}
                             />
                         </div>
-
                         <div className="mb-6">
                             <FormInput
                                 type="text"
@@ -236,7 +244,7 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <label className="block text-sm font-medium text-text-color mb-1">Description</label>
                             <div className="border border-gray-300 rounded-md p-2">
                                 <div className="flex space-x-2 mb-2">
                                     <button type="button" className="p-1 rounded hover:bg-gray-100">
@@ -255,41 +263,23 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                                 </div>
                             </div>
                         </div>
-
-                        {!isEpicScreen && (
-                            <div className="mb-6">
-                                <FormSelect
-                                    showLabel
-                                    placeholder="Epic"
-                                    name="epicID"
-                                    formValues={createTaskForm}
-                                    options={epics}
-                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                                />
-                            </div>
-                        )}
-
                         <div className="flex space-x-4 mb-6">
                             <div className="w-2/4">
                                 <UserSelect
                                     label="Assignee"
                                     name="assigneeID"
                                     value={createTaskForm.assigneeID}
-                                    users={users} // Pass the users list to UserSelect
+                                    users={users}
                                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                                    formErrors={formErrors}
-                                    showErrors={isValidationErrorsShown}
                                 />
                             </div>
                             <div className="w-2/4">
                                 <UserSelect
                                     label='Task Owner'
                                     name="taskOwner"
-                                    value={createTaskForm.taskOwner}
-                                    users={users} // Pass the users list to UserSelect
+                                    value="createTaskForm"
+                                    users={users}
                                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-                                    formErrors={formErrors}
-                                    showErrors={isValidationErrorsShown}
                                 />
                             </div>
                         </div>
@@ -326,4 +316,4 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
     </>);
 };
 
-export default TaskCreateComponent;
+export default HeaderTaskCreateComponent;

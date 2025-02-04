@@ -4,8 +4,10 @@ import {useDispatch, useSelector} from "react-redux";
 import {BellIcon} from "@heroicons/react/24/outline";
 import FormSelect from "../FormSelect.jsx";
 import {doSwitchProject, selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {signOut} from 'aws-amplify/auth';
 import {selectUser} from "../../state/slice/authSlice.js";
 import Notification from "./NotificationPopup.jsx"
+import HeaderTaskCreateComponent from "../task/create/HeaderTaskCreateComponent.jsx";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -64,7 +66,14 @@ const Header = () => {
       {/* Right Section */}
       <div className="flex items-center mr-6 space-x-3">
         <div>
-        <BellIcon onClick={openPopUp} className="w-7 h-7 m-3 cursor-pointer" />
+          <button
+              className="w-24 h-10 text-white rounded-lg border border-primary-pink bg-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
+              onClick={() => setNewHeaderTaskModalOpen(true)}>
+            New Task
+          </button>
+        </div>
+        <div>
+          <BellIcon onClick={openPopUp} className="w-7 h-7 m-3 cursor-pointer"/>
         </div>
 
         <div className="z-50">
@@ -78,7 +87,8 @@ const Header = () => {
         <div className="flex justify-center ">
           {!loading ? (
             <Menu as="div" className="relative inline-block text-left">
-              <Menu.Button className="">
+              <Menu.Button
+                  className="w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-pink">
                 {userDetails.avatar ? (
                   <img
                     src={userDetails.avatar}
@@ -134,6 +144,7 @@ const Header = () => {
           )}
         </div>
       </div>
+      <HeaderTaskCreateComponent isOpen={newHeaderTaskModalOpen} onClose={closeHeaderCreateTaskModal}/>
     </div>
   );
 };

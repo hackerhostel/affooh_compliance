@@ -10,12 +10,10 @@ import axios from 'axios';
 import {ProjectCreateSchema} from '../../utils/validationSchemas.js';
 import {useToasts} from 'react-toast-notifications';
 import {doGetWhoAmI} from "../../state/slice/authSlice.js";
-import {selectAppConfig} from "../../state/slice/appSlice.js";
 
 const CreateNewProjectPopup = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
     const { addToast } = useToasts();
-    const appConfig = useSelector(selectAppConfig);
 
     const projectTypes = useSelector(setProjectType);
 

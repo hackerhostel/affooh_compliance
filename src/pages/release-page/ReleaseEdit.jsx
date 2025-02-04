@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import useValidation from "../../utils/use-validation.jsx";
-import { ReleaseEditSchema } from "../../utils/validationSchemas.js";
-import { useToasts } from "react-toast-notifications";
+import {ReleaseEditSchema} from "../../utils/validationSchemas.js";
+import {useToasts} from "react-toast-notifications";
 import {
   CheckBadgeIcon,
+  FolderIcon,
   PencilIcon,
   PlusCircleIcon,
   TrashIcon,
-  XCircleIcon,
-  FolderIcon
+  XCircleIcon
 } from "@heroicons/react/24/outline/index.js";
 import {
   doGetReleases,
@@ -19,14 +19,11 @@ import {
   selectCheckListItems,
   selectSelectedRelease,
 } from "../../state/slice/releaseSlice.js";
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import axios from "axios";
-import { getInitials, getSelectOptions } from "../../utils/commonUtils.js";
-import { selectSelectedProject } from "../../state/slice/projectSlice.js";
-import moment from "moment/moment.js";
-import DateSelector from "../../components/DateSelector.jsx";
-import { selectProjectUserList } from "../../state/slice/projectUsersSlice.js";
-import errorAlert from "../../components/ErrorAlert.jsx";
+import {getSelectOptions} from "../../utils/commonUtils.js";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 
 const ReleaseEdit = ({ releaseId }) => {
@@ -49,9 +46,9 @@ const ReleaseEdit = ({ releaseId }) => {
   const initialNewRowState = {
     name: "",
     status: "TODO",
-    assignee: "", 
+    assignee: "",
   };
-  const [newRow, setNewRow] = useState({initialNewRowState});
+  const [newRow, setNewRow] = useState({ initialNewRowState });
 
   const [dateSelectorOpen, setDateSelectorOpen] = useState(false);
   // const [releaseCheckListItems, setReleaseCheckListItems] = useState([]);
@@ -135,7 +132,7 @@ const ReleaseEdit = ({ releaseId }) => {
   }, []);
 
   let releaseCheckListItems = checkListItems.filter(
-    (item) => item.releaseID === SelectedRelease?.id,
+      (item) => item.releaseID === SelectedRelease?.rID,
   );
 
   const getProjectUsers = useCallback(() => {
@@ -194,38 +191,38 @@ const ReleaseEdit = ({ releaseId }) => {
 
   const addChecklist = async () => {
     if (newRow.name !== "") {
-      await axios
-        .post(`releases/${SelectedRelease.id}/checkListItem`, {
+      try {
+        const response = await axios.post(`releases/${SelectedRelease.rID}/checkListItem`, {
           checkListItem: {
             ...newRow,
             checkListID: SelectedRelease.checklistID,
           },
-        })
-        .then((r) => {
-          if (r) {
-            setNewRow(initialNewRowState);
-            setShowNewRow(false);
-            addToast("Check List Item Created Successfully", {
-              appearance: "success",
-            });
-            dispatch(doGetReleasesCheckListItems());
-          } else {
-            addToast("Failed To Create Check List Item", {
-              appearance: "error",
-            });
-          }
-        })
-        .catch((e) => {
-          addToast("Failed To Create Check List Item", { appearance: "error" });
         });
+
+        const status = response?.status;
+        if (status === 201) {
+          setNewRow(initialNewRowState);
+          setShowNewRow(false);
+          addToast("Check List Item Created Successfully", {
+            appearance: "success",
+          });
+          dispatch(doGetReleasesCheckListItems());
+        } else {
+          addToast("Failed To Create Check List Item", {
+            appearance: "error",
+          });
+        }
+      } catch (error) {
+        addToast("Failed To Create Check List Item", {appearance: "error"});
+      }
     } else {
-      addToast("Please Enter a name", { appearance: "warning" });
+      addToast("Please Enter a name", {appearance: "warning"});
     }
   };
 
   const updateCheckLitItem = async (row) => {
     await axios
-      .put(`releases/${SelectedRelease.id}/checkListItem`, {
+        .put(`releases/${SelectedRelease?.rID}/checkListItem`, {
         checkListItem: row,
       })
       .then((r) => {
@@ -252,7 +249,7 @@ const ReleaseEdit = ({ releaseId }) => {
     if (toDeleteItem) {
       try {
         const response = await axios.delete(
-          `releases/${SelectedRelease.id}/checkListItem/${toDeleteItem.checklistItemID}`,
+            `releases/${SelectedRelease.rID}/checkListItem/${toDeleteItem.checklistItemID}`,
         );
         const deleted = response?.data?.body?.checkListItem;
 
@@ -373,8 +370,8 @@ const ReleaseEdit = ({ releaseId }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div className="text-start">
               <div className="text-lg mt-5 flex items-center">
-                <span className="font-semibold font-xs">Release &gt;</span>
-                <span className="text-gray-500">{SelectedRelease?.name}</span>
+                <span className="font-bold text-sm">Release &gt;</span>
+                <span className="text-gray-500 text-sm ml-1">{SelectedRelease?.name}</span>
               </div>
             </div>
             <div className="flex items-center justify-end"></div>
@@ -396,8 +393,8 @@ const ReleaseEdit = ({ releaseId }) => {
                     type="text"
                     name="name"
                     className={`w-full p-2 border rounded-md ${isEditable
-                        ? "bg-white text-secondary-grey border-border-color"
-                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      ? "bg-white text-secondary-grey border-border-color"
+                      : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                       }`}
                     disabled={!isEditable}
                     formValues={formValues}
@@ -416,8 +413,8 @@ const ReleaseEdit = ({ releaseId }) => {
                   <FormTextArea
                     name="description"
                     className={`w-full p-2 border rounded-md ${isEditable
-                        ? "bg-white text-secondary-grey border-border-color"
-                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      ? "bg-white text-secondary-grey border-border-color"
+                      : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                       }`}
                     disabled={!isEditable}
                     showShadow={false}
@@ -439,8 +436,8 @@ const ReleaseEdit = ({ releaseId }) => {
                     type="date"
                     name="releaseDate"
                     className={`w-full p-2 border rounded-md ${isEditable
-                        ? "bg-white text-secondary-grey border-border-color"
-                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      ? "bg-white text-secondary-grey border-border-color"
+                      : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                       }`}
                     disabled={!isEditable}
                     formValues={formValues}
@@ -456,8 +453,8 @@ const ReleaseEdit = ({ releaseId }) => {
                   <FormSelect
                     name="status"
                     className={`w-full p-2 border rounded-md ${isEditable
-                        ? "bg-white text-secondary-grey border-border-color"
-                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      ? "bg-white text-secondary-grey border-border-color"
+                      : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                       }`}
                     disabled={!isEditable}
                     placeholder="Status"
@@ -477,8 +474,8 @@ const ReleaseEdit = ({ releaseId }) => {
                     type="text"
                     name="version"
                     className={`w-full p-2 border rounded-md ${isEditable
-                        ? "bg-white text-secondary-grey border-border-color"
-                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      ? "bg-white text-secondary-grey border-border-color"
+                      : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                       }`}
                     disabled={!isEditable}
                     formValues={formValues}
@@ -497,8 +494,8 @@ const ReleaseEdit = ({ releaseId }) => {
                     formValues={formValues}
                     name="type"
                     className={`w-full p-2 border rounded-md ${isEditable
-                        ? "bg-white text-secondary-grey border-border-color"
-                        : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                      ? "bg-white text-secondary-grey border-border-color"
+                      : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                       }`}
                     disabled={!isEditable}
                     placeholder="Type"
@@ -527,22 +524,26 @@ const ReleaseEdit = ({ releaseId }) => {
 
             {/* Checklist Section */}
             <div className="py-7">
-              <div className="font-semibold text-start text-xl text-secondary-grey">
-                Check List Items
-              </div>
-              <div className="w-full">
-                <div className="flex w-full justify-end pr-5 mb-2">
+              <div className="flex items-center justify-between">
+                <div className="font-semibold text-start w-56 text-xl text-secondary-grey">
+                  Check List Items
+                </div>
+                <div className="flex w-full justify-end pr-5 ">
                   <div className="flex gap-1 items-center">
                     <PlusCircleIcon
                       onClick={handleAddNewRow}
                       className={`w-6 h-6 ${showNewRow
-                          ? "text-gray-300 cursor-not-allowed"
-                          : "text-pink-500 cursor-pointer"
+                        ? "text-gray-300 cursor-not-allowed"
+                        : "text-pink-500 cursor-pointer"
                         }`}
                     />
                     <span className="font-thin text-xs text-gray-600">Add New</span>
                   </div>
                 </div>
+              </div>
+
+              <div className="w-full mt-2">
+
                 <div
                   style={{ width: "800px" }}
                   className="p-6 bg-white rounded-lg flex-col"
