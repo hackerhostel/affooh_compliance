@@ -1,21 +1,26 @@
-import React, {useEffect, useState} from 'react';
-import {useDispatch} from "react-redux";
-import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
-import SearchBar from "../../components/SearchBar.jsx";
-import TestCaseCreateComponent from "./TestCaseCreateComponent.jsx";
+import React, { useEffect, useState } from 'react';
+import DataGrid, {
+  Column,
+  ColumnChooser,
+  Grouping,
+  GroupPanel,
+  Paging,
+  Scrolling,
+  Sorting
+} from 'devextreme-react/data-grid';
+import { PlusCircleIcon } from '@heroicons/react/24/outline';
+import SearchBar from '../../components/SearchBar.jsx';
+import TestCaseCreateComponent from './TestCaseCreateComponent.jsx';
 
-const TestCaseContentComponent = ({testCasesForProject, refetchTestCases}) => {
-    const dispatch = useDispatch();
 
+const TestCaseContentComponent = ({ testCasesForProject, refetchTestCases }) => {
     const [testCases, setTestCases] = useState([]);
     const [filteredTestCases, setFilteredTestCases] = useState([]);
     const [isTestCaseCreateOpen, setIsTestCaseCreateOpen] = useState(false);
 
     useEffect(() => {
-        if (testCasesForProject.length) {
-            setTestCases(testCasesForProject)
-            setFilteredTestCases(testCasesForProject)
-        }
+        setTestCases(testCasesForProject);
+        setFilteredTestCases(testCasesForProject);
     }, [testCasesForProject]);
 
     const handleTestCaseSearch = (term) => {
@@ -30,63 +35,50 @@ const TestCaseContentComponent = ({testCasesForProject, refetchTestCases}) => {
     };
 
     const onTestCaseAddNew = () => {
-        setIsTestCaseCreateOpen(true)
-    }
+        setIsTestCaseCreateOpen(true);
+    };
 
     const handleTestCaseCreateClose = (created) => {
         setIsTestCaseCreateOpen(false);
-        if (created === true) {
-            refetchTestCases()
+        if (created) {
+            refetchTestCases();
         }
     };
 
     return (
-        <>
-            <div className="flex-col mb-8">
-                <div className="flex gap-5 items-center mb-4">
-                    <p className="text-secondary-grey font-bold text-lg">Test Cases</p>
-                    <div className="flex gap-1 items-center mr-5 cursor-pointer" onClick={onTestCaseAddNew}>
+        <div className="px-4">
+            <div className="mb-2 mt-1 flex items-center justify-between w-full">
+                <div className="flex gap-5 w-1/2 items-center">
+                    <p className='text-secondary-grey text-lg font-medium'>Test Cases ({filteredTestCases.length})</p>
+                    <div className="flex gap-1 items-center cursor-pointer" onClick={onTestCaseAddNew}>
                         <PlusCircleIcon className="w-6 h-6 text-pink-500"/>
                         <span className="font-thin text-xs text-gray-600">Add New</span>
                     </div>
                     <SearchBar onSearch={handleTestCaseSearch}/>
                 </div>
-                <div className="py-4 flex-col bg-white p-4 rounded-md">
-                    {!testCasesForProject || !testCasesForProject.length ? (
-                        <p className={"text-secondary-grey text-xs text-center w-full"}>No available test
-                            cases</p>
-                    ) : (
-                        <table className="min-w-full ">
-                            <thead>
-                            <tr className="w-full">
-                                <th className="p-2">Summary</th>
-                                <th className="p-2">Priority</th>
-                                <th className="p-2">Type</th>
-                                <th className="p-2">Status</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {filteredTestCases.map(row => (
-                                <tr key={row.id}
-                                    className="w-full">
-                                    <td className="border border-gray-300 p-2 w-3/6">{row.summary}</td>
-                                    <td className="border border-gray-300 text-center p-2 w-1/6">
-                                            <span
-                                                className={`px-2 py-1 rounded`}>
-                                                {row.priority.value}
-                                            </span>
-                                    </td>
-                                    <td className="border border-gray-300 text-center p-2 w-1/6">{row.category.value}</td>
-                                    <td className="border border-gray-300 text-center p-2 w-1/6">{row.status.value}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
             </div>
-            <TestCaseCreateComponent isOpen={isTestCaseCreateOpen} onClose={handleTestCaseCreateClose}/>
-        </>
+            <DataGrid
+                dataSource={filteredTestCases}
+                allowColumnReordering={true}
+                showBorders={true}
+                width="100%"
+                className="shadow-lg rounded-lg overflow-hidden sprint-grid-table"
+                showRowLines={true}
+                showColumnLines={true}
+            >
+                <ColumnChooser enabled={true} mode="select"/>
+                <GroupPanel visible/>
+                <Grouping autoExpandAll/>
+                <Paging enabled={true}/>
+                <Scrolling columnRenderingMode="virtual"/>
+                <Sorting mode="multiple"/>
+                <Column dataField="summary" caption="Summary" width={500} />
+                <Column dataField="priority.value" caption="Priority" width={200} />
+                <Column dataField="category.value" caption="Type" width={200} />
+                <Column dataField="status.value" caption="Status" width={200} />
+            </DataGrid>
+            <TestCaseCreateComponent isOpen={isTestCaseCreateOpen} onClose={handleTestCaseCreateClose} />
+        </div>
     );
 };
 
