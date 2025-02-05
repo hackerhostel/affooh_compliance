@@ -231,7 +231,7 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
                                         </div>
                                         <div className={"flex-col"}>
                                             <div className={"flex gap-8 mt-7 mb-3"}>
-                                                <p className={"text-secondary-grey font-bold text-lg"}>Test Suites</p>
+                                                <p className={"text-secondary-grey font-bold text-lg"}>Test Steps</p>
                                                 <div className={"flex gap-1 items-center mr-5 cursor-pointer"}
                                                      onClick={addStep}>
                                                     <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
