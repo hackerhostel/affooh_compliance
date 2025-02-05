@@ -74,12 +74,6 @@ const SprintHeader = ({
     setIsSubmitting(false)
   }
 
-  useEffect(() => {
-    if (selectedProject) {
-      console.log("Selected Project:", selectedProject);
-      // You can dispatch actions or set state based on selectedProject here
-    }
-  }, [selectedProject]);
   
 
   const updateDisplayConfig = async () => {

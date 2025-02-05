@@ -154,7 +154,7 @@ const SprintListPage = () => {
         ) : (
             <div className="flex-col gap-2">
               <div className="flex flex-col gap-4 -mt-3 pl-3 pr-3">
-                <SearchBar  onSearch={handleSearch}/>
+                <SearchBar  onSearch={handleSearch} placeholder='Search Projects'/>
                 <div className="flex w-full laptopL:w-60 justify-between ml-3">
                 <button
                       className={`px-2 py-1 ml-1 rounded-full text-xs ${selectedFilters.toDo ? 'bg-primary-pink text-white' : 'bg-gray-200'}`}

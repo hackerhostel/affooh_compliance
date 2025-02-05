@@ -1,7 +1,7 @@
 import React from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 
-const SearchBar = ({ placeholder = "Search Projects", onSearch }) => {
+const SearchBar = ({ placeholder = "Search...", onSearch }) => {
   return (
     <div className="relative">
       <div className="absolute inset-y-0 left-0 flex items-center p-3 pointer-events-none">
