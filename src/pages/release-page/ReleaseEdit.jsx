@@ -27,7 +27,7 @@ import { getSelectOptions } from "../../utils/commonUtils.js";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import { selectProjectUserList } from "../../state/slice/projectUsersSlice.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
-
+import UserSelect from "../../components/UserSelect.jsx";
 const ReleaseEdit = ({ releaseId }) => {
   const { addToast } = useToasts();
   const dispatch = useDispatch();
@@ -345,20 +345,41 @@ const ReleaseEdit = ({ releaseId }) => {
           )}
         </td>
         <td className="px-4 py-2">
-          {isEditing ? (
-          <FormSelect
-          name="assignee"
-          formValues={{ assignee }}
-          options={getProjectUsers()}
-          onChange={({ target: { name, value } }) => handleChanges(name, value)}
-        />
-        
+  {isEditing ? (
+    <UserSelect
+      name="assignee"
+      value={assignee}
+      users={getProjectUsers()}
+      onChange={({ target: { name, value } }) => handleChanges(name, value)}
+    />
+  ) : (
+    <div className="flex items-center space-x-2">
+      {assignee ? (
+        <>
+          {/* Find the selected user from the list */}
+          {getProjectUsers().some(user => user.value === assignee) ? (
+            <>
+              <div className="w-8 h-8 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
+                {getProjectUsers()
+                  .find(user => user.value === assignee)
+                  ?.label?.charAt(0)
+                  ?.toUpperCase() || "N"}
+              </div>
+              <span className="text-text-color">
+                {getProjectUsers().find(user => user.value === assignee)?.label || "Unassigned"}
+              </span>
+            </>
           ) : (
-            <span className="text-text-color">
-            {getProjectUsers().find(user => user.value === assignee)?.label || "Unassigned"}
-          </span>
+            <span className="text-gray-500">Unassigned</span>
           )}
-        </td>
+        </>
+      ) : (
+        <span className="text-gray-500">Unassigned</span>
+      )}
+    </div>
+  )}
+</td>
+
         <td className="px-4 py-2">
           <div className={"flex gap-5 items-center"}>
             {!isEditing ? (
@@ -594,7 +615,7 @@ const ReleaseEdit = ({ releaseId }) => {
                       <tbody>
                         {showNewRow && (
                           <tr className="border-b">
-                            <td className="px-4 py-2">
+                            <td className=" w-56 px-2 py-2">
                               <FormInput
                                 type="text"
                                 name="name"
@@ -604,7 +625,7 @@ const ReleaseEdit = ({ releaseId }) => {
                                 }
                               />
                             </td>
-                            <td className="px-4 py-2">
+                            <td className=" w-56 px-4 py-2">
                               <FormSelect
                                 name="status"
                                 formValues={newRow}
