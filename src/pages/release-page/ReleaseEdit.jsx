@@ -345,41 +345,20 @@ const ReleaseEdit = ({ releaseId }) => {
           )}
         </td>
         <td className="px-4 py-2">
-  {isEditing ? (
-    <UserSelect
-      name="assignee"
-      value={assignee}
-      users={getProjectUsers()}
-      onChange={({ target: { name, value } }) => handleChanges(name, value)}
-    />
-  ) : (
-    <div className="flex items-center space-x-2">
-      {assignee ? (
-        <>
-          {/* Find the selected user from the list */}
-          {getProjectUsers().some(user => user.value === assignee) ? (
-            <>
-              <div className="w-8 h-8 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
-                {getProjectUsers()
-                  .find(user => user.value === assignee)
-                  ?.label?.charAt(0)
-                  ?.toUpperCase() || "N"}
-              </div>
-              <span className="text-text-color">
-                {getProjectUsers().find(user => user.value === assignee)?.label || "Unassigned"}
-              </span>
-            </>
+          {isEditing ? (
+          <FormSelect
+          name="assignee"
+          formValues={{ assignee }}
+          options={getProjectUsers()}
+          onChange={({ target: { name, value } }) => handleChanges(name, value)}
+        />
+        
           ) : (
-            <span className="text-gray-500">Unassigned</span>
+            <span className="text-text-color">
+            {getProjectUsers().find(user => user.value === assignee)?.label || "Unassigned"}
+          </span>
           )}
-        </>
-      ) : (
-        <span className="text-gray-500">Unassigned</span>
-      )}
-    </div>
-  )}
-</td>
-
+        </td>
         <td className="px-4 py-2">
           <div className={"flex gap-5 items-center"}>
             {!isEditing ? (
