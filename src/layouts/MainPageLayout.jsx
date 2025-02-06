@@ -22,7 +22,7 @@ const MainPageLayout = ({
       {isLeftColumnVisible && (
         <div className="col-span-1 relative">
           <div className="pl-4 my-10 flex justify-between">
-            <span className="text-2xl font-medium">{title}</span>
+            <span className="text-2xl mt-2 font-medium">{title}</span>
             {subText && (
               <div
                 className={"flex gap-1 items-center mr-5"}
