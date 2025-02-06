@@ -67,7 +67,7 @@ const TestCaseContentComponent = ({ testCasesForProject, refetchTestCases }) => 
                 showColumnLines={true}
             >
                 <ColumnChooser enabled={true} mode="select"/>
-                <GroupPanel visible/>
+                <GroupPanel disable/>
                 <Grouping autoExpandAll/>
                 <Paging enabled={true}/>
                 <Scrolling columnRenderingMode="virtual"/>
