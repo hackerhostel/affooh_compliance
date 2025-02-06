@@ -74,6 +74,8 @@ const SprintHeader = ({
     setIsSubmitting(false)
   }
 
+  
+
   const updateDisplayConfig = async () => {
     setIsSubmitting(true)
     try {
@@ -121,7 +123,8 @@ const SprintHeader = ({
   return (
       <>
         <div className="flex flex-col p-4 gap-4">
-          <div className="flex w-full mt-14 h-10 bg-white rounded-lg justify-between">
+          <div><span> <span className='text-popup-screen-header'>Project &gt;</span> <span className='font-semibold'>{selectedProject.name}</span></span></div>
+          <div style={{marginTop:"22px"}} className="flex w-full h-10 bg-white rounded-lg justify-between">
             <div className="flex justify-start items-center">
               <div
                   className=" flex w-36 text-white text-center bg-primary-pink pl-5 pr-14 rounded-l-lg font-semibold h-10 items-center">
