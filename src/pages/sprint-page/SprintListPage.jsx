@@ -152,38 +152,40 @@ const SprintListPage = () => {
         {sprintListForLoading ? (
             <div className="p-2"><SkeletonLoader/></div>
         ) : (
-            <div className="flex-col gap-4">
-              <div className="flex flex-col gap-4  pl-3 pr-3">
-                <SearchBar  onSearch={handleSearch}/>
-                <div className="flex w-full  laptopL:w-60 justify-between ml-3">
-                  <button
-                      className={`px-2 py-1 rounded-xl  text-xs ${selectedFilters.inProgress ? 'bg-black text-white' : 'bg-gray-200'}`}
-                      onClick={() => handleFilterChange('inProgress')}
-                  >
-                    In Progress ({filterCounts.inProgress})
-                  </button>
-                  <button
-                      className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.toDo ? 'bg-black text-white' : 'bg-gray-200'}`}
+            <div className="flex-col gap-2">
+              <div className="flex flex-col gap-4 -mt-3 pl-3 pr-3">
+                <SearchBar  onSearch={handleSearch} placeholder='Search Projects'/>
+                <div className="flex w-full laptopL:w-60 justify-between ml-3">
+                <button
+                      className={`px-2 py-1 ml-1 rounded-full text-xs ${selectedFilters.toDo ? 'bg-primary-pink text-white' : 'bg-gray-200'}`}
                       onClick={() => handleFilterChange('toDo')}
                   >
                     To Do ({filterCounts.toDo})
                   </button>
                   <button
-                      className={`px-2 py-1 rounded-xl text-xs ${selectedFilters.done ? 'bg-black text-white' : 'bg-gray-200'}`}
+                      className={`px-2 py-1 rounded-full  text-xs ${selectedFilters.inProgress ? 'bg-primary-pink text-white' : 'bg-gray-200'}`}
+                      onClick={() => handleFilterChange('inProgress')}
+                  >
+                    In Progress ({filterCounts.inProgress})
+                  </button>
+                  
+                  <button
+                      className={`px-2 py-1 rounded-full text-xs ${selectedFilters.done ? 'bg-primary-pink text-white' : 'bg-gray-200'}`}
                       onClick={() => handleFilterChange('done')}
                   >
-                    Done ({filterCounts.done})
+                    done ({filterCounts.done})
                   </button>
                 </div>
               </div>
-              <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-1 mt-6">
+              <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-1 mt-14">
                 {filteredSprintList.length === 0 ? (
                     <div className="text-center text-gray-600">No sprints found</div>
                 ) : (
                     filteredSprintList.map((element, index) => (
                         <div
                             key={index}
-                            className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedSprint?.id === element.id ? 'border-primary-pink' : 'border-gray-200'}`}
+                            style={{width:"266px"}}
+                            className={`flex justify-between items-center p-3 border rounded-md pr-3 gap-2 hover:bg-gray-100 hover:border-primary-pink cursor-pointer ${selectedSprint?.id === element.id ? 'border-count-notification' : 'border-gray-200'}`}
                         >
                           <div className="col-span-2 text-left flex gap-2"
                                onClick={() => handleSprintClick(element)}>

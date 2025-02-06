@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import {useDispatch, useSelector} from "react-redux";
+import SearchBar from "../../components/SearchBar.jsx";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import SearchBar from "../../components/SearchBar.jsx";
 import {ChevronRightIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import {doGetProjectUsers, setClickedUser} from "../../state/slice/projectUsersSlice.js";
 import {sendInvitation} from "../../state/slice/registerSlice.js";
@@ -105,6 +105,9 @@ const UserListPage = () => {
   return (
     <div className="h-list-screen overflow-y-auto w-full pl-3">
       <div className="flex flex-col gap-3 laptopL:w-64  w-full ">
+        <div>
+        <SearchBar onSearch={handleSearch}/>
+        </div>
 
         {/* Invite Section */}
         <div className="flex items-center gap-2">
@@ -131,17 +134,12 @@ const UserListPage = () => {
 
           <button
               onClick={handleInvite}
-            className="bg-user-invite-button text-white rounded-md px-4 py-2"
+            className="bg-primary-pink text-white rounded-md px-4 py-2"
             style={{ width: "145px" }}
           >
             INVITE
           </button>
 
-        </div>
-
-     
-        <div className="py-3">
-          <SearchBar onSearch={handleSearch} />
         </div>
 
         {filteredUserList.map((element, index) => (
