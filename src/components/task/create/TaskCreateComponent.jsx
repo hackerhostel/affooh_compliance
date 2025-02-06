@@ -17,6 +17,7 @@ import { getUserSelectOptions } from "../../../utils/commonUtils.js";
 import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
 import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 import UserSelect from "../../UserSelect.jsx";
+import Select from 'react-select';
 
 function getRequiredAdditionalFieldList(fieldsArray) {
     const requiredFields = [];
@@ -258,7 +259,7 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
 
                         {!isEpicScreen && (
                             <div className="mb-6">
-                                <FormSelect
+                                <Select
                                     showLabel
                                     placeholder="Epic"
                                     name="epicID"

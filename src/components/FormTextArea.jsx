@@ -25,7 +25,8 @@ const FormTextArea = React.forwardRef((
         ...rest
     }, ref) => {
     const hasError = showErrors && formErrors && formErrors[name];
-    const value = name.split('.').reduce((a, b) => a[b], formValues);
+    const value = name.split('.').reduce((a, b) => a ? a[b] : undefined, formValues) || '';
+
 
     return (
         <>
