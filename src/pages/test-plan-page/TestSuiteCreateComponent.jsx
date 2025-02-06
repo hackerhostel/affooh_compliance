@@ -210,7 +210,7 @@ const TestSuiteCreateComponent = ({ isOpen, onClose }) => {
                                 </div>
                                 <div className={"flex-col"}>
                                     <p className={"text-secondary-grey mb-2"}>Associated Release(s)</p>
-                                    <FormSelect
+                                    <Select
                                         name="releases"
                                         defaultValue={formValues.releases}
                                         onChange={handleMultiSelect}
@@ -221,7 +221,7 @@ const TestSuiteCreateComponent = ({ isOpen, onClose }) => {
                                 </div>
                                 <div className={"flex-col"}>
                                     <p className={"text-secondary-grey mb-2"}>Platforms</p>
-                                    <FormSelect
+                                    <Select
                                         name="platforms"
                                         defaultValue={formValues.platforms}
                                         onChange={handleMultiSelect}
@@ -232,7 +232,7 @@ const TestSuiteCreateComponent = ({ isOpen, onClose }) => {
                                 </div>
                                 <div className={"flex-col"}>
                                     <p className={"text-secondary-grey mb-2"}>Test Cases</p>
-                                    <FormSelect
+                                    <Select
                                         name="testCases"
                                         defaultValue={formValues.testCases}
                                         onChange={handleMultiSelect}
