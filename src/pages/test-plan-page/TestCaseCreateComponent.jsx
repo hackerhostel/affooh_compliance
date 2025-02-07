@@ -1,13 +1,13 @@
-import React, {useState} from 'react';
-import {XMarkIcon} from "@heroicons/react/24/outline";
+import React, { useState } from 'react';
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
-import {getSelectOptions} from "../../utils/commonUtils.js";
-import {useToasts} from "react-toast-notifications";
-import {useSelector} from "react-redux";
-import {TestCaseCreateSchema} from "../../utils/validationSchemas.js";
+import { getSelectOptions } from "../../utils/commonUtils.js";
+import { useToasts } from "react-toast-notifications";
+import { useSelector } from "react-redux";
+import { TestCaseCreateSchema } from "../../utils/validationSchemas.js";
 import useValidation from "../../utils/use-validation.jsx";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import {
     selectTestCaseCategories,
     selectTestCasePriorities,
@@ -17,18 +17,18 @@ import FormTextArea from "../../components/FormTextArea.jsx";
 import Select from 'react-select';
 import useFetchFlatTasks from "../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
-import {PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
+import { PlusCircleIcon } from "@heroicons/react/24/outline/index.js";
 import axios from "axios";
 
-const TestCaseCreateComponent = ({isOpen, onClose}) => {
-    const {addToast} = useToasts();
+const TestCaseCreateComponent = ({ isOpen, onClose }) => {
+    const { addToast } = useToasts();
 
     const selectedProject = useSelector(selectSelectedProject);
     const testCaseStatuses = useSelector(selectTestCaseStatuses);
     const testCasePriorities = useSelector(selectTestCasePriorities);
     const testCaseCategories = useSelector(selectTestCaseCategories);
 
-    const {loading, data: tasks} = useFetchFlatTasks(selectedProject?.id)
+    const { loading, data: tasks } = useFetchFlatTasks(selectedProject?.id)
 
     const [formValues, setFormValues] = useState({
         summary: '',
@@ -46,17 +46,17 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
     const [formErrors] = useValidation(TestCaseCreateSchema, formValues);
 
     const handleMultiSelect = (selectedOptions, actionMeta) => {
-        const {name} = actionMeta;
+        const { name } = actionMeta;
         if (selectedOptions.length) {
-            setFormValues({...formValues, [name]: selectedOptions.map(sp => (sp.value))})
+            setFormValues({ ...formValues, [name]: selectedOptions.map(sp => (sp.value)) })
         } else {
-            setFormValues({...formValues, [name]: []})
+            setFormValues({ ...formValues, [name]: [] })
         }
         setIsValidationErrorsShown(false);
     };
 
     const handleFormChange = (name, value, isText) => {
-        setFormValues({...formValues, [name]: isText ? value : Number(value)});
+        setFormValues({ ...formValues, [name]: isText ? value : Number(value) });
         setIsValidationErrorsShown(false);
     };
 
@@ -91,18 +91,18 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
             }
 
             if (warningMsg.trim() !== '') {
-                addToast(warningMsg.trim(), {appearance: 'warning'});
+                addToast(warningMsg.trim(), { appearance: 'warning' });
             }
         } else {
             formValues["status"] = testCaseStatuses.filter(ts => ts.value === 'Open')[0]?.id || 1
             setIsValidationErrorsShown(false);
             try {
-                await axios.post("/test-plans/test-cases", {testCase: formValues});
-                addToast('Test Case Successfully Created', {appearance: 'success'});
+                await axios.post("/test-plans/test-cases", { testCase: formValues });
+                addToast('Test Case Successfully Created', { appearance: 'success' });
                 handleClose(true);
             } catch (error) {
                 console.log(error)
-                addToast('Failed to create Test Case', {appearance: 'error'});
+                addToast('Failed to create Test Case', { appearance: 'error' });
             }
         }
 
@@ -125,7 +125,7 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
     const handleTableInputChange = (id, field, value) => {
         setIsValidationErrorsShown(false);
         const updatedSteps = formValues.steps.map(step =>
-            step.id === id ? {...step, [field]: value} : step
+            step.id === id ? { ...step, [field]: value } : step
         );
         setFormValues({
             ...formValues,
@@ -146,13 +146,13 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
                 <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
                     <div className="bg-white p-5 shadow-lg w-1/2 h-screen overflow-y-auto">
                         {loading ? (
-                            <div className="m-10"><SkeletonLoader/></div>
+                            <div className="m-10"><SkeletonLoader /></div>
                         ) : (
                             <>
                                 <div className="flex justify-between items-center">
                                     <p className="font-bold text-2xl">New Test Case</p>
                                     <div className="cursor-pointer" onClick={handleClose}>
-                                        <XMarkIcon className="w-6 h-6 text-gray-500"/>
+                                        <XMarkIcon className="w-6 h-6 text-gray-500" />
                                     </div>
                                 </div>
                                 <form className={"flex flex-col justify-between mt-5"} onSubmit={createTestCase}>
@@ -162,7 +162,7 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
                                             <FormTextArea
                                                 name="summary"
                                                 formValues={formValues}
-                                                onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                                onChange={({ target: { name, value } }) => handleFormChange(name, value, true)}
                                                 formErrors={formErrors}
                                                 showErrors={isValidationErrorsShown}
                                                 rows={4}
@@ -173,7 +173,7 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
                                             <FormTextArea
                                                 name="description"
                                                 formValues={formValues}
-                                                onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                                onChange={({ target: { name, value } }) => handleFormChange(name, value, true)}
                                                 formErrors={formErrors}
                                                 showErrors={isValidationErrorsShown}
                                                 rows={4}
@@ -186,7 +186,7 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
                                                     name="priority"
                                                     formValues={formValues}
                                                     options={testCasePriorities && testCasePriorities.length ? getSelectOptions(testCasePriorities) : []}
-                                                    onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                                                    onChange={({ target: { name, value } }) => handleFormChange(name, value, false)}
                                                     formErrors={formErrors}
                                                     showErrors={isValidationErrorsShown}
                                                 />
@@ -197,7 +197,7 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
                                                     name="category"
                                                     formValues={formValues}
                                                     options={testCaseCategories && testCaseCategories.length ? getSelectOptions(testCaseCategories) : []}
-                                                    onChange={({target: {name, value}}) => handleFormChange(name, value, false)}
+                                                    onChange={({ target: { name, value } }) => handleFormChange(name, value, false)}
                                                     formErrors={formErrors}
                                                     showErrors={isValidationErrorsShown}
                                                 />
@@ -208,7 +208,7 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
                                                     type="text"
                                                     name="estimate"
                                                     formValues={formValues}
-                                                    onChange={({target: {name, value}}) => handleFormChange(name, value, true)}
+                                                    onChange={({ target: { name, value } }) => handleFormChange(name, value, true)}
                                                     formErrors={formErrors}
                                                     showErrors={isValidationErrorsShown}
                                                 />
@@ -233,65 +233,75 @@ const TestCaseCreateComponent = ({isOpen, onClose}) => {
                                             <div className={"flex gap-8 mt-7 mb-3"}>
                                                 <p className={"text-secondary-grey font-bold text-lg"}>Test Steps</p>
                                                 <div className={"flex gap-1 items-center mr-5 cursor-pointer"}
-                                                     onClick={addStep}>
-                                                    <PlusCircleIcon className={"w-6 h-6 text-pink-500"}/>
+                                                    onClick={addStep}>
+                                                    <PlusCircleIcon className={"w-6 h-6 text-pink-500"} />
                                                     <span className="font-thin text-xs text-gray-600">Add New</span>
                                                 </div>
                                             </div>
                                             <table
                                                 className="min-w-full bg-white shadow-md overflow-hidden border-t border">
                                                 <thead>
-                                                <tr>
-                                                    <th className="text-left p-4">Description</th>
-                                                    <th className="text-left p-4">Input Data</th>
-                                                    <th className="text-left p-4">Expected Outcome</th>
-                                                    <th className="text-left p-4">Actions</th>
-                                                </tr>
+                                                    <tr>
+                                                        <th className="text-left p-4">Description</th>
+                                                        <th className="text-left p-4">Input Data</th>
+                                                        <th className="text-left p-4">Expected Outcome</th>
+                                                        <th className="text-left p-4">Actions</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody>
-                                                {
-                                                    formValues.steps.length === 0 ? (
-                                                        <tr>
-                                                            <td colSpan="4"
-                                                                className="border-t text-center py-4 text-gray-400 h-100">
-                                                                No Rows
-                                                            </td>
-                                                        </tr>
-                                                    ) : (
-                                                        formValues.steps.map((step, index) => (
-                                                            <tr key={step.id} className="border-t">
-                                                                <td className="p-4">
-                                                                    <input
-                                                                        type="text"
-                                                                        value={step.description}
-                                                                        onChange={(e) => handleTableInputChange(step.id, 'description', e.target.value)}
-                                                                        className="border border-gray-300 rounded w-full p-2"
-                                                                    />
-                                                                </td>
-                                                                <td className="p-4">
-                                                                    <input
-                                                                        type="text"
-                                                                        value={step.inputData}
-                                                                        onChange={(e) => handleTableInputChange(step.id, 'inputData', e.target.value)}
-                                                                        className="border border-gray-300 rounded w-full p-2"
-                                                                    />
-                                                                </td>
-                                                                <td className="p-4">
-                                                                    <input
-                                                                        type="text"
-                                                                        value={step.expectedOutcome}
-                                                                        onChange={(e) => handleTableInputChange(step.id, 'expectedOutcome', e.target.value)}
-                                                                        className="border border-gray-300 rounded w-full p-2"
-                                                                    />
-                                                                </td>
-                                                                <td className="p-4">
-                                                                    <div className="cursor-pointer justify-center flex"
-                                                                         onClick={() => removeStep(step.id)}>
-                                                                        <XMarkIcon className="w-6 h-6 text-gray-500"/>
-                                                                    </div>
+                                                    {
+                                                        formValues.steps.length === 0 ? (
+                                                            <tr>
+                                                                <td colSpan="4"
+                                                                    className="border-t text-center py-4 text-gray-400 h-100">
+                                                                    No Rows
                                                                 </td>
                                                             </tr>
-                                                        )))}
+                                                        ) : (
+                                                            formValues.steps.map((step, index) => (
+                                                                <tr key={step.id} className="border-t">
+                                                                    <td className="p-4 w-56">
+                                                                        <FormTextArea
+                                                                            name="description"
+                                                                            value={step.description}
+                                                                            onChange={({ target: { name, value } }) => handleTableInputChange(step.id, name, value)}
+                                                                            formErrors={formErrors}
+                                                                            showErrors={isValidationErrorsShown}
+                                                                            rows={4}
+                                                                            className="border h-20 border-gray-300 rounded w-full p-2"
+                                                                        />
+                                                                    </td>
+                                                                    <td className="p-4">
+                                                                        <FormTextArea
+                                                                            name="inputData"
+                                                                            value={step.inputData}
+                                                                            onChange={({ target: { name, value } }) => handleTableInputChange(step.id, name, value)}
+                                                                            formErrors={formErrors}
+                                                                            showErrors={isValidationErrorsShown}
+                                                                            rows={4}
+                                                                            className="border h-20 border-gray-300 rounded w-full p-2"
+                                                                        />
+                                                                    </td>
+                                                                    <td className="p-4">
+                                                                        <FormTextArea
+                                                                            name="expectedOutcome"
+                                                                            value={step.expectedOutcome}
+                                                                            onChange={({ target: { name, value } }) => handleTableInputChange(step.id, name, value)}
+                                                                            formErrors={formErrors}
+                                                                            showErrors={isValidationErrorsShown}
+                                                                            rows={4}
+                                                                            className="border h-20 border-gray-300 rounded w-full p-2"
+                                                                        />
+                                                                    </td>
+
+                                                                    <td className="p-4">
+                                                                        <div className="cursor-pointer justify-center flex"
+                                                                            onClick={() => removeStep(step.id)}>
+                                                                            <XMarkIcon className="w-6 h-6 text-gray-500" />
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            )))}
                                                 </tbody>
                                             </table>
                                         </div>

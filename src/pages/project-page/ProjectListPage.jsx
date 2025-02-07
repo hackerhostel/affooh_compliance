@@ -112,7 +112,7 @@ const ProjectListPage = () => {
             {["active", "onHold", "closed"].map((filter) => (
               <button
                 key={filter}
-                className={`px-2 py-1 rounded-xl text-xs ${selectedFilters[filter] ? "bg-black text-white" : "bg-gray-200"
+                className={`px-2 py-1 rounded-xl text-xs ${selectedFilters[filter] ? "bg-primary-pink text-white" : "bg-gray-200"
                   }`}
                 onClick={() => handleFilterChange(filter)}
               >
@@ -130,6 +130,7 @@ const ProjectListPage = () => {
         ) : (
           filteredList.map((project) => (
             <div
+            style={{width:"256px"}}
                 onClick={() => dispatch(setSelectedProjectFromList(project))}
               key={project.id}
                 className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedProject?.id === project.id ? 'border-primary-pink' : 'border-gray-200'}`}
