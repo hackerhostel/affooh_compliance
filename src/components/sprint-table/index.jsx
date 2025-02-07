@@ -140,7 +140,7 @@ const SprintTable = ({
                   className="w-28 h-10"
               />
             </div>
-            <SearchBar onSearch={handleSearch}/>
+            <SearchBar placeholder='Search' onSearch={handleSearch}/>
           </div>
         </div>
         <DataGrid
