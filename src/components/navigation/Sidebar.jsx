@@ -13,11 +13,11 @@ import {
   UsersIcon
 } from '@heroicons/react/24/outline';
 import {Link, useHistory, useLocation} from 'react-router-dom';
-import AffoohLogo from '../../assets/affooh_logo.png';
 import {useSelector} from 'react-redux';
 import {selectUser} from '../../state/slice/authSlice';
 import React, {Fragment, useState} from 'react';
 import Notification from "./NotificationPopup.jsx";
+import {getInitials} from "../../utils/commonUtils.js";
 
 function Sidebar() {
   const location = useLocation();
@@ -72,11 +72,10 @@ function Sidebar() {
   return (
       <div className="w-20 flex flex-col h-screen border-r border-r-gray-200 bg-white shadow-md">
         <div className="h-20 flex items-center justify-center px-2 py-4">
-          <img
-              src={AffoohLogo}
-              alt="Affooh Logo"
-              className="max-w-full max-h-full object-contain"
-          />
+          <div
+              className="w-full h-full rounded-md bg-primary-pink flex items-center justify-center text-white text-lg font-semibold mb-1">
+            {userDetails?.organization ? (getInitials(userDetails?.organization?.name)) : "Affooh"}
+          </div>
         </div>
 
         <div className="flex flex-col h-full justify-between">
