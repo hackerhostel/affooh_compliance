@@ -165,44 +165,48 @@ const ReleaseListPage = () => {
               </div>
             </div>
             <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-1 mt-6">
-              {filteredReleaseList.map((element, index) => (
-                <button
-                  key={index}
-                  style={{width:"266px"}}
-                  className={`flex justify-between items-center p-3 border border-gray-200 rounded-md w-full gap-2 hover:bg-gray-100 hover:border-primary-pink ${selectedRelease?.id === element.id ? 'border-count-notification' : 'border-gray-200'}
-                  }`}
-                  onClick={() => {
-                    dispatch(setSelectedRelease(element));
-                  }}
-                >
-                  <div className="text-left">
-                    <div className="font-bold mb-1">{element?.name}</div>
-                    <div className="flex text-xs text-gray-600 items-center">
-                      {element?.type?.name}
-                    </div>
-                  </div>
-                  <div className={"flex gap-1"}>
-                    <div onClick={(event) => toggleMenuOpen(index, event)}>
-                      <EllipsisVerticalIcon className="w-4 h-4 text-black" />
-                    </div>
-                      {openMenu?.index === index && (
-                          <div
-                              style={{
-                                  position: "absolute",
-                                  top: `calc(${openMenu.position.top}px - 215px)`,
-                              }}
-                              className="mt-2 w-24 left-full bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                              <button
-                                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none cursor-pointer z-20"
-                                  onClick={() => handleDeleteClick(element)}>
-                                  DELETE
-                              </button>
-                          </div>
-                      )}
-                  </div>
-                </button>
-              ))}
-            </div>
+  {filteredReleaseList.map((element, index) => (
+    <button
+      key={index}
+      style={{ width: "266px" }}
+      className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${
+        selectedRelease?.id === element.id ? "border-primary-pink" : "border-gray-200"
+      }`}
+      onClick={() => {
+        dispatch(setSelectedRelease(element));
+      }}
+    >
+      <div className="text-left">
+        <div className="font-bold mb-1">{element?.name}</div>
+        <div className="flex text-xs text-gray-600 items-center">
+          {element?.type?.name}
+        </div>
+      </div>
+      <div className="flex gap-1">
+        <div onClick={(event) => toggleMenuOpen(index, event)}>
+          <EllipsisVerticalIcon className="w-4 h-4 text-black" />
+        </div>
+        {openMenu?.index === index && (
+          <div
+            style={{
+              position: "absolute",
+              top: `calc(${openMenu.position.top}px - 215px)`,
+            }}
+            className="mt-2 w-24 left-full bg-white rounded-md shadow-lg z-10 border border-gray-200"
+          >
+            <button
+              className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none cursor-pointer z-20"
+              onClick={() => handleDeleteClick(element)}
+            >
+              DELETE
+            </button>
+          </div>
+        )}
+      </div>
+    </button>
+  ))}
+</div>
+
           </div>
         )}
 
