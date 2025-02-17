@@ -22,15 +22,13 @@ const Header = () => {
     dispatch(doSwitchProject(Number(value)));
   };
 
-  const handleSignOut = async () => {
-    setLoading(true);
-    try {
-      await signOut({ global: true });
-      window.location.reload();
-    } finally {
-      setLoading(false);
-    }
+  const getInitials = (name) => {
+    if (!name) return "";
+    const nameParts = name.split(" ");
+    const initials = nameParts.map((part) => part.charAt(0).toUpperCase()).join("");
+    return initials;
   };
+
 
   const getProjectOptions = useCallback(() => {
     return projectList.map((project) => ({
@@ -84,64 +82,11 @@ const Header = () => {
         <div className="border-l border-gray-300 h-8"></div>
 
         {/* User Avatar and Menu */}
-        <div className="flex justify-center ">
-          {!loading ? (
-            <Menu as="div" className="relative inline-block text-left">
-              <Menu.Button
-                  className="w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-pink">
-                {userDetails.avatar ? (
-                  <img
-                    src={userDetails.avatar}
-                    alt={`${userDetails.firstName} ${userDetails.lastName}`}
-                    className="w-14 h-14 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-primary-pink flex items-center justify-center text-white text-xl font-semibold">
-                    {userDetails.firstName?.[0]}
-                    {userDetails.lastName?.[0]}
-                  </div>
-                )}
-              </Menu.Button>
-              <Transition
-                as={Fragment}
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
-                <Menu.Items className="absolute right-0 mt-2 w-64 bg-white divide-y divide-gray-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <div className="px-4 py-3">
-                    <p className="text-sm text-gray-500">Signed in as</p>
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {`${userDetails.firstName} ${userDetails.lastName}`}
-                    </p>
-                    <p className="text-sm text-gray-500 truncate">{userDetails.email}</p>
-                  </div>
-                  <div className="py-1">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          className={`${
-                            active ? "bg-gray-100 text-gray-900" : "text-gray-700"
-                          } group flex w-full items-center px-4 py-2 text-sm transition-colors duration-150`}
-                          onClick={handleSignOut}
-                          disabled={loading}
-                        >
-                          Sign out
-                        </button>
-                      )}
-                    </Menu.Item>
-                  </div>
-                </Menu.Items>
-              </Transition>
-            </Menu>
-          ) : (
-            <div className="w-16 h-16 flex items-center justify-center">
-              <Spinner />
-            </div>
-          )}
+        <div className="h-20 flex items-center justify-center px-2 py-4">
+          <div
+              className="w-12 h-12 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold mb-1">
+            {userDetails?.organization ? (getInitials(userDetails?.organization?.name)) : "Affooh"}
+          </div>
         </div>
       </div>
       <HeaderTaskCreateComponent isOpen={newHeaderTaskModalOpen} onClose={closeHeaderCreateTaskModal}/>
