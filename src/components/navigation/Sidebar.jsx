@@ -159,7 +159,7 @@ function Sidebar() {
                                 </button>
                             )}
                           </Menu.Item>
-                          <Menu.Item>
+                          {/* <Menu.Item>
                             {({active}) => (
                                 <button
                                     className={`${
@@ -190,7 +190,7 @@ function Sidebar() {
                                   Notifications
                                 </button>
                             )}
-                          </Menu.Item>
+                          </Menu.Item> */}
                           <Menu.Item>
                             {({active}) => (
                                 <button
