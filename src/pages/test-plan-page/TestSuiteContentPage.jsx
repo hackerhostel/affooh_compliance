@@ -14,6 +14,7 @@ import {CheckIcon, XMarkIcon} from "@heroicons/react/24/outline";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
 import {useHistory} from "react-router-dom";
+import FormTextArea from "../../components/FormTextArea.jsx";
 
 const TestSuiteContentPage = () => {
     const dispatch = useDispatch();
@@ -260,12 +261,12 @@ const TestSuiteContentPage = () => {
                     </td>
                     <td className="px-4 py-2">
                         <div className="relative">
-                            <input
+                            <FormTextArea
                                 disabled={isUpdating}
                                 type="text"
                                 value={note}
                                 onChange={(e) => onNoteChange(e.target.value)}
-                                className="px-4 py-2 w-44 border rounded-lg focus:outline-none focus:ring-2 text-secondary-text-color focus:ring-blue-500 pr-20"
+                                className="px-4 py-2 w-54 border rounded-lg focus:outline-none focus:ring-2 text-secondary-text-color focus:ring-blue-500 pr-20"
                             />
     
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
