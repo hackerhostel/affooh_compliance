@@ -1,19 +1,20 @@
-import {useDispatch, useSelector} from "react-redux";
-import React, {useEffect, useState} from "react";
-import {selectSelectedTestPlanId} from "../../state/slice/testPlansSlice.js";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { selectSelectedTestPlanId } from "../../state/slice/testPlansSlice.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
-import {ChevronDownIcon, ChevronRightIcon, PlusCircleIcon} from "@heroicons/react/24/outline/index.js";
-import {doGetTestCaseFormData, selectTestCaseStatuses} from "../../state/slice/testCaseFormDataSlice.js";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import { ChevronDownIcon, ChevronRightIcon, PlusCircleIcon } from "@heroicons/react/24/outline/index.js";
+import { doGetTestCaseFormData, selectTestCaseStatuses } from "../../state/slice/testCaseFormDataSlice.js";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import FormSelect from "../../components/FormSelect.jsx";
-import {getInitials, getSelectOptions} from "../../utils/commonUtils.js";
+import { getInitials, getSelectOptions } from "../../utils/commonUtils.js";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
-import {CheckIcon, XMarkIcon} from "@heroicons/react/24/outline";
+import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
-import {useToasts} from "react-toast-notifications";
-import {useHistory} from "react-router-dom";
+import { useToasts } from "react-toast-notifications";
+import { useHistory } from "react-router-dom";
+import FormTextArea from "../../components/FormTextArea.jsx";
 
 const TestSuiteContentPage = () => {
     const dispatch = useDispatch();
@@ -192,7 +193,7 @@ const TestSuiteContentPage = () => {
         const handleExpandToggle = () => {
             setIsExpanded(!isExpanded);
         };
-    
+
         return (
             <>
                 <tr className="border-b hover:bg-slate-100 ">
@@ -233,7 +234,7 @@ const TestSuiteContentPage = () => {
                     </td>
                     <td className="px-4 py-2 text-secondary-text-color">{row?.platform}</td>
                     <td className="px-4 py-2 text-secondary-text-color">{row?.priority}</td>
-                    <div className="flex items-center px-4 py-2 text-secondary-text-color">
+                    <div className="flex items-center mt-3 px-4 py-2 text-secondary-text-color">
                         <td className="px-4 py-2">{row?.category}</td>
                         <PlusCircleIcon className={"w-8 h-8 items-center text-pink-500 cursor-pointer"} />
                     </div>
@@ -260,14 +261,18 @@ const TestSuiteContentPage = () => {
                     </td>
                     <td className="px-4 py-2">
                         <div className="relative">
-                            <input
+                            <FormTextArea
+                                name="note" 
+                                formValues={{ note }} 
                                 disabled={isUpdating}
                                 type="text"
-                                value={note}
+                                value={note || ''} 
                                 onChange={(e) => onNoteChange(e.target.value)}
-                                className="px-4 py-2 w-44 border rounded-lg focus:outline-none focus:ring-2 text-secondary-text-color focus:ring-blue-500 pr-20"
+                                className="px-4 py-2 w-54 h-10 mt-3  border rounded-lg focus:outline-none focus:ring-2 text-secondary-text-color focus:ring-blue-500 pr-20"
                             />
-    
+
+
+
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
                                 {noteChanged && (
                                     <div>
@@ -280,7 +285,7 @@ const TestSuiteContentPage = () => {
                                                 className="w-5 h-5 text-gray-500"
                                             />
                                         </button>
-    
+
                                         <button
                                             className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                                             aria-label="Save input"
@@ -300,9 +305,8 @@ const TestSuiteContentPage = () => {
                     <tr className="py-0">
                         <td className="p-2" colSpan={8}>
                             <div
-                                className={`overflow-hidden transition-[max-height] duration-300 ${
-                                    open ? "max-h-[1000px]" : "max-h-0"
-                                } px-5`}
+                                className={`overflow-hidden transition-[max-height] duration-300 ${open ? "max-h-[1000px]" : "max-h-0"
+                                    } px-5`}
                             >
                                 <div className="rounded-xl border p-4 bg-slate-50 shadow-sm">
                                     <p className="text-gray-600 font-medium mb-4">
@@ -392,7 +396,7 @@ const TestSuiteContentPage = () => {
                 <div className="p-8 text-center flex flex-col gap-4 items-center">
                     <p>No Test Suites Available, Please Create a Test Suite</p>
                     <button className="btn-primary w-24"
-                            onClick={() => history.push(`/test-plans/${selectedTestPlanId}`)}>Start
+                        onClick={() => history.push(`/test-plans/${selectedTestPlanId}`)}>Start
                     </button>
                 </div>
             ) : testCycleId === 0 ? (

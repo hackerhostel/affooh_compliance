@@ -185,7 +185,7 @@ const SprintListPage = () => {
                         <div
                             key={index}
                             style={{width:"266px"}}
-                            className={`flex justify-between items-center p-3 border rounded-md pr-3 gap-2 hover:bg-gray-100 hover:border-primary-pink cursor-pointer ${selectedSprint?.id === element.id ? 'border-count-notification' : 'border-gray-200'}`}
+                            className={`flex justify-between items-center p-3 border rounded-md pr-3 gap-2 hover:bg-gray-100 hover:border-primary-pink cursor-pointer ${selectedSprint?.id === element.id ? 'border-primary-pink' : 'border-gray-200'}`}
                         >
                           <div className="col-span-2 text-left flex gap-2"
                                onClick={() => handleSprintClick(element)}>
