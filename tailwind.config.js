@@ -47,9 +47,9 @@ module.exports = {
 
       },
       height: {
-        'list-screen': 'calc(100vh - 148px)',
+        'list-screen': 'calc(100vh - 183px)',
         'content-screen': 'calc(100vh - 90px)',
-        'task-list-screen': 'calc(100vh - 295px)',
+        'task-list-screen': 'calc(100vh - 310px)',
         '21-5-px': '21.5px'
       },
       translate: {
