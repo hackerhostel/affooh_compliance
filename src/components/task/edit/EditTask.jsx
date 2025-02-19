@@ -173,7 +173,7 @@ const EditTaskPage = () => {
                   <span className="text-sm text-text-color">
                     <span
                         className="text-project-name-content-pages-color font-semibold ">{selectedProject?.name || "No project selected"}
-                    </span>  &gt;  {Sprint?.name} &gt; {initialTaskData.name}
+                    </span>  &gt;  {Sprint?.name} &gt; {initialTaskData.name} 
                   </span>
                   <div className="bg-primary-pink text-white rounded-full px-6 py-1 inline-block">
                     {taskDetails?.taskType?.name}
