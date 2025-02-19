@@ -177,7 +177,7 @@ const SprintListPage = () => {
                   </button>
                 </div>
               </div>
-              <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-1 mt-14">
+              <div className="h-[calc(100vh-275px)] overflow-y-auto flex flex-col gap-3 pl-3 pr-1 mt-8">
                 {filteredSprintList.length === 0 ? (
                     <div className="text-center text-gray-600">No sprints found</div>
                 ) : (

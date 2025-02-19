@@ -26,7 +26,8 @@ const SprintHeader = ({
                         configChanges,
                         sprintConfig,
                         setConfigChanges,
-                        epics
+                        epics,
+                        isKanban
                       }) => {
   const {addToast} = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
@@ -133,25 +134,27 @@ const SprintHeader = ({
               <div className="flex text-status-done font-medium pl-4 pr-5 gap-2">
                 <div className={"min-w-1 rounded-md bg-status-done"}></div>
                 <p>{sprintStatus}</p></div>
-              <div className="flex items-center">
-                <div className="h-7 w-px bg-gray-500 mr-4"></div>
-                <img
-                    src={timeCalender}
-                    alt="Time Calender"
-                    className="max-w-5"
-                />
-                <p className="ml-3 text-text-color mr-2.5">{formatShortDate(sprint?.startDate)} - {formatShortDate(sprint?.endDate)}</p>
-                <img
-                    src={EditIcon}
-                    alt="Edit Icon"
-                    className={`max-w-4 ${isBacklog ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-                    onClick={() => {
-                      if (!isBacklog) {
-                        setDateRangelOpen(true);
-                      }
-                    }}
-                />
-              </div>
+              {!isKanban && (
+                  <div className="flex items-center">
+                    <div className="h-7 w-px bg-gray-500 mr-4"></div>
+                    <img
+                        src={timeCalender}
+                        alt="Time Calender"
+                        className="max-w-5"
+                    />
+                    <p className="ml-3 text-text-color mr-2.5">{formatShortDate(sprint?.startDate)} - {formatShortDate(sprint?.endDate)}</p>
+                    <img
+                        src={EditIcon}
+                        alt="Edit Icon"
+                        className={`max-w-4 ${isBacklog ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                        onClick={() => {
+                          if (!isBacklog) {
+                            setDateRangelOpen(true);
+                          }
+                        }}
+                    />
+                  </div>
+              )}
             </div>
             <div className="flex justify-end h-12 items-center gap-8 pr-2">
               <ToggleButton label={"Epics"} onChange={e => onToggleFilterChange(e, 'epic')} checked={filters?.epic}/>
@@ -191,13 +194,15 @@ const SprintHeader = ({
                   onClick={updateDisplayConfig}
               >Save
               </button>
-              <button
-                  className="w-36 h-10 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
-                  disabled={isBacklog || sprintStatus === "Done" || isSubmitting || !canClose}
-                  onClick={updateSprintStatus}
-              >
-                {sprintStatus === "Open" ? 'Start Sprint' : 'Complete Sprint'}
-              </button>
+              {!isKanban && (
+                  <button
+                      className="w-36 h-10 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
+                      disabled={isBacklog || sprintStatus === "Done" || isSubmitting || !canClose}
+                      onClick={updateSprintStatus}
+                  >
+                    {sprintStatus === "Open" ? 'Start Sprint' : 'Complete Sprint'}
+                  </button>
+              )}
               <button
                   className="w-36 h-10 text-white rounded-lg border border-primary-pink bg-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
                   onClick={() => setNewTaskModalOpen(true)}>
