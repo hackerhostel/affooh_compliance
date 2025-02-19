@@ -8,7 +8,7 @@ import {
 import FormInput from "../../components/FormInput.jsx";
 import {EllipsisVerticalIcon, PencilIcon, PlusCircleIcon} from '@heroicons/react/24/outline';
 import FormSelect from "../../components/FormSelect.jsx";
-import {getSelectOptions} from "../../utils/commonUtils.js";
+import {getInitials, getSelectOptions} from "../../utils/commonUtils.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import {doGetProjectUsers, selectProjectUserList} from "../../state/slice/projectUsersSlice.js";
 import {useToasts} from "react-toast-notifications";
@@ -247,9 +247,15 @@ const ProjectContentPage = () => {
                 <div>
                   <div className="flex justify-end"><PencilIcon onClick={toggleEditable} className="w-4 text-secondary-grey cursor-pointer" /></div>
                   <div className="flex justify-center">
-                    <img src={Icon} alt="Icon" className="w-24" />
+                    {selectedProject?.name ? (<div
+                        className="w-24 h-24 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold mb-1">
+                      {getInitials(selectedProject?.name)}
+                    </div>) :
+                        (< img src={Icon} alt="Icon" className="w-24"/>)
+                    }
                   </div>
-                  <span className="mt-2 flex justify-center text-secondary-grey text-xl font-bold">{selectedProject.name}</span>
+                  <span
+                      className="mt-2 flex justify-center text-secondary-grey text-xl font-bold">{selectedProject.name}</span>
 
                 </div>
                 <div className="flex-col">

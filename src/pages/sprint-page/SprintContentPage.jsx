@@ -9,6 +9,7 @@ import useFetchSprint from '../../hooks/custom-hooks/sprint/useFetchSprint.jsx';
 import {areObjectArraysEqual} from '../../components/sprint-table/utils.jsx';
 import useFetchTaskAttributes from '../../hooks/custom-hooks/sprint/useFetchTaskAttributes.jsx';
 import {selectProjectUserList} from '../../state/slice/projectUsersSlice.js';
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 
 const transformTask = (task) => {
   return {
@@ -41,6 +42,7 @@ const SprintContentPage = () => {
   const selectedSprint = useSelector(selectSelectedSprint);
   const sprintStatusList = useSelector(selectSprintFormData);
   const users = useSelector(selectProjectUserList);
+  const selectedProject = useSelector(selectSelectedProject);
 
   const [taskList, setTaskList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
@@ -62,6 +64,7 @@ const SprintContentPage = () => {
   const [sprintConfig, setSprintConfig] = useState([]);
   const [taskAttributes, setTaskAttributes] = useState({});
   const [epics, setEpics] = useState([]);
+  const [isKanban, setIsKanban] = useState(false);
 
   const { error, loading, data: sprintResponse, refetch: refetchSprint } = useFetchSprint(sprintId);
   const { attributeError, attributeLoading, data: attributes } = useFetchTaskAttributes(sprintId);
@@ -157,6 +160,12 @@ const SprintContentPage = () => {
     }
   }, [taskList, filters]);
 
+  useEffect(() => {
+    if (selectedProject?.id) {
+      selectedProject?.projectType === 1 ? setIsKanban(false) : setIsKanban(true)
+    }
+  }, [selectedProject]);
+
   const onSelectFilterChange = (value, name) => {
     const tempFilters = { ...filters, [name]: Number(value) };
     setFilters(tempFilters);
@@ -182,7 +191,7 @@ const SprintContentPage = () => {
   if (error || attributeError) return <ErrorAlert message={error.message} />;
 
   return (
-    <div className="bg-slate-100 min-h-screen">
+    <div className="bg-slate-100 max-h-[calc(100vh-275px)]">
       <SprintHeader
         sprint={sprint}
         isBacklog={isBacklog}
@@ -198,6 +207,7 @@ const SprintContentPage = () => {
         setConfigChanges={setConfigChanges}
         sprintConfig={sprintConfig}
         epics={epics}
+        isKanban={isKanban}
       />
       <SprintTable
         className=""
