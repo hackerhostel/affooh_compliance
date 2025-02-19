@@ -2598,6 +2598,11 @@ es6-object-assign@^1.1.0:
   resolved "https://registry.yarnpkg.com/es6-object-assign/-/es6-object-assign-1.1.0.tgz#c2c3582656247c39ea107cb1e6652b6f9f24523c"
   integrity sha512-MEl9uirslVwqQU369iHNWZXsI8yaZYGg/D65aOgZkeyFJwHYSxilf7rQzXKI7DdDuBPrBXbfk3sl9hJhmd5AUw==
 
+es6-promise@^3.1.2, es6-promise@^3.2.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-3.3.1.tgz#a08cdde84ccdbf34d027a1451bc91d4bcd28a613"
+  integrity sha512-SOp9Phqvqn7jtEUxPWdWfWoLmyt2VaJ6MpvP9Comy1MceMXqE6bxvaTu4iaxpYYPzhny28Lc+M87/c2cPK6lDg==
+
 esbuild@^0.21.3:
   version "0.21.5"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.21.5.tgz#9ca301b120922959b766360d8ac830da0d02997d"
@@ -2908,6 +2913,13 @@ hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.1:
   integrity sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==
   dependencies:
     react-is "^16.7.0"
+
+http-post-message@^0.2:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/http-post-message/-/http-post-message-0.2.3.tgz#32c560ac615f310a7e459ffc71277b579b242e1e"
+  integrity sha512-76heerrzYhvWptJfWxUarHw2O3fkMqF48bbq/S6XFWHUc34o8tkySBwtReXuAKJAECZWVu8U0TYLckFcwtSdrg==
+  dependencies:
+    es6-promise "^3.2.1"
 
 idb@5.0.6:
   version "5.0.6"
@@ -3481,6 +3493,37 @@ postcss@^8.4.43, postcss@^8.4.47:
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
+powerbi-client-react@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/powerbi-client-react/-/powerbi-client-react-2.0.0.tgz#5b9333d110537fbfed574ccde1ba3f7f0822b32a"
+  integrity sha512-u6P96DhuhJZwcbS7RN0zxU0M0ERAfgOEY9T+z3RVSQsoU0PNnhHRn/CMDXbmAwUsB6UgGxH7Izw0Kflr+RF9CA==
+  dependencies:
+    lodash.isequal "^4.5.0"
+    powerbi-client "^2.23.1"
+
+powerbi-client@^2.23.1:
+  version "2.23.1"
+  resolved "https://registry.yarnpkg.com/powerbi-client/-/powerbi-client-2.23.1.tgz#8e19177907522b5f122b1c82b0f0baca6ac98fae"
+  integrity sha512-r04gDDq8YkrkZjSwOw4UBgzPwudXnA+x8B9ekVE7XDlhTDC7tujbcT15Z+iLDrx+49Bj4qVez0PgjA9CgEFpGw==
+  dependencies:
+    http-post-message "^0.2"
+    powerbi-models "^1.14.0"
+    powerbi-router "^0.1"
+    window-post-message-proxy "^0.2.7"
+
+powerbi-models@^1.14.0:
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/powerbi-models/-/powerbi-models-1.15.2.tgz#94ae7b1537e7bc21b08c50ed63e04591129c3590"
+  integrity sha512-UcBLtBB2wa8pL412DxyVZvv/bKiUVJfLTCXAuGmIqnOkoA/EnYDUM3B8oS2piN1azyEN8pjN353rE9DeARCJtA==
+
+powerbi-router@^0.1:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/powerbi-router/-/powerbi-router-0.1.5.tgz#dd2d2d0474f8cb76690a85f6a51d8ca9fea93a32"
+  integrity sha512-DFJCKxwh/DqMZXtHSo6xZl87mbRviZGn4P7Oi2rT0L4HMI4AjnWIrwg0JCSM7ymBzYnNe5UmrsCaf2Upur5RQA==
+  dependencies:
+    es6-promise "^3.2.1"
+    route-recognizer "^0.1.11"
+
 prettier@^3.3.3:
   version "3.4.2"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.4.2.tgz#a5ce1fb522a588bf2b78ca44c6e6fe5aa5a2b13f"
@@ -3803,6 +3846,11 @@ rollup@^4.20.0:
     "@rollup/rollup-win32-ia32-msvc" "4.30.1"
     "@rollup/rollup-win32-x64-msvc" "4.30.1"
     fsevents "~2.3.2"
+
+route-recognizer@^0.1.11:
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/route-recognizer/-/route-recognizer-0.1.11.tgz#810d8e5702abb4056d6dcb8e865c5685e7c14eb7"
+  integrity sha512-7JNu5mXQVa39zxmUKyk/bfpeF2WyEC5JKVTJO5HATcoUQpcQsI3eLzhwGU69xeOagQxfOQ+yr2sSv0G8xy+vQA==
 
 rrule@^2.7.1:
   version "2.8.1"
@@ -4180,6 +4228,13 @@ which@^2.0.1:
   integrity sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==
   dependencies:
     isexe "^2.0.0"
+
+window-post-message-proxy@^0.2.7:
+  version "0.2.9"
+  resolved "https://registry.yarnpkg.com/window-post-message-proxy/-/window-post-message-proxy-0.2.9.tgz#53a4d1749995920bc7c54fb0dff7c8feed205cb5"
+  integrity sha512-hHmF5dvY27wy4EKN9c5qukPtzlbrdUzkMiCHud4gYKXCFAiGOBhCfi/dVBvwbUf0qrEGwFNnqkvk6DE54sdlcw==
+  dependencies:
+    es6-promise "^3.1.2"
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0":
   version "7.0.0"
