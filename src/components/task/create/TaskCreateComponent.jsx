@@ -276,7 +276,7 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                                     label="Assignee"
                                     name="assigneeID"
                                     value={createTaskForm.assigneeID}
-                                    users={users} // Pass the users list to UserSelect
+                                    users={users}
                                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                     formErrors={formErrors}
                                     showErrors={isValidationErrorsShown}
@@ -287,7 +287,7 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
                                     label='Task Owner'
                                     name="taskOwner"
                                     value={createTaskForm.taskOwner}
-                                    users={users} // Pass the users list to UserSelect
+                                    users={users} 
                                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                     formErrors={formErrors}
                                     showErrors={isValidationErrorsShown}

@@ -22,7 +22,7 @@ const TaskRelationTabs = ({
     const users = useSelector(selectProjectUserList);
 
     const tabs = [
-        {key: 'sub_task', label: 'Sub Task', content: 'Relationship'},
+        {key: 'sub_task', label: 'Sub Task', content: 'Sub Task'},
         {key: 'relationship', label: 'Relationship', content: 'Relationship(s)'},
         {key: 'criteria', label: 'Criteria', content: 'Criteria(s)'},
         {key: 'test_cases', label: 'Test Cases', content: 'Test Cases(s)'},
