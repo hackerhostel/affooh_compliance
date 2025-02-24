@@ -41,8 +41,6 @@ const ReleaseListPage = () => {
     });
 
 
-    const releasess = useSelector(selectReleaseListForProject);
-console.log("Releases:", releasess);
 
 
     const filteredReleaseList = releases.filter((release) => {
