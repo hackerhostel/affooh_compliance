@@ -15,7 +15,7 @@ import {doGetSprintBreakdown, setRedirectSprint} from "../../state/slice/sprintS
 
 const SprintHeader = ({
                         sprint,
-                        isBacklog,
+                        isBacklog = false,
                         refetchSprint,
                         filters,
                         assignees,
@@ -27,7 +27,7 @@ const SprintHeader = ({
                         sprintConfig,
                         setConfigChanges,
                         epics,
-                        isKanban
+                        isKanban = false
                       }) => {
   const {addToast} = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
@@ -134,7 +134,7 @@ const SprintHeader = ({
               <div className="flex text-status-done font-medium pl-4 pr-5 gap-2">
                 <div className={"min-w-1 rounded-md bg-status-done"}></div>
                 <p>{sprintStatus}</p></div>
-              {!isKanban && (
+              {!isKanban && !isBacklog && (
                   <div className="flex items-center">
                     <div className="h-7 w-px bg-gray-500 mr-4"></div>
                     <img
