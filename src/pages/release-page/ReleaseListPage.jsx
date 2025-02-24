@@ -40,6 +40,11 @@ const ReleaseListPage = () => {
       released: 0,
     });
 
+
+    const releasess = useSelector(selectReleaseListForProject);
+console.log("Releases:", releasess);
+
+
     const filteredReleaseList = releases.filter((release) => {
         // If both filters are unchecked, show nothing
         if (!selectedFilters.unreleased && !selectedFilters.released) {
@@ -170,7 +175,7 @@ const ReleaseListPage = () => {
       key={index}
       style={{ width: "266px" }}
       className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${
-        selectedRelease?.id === element.id ? "border-primary-pink" : "border-gray-200"
+        selectedRelease?.rID === element.rID ? "border-primary-pink" : "border-gray-200"
       }`}
       onClick={() => {
         dispatch(setSelectedRelease(element));
