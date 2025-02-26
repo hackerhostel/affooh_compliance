@@ -70,7 +70,6 @@ const ChangeTypePopup = ({ sprintId, isOpen, onClose, currentIssueType, issueTyp
     if (!isOpen) return null;
 
     useEffect(() => {
-        console.log("Fetched Task Details:", taskDetails); 
         if (taskDetails?.id && taskDetails?.attributes && taskDetails?.attributes.length) {
             updateStates(taskDetails);
         }
