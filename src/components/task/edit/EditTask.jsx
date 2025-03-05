@@ -265,15 +265,15 @@ const EditTaskPage = () => {
             <div className="relative">
     <div
         style={{ marginLeft: "400px" }}
-        onClick={() => setIsOpen((prev) => !prev)} // This just toggles open/close
+        onClick={() => setIsOpen((prev) => !prev)} 
         className="w-6 justify-end flex mt-11"
     >
         <EllipsisVerticalIcon className="text-text-color cursor-pointer" />
     </div>
 
     <TaskOptionsPopup
-        isOpen={isOpen} // Pass isOpen to manage visibility of TaskOptionsPopup
-        onClose={() => setIsOpen(false)} // This will close TaskOptionsPopup when clicking outside
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)} 
     />
 </div>
 
