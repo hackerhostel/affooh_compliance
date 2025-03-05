@@ -97,7 +97,6 @@ const ChangeTypePopup = ({ sprintId, isOpen, onClose, currentIssueType, issueTyp
                     </button>
                 </div>
 
-                {/* Current Issue Type */}
                 <div className="mt-4">
                     <label className="text-sm text-gray-500">Current Sub Task Type</label>
                     <FormInput
@@ -112,7 +111,7 @@ const ChangeTypePopup = ({ sprintId, isOpen, onClose, currentIssueType, issueTyp
 
                 </div>
 
-                {/* New Issue Type Dropdown */}
+                
                 <div className="mt-4">
                     <label className="text-sm text-gray-500">New Issue Type</label>
                     <FormSelect
@@ -129,7 +128,7 @@ const ChangeTypePopup = ({ sprintId, isOpen, onClose, currentIssueType, issueTyp
                     />
                 </div>
 
-                {/* Buttons */}
+            
                 <div className="flex justify-end mt-6 gap-2">
                     <button
                         onClick={onClose}
