@@ -9,7 +9,7 @@ const ToggleButton = ({label, onChange, checked}) => {
                 <input type="checkbox" id={label} onChange={onChange} className="sr-only peer" checked={checked}/>
                 <div
                     className="w-10 h-25px bg-white rounded-full border-2 border-secondary-grey transition-colors peer-checked:border-green-500"></div>
-                <div className="absolute w-5 h-5 top-1 mt-20 bg-secondary-grey rounded-full shadow top-29.5px translate-x-3px transition-transform
+                <div style={{marginTop:"-22px"}} className=" w-5 h-5 mb-1 bg-secondary-grey rounded-full shadow top-29.5px translate-x-3px transition-transform
                 peer-checked:translate-x-4.2 peer-checked:bg-status-done"></div>
             </label>
         </div>
