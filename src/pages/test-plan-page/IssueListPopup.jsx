@@ -6,14 +6,13 @@ const IssueListPopup = ({ isOpen, onClose }) => {
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-[600px]">
-            {/* Header */}
+      
             <div className="flex justify-end items-center border-b pb-2">
               <button className="text-gray-500 hover:text-gray-700" onClick={onClose}>
                 ✖
               </button>
             </div>
 
-            {/* Table */}
             <div className="mt-4">
               <table className="w-full border-collapse">
                 <thead>

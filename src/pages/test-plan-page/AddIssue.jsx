@@ -6,7 +6,7 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
   
 
   const handleAddIssue = () => {
-    // Handle issue addition logic here
+
     onClose();
   };
 
@@ -24,13 +24,11 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
               </button>
             </div>
 
-            {/* Body */}
             <div className="mt-4">
               <label className="text-sm text-gray-500">Select Issue</label>
              
             </div>
 
-            {/* Footer Buttons */}
             <div className="flex justify-between space-x-2 mt-6">
               <button className="btn-secondary" onClick={onClose}>
                 Cancel
