@@ -57,6 +57,8 @@ const TaskOptionsPopup = ({ isOpen, onClose, currentProject, projectOptions }) =
         setChangeSubTaskPopupOpen(true);
     };
 
+    
+
     if (!isOpen) return null;
 
     return (
