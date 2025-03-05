@@ -86,7 +86,7 @@ const ChangeTypePopup = ({ sprintId, isOpen, onClose, currentIssueType, issueTyp
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-[500px]">
                 {/* Header */}
                 <div className="flex justify-between items-center border-b pb-2">
                     <span className="text-sm  font-semibold">

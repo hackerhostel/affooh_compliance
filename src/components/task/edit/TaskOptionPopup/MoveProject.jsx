@@ -24,7 +24,7 @@ const MoveProjectPopup = ({ isOpen, onClose }) => {
     <>
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-[500px]">
             <div className="flex justify-between items-center border-b pb-2">
               <span className="text-lg font-semibold">
                 Move Project: <span className="text-sm">Select Project</span>
@@ -34,9 +34,8 @@ const MoveProjectPopup = ({ isOpen, onClose }) => {
               </button>
             </div>
 
-            {/* Body */}
             <div className="mt-4">
-              {/* Current Project */}
+        
               <label className="text-sm text-gray-500">Current Project</label>
               <FormInput
                 name="currentProject"
@@ -48,7 +47,7 @@ const MoveProjectPopup = ({ isOpen, onClose }) => {
                 showLabel={false}
               />
 
-              {/* New Project Selection */}
+             
               <label className="text-sm text-gray-500 mt-4 block">New Project</label>
               <FormSelect
                 name="newProject"
@@ -60,7 +59,7 @@ const MoveProjectPopup = ({ isOpen, onClose }) => {
               />
             </div>
 
-            {/* Footer Buttons */}
+          
             <div className="flex justify-between space-x-2 mt-6">
               <button className="btn-secondary" onClick={onClose}>
                 Cancel
