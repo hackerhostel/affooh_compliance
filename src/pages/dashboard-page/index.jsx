@@ -1,7 +1,8 @@
 import React from "react";
 import MainPageLayout from "../../layouts/MainPageLayout";
 import DashboardListPage from "../dashboard-page/dashboardListPage";
-import DashboardContentPage from "../dashboard-page/dashboardContentPage";
+// import WebSocketComponent from "./WebSocketComponent.jsx";
+import DashboardContentPage from "./dashboardContentPage.jsx";
 
 const DashboardLayout = () => {
   return (
@@ -9,6 +10,7 @@ const DashboardLayout = () => {
       title="Dashboard"
       leftColumn={<DashboardListPage />}
       rightColumn={<DashboardContentPage />}
+      // rightColumn={<WebSocketComponent/>}
     />
   );
 };
