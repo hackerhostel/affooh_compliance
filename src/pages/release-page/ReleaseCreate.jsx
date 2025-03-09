@@ -121,7 +121,7 @@ const ReleaseCreate = ({ isOpen, onClose }) => {
           </button>
           <div className="p-2 ">
             <div className="text-3xl border-b border-gray-300/40 pb-2">
-              New Release
+              New Release test
             </div>
             <form onSubmit={createRelease}>
               <div className=" mt-5">
