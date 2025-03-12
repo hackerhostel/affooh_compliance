@@ -1,36 +1,38 @@
-import React, { useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import {useLocation, Link, useHistory} from 'react-router-dom';
+import React, { useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useLocation, Link, useHistory } from "react-router-dom";
+import { useToasts } from "react-toast-notifications";
 
-import FormInput from '../components/FormInput';
-import LoginImage from '../images/register.jpg';
-import { RegisterSchema } from '../state/domains/authModels';
-import { doRegisterUser } from '../state/slice/registerSlice';
-import useValidation from '../utils/use-validation';
+import FormInput from "../components/FormInput";
+import LoginImage from "../images/register.jpg";
+import { RegisterSchema } from "../state/domains/authModels";
+import { doRegisterUser } from "../state/slice/registerSlice";
+import useValidation from "../utils/use-validation";
 
 function Register() {
   const dispatch = useDispatch();
   const history = useHistory();
+  const { addToast } = useToasts(); // Add toast notifications
   const [registerDetails, setRegisterDetails] = useState({
-    username: '',
-    organization: '',
-    firstName: '',
-    lastName: '',
-    password: '',
-    confirmPassword: '',
+    username: "",
+    organization: "",
+    firstName: "",
+    lastName: "",
+    password: "",
+    confirmPassword: "",
   });
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+  const [loading, setLoading] = useState(false); // Add loading state
   const formRef = useRef(null);
   const [formErrors] = useValidation(RegisterSchema, registerDetails);
   const location = useLocation();
-
 
   const handleFormChange = (name, value) => {
     const newForm = { ...registerDetails, [name]: value };
     setRegisterDetails(newForm);
   };
 
-  const register = (event) => {
+  const register = async (event) => {
     event.preventDefault();
 
     if (formErrors && Object.keys(formErrors).length > 0) {
@@ -39,14 +41,38 @@ function Register() {
     }
 
     if (registerDetails.password !== registerDetails.confirmPassword) {
-      alert('Passwords do not match');
+      addToast("Passwords do not match", { appearance: "error" });
       return;
     }
 
     setIsValidationErrorsShown(false);
-    dispatch(doRegisterUser(registerDetails));
+    setLoading(true); // Set loading state to true
 
-    history.push('/otpVerification', {email: registerDetails.username});
+    try {
+      // Dispatch registration action
+      await dispatch(doRegisterUser(registerDetails));
+
+      // Instead of redirecting to login, redirect to OTP verification
+      addToast(
+        "Registration successful! Please verify your email with the OTP sent.",
+        {
+          appearance: "success",
+          autoDismiss: true,
+        }
+      );
+
+      // Redirect to OTP verification page with email
+      history.push("/otp-verification", {
+        email: registerDetails.username,
+        isPasswordReset: false, // Explicitly mark this is not password reset flow
+      });
+    } catch (error) {
+      addToast(error.message || "Registration failed. Please try again.", {
+        appearance: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,12 +81,12 @@ function Register() {
         {/* Left side */}
         <div
           className="flex flex-col pt-24 pl-28"
-          style={{ width: '650px', height: '797px' }}
+          style={{ width: "650px", height: "797px" }}
         >
           <div className="w-3/4">
             <div>
               <h3
-                style={{ fontWeight: 'bold', fontSize: '42px' }}
+                style={{ fontWeight: "bold", fontSize: "42px" }}
                 className="mb-3"
               >
                 Register
@@ -151,17 +177,15 @@ function Register() {
                   showErrors={isValidationErrorsShown}
                 />
               </div>
-              <input
-                type="submit"
-                value="Sign Up"
-                className="btn-login"
-              />
+              <button type="submit" className="btn-login" disabled={loading}>
+                {loading ? "Processing..." : "Sign Up"}
+              </button>
             </form>
             <div className="text-center mt-5 text-text-color">
               Already have an account?
               <Link
                 to={{
-                  pathname: '/login',
+                  pathname: "/login",
                   state: { from: location },
                 }}
                 className="text-primary-pink ml-2"
@@ -172,7 +196,7 @@ function Register() {
           </div>
         </div>
         {/* Right side */}
-        <div className="hidden md:block" style={{ width: '520px' }}>
+        <div className="hidden md:block" style={{ width: "520px" }}>
           <img
             className="w-full h-full rounded-r-2xl object-cover"
             src={LoginImage}
