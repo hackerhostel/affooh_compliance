@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import AuthGuard from './auth/AuthGuard';
 import ForgotPassword from './auth/ForgotPassword';
+import ResetPassword from "./auth/ResetPassword";
 import Login from './auth/Login';
 import OTPVerification from './auth/OTPVerification';
 import PublicGuard from './auth/PublicGuard';
@@ -32,23 +33,21 @@ function App() {
           </PublicGuard>
         </Route>
 
-        <Route path="/otpVerification">
-          <PublicGuard>
-            <OTPVerification />
-          </PublicGuard>
-        </Route>
-
         <Route path="/forgot-password">
           <PublicGuard>
-            {/* TODO: need to implement */}
             <ForgotPassword />
           </PublicGuard>
         </Route>
 
-        <Route path="/forgot-password-reset">
+        <Route path="/reset-password">
           <PublicGuard>
-            {/* TODO: need to implement */}
-            {/* <ForgotPasswordReset /> */}
+            <ResetPassword />
+          </PublicGuard>
+        </Route>
+
+        <Route path="/otp-verification">
+          <PublicGuard>
+            <OTPVerification />
           </PublicGuard>
         </Route>
 
