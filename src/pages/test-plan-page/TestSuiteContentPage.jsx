@@ -15,6 +15,8 @@ import axios from "axios";
 import { useToasts } from "react-toast-notifications";
 import { useHistory } from "react-router-dom";
 import FormTextArea from "../../components/FormTextArea.jsx";
+import AddIssue from "./AddIssue.jsx"
+import IssueListPopup from "./IssueListPopup.jsx"
 
 const TestSuiteContentPage = () => {
     const dispatch = useDispatch();
@@ -33,6 +35,8 @@ const TestSuiteContentPage = () => {
     const [testSuiteId, setTestSuiteId] = useState(0);
     const [testCycleId, setTestCycleId] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isOpenAddIssue, setIsOpenAddIssue] = useState(false);
+    const [isOpenIssueList, setIsIssueList] = useState(false);
     const [statusCounts, setStatusCounts] = useState({
         all: 0,
         pass: 0,
@@ -101,6 +105,14 @@ const TestSuiteContentPage = () => {
             }
         }
     }, [testSuiteId]);
+
+    const handleAddIssue = () => {
+        setIsOpenAddIssue(true);
+    } 
+
+    const handleIssueList = () => {
+        setIsIssueList(true);
+    }
 
     const handleSuiteChange = (value) => {
         if (value) {
@@ -235,8 +247,8 @@ const TestSuiteContentPage = () => {
                     <td className="px-4 py-2 text-secondary-text-color">{row?.platform}</td>
                     <td className="px-4 py-2 text-secondary-text-color">{row?.priority}</td>
                     <div className="flex items-center mt-3 px-4 py-2 text-secondary-text-color">
-                        <td className="px-4 py-2">{row?.category}</td>
-                        <PlusCircleIcon className={"w-8 h-8 items-center text-pink-500 cursor-pointer"} />
+                        <td className="px-4 py-2"><button className="px-2 py-1 bg-white rounded-sm border-count-notification" onClick={handleIssueList}>5</button></td>
+                        <PlusCircleIcon className={"w-8 h-8 items-center text-pink-500 cursor-pointer"} onClick={handleAddIssue} />
                     </div>
                     <td className="px-4 py-2">
                         <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
@@ -438,6 +450,15 @@ const TestSuiteContentPage = () => {
                             </>
                         )}
                     </div>
+                    <AddIssue 
+                    isOpen={isOpenAddIssue}
+                    onClose={() => setIsOpenAddIssue(false)}
+                    />
+
+                    <IssueListPopup
+                    isOpen={isOpenIssueList}
+                    onClose={() => setIsIssueList(false)}
+                    />
                 </div>
             )}
         </div>
