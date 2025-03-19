@@ -1,12 +1,11 @@
-import { useRef, useState, useEffect } from "react";
+import {useEffect, useRef, useState} from "react";
 import MoveProjectPopup from "./TaskOptionPopup/MoveProject";
 import ChangeTypePopup from "./TaskOptionPopup/ChangeType";
 import SubTaskPopup from "./TaskOptionPopup/SubTask";
-import MoveSprint from "./TaskOptionPopup/moveSprint"
-import MoveSprintPopup from "./TaskOptionPopup/moveSprint";
+import MoveSprintPopup from "./TaskOptionPopup/moveSprint"
 import CloneIssue from "./TaskOptionPopup/CloneIssue"
 
-const TaskOptionsPopup = ({ isOpen, onClose, currentProject, projectOptions }) => {
+const TaskOptionsPopup = ({isOpen, onClose, task}) => {
     const menuRef = useRef(null);
     const movePopupRef = useRef(null);
     const changeTypePopupRef = useRef(null);
@@ -26,7 +25,7 @@ const TaskOptionsPopup = ({ isOpen, onClose, currentProject, projectOptions }) =
             setChangeTypePopupOpen(false);
             setChangeSubTaskPopupOpen(false);
         }
-    }, [isOpen]);
+    }, [isOpen, task]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -104,6 +103,9 @@ const TaskOptionsPopup = ({ isOpen, onClose, currentProject, projectOptions }) =
                     <MoveProjectPopup
                         isOpen={isMovePopupOpen}
                         onClose={() => setMovePopupOpen(false)}
+                        taskTypeID={task?.taskType?.id}
+                        taskID={task?.id}
+                        sprintId={task?.sprint?.id}
                     />
                 </div>
             )}

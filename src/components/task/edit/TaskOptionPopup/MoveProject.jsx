@@ -1,23 +1,46 @@
-import React, { useState, useCallback } from "react";
-import { useSelector } from "react-redux";
+import React, {useCallback, useState} from "react";
+import {useSelector} from "react-redux";
 import FormInput from "../../../../components/FormInput";
 import FormSelect from "../../../../components/FormSelect";
-import { selectProjectList, selectSelectedProject } from "../../../../state/slice/projectSlice";
+import {selectProjectList, selectSelectedProject} from "../../../../state/slice/projectSlice";
+import axios from "axios";
+import {useToasts} from "react-toast-notifications";
+import {useHistory} from "react-router-dom";
 
-const MoveProjectPopup = ({ isOpen, onClose }) => {
+const MoveProjectPopup = ({isOpen, onClose, taskID, taskTypeID, sprintId}) => {
+  const {addToast} = useToasts();
+  const history = useHistory();
   const [selectedProject, setSelectedProject] = useState("");
   const selectedProjectFromStore = useSelector(selectSelectedProject);
   const projectList = useSelector(selectProjectList);
 
   const getProjectOptions = useCallback(() => {
-    return projectList.map((project) => ({
-      value: project.id,
-      label: project.name,
-    }));
+    return projectList
+        .filter((project) => selectedProjectFromStore?.id !== project.id)
+        .map((project) => ({
+          value: project.id,
+          label: project.name,
+        }));
   }, [projectList]);
 
-  const handleMoveProject = () => {
-    onClose();
+  const handleMoveProject = async () => {
+    try {
+      const response = await axios.post(`/tasks/${taskID}/move-to-project`, {
+        projectID: selectedProject,
+        taskID: taskID,
+        taskTypeID: taskTypeID
+      })
+      const status = response?.status
+      if (status === 204) {
+        addToast('Task Moved Successfully', {appearance: 'success'});
+        history.push(`/sprints/${sprintId}`);
+        onClose();
+      } else {
+        addToast('Failed move the task', {appearance: 'error'});
+      }
+    } catch (error) {
+      addToast('Failed move the task', {appearance: 'error'});
+    }
   };
 
   return (
