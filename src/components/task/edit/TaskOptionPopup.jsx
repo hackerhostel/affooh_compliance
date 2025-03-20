@@ -134,6 +134,9 @@ const TaskOptionsPopup = ({isOpen, onClose, task}) => {
                     <MoveSprintPopup
                         isOpen={isMoveSprintPopup}
                         onClose={() => setChangeSprintPopup(false)}
+                        currentSprint={task?.sprint?.name}
+                        taskId={task?.id}
+                        currentSprintId={task?.sprint?.id}
                     />
                 </div>
             )}
