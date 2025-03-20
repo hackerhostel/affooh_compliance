@@ -24,7 +24,8 @@ const transformTask = (task) => {
     taskCode: task.code,
     assigneeId: task?.assignee?.id ? task?.assignee?.id : 0,
     assignee: task?.assignee?.firstName ? `${task?.assignee?.firstName} ${task?.assignee?.lastName}` : 'Unassigned',
-    epic: task.epicName || '',
+    epicId: task?.epicID || '',
+    epic: task?.epicName || '',
     startDate: task.attributes.startDate?.value || null,
     endDate: task.attributes.endDate?.value || null,
     type: task.type,
@@ -53,6 +54,7 @@ const SprintContentPage = () => {
     assignee: -1,
     status: -1,
     type: -1,
+    epics: -1
   });
   const [sprint, setSprint] = useState(null);
   const [sprintId, setSprintId] = useState(0);
@@ -153,8 +155,11 @@ const SprintContentPage = () => {
       const typeFilteredTasks = statusFilteredTasks.filter((tl) =>
         filters?.type === -1 ? true : tl?.typeId === filters.type
       );
+      const byEpicFilteredTasks = typeFilteredTasks.filter((tl) =>
+          filters?.epics === -1 ? true : tl?.epicId === filters.epics
+      );
 
-      setFilteredList(typeFilteredTasks);
+      setFilteredList(byEpicFilteredTasks);
     } else {
       setFilteredList([])
     }
