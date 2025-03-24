@@ -222,7 +222,7 @@ const SprintHeader = ({
         </div>
 
         <TaskCreateComponent sprintId={sprint?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}
-                             epics={epics} refetchSprint={refetchSprint}/>
+                             refetchSprint={refetchSprint}/>
         <DateRangeSelector isOpen={dateRangelOpen} onClose={closeDateRange} startDate={sprint?.startDate}
                            endDate={sprint?.endDate} onSave={updateDateRange}/>
       </>
