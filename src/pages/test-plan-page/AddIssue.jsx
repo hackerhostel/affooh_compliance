@@ -1,56 +1,359 @@
-import React, { useState } from "react";
-import FormSelect from "../../components/FormSelect";
+import React, { useEffect, useState, useRef } from "react";
+import { useSelector } from "react-redux";
+import Select from "react-select";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
+import useFetchFlatTasks from "../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
+import useFetchTask from "../../hooks/custom-hooks/task/useFetchTask.jsx";
+import SkeletonLoader from "../../components/SkeletonLoader.jsx";
+import { useToasts } from "react-toast-notifications";
+
+// Status mapping
+const statusMapping = {
+  1: "To Do",
+  2: "In Progress",
+  3: "QA",
+  4: "UAT",
+  5: "Done",
+};
 
 const AddIssuePopup = ({ isOpen, onClose }) => {
-  const [selectedIssue, setSelectedIssue] = useState(null);
+  const selectedProject = useSelector(selectSelectedProject);
+  const { loading, data: tasks } = useFetchFlatTasks(selectedProject?.id);
+  const [selectedTasks, setSelectedTasks] = useState([]);
+  const [taskOptions, setTaskOptions] = useState([]);
+  const [selectedTaskForDetails, setSelectedTaskForDetails] = useState(null);
+  const [isDetailsLoading, setIsDetailsLoading] = useState(false);
+  const selectRef = useRef(null);
+  const { addToast } = useToasts();
 
+  // Fetch full task details using useFetchTask
+  const [taskCode, setTaskCode] = useState(null);
+  const {
+    data: fullTaskDetails,
+    loading: taskLoading,
+    error: taskError,
+  } = useFetchTask(taskCode);
 
-  const issueTypes = [
-    { label: "Bug", value: "bug" },
-    { label: "Task", value: "task" },
-    { label: "Story", value: "story" },
-    { label: "Epic", value: "epic" },
-  ];
+  // Store fetched details to avoid refetching
+  const [taskDetailsCache, setTaskDetailsCache] = useState({});
+
+  // Format tasks for dropdown and filter by type "bug"
+  useEffect(() => {
+    if (tasks && tasks.length > 0) {
+      console.log("Fetched Tasks:", tasks);
+      const bugTasks = tasks.filter(
+        (task) => task.type?.toLowerCase() === "bug"
+      );
+
+      const formattedTasks = bugTasks.map((task) => ({
+        label: `${task.id.toString().padStart(2, "0")} - ${task.name || "Unnamed Task"}`,
+        value: task.id,
+        taskData: task,
+      }));
+      setTaskOptions(formattedTasks);
+    }
+  }, [tasks]);
+
+  // Handle multiple select change
+  const handleSelectChange = (selectedOptions, actionMeta) => {
+    setSelectedTasks(selectedOptions || []);
+
+    // Close the menu after selection
+    if (actionMeta.action === "select-option" && selectRef.current) {
+      selectRef.current.blur();
+    }
+  };
+
+  // Remove a selected task
+  const removeTask = (taskId) => {
+    // Update the selectedTasks state to remove the specified task
+    setSelectedTasks((prevSelectedTasks) =>
+      prevSelectedTasks.filter((task) => task.value !== taskId)
+    );
+
+    // Clear the task details if this was the currently viewed task
+    if (selectedTaskForDetails && selectedTaskForDetails.id === taskId) {
+      setSelectedTaskForDetails(null);
+    }
+  };
+
+  // Toggle task details when clicked
+  const handleTaskClick = (task) => {
+    // If the task is already selected, toggle it off
+    if (
+      selectedTaskForDetails &&
+      selectedTaskForDetails.id === task.taskData.id
+    ) {
+      setSelectedTaskForDetails(null);
+      return;
+    }
+
+    // Check if we already have the full details cached
+    if (taskDetailsCache[task.taskData.id]) {
+      setSelectedTaskForDetails(taskDetailsCache[task.taskData.id]);
+      return;
+    }
+
+    // Otherwise, show details for the clicked task
+    setIsDetailsLoading(true);
+    const taskToView = selectedTasks.find((t) => t.value === task.value);
+    if (taskToView && taskToView.taskData) {
+      console.log("Selected Task Details:", taskToView.taskData);
+      setTaskCode(taskToView.taskData.code);
+      // Set the basic task data first so something is visible
+      setSelectedTaskForDetails({
+        ...taskToView.taskData,
+        status: "Loading...", // Temporary status while loading
+      });
+    }
+  };
+
+  // Update selectedTaskForDetails when fullTaskDetails is fetched
+  useEffect(() => {
+    if (fullTaskDetails && Object.keys(fullTaskDetails).length > 0) {
+      console.log("Full Task Details:", fullTaskDetails);
+
+      // Extract the status from the attributes array
+      const statusAttribute = fullTaskDetails.attributes?.find(
+        (attr) => attr.taskFieldName === "Status"
+      );
+      const rawStatus = statusAttribute?.values?.[0];
+      const statusValue = statusMapping[rawStatus] || "To Do"; // Convert number to string
+
+      const updatedTaskDetails = {
+        ...fullTaskDetails,
+        status: statusValue,
+      };
+
+      // Update the cache
+      setTaskDetailsCache((prev) => ({
+        ...prev,
+        [fullTaskDetails.id]: updatedTaskDetails,
+      }));
+
+      setSelectedTaskForDetails(updatedTaskDetails);
+      setIsDetailsLoading(false);
+    }
+  }, [fullTaskDetails]);
+
+  // Handle errors from useFetchTask
+  useEffect(() => {
+    if (taskError) {
+      addToast("Failed to fetch task details: " + taskError, {
+        appearance: "error",
+      });
+      setIsDetailsLoading(false);
+    }
+  }, [taskError, addToast]);
+
+  // Reset state when modal is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedTasks([]);
+      setSelectedTaskForDetails(null);
+      setTaskDetailsCache({});
+    }
+  }, [isOpen]);
 
   const handleAddIssue = () => {
-    console.log("Selected Issue Type:", selectedIssue);
+    if (selectedTasks.length === 0) {
+      addToast("Please select at least one task to add as an issue.", {
+        appearance: "warning",
+      });
+      return;
+    }
+    console.log(
+      "Selected Task IDs:",
+      selectedTasks.map((task) => task.value)
+    );
     onClose();
   };
 
   if (!isOpen) return null;
 
+  // Custom styles for react-select
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      width: "100%",
+      borderColor: "#e2e8f0",
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? "#3b82f6"
+        : state.isFocused
+          ? "#f3f4f6"
+          : "white",
+      color: state.isSelected ? "white" : "black",
+    }),
+    multiValue: (provided) => ({
+      ...provided,
+      display: "none", // Hide the selected values in the input field
+    }),
+  };
+
+  // Properly implement the filterOption function to handle both search and already selected filtering
+  const filterOption = (option, inputValue) => {
+    // First check if option is already selected
+    const isAlreadySelected = selectedTasks.some(
+      (task) => task.value === option.value
+    );
+    if (isAlreadySelected) return false;
+
+    // If there's no search input, show all non-selected options
+    if (!inputValue) return true;
+
+    // Otherwise, filter by search text (case insensitive)
+    return option.label.toLowerCase().includes(inputValue.toLowerCase());
+  };
+
+  // Assignee rendering helper
+  const renderAssignee = (assignee) => {
+    if (!assignee) return "Unassigned";
+
+    const firstInitial = assignee.firstName
+      ? assignee.firstName.charAt(0)
+      : "N";
+    const fullName = assignee.firstName
+      ? `${assignee.firstName} ${assignee.lastName || ""}`
+      : "Nilanga"; // Default name if not available
+
+    return (
+      <div className="flex items-center">
+        <div className="w-8 h-8 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center mr-2">
+          {firstInitial}
+        </div>
+        {fullName}
+      </div>
+    );
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-96">
-        
-   
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl mx-auto">
         <div className="flex justify-between items-center border-b pb-2">
-          <span className="text-lg font-semibold">Add Issue</span>
-          <button className="text-gray-500 hover:text-gray-700" onClick={onClose}>
+          <span className="text-lg font-semibold">Add Issue:</span>
+          <button
+            className="text-gray-500 hover:text-gray-700"
+            onClick={onClose}
+          >
             ✖
           </button>
         </div>
 
-        
         <div className="mt-4">
-          <label className="text-sm text-gray-500">Select Issue</label>
-          <FormSelect
-            name="issueType"
-            showLabel={false}
-            formValues={{ issueType: selectedIssue }}
-            placeholder="Select an issue type"
-            options={issueTypes}
-            onChange={(e, value) => setSelectedIssue(value)}
-          />
+          {loading ? (
+            <SkeletonLoader />
+          ) : (
+            <>
+              <label className="text-sm text-gray-500">Select Issue</label>
+              <Select
+                ref={selectRef}
+                name="tasks"
+                options={taskOptions}
+                value={selectedTasks}
+                onChange={handleSelectChange}
+                placeholder="Select tasks"
+                styles={customStyles}
+                isMulti
+                closeMenuOnSelect={true}
+                isSearchable={true}
+                filterOption={filterOption}
+                hideSelectedOptions={false}
+              />
+
+              {/* Display selected tasks as a list */}
+              {selectedTasks.length > 0 && (
+                <div className="mt-4">
+                  {selectedTasks.map((task) => (
+                    <div
+                      key={task.value}
+                      className="bg-gray-50 p-3 mb-3 rounded border border-gray-200"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div
+                          className="text-gray-800 font-medium cursor-pointer hover:text-blue-600"
+                          onClick={() => handleTaskClick(task)}
+                        >
+                          {task.label}
+                        </div>
+                        <button
+                          className="text-gray-500 hover:text-gray-700"
+                          onClick={() => removeTask(task.value)}
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      {selectedTaskForDetails &&
+                        selectedTaskForDetails.id === task.taskData.id &&
+                        (isDetailsLoading || taskLoading ? (
+                          <SkeletonLoader height="80px" className="mt-2" />
+                        ) : (
+                          <div className="mt-2 overflow-x-auto">
+                            <table className="min-w-full border-collapse text-sm">
+                              <thead>
+                                <tr>
+                                  <th className="p-1 border border-gray-300 text-left">
+                                    ID
+                                  </th>
+                                  <th className="p-1 border border-gray-300 text-left">
+                                    Type
+                                  </th>
+                                  <th className="p-1 border border-gray-300 text-left">
+                                    Summary
+                                  </th>
+                                  <th className="p-1 border border-gray-300 text-left">
+                                    Assignee
+                                  </th>
+                                  <th className="p-1 border border-gray-300 text-left">
+                                    Status
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td className="p-1 border border-gray-300">
+                                    {selectedTaskForDetails.id}
+                                  </td>
+                                  <td className="p-1 border border-gray-300">
+                                    {selectedTaskForDetails.type || "Bug"}
+                                  </td>
+                                  <td className="p-1 border border-gray-300">
+                                    {selectedTaskForDetails.name ||
+                                      "Unnamed Task"}
+                                  </td>
+                                  <td className="p-1 border border-gray-300">
+                                    {renderAssignee(
+                                      selectedTaskForDetails.assignee
+                                    )}
+                                  </td>
+                                  <td className="p-1 border border-gray-300">
+                                    {selectedTaskForDetails.status || "To Do"}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
 
-      
         <div className="flex justify-between space-x-2 mt-6">
-          <button className="btn-secondary" onClick={onClose}>
+          <button
+            className="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
+            onClick={onClose}
+          >
             Cancel
           </button>
           <button
-            className="btn-primary"
+            className="px-6 py-2 bg-pink-500 text-white rounded hover:bg-pink-600"
             onClick={handleAddIssue}
           >
             Add
