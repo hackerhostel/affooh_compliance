@@ -353,7 +353,7 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
             Cancel
           </button>
           <button
-            className="px-6 py-2 bg-pink-500 text-white rounded hover:bg-pink-600"
+            className="px-6 py-2 bg-pink-400 text-white rounded hover:bg-pink-600"
             onClick={handleAddIssue}
           >
             Add
