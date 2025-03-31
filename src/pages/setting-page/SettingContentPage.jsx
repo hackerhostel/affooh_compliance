@@ -9,25 +9,25 @@ import {
 } from "@heroicons/react/24/outline";
 import DataGrid, { Column, Paging, Scrolling, Sorting } from "devextreme-react/data-grid";
 import "../../components/sprint-table/custom-style.css";
-import { useHistory } from "react-router-dom";
 import FormInput from "../../components/FormInput";
+import CustomFieldUpdate from "./CustomFieldUpdate";
 
 const dummyCustomField = [
-  { id: 1, name: "Custom Filed 1", description: "Complete project setup", type: "Development" },
-  { id: 2, name: "Custom Filed 2", description: "Design UI/UX", type: "Design" },
-  { id: 3, name: "Custom Filed 3", description: "Write test cases", type: "Testing" },
-  { id: 4, name: "Custom Filed 4", description: "Deploy application", type: "Deployment" },
+  { id: 1, name: "Custom Field 1", description: "Complete project setup", type: "Development" },
+  { id: 2, name: "Custom Field 2", description: "Design UI/UX", type: "Design" },
+  { id: 3, name: "Custom Field 3", description: "Write test cases", type: "Testing" },
+  { id: 4, name: "Custom Field 4", description: "Deploy application", type: "Deployment" },
 ];
 
 const SettingContentPage = () => {
-  const history = useHistory();
-  const [filteredCustomField, setFilteredCustomField] = useState([]);
+  const [customFields, setCustomFields] = useState([]);
   const [newRow, setNewRow] = useState(null);
-  const [actionRow, setActionRow] = useState(null);
   const [editingRow, setEditingRow] = useState(null);
+  const [actionRow, setActionRow] = useState(null);
+  const [showUpdateComponent, setShowUpdateComponent] = useState(false);
 
   useEffect(() => {
-    setFilteredCustomField(dummyCustomField);
+    setCustomFields(dummyCustomField);
   }, []);
 
   const handleAddNew = () => {
@@ -36,13 +36,14 @@ const SettingContentPage = () => {
 
   const handleSave = () => {
     if (newRow) {
-      setFilteredCustomField([{ ...newRow, id: filteredCustomField.length + 1 }, ...filteredCustomField]);
+      const updatedFields = [{ ...newRow, id: customFields.length + 1 }, ...customFields];
+      setCustomFields(updatedFields);
       setNewRow(null);
-    }
-    if (editingRow) {
-      setFilteredCustomField(
-        filteredCustomField.map((goal) => (goal.id === editingRow.id ? editingRow : goal))
+    } else if (editingRow) {
+      const updatedFields = customFields.map((field) =>
+        field.id === editingRow.id ? editingRow : field
       );
+      setCustomFields(updatedFields);
       setEditingRow(null);
       setActionRow(null);
     }
@@ -58,20 +59,26 @@ const SettingContentPage = () => {
     setActionRow(actionRow === id ? null : id);
   };
 
-  const handleEdit = (goal) => {
-    setEditingRow({ ...goal });
+  const handleEdit = (field) => {
+    setEditingRow({ ...field });
+    setShowUpdateComponent(true);
   };
 
   const handleDelete = (id) => {
-    setFilteredCustomField(filteredCustomField.filter((goal) => goal.id !== id));
+    const updatedFields = customFields.filter((field) => field.id !== id);
+    setCustomFields(updatedFields);
   };
+
+  if (showUpdateComponent) {
+    return <CustomFieldUpdate field={editingRow} onClose={() => setShowUpdateComponent(false)} />;
+  }
 
   return (
     <div className="p-3 bg-dashboard-bgc h-full">
       <div>
         <div className="flex items-center justify-between p-4">
           <p className="text-secondary-grey text-lg font-medium">
-            {`CustomField (${filteredCustomField.length})`}
+            {`Custom Fields (${customFields.length})`}
           </p>
           <div
             className="flex items-center space-x-2 text-text-color cursor-pointer"
@@ -82,7 +89,7 @@ const SettingContentPage = () => {
           </div>
         </div>
         <DataGrid
-          dataSource={newRow ? [newRow, ...filteredCustomField] : filteredCustomField}
+          dataSource={newRow ? [newRow, ...customFields] : customFields}
           allowColumnReordering={true}
           showBorders={false}
           width="100%"
@@ -98,86 +105,32 @@ const SettingContentPage = () => {
             dataField="name"
             caption="Name"
             width="20%"
-            cellRender={(data) =>
-              editingRow && editingRow.id === data.data.id ? (
-                <FormInput
-                  className="border p-1 w-full"
-                  value={editingRow.name}
-                  onChange={(e) =>
-                    setEditingRow({ ...editingRow, name: e.target.value })
-                  }
-                />
-              ) : (
-                <span>{data.value}</span>
-              )
-            }
           />
           <Column
             dataField="description"
             caption="Description"
             width="40%"
-            cellRender={(data) =>
-              editingRow && editingRow.id === data.data.id ? (
-                <FormInput
-                  className="border p-1 w-full"
-                  value={editingRow.description}
-                  onChange={(e) =>
-                    setEditingRow({ ...editingRow, description: e.target.value })
-                  }
-                />
-              ) : (
-                <span>{data.value}</span>
-              )
-            }
           />
           <Column
             dataField="type"
             caption="Type"
             width="20%"
-            cellRender={(data) =>
-              editingRow && editingRow.id === data.data.id ? (
-                <FormInput
-                  className="border p-1 w-full"
-                  value={editingRow.type}
-                  onChange={(e) =>
-                    setEditingRow({ ...editingRow, type: e.target.value })
-                  }
-                />
-              ) : (
-                <span>{data.value}</span>
-              )
-            }
           />
           <Column
             caption="Actions"
             width="20%"
-            cellRender={(data) =>
-              actionRow === data.data.id ? (
-                <div className="flex space-x-2">
-                  <PencilSquareIcon
-                    className="w-5 text-text-color cursor-pointer"
-                    onClick={() => handleEdit(data.data)}
-                  />
-                  <CheckBadgeIcon
-                    className="w-5 text-text-color cursor-pointer"
-                    onClick={handleSave}
-                  />
-                  <XMarkIcon
-                    className="w-5 text-text-color cursor-pointer"
-                    onClick={handleClose}
-                  />
-                  <TrashIcon
-                    className="w-5 text-text-color cursor-pointer"
-                    onClick={() => handleDelete(data.data.id)}
-                  />
-                </div>
-              ) : (
-                <EllipsisVerticalIcon
-                  className="w-5 cursor-pointer"
-                  onClick={() => handleActionClick(data.data.id)}
+            cellRender={(data) => (
+              <div className="flex space-x-2">
+                <PencilSquareIcon
+                  className="w-5 text-text-color cursor-pointer"
+                  onClick={() => handleEdit(data.data)}
                 />
-              )
-            }
+                <TrashIcon
+                  className="w-5 text-text-color cursor-pointer"
+                  onClick={() => handleDelete(data.data.id)}
+                />
+              </div>
+            )}
           />
         </DataGrid>
       </div>
