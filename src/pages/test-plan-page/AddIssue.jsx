@@ -1,11 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Select from "react-select";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import useFetchFlatTasks from "../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
 import useFetchTask from "../../hooks/custom-hooks/task/useFetchTask.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import { useToasts } from "react-toast-notifications";
+import {
+  doAddIssues,
+  doGetIssueCount,
+  selectIsAddIssuesLoading,
+  selectIsAddIssuesError,
+} from "../../state/slice/testPlansSlice.js";
 
 // Status mapping
 const statusMapping = {
@@ -16,8 +22,11 @@ const statusMapping = {
   5: "Done",
 };
 
-const AddIssuePopup = ({ isOpen, onClose }) => {
+const AddIssuePopup = ({ isOpen, onClose, testSuiteId, email }) => {
+  const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
+  const isAddIssuesLoading = useSelector(selectIsAddIssuesLoading);
+  const isAddIssuesError = useSelector(selectIsAddIssuesError);
   const { loading, data: tasks } = useFetchFlatTasks(selectedProject?.id);
   const [selectedTasks, setSelectedTasks] = useState([]);
   const [taskOptions, setTaskOptions] = useState([]);
@@ -66,7 +75,6 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
 
   // Remove a selected task
   const removeTask = (taskId) => {
-    // Update the selectedTasks state to remove the specified task
     setSelectedTasks((prevSelectedTasks) =>
       prevSelectedTasks.filter((task) => task.value !== taskId)
     );
@@ -79,7 +87,6 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
 
   // Toggle task details when clicked
   const handleTaskClick = (task) => {
-    // If the task is already selected, toggle it off
     if (
       selectedTaskForDetails &&
       selectedTaskForDetails.id === task.taskData.id
@@ -88,22 +95,19 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
       return;
     }
 
-    // Check if we already have the full details cached
     if (taskDetailsCache[task.taskData.id]) {
       setSelectedTaskForDetails(taskDetailsCache[task.taskData.id]);
       return;
     }
 
-    // Otherwise, show details for the clicked task
     setIsDetailsLoading(true);
     const taskToView = selectedTasks.find((t) => t.value === task.value);
     if (taskToView && taskToView.taskData) {
       console.log("Selected Task Details:", taskToView.taskData);
       setTaskCode(taskToView.taskData.code);
-      // Set the basic task data first so something is visible
       setSelectedTaskForDetails({
         ...taskToView.taskData,
-        status: "Loading...", // Temporary status while loading
+        status: "Loading...",
       });
     }
   };
@@ -113,19 +117,17 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
     if (fullTaskDetails && Object.keys(fullTaskDetails).length > 0) {
       console.log("Full Task Details:", fullTaskDetails);
 
-      // Extract the status from the attributes array
       const statusAttribute = fullTaskDetails.attributes?.find(
         (attr) => attr.taskFieldName === "Status"
       );
       const rawStatus = statusAttribute?.values?.[0];
-      const statusValue = statusMapping[rawStatus] || "To Do"; // Convert number to string
+      const statusValue = statusMapping[rawStatus] || "To Do";
 
       const updatedTaskDetails = {
         ...fullTaskDetails,
         status: statusValue,
       };
 
-      // Update the cache
       setTaskDetailsCache((prev) => ({
         ...prev,
         [fullTaskDetails.id]: updatedTaskDetails,
@@ -155,18 +157,24 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  const handleAddIssue = () => {
+  const handleAddIssue = async () => {
     if (selectedTasks.length === 0) {
       addToast("Please select at least one task to add as an issue.", {
         appearance: "warning",
       });
       return;
     }
-    console.log(
-      "Selected Task IDs:",
-      selectedTasks.map((task) => task.value)
-    );
-    onClose();
+
+    const taskIDs = selectedTasks.map((task) => task.value);
+    try {
+      await dispatch(doAddIssues({ testSuiteId, taskIDs, email })).unwrap();
+      addToast("Issues added successfully!", { appearance: "success" });
+      // Refresh issue count after adding issues
+      await dispatch(doGetIssueCount({ testSuiteId, email }));
+      onClose(); // Close the popup
+    } catch (error) {
+      addToast("Failed to add issues: " + error, { appearance: "error" });
+    }
   };
 
   if (!isOpen) return null;
@@ -193,22 +201,17 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
     }),
   };
 
-  // Properly implement the filterOption function to handle both search and already selected filtering
   const filterOption = (option, inputValue) => {
-    // First check if option is already selected
     const isAlreadySelected = selectedTasks.some(
       (task) => task.value === option.value
     );
     if (isAlreadySelected) return false;
 
-    // If there's no search input, show all non-selected options
     if (!inputValue) return true;
 
-    // Otherwise, filter by search text (case insensitive)
     return option.label.toLowerCase().includes(inputValue.toLowerCase());
   };
 
-  // Assignee rendering helper
   const renderAssignee = (assignee) => {
     if (!assignee) return "Unassigned";
 
@@ -217,7 +220,7 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
       : "N";
     const fullName = assignee.firstName
       ? `${assignee.firstName} ${assignee.lastName || ""}`
-      : "Nilanga"; // Default name if not available
+      : "Nilanga";
 
     return (
       <div className="flex items-center">
@@ -263,7 +266,6 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
                 hideSelectedOptions={false}
               />
 
-              {/* Display selected tasks as a list */}
               {selectedTasks.length > 0 && (
                 <div className="mt-4">
                   {selectedTasks.map((task) => (
@@ -349,14 +351,16 @@ const AddIssuePopup = ({ isOpen, onClose }) => {
           <button
             className="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
             onClick={onClose}
+            disabled={isAddIssuesLoading}
           >
             Cancel
           </button>
           <button
             className="px-6 py-2 bg-pink-400 text-white rounded hover:bg-pink-600"
             onClick={handleAddIssue}
+            disabled={isAddIssuesLoading}
           >
-            Add
+            {isAddIssuesLoading ? "Adding..." : "Add"}
           </button>
         </div>
       </div>
