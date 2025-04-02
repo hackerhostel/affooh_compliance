@@ -22,7 +22,7 @@ const statusMapping = {
   5: "Done",
 };
 
-const AddIssuePopup = ({ isOpen, onClose, testSuiteId, email }) => {
+const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
   const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
   const isAddIssuesLoading = useSelector(selectIsAddIssuesLoading);
@@ -167,10 +167,18 @@ const AddIssuePopup = ({ isOpen, onClose, testSuiteId, email }) => {
 
     const taskIDs = selectedTasks.map((task) => task.value);
     try {
-      await dispatch(doAddIssues({ testSuiteId, taskIDs, email })).unwrap();
+      // Use a default email or the one from props
+      await dispatch(
+        doAddIssues({
+          testSuiteId,
+          taskIDs,
+          
+        })
+      ).unwrap();
+
       addToast("Issues added successfully!", { appearance: "success" });
       // Refresh issue count after adding issues
-      await dispatch(doGetIssueCount({ testSuiteId, email }));
+      await dispatch(doGetIssueCount({ testSuiteId }));
       onClose(); // Close the popup
     } catch (error) {
       addToast("Failed to add issues: " + error, { appearance: "error" });
@@ -368,4 +376,4 @@ const AddIssuePopup = ({ isOpen, onClose, testSuiteId, email }) => {
   );
 };
 
-export default AddIssuePopup;
+export default AddIssue;

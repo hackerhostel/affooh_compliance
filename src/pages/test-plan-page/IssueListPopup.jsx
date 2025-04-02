@@ -7,7 +7,7 @@ import {
   selectIsIssuesError,
 } from "../../state/slice/testPlansSlice";
 
-const IssueListPopup = ({ isOpen, onClose, testSuiteId, email }) => {
+const IssueListPopup = ({ isOpen, onClose, testSuiteId}) => {
   const dispatch = useDispatch();
   const issues = useSelector(selectIssues);
   const isLoading = useSelector(selectIsIssuesLoading);
@@ -16,9 +16,9 @@ const IssueListPopup = ({ isOpen, onClose, testSuiteId, email }) => {
   // Fetch issues when the popup opens
   useEffect(() => {
     if (isOpen) {
-      dispatch(doGetIssues({ testSuiteId, email }));
+      dispatch(doGetIssues({ testSuiteId }));
     }
-  }, [isOpen, dispatch, testSuiteId, email]);
+  }, [isOpen, dispatch, testSuiteId]);
 
   // Helper to render assignee
   const renderAssignee = (assignee) => {

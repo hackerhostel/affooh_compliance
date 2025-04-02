@@ -28,7 +28,7 @@ import {
   doGetIssueCount,
   selectIssueCount,
 } from "../../state/slice/testPlansSlice.js";
-// import { Auth } from "@aws-amplify/auth";
+import { Auth } from "aws-amplify"; 
 
 const TestSuiteContentPage = () => {
   const dispatch = useDispatch();
@@ -56,7 +56,7 @@ const TestSuiteContentPage = () => {
     fail: 0,
     pending: 0,
   });
-  const [userEmail, setUserEmail] = useState("");
+  // const [userEmail, setUserEmail] = useState("");
 
   const {
     loading: testPlanLoading,
@@ -71,25 +71,26 @@ const TestSuiteContentPage = () => {
   } = useFetchTestExecution(testSuiteId, testCycleId);
 
   // Fetch the current user's email from AWS Amplify
-  useEffect(() => {
-    const fetchUserEmail = async () => {
-      try {
-        const user = await Auth.currentAuthenticatedUser();
-        setUserEmail(user.attributes.email);
-      } catch (error) {
-        console.error("Error fetching user email from AWS Amplify:", error);
-        setUserEmail("");
-      }
-    };
-    fetchUserEmail();
-  }, []);
+  // useEffect(() => {
+  //   const fetchUserEmail = async () => {
+  //     try {
+  //       const user = await Auth.currentAuthenticatedUser();
+  //       const email = user.attributes.email;
+  //       setUserEmail(email);
+  //     } catch (error) {
+  //       console.error("Error fetching user email:", error);
+  //       addToast("Failed to fetch user email", { appearance: "error" });
+  //     }
+  //   };
+  //   fetchUserEmail();
+  // }, []);
 
-  // Fetch issue count when the screen loads or testSuiteId changes, using the fetched email
+  // Fetch issue count when the screen loads or testSuiteId changes
   useEffect(() => {
-    if (testSuiteId !== 0 && userEmail) {
-      dispatch(doGetIssueCount({ testSuiteId, email: userEmail }));
+    if (testSuiteId !== 0) {
+      dispatch(doGetIssueCount({ testSuiteId}));
     }
-  }, [testSuiteId, userEmail, dispatch]);
+  }, [testSuiteId, dispatch]);
 
   useEffect(() => {
     if (testPlanResponse?.id) {
@@ -560,11 +561,14 @@ const TestSuiteContentPage = () => {
           <AddIssue
             isOpen={isOpenAddIssue}
             onClose={() => setIsOpenAddIssue(false)}
-            userEmail={userEmail}
+            testSuiteId={testSuiteId}
+            
           />
           <IssueListPopup
             isOpen={isOpenIssueList}
             onClose={() => setIsIssueList(false)}
+            testSuiteId={testSuiteId}
+            
           />
         </div>
       )}
