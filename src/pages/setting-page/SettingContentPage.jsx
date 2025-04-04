@@ -11,13 +11,7 @@ import DataGrid, { Column, Paging, Scrolling, Sorting } from "devextreme-react/d
 import "../../components/sprint-table/custom-style.css";
 import FormInput from "../../components/FormInput";
 import CustomFieldUpdate from "./CustomFieldUpdate";
-
-const dummyCustomField = [
-  { id: 1, name: "Custom Field 1", description: "Complete project setup", type: "Development" },
-  { id: 2, name: "Custom Field 2", description: "Design UI/UX", type: "Design" },
-  { id: 3, name: "Custom Field 3", description: "Write test cases", type: "Testing" },
-  { id: 4, name: "Custom Field 4", description: "Deploy application", type: "Deployment" },
-];
+import axios from "axios";  
 
 const SettingContentPage = () => {
   const [customFields, setCustomFields] = useState([]);
@@ -26,20 +20,50 @@ const SettingContentPage = () => {
   const [actionRow, setActionRow] = useState(null);
   const [showUpdateComponent, setShowUpdateComponent] = useState(false);
 
+
   useEffect(() => {
-    setCustomFields(dummyCustomField);
+    // Fetch initial custom fields from the API when the component mounts
+    axios.get("/custom-fields")
+      .then(response => setCustomFields(response.data))
+      .catch(error => console.error("Error fetching custom fields:", error));
   }, []);
 
   const handleAddNew = () => {
     setNewRow({ id: null, name: "", description: "", type: "" });
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewRow((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSave = () => {
     if (newRow) {
-      const updatedFields = [{ ...newRow, id: customFields.length + 1 }, ...customFields];
-      setCustomFields(updatedFields);
-      setNewRow(null);
+      // Prepare the data to be sent to the backend
+      const newCustomField = {
+        customField: {
+          name: newRow.name,
+          fieldTypeID: newRow.type,  // Assuming type is a field type ID
+          description: newRow.description,
+          fieldValues: [],  // Empty array for field values, adjust if needed
+        }
+      };
+
+      // Send the POST request to create a new custom field
+      axios.post("/custom-fields", newCustomField)
+        .then(response => {
+          const { customFieldID } = response.data.body;
+          // Update the state with the new custom field and reset the form
+          const updatedFields = [
+            { ...newRow, id: customFieldID }, 
+            ...customFields
+          ];
+          setCustomFields(updatedFields);
+          setNewRow(null);
+        })
+        .catch(error => console.error("Error creating custom field:", error));
     } else if (editingRow) {
+      // Update existing custom field (you can extend this as needed)
       const updatedFields = customFields.map((field) =>
         field.id === editingRow.id ? editingRow : field
       );
@@ -48,6 +72,28 @@ const SettingContentPage = () => {
       setActionRow(null);
     }
   };
+
+  const fetchFieldTypes = async () => {
+    try {
+        const response = await axios.get("/custom-fields/field-types");
+        console.log("Raw Response:", response);
+        
+        const fieldTypes = response?.data?.body;
+        if (fieldTypes) {
+            console.log("Field Types:", fieldTypes);
+        } else {
+            console.error("Failed to fetch field types");
+        }
+    } catch (error) {
+        console.error("Error fetching field types:", error.response?.status, error.response?.data);
+    }
+};
+
+useEffect(() => {
+    fetchFieldTypes();
+}, []);
+
+  
 
   const handleClose = () => {
     setNewRow(null);
@@ -65,8 +111,13 @@ const SettingContentPage = () => {
   };
 
   const handleDelete = (id) => {
-    const updatedFields = customFields.filter((field) => field.id !== id);
-    setCustomFields(updatedFields);
+    // Call the API to delete a custom field (if needed)
+    axios.delete(`/api/custom-fields/${id}`)
+      .then(() => {
+        const updatedFields = customFields.filter((field) => field.id !== id);
+        setCustomFields(updatedFields);
+      })
+      .catch(error => console.error("Error deleting custom field:", error));
   };
 
   if (showUpdateComponent) {
@@ -105,32 +156,60 @@ const SettingContentPage = () => {
             dataField="name"
             caption="Name"
             width="20%"
+            cellRender={(data) =>
+              newRow && data.data.id === null ? (
+                <FormInput name="name" value={newRow.name} onChange={handleInputChange} />
+              ) : (
+                data.data.name
+              )
+            }
           />
           <Column
             dataField="description"
             caption="Description"
             width="40%"
+            cellRender={(data) =>
+              newRow && data.data.id === null ? (
+                <FormInput name="description" value={newRow.description} onChange={handleInputChange} />
+              ) : (
+                data.data.description
+              )
+            }
           />
           <Column
             dataField="type"
             caption="Type"
             width="20%"
+            cellRender={(data) =>
+              newRow && data.data.id === null ? (
+                <FormInput name="type" value={newRow.type} onChange={handleInputChange} />
+              ) : (
+                data.data.type
+              )
+            }
           />
           <Column
             caption="Actions"
             width="20%"
-            cellRender={(data) => (
-              <div className="flex space-x-2">
-                <PencilSquareIcon
-                  className="w-5 text-text-color cursor-pointer"
-                  onClick={() => handleEdit(data.data)}
-                />
-                <TrashIcon
-                  className="w-5 text-text-color cursor-pointer"
-                  onClick={() => handleDelete(data.data.id)}
-                />
-              </div>
-            )}
+            cellRender={(data) =>
+              newRow && data.data.id === null ? (
+                <div className="flex space-x-2">
+                  <CheckBadgeIcon className="w-5 text-green-500 cursor-pointer" onClick={handleSave} />
+                  <XMarkIcon className="w-5 text-red-500 cursor-pointer" onClick={handleClose} />
+                </div>
+              ) : (
+                <div className="flex space-x-2">
+                  <PencilSquareIcon
+                    className="w-5 text-text-color cursor-pointer"
+                    onClick={() => handleEdit(data.data)}
+                  />
+                  <TrashIcon
+                    className="w-5 text-text-color cursor-pointer"
+                    onClick={() => handleDelete(data.data.id)}
+                  />
+                </div>
+              )
+            }
           />
         </DataGrid>
       </div>

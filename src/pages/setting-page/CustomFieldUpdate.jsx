@@ -1,83 +1,111 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FormInput from '../../components/FormInput';
 import FormTextArea from '../../components/FormTextArea';
 import DataGrid, { Column, Paging, Scrolling, Sorting } from "devextreme-react/data-grid";
 import "../../components/sprint-table/custom-style.css";
 import {
-    PlusCircleIcon,
     EllipsisVerticalIcon,
     TrashIcon,
-    PencilSquareIcon,
-    CheckBadgeIcon,
-    XMarkIcon,
-  } from "@heroicons/react/24/outline";
+} from "@heroicons/react/24/outline";
+import axios from 'axios'; // Assuming axios is used for API calls
 
-const OptionsTable = () => {
-    const [options, setOptions] = useState([
-        { id: 1, name: "Option 1" },
-        { id: 2, name: "Option 2" },
-        { id: 3, name: "Option 3" },
-    ]);
-
-    const handleDelete = (id) => {
-        setOptions(options.filter(option => option.id !== id));
-    };
-
+const OptionsTable = ({ options, handleDelete }) => {
     return (
-        <div className="p-3 bg-dashboard-bgc h-full">
-            <div>
-                <div className="flex items-center justify-between p-4">
-                    <p className="text-secondary-grey text-lg font-medium">
-                        {`Options (${options.length})`}
-                    </p>
-                </div>
-                <DataGrid
-                    dataSource={options}
-                    allowColumnReordering={true}
-                    showBorders={false}
-                    width="100%"
-                    className="rounded-lg overflow-hidden"
-                    showRowLines={true}
-                    showColumnLines={false}
-                >
-                    <Scrolling columnRenderingMode="virtual" />
-                    <Sorting mode="multiple" />
-                    <Paging enabled={true} pageSize={4} />
+        <div>
+            <DataGrid
+                dataSource={options}
+                allowColumnReordering={true}
+                showBorders={false}
+                width="100%"
+                className="rounded-lg overflow-hidden"
+                showRowLines={true}
+                showColumnLines={false}
+            >
+                <Scrolling columnRenderingMode="virtual" />
+                <Sorting mode="multiple" />
+                <Paging enabled={true} pageSize={4} />
 
-                    <Column
-                        dataField="name"
-                        caption="Option Name"
-                        width="80%"
-                    />
-                    <Column
-                        caption="Actions"
-                        width="20%"
-                        cellRender={(data) => (
-                            <div className="flex space-x-2">
-                                <button
-                                    className="text-text-color cursor-pointer"
-                                    onClick={() => handleDelete(data.data.id)}
-                                >
-                                    <EllipsisVerticalIcon className='w-5'/>
-                                </button>
-                            </div>
-                        )}
-                    />
-                </DataGrid>
-            </div>
+                <Column
+                    dataField="name"
+                    caption="Option Name"
+                    width="80%"
+                />
+                <Column
+                    caption="Actions"
+                    width="20%"
+                    cellRender={(data) => (
+                        <div className="flex space-x-2">
+                            <button
+                                className="text-text-color cursor-pointer"
+                                onClick={() => handleDelete(data.data.id)}
+                            >
+                                <TrashIcon className="w-5" />
+                            </button>
+                        </div>
+                    )}
+                />
+            </DataGrid>
         </div>
     );
 };
 
-const CustomFieldUpdate = () => {
+const CustomFieldUpdate = ({ customFieldId }) => {
     const [formValues, setFormValues] = useState({ name: '', description: '' });
+    const [options, setOptions] = useState([]);
     const [formErrors, setFormErrors] = useState({});
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+    const [fieldTypes, setFieldTypes] = useState([]);
+
+    useEffect(() => {
+        // Fetch current custom field data
+        const fetchCustomFieldData = async () => {
+            try {
+                const { data } = await axios.get(`/custom-fields/${customFieldId}`);
+                setFormValues({ name: data.body.name, description: data.body.description });
+                setOptions(data.body.options || []);
+            } catch (error) {
+                console.error("Error fetching custom field data:", error);
+            }
+        };
+
+        // Fetch available field types
+        const fetchFieldTypes = async () => {
+            try {
+                const { data } = await axios.get('/custom-fields/field-types');
+                setFieldTypes(data.body);
+            } catch (error) {
+                console.error("Error fetching field types:", error);
+            }
+        };
+
+        fetchCustomFieldData();
+        fetchFieldTypes();
+    }, [customFieldId]);
 
     const handleFormChange = (name, value, validate) => {
         setFormValues((prev) => ({ ...prev, [name]: value }));
         if (validate) {
-            
+            // Validate form logic
+        }
+    };
+
+    const handleDeleteOption = async (optionId) => {
+        try {
+            await axios.delete(`/custom-fields/${customFieldId}/field-values/${optionId}`);
+            setOptions(options.filter(option => option.id !== optionId));
+        } catch (error) {
+            console.error("Error deleting custom field option:", error);
+        }
+    };
+
+    const handleUpdateCustomField = async () => {
+        try {
+            await axios.put(`/custom-fields/${customFieldId}`, {
+                customField: formValues,
+            });
+            alert("Custom field updated successfully!");
+        } catch (error) {
+            console.error("Error updating custom field:", error);
         }
     };
 
@@ -99,7 +127,12 @@ const CustomFieldUpdate = () => {
                     </div>
                 </div>
                 <div>
-                    <button className='bg-primary-pink px-8 py-2 rounded-md text-white'>Update</button>
+                    <button
+                        className='bg-primary-pink px-8 py-2 rounded-md text-white'
+                        onClick={handleUpdateCustomField}
+                    >
+                        Update
+                    </button>
                 </div>
             </div>
 
@@ -131,7 +164,10 @@ const CustomFieldUpdate = () => {
                     />
                 </div>
 
-                <OptionsTable />
+                <OptionsTable
+                    options={options}
+                    handleDelete={handleDeleteOption}
+                />
             </div>
         </div>
     );
