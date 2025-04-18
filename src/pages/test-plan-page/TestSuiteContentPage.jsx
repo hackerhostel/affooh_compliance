@@ -1,3 +1,4 @@
+// TestSuiteContentPage.jsx
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { selectSelectedTestPlanId } from "../../state/slice/testPlansSlice.js";
@@ -24,11 +25,8 @@ import { useHistory } from "react-router-dom";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import AddIssue from "./AddIssue.jsx";
 import IssueListPopup from "./IssueListPopup.jsx";
-import {
-  doGetIssueCount,
-  selectIssueCount,
-} from "../../state/slice/testPlansSlice.js";
-import { Auth } from "aws-amplify"; 
+import useFetchTestSuite from "../../hooks/custom-hooks/test-plan/useFetchTestSuite.jsx";
+import { getCurrentUser } from "aws-amplify/auth";
 
 const TestSuiteContentPage = () => {
   const dispatch = useDispatch();
@@ -38,25 +36,49 @@ const TestSuiteContentPage = () => {
   const selectedProject = useSelector(selectSelectedProject);
   const selectedTestPlanId = useSelector(selectSelectedTestPlanId);
   const testCaseStatuses = useSelector(selectTestCaseStatuses);
-  const issueCount = useSelector(selectIssueCount);
 
   const [testExecutionCycles, setTestExecutionCycles] = useState([]);
   const [testExecutionOptions, setTestExecutionOptions] = useState([]);
   const [testExecutions, setTestExecutions] = useState([]);
   const [testPlan, setTestPlan] = useState({});
   const [testPlanId, setTestPlanId] = useState(0);
-  const [testSuiteId, setTestSuiteId] = useState(0);
+  const [testSuiteID, setTestSuiteId] = useState(0);
   const [testCycleId, setTestCycleId] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isOpenAddIssue, setIsOpenAddIssue] = useState(false);
   const [isOpenIssueList, setIsIssueList] = useState(false);
+  const [selectedTestCaseId, setSelectedTestCaseId] = useState(null);
   const [statusCounts, setStatusCounts] = useState({
     all: 0,
     pass: 0,
     fail: 0,
     pending: 0,
   });
-  // const [userEmail, setUserEmail] = useState("");
+
+  const [userEmail, setUserEmail] = useState("");
+  const {
+    token,
+    issueCount: fetchedIssueCounts,
+    fetchTestSuite,
+  } = useFetchTestSuite(testSuiteID);
+
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      try {
+        const user = await getCurrentUser();
+        const email = user.signInDetails?.loginId;
+        if (email) {
+          setUserEmail(email);
+        } else {
+          addToast("Failed to fetch user email", { appearance: "error" });
+        }
+      } catch (error) {
+        console.error("Error fetching user email:", error);
+        addToast("Failed to fetch user email", { appearance: "error" });
+      }
+    };
+    fetchUserEmail();
+  }, [addToast]);
 
   const {
     loading: testPlanLoading,
@@ -68,29 +90,7 @@ const TestSuiteContentPage = () => {
     error: testExecutionError,
     data: testExecutionResponse,
     refetch: refetchTextExecution,
-  } = useFetchTestExecution(testSuiteId, testCycleId);
-
-  // Fetch the current user's email from AWS Amplify
-  // useEffect(() => {
-  //   const fetchUserEmail = async () => {
-  //     try {
-  //       const user = await Auth.currentAuthenticatedUser();
-  //       const email = user.attributes.email;
-  //       setUserEmail(email);
-  //     } catch (error) {
-  //       console.error("Error fetching user email:", error);
-  //       addToast("Failed to fetch user email", { appearance: "error" });
-  //     }
-  //   };
-  //   fetchUserEmail();
-  // }, []);
-
-  // Fetch issue count when the screen loads or testSuiteId changes
-  useEffect(() => {
-    if (testSuiteId !== 0) {
-      dispatch(doGetIssueCount({ testSuiteId}));
-    }
-  }, [testSuiteId, dispatch]);
+  } = useFetchTestExecution(testSuiteID, testCycleId);
 
   useEffect(() => {
     if (testPlanResponse?.id) {
@@ -134,24 +134,37 @@ const TestSuiteContentPage = () => {
   }, [testExecutions]);
 
   useEffect(() => {
-    if (testSuiteId !== 0) {
+    if (testSuiteID !== 0) {
       const filteredTestExecutionCycles = testExecutionOptions.filter(
-        (to) => to.id === Number(testSuiteId)
+        (to) => to.id === Number(testSuiteID)
       )[0]?.cycles;
       if (filteredTestExecutionCycles && filteredTestExecutionCycles.length) {
         setTestExecutionCycles(filteredTestExecutionCycles);
         setTestCycleId(filteredTestExecutionCycles[0].id);
       }
     }
-  }, [testSuiteId]);
+  }, [testSuiteID]);
 
-  const handleAddIssue = () => {
+  // Fetch test suite data when testSuiteID or token changes
+  useEffect(() => {
+    if (testSuiteID && token) {
+      fetchTestSuite();
+    }
+  }, [testSuiteID, token, fetchTestSuite]);
+
+  const handleAddIssue = (testCaseID, platform) => {
+    setSelectedTestCaseId(testCaseID);
+    setSelectedPlatform(platform);
     setIsOpenAddIssue(true);
   };
 
-  const handleIssueList = () => {
+  const handleIssueList = (testCaseID, platform) => {
+    setSelectedTestCaseId(testCaseID);
+    setSelectedPlatform(platform);
     setIsIssueList(true);
   };
+
+  const [selectedPlatform, setSelectedPlatform] = useState(null);
 
   const handleSuiteChange = (value) => {
     if (value) {
@@ -171,15 +184,13 @@ const TestSuiteContentPage = () => {
 
   const updateRow = async (rowID, updatedData) => {
     setIsUpdating(true);
-
     try {
       const response = await axios.put("/test-case/update", {
         testExecData: updatedData,
       });
-
       if (response) {
         setIsUpdating(false);
-        addToast("Successfully Update Test Execution Item", {
+        addToast("Successfully Updated Test Execution Item", {
           appearance: "success",
         });
         refetchTextExecution(true);
@@ -188,6 +199,16 @@ const TestSuiteContentPage = () => {
       setIsUpdating(false);
       addToast("Failed To Update Test Execution Item", { appearance: "error" });
     }
+  };
+
+  const handleAddIssueClose = async (issueAdded) => {
+    setIsOpenAddIssue(false);
+    if (issueAdded) {
+      await fetchTestSuite(); // Refresh issue count
+      refetchTextExecution(true); // Refresh the page
+      setTestSuiteId((prev) => prev); // Trigger useFetchTestSuite to refetch
+    }
+    setSelectedTestCaseId(null);
   };
 
   if (testPlanLoading) {
@@ -199,7 +220,11 @@ const TestSuiteContentPage = () => {
   }
 
   if (testPlanError || testExecutionError) {
-    return <ErrorAlert message={error.message} />;
+    return (
+      <ErrorAlert
+        message={testPlanError?.message || testExecutionError?.message}
+      />
+    );
   }
 
   const StatusCount = ({ count, label, variant = "default" }) => {
@@ -228,6 +253,18 @@ const TestSuiteContentPage = () => {
     const [status, setStatus] = React.useState(row?.status || 8);
     const [note, setNote] = React.useState(row?.notes || "");
     const [noteChanged, setNoteChanged] = React.useState(false);
+    const [issueCount, setIssueCount] = useState(0);
+
+    // Fetch issue count for this row only once when the row or fetchedIssueCounts changes
+    useEffect(() => {
+      const count =
+        fetchedIssueCounts[`${row.testCaseID}-${row.platform.toLowerCase()}`] ||
+        0;
+      setIssueCount(count);
+      console.log(
+        `Frontend issue count for testCaseID: ${row.testCaseID}, platform: ${row.platform} => ${count}`
+      );
+    }, [row.testCaseID, row.platform, fetchedIssueCounts]); // Dependencies: only log when these change
 
     const handleStatusUpdate = (name, value) => {
       setStatus(value);
@@ -301,13 +338,13 @@ const TestSuiteContentPage = () => {
             <div className="flex items-center">
               <button
                 className="px-2 py-1 bg-white rounded-sm border-count-notification"
-                onClick={handleIssueList}
+                onClick={() => handleIssueList(row.testCaseID, row.platform)}
               >
-                {issueCount || 0}
+                {issueCount}
               </button>
               <PlusCircleIcon
                 className="w-8 h-8 items-center text-pink-500 cursor-pointer ml-2"
-                onClick={handleAddIssue}
+                onClick={() => handleAddIssue(row.testCaseID, row.platform)}
               />
             </div>
           </td>
@@ -431,7 +468,7 @@ const TestSuiteContentPage = () => {
         <div>
           {testPlan?.id && (
             <p className="text-secondary-grey font-bold text-sm align-left">
-              Projects <span className="mx-1">&gt;</span>{" "}
+              Projects <span className="mx-1"></span>{" "}
               <span className="text-black">{testPlan.name}</span>
             </p>
           )}
@@ -445,7 +482,7 @@ const TestSuiteContentPage = () => {
               <FormSelect
                 name="suite"
                 className="w-28 h-10"
-                formValues={{ suite: testSuiteId }}
+                formValues={{ suite: testSuiteID }}
                 options={
                   testExecutionOptions.length
                     ? getSelectOptions(testExecutionOptions)
@@ -560,15 +597,22 @@ const TestSuiteContentPage = () => {
           </div>
           <AddIssue
             isOpen={isOpenAddIssue}
-            onClose={() => setIsOpenAddIssue(false)}
-            testSuiteId={testSuiteId}
-            
+            onClose={handleAddIssueClose}
+            testSuiteID={testSuiteID}
+            testCaseID={selectedTestCaseId}
+            userEmail={userEmail}
+            token={token}
+            platform={selectedPlatform}
+            fetchTestSuite={fetchTestSuite}
           />
           <IssueListPopup
             isOpen={isOpenIssueList}
             onClose={() => setIsIssueList(false)}
-            testSuiteId={testSuiteId}
-            
+            testSuiteID={testSuiteID}
+            testCaseID={selectedTestCaseId}
+            userEmail={userEmail}
+            token={token}
+            platform={selectedPlatform}
           />
         </div>
       )}

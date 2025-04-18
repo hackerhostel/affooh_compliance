@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Auth } from "aws-amplify"; // AWS Amplify එකෙන් token එක ගන්න
+
 
 const initialState = {
   isTestPlanListForProjectError: false,
@@ -41,22 +41,23 @@ export const doGetTestPlans = createAsyncThunk(
   }
 );
 
+
+
 // Fetch Issue Count for a Test Suite
 export const doGetIssueCount = createAsyncThunk(
   "testPlans/getIssueCount",
-  async ({ testSuiteId }, thunkApi) => {
+  async ({ testSuiteID, email, token, testCaseID }, thunkApi) => {
     try {
-      const token = (await Auth.currentSession()).getIdToken().getJwtToken(); // Token එක ගන්න
       const response = await axios.get(
-        `/test-plans/test-suites/${testSuiteId}/issues/count`,
+        `/test-plans/test-suites/${testSuiteID}/issues/count`,
         {
-          params: { email },
+          params: { email, testCaseID }, // testCaseId එකත් query param එකක් විදිහට pass කරනවා
           headers: {
-            Authorization: `Bearer ${token}`, // Token එක add කරනවා
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      const responseData = response.data.body;
+      const responseData = response.data;
 
       if (responseData !== undefined) {
         return responseData;
@@ -73,19 +74,18 @@ export const doGetIssueCount = createAsyncThunk(
 // Fetch Issues for a Test Suite
 export const doGetIssues = createAsyncThunk(
   "testPlans/getIssues",
-  async ({ testSuiteId }, thunkApi) => {
+  async ({ testSuiteID, email, token, testCaseID, platform }, thunkApi) => {
     try {
-      const token = (await Auth.currentSession()).getIdToken().getJwtToken(); // Token එක ගන්න
       const response = await axios.get(
-        `/test-plans/test-suites/${testSuiteId}/issues`,
+        `/test-plans/test-suites/${testSuiteID}/issues`,
         {
-          params: { email },
+          params: { email, testCaseID, platform }, // platform එකත් query params එකට එකතු කරනවා
           headers: {
-            Authorization: `Bearer ${token}`, // Token එක add කරනවා
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      const responseData = response.data.body;
+      const responseData = response.data;
 
       if (responseData) {
         return responseData;
@@ -99,27 +99,29 @@ export const doGetIssues = createAsyncThunk(
   }
 );
 
-// Add Issues to a Test Suite
 export const doAddIssues = createAsyncThunk(
   "testPlans/addIssues",
-  async ({ testSuiteId, taskIDs }, thunkApi) => {
+  async (
+    { testSuiteID, taskIDs, email, token, testCaseID, platform },
+    thunkApi
+  ) => {
     try {
-      const token = (await Auth.currentSession()).getIdToken().getJwtToken(); // Token එක ගන්න
       const response = await axios.post(
-        `/test-plans/test-suites/${testSuiteId}/issues`, // URL එක fix කරනවා
+        `/test-plans/test-suites/${testSuiteID}/issues`,
         {
-          testSuiteId,
+          testSuiteID,
           taskIDs,
-          createdByEmail: email,
+          email,
+          platform, // platform එකත් body එකට එකතු කරනවා
         },
         {
+          params: { testCaseID },
           headers: {
-            Authorization: `Bearer ${token}`, // Token එක add කරනවා
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      console.log("API Response:", response);
-      const responseData = response.data.body;
+      const responseData = response.data;
       if (response.data.error || !responseData) {
         return thunkApi.rejectWithValue(
           response.data.message || "Failed to add issues"
@@ -134,6 +136,7 @@ export const doAddIssues = createAsyncThunk(
     }
   }
 );
+
 
 export const testPlansSlice = createSlice({
   name: "testPlans",

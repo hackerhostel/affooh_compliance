@@ -1,3 +1,4 @@
+// IssueListPopup.jsx
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -7,20 +8,45 @@ import {
   selectIsIssuesError,
 } from "../../state/slice/testPlansSlice";
 
-const IssueListPopup = ({ isOpen, onClose, testSuiteId}) => {
+const IssueListPopup = ({
+  isOpen,
+  onClose,
+  testSuiteID,
+  testCaseID,
+  userEmail,
+  token,
+  platform,
+}) => {
   const dispatch = useDispatch();
   const issues = useSelector(selectIssues);
   const isLoading = useSelector(selectIsIssuesLoading);
   const isError = useSelector(selectIsIssuesError);
 
-  // Fetch issues when the popup opens
-  useEffect(() => {
-    if (isOpen) {
-      dispatch(doGetIssues({ testSuiteId }));
-    }
-  }, [isOpen, dispatch, testSuiteId]);
+useEffect(() => {
+  if (isOpen && testSuiteID && userEmail && token && testCaseID) {
+    console.log(
+      `Fetching issues with testCaseID: ${testCaseID}, platform: ${platform}`
+    );
+    dispatch(
+      doGetIssues({
+        testSuiteID,
+        email: userEmail,
+        token,
+        testCaseID,
+        platform, // Pass the original platform value
+      })
+    );
+  }
+}, [isOpen, dispatch, testSuiteID, testCaseID, userEmail, token, platform]);
 
-  // Helper to render assignee
+  useEffect(() => {
+    if (issues) {
+      console.log(
+        `Frontend fetched issues for testCaseID: ${testCaseID}, platform: ${platform} => ${issues.length} issues`
+      );
+    }
+  }, [issues, testCaseID, platform]);
+
   const renderAssignee = (assignee) => {
     if (!assignee) return "Unassigned";
 
@@ -82,23 +108,25 @@ const IssueListPopup = ({ isOpen, onClose, testSuiteId}) => {
                   ) : issues.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="p-2 text-center">
-                        No issues linked to this test suite.
+                        No issues linked to this test case.
                       </td>
                     </tr>
                   ) : (
-                    issues.map((issue) => (
-                      <tr key={issue.id} className="border-b">
-                        <td className="p-2">{issue.task.id}</td>
-                        <td className="p-2">{issue.task.type || "Bug"}</td>
-                        <td className="p-2">{issue.task.summary}</td>
-                        <td className="p-2">
-                          {renderAssignee(issue.createdBy)}
-                        </td>
-                        <td className="p-2">
-                          {issue.task.status?.value || "To Do"}
-                        </td>
-                      </tr>
-                    ))
+                    issues.flatMap((issue) =>
+                      issue.tasks.map((task) => (
+                        <tr key={`${issue.id}-${task.id}`} className="border-b">
+                          <td className="p-2">{task.id}</td>
+                          <td className="p-2">{task.type || "Bug"}</td>
+                          <td className="p-2">{task.summary}</td>
+                          <td className="p-2">
+                            {renderAssignee(issue.createdBy)}
+                          </td>
+                          <td className="p-2">
+                            {task.status?.value || "To Do"}
+                          </td>
+                        </tr>
+                      ))
+                    )
                   )}
                 </tbody>
               </table>

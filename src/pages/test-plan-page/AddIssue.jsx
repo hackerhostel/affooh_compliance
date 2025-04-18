@@ -6,12 +6,7 @@ import useFetchFlatTasks from "../../hooks/custom-hooks/task/useFetchFlatTasks.j
 import useFetchTask from "../../hooks/custom-hooks/task/useFetchTask.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import { useToasts } from "react-toast-notifications";
-import {
-  doAddIssues,
-  doGetIssueCount,
-  selectIsAddIssuesLoading,
-  selectIsAddIssuesError,
-} from "../../state/slice/testPlansSlice.js";
+import { doAddIssues } from "../../state/slice/testPlansSlice.js";
 
 // Status mapping
 const statusMapping = {
@@ -22,11 +17,19 @@ const statusMapping = {
   5: "Done",
 };
 
-const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
+
+  const AddIssue = ({
+  isOpen,
+  onClose,
+  testSuiteID,
+  testCaseID,
+  userEmail,
+  token,
+  platform, // platform prop එක එකතු කරනවා
+  fetchTestSuite,
+}) => {
   const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
-  const isAddIssuesLoading = useSelector(selectIsAddIssuesLoading);
-  const isAddIssuesError = useSelector(selectIsAddIssuesError);
   const { loading, data: tasks } = useFetchFlatTasks(selectedProject?.id);
   const [selectedTasks, setSelectedTasks] = useState([]);
   const [taskOptions, setTaskOptions] = useState([]);
@@ -35,7 +38,6 @@ const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
   const selectRef = useRef(null);
   const { addToast } = useToasts();
 
-  // Fetch full task details using useFetchTask
   const [taskCode, setTaskCode] = useState(null);
   const {
     data: fullTaskDetails,
@@ -43,13 +45,10 @@ const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
     error: taskError,
   } = useFetchTask(taskCode);
 
-  // Store fetched details to avoid refetching
   const [taskDetailsCache, setTaskDetailsCache] = useState({});
 
-  // Format tasks for dropdown and filter by type "bug"
   useEffect(() => {
     if (tasks && tasks.length > 0) {
-      console.log("Fetched Tasks:", tasks);
       const bugTasks = tasks.filter(
         (task) => task.type?.toLowerCase() === "bug"
       );
@@ -63,29 +62,22 @@ const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
     }
   }, [tasks]);
 
-  // Handle multiple select change
   const handleSelectChange = (selectedOptions, actionMeta) => {
     setSelectedTasks(selectedOptions || []);
-
-    // Close the menu after selection
     if (actionMeta.action === "select-option" && selectRef.current) {
       selectRef.current.blur();
     }
   };
 
-  // Remove a selected task
   const removeTask = (taskId) => {
     setSelectedTasks((prevSelectedTasks) =>
       prevSelectedTasks.filter((task) => task.value !== taskId)
     );
-
-    // Clear the task details if this was the currently viewed task
     if (selectedTaskForDetails && selectedTaskForDetails.id === taskId) {
       setSelectedTaskForDetails(null);
     }
   };
 
-  // Toggle task details when clicked
   const handleTaskClick = (task) => {
     if (
       selectedTaskForDetails &&
@@ -112,7 +104,6 @@ const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
     }
   };
 
-  // Update selectedTaskForDetails when fullTaskDetails is fetched
   useEffect(() => {
     if (fullTaskDetails && Object.keys(fullTaskDetails).length > 0) {
       console.log("Full Task Details:", fullTaskDetails);
@@ -138,7 +129,6 @@ const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
     }
   }, [fullTaskDetails]);
 
-  // Handle errors from useFetchTask
   useEffect(() => {
     if (taskError) {
       addToast("Failed to fetch task details: " + taskError, {
@@ -148,7 +138,6 @@ const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
     }
   }, [taskError, addToast]);
 
-  // Reset state when modal is closed
   useEffect(() => {
     if (!isOpen) {
       setSelectedTasks([]);
@@ -167,27 +156,41 @@ const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
 
     const taskIDs = selectedTasks.map((task) => task.value);
     try {
-      // Use a default email or the one from props
+      const email = userEmail;
+      if (!email) {
+        addToast("User email is missing. Please log in again.", {
+          appearance: "error",
+        });
+        return;
+      }
+
       await dispatch(
         doAddIssues({
-          testSuiteId,
+          testSuiteID,
           taskIDs,
-          
+          email,
+          testCaseID,
+          token,
+          platform: platform.toLowerCase(), // Convert to lowercase
         })
       ).unwrap();
 
       addToast("Issues added successfully!", { appearance: "success" });
-      // Refresh issue count after adding issues
-      await dispatch(doGetIssueCount({ testSuiteId }));
-      onClose(); // Close the popup
+
+      if (fetchTestSuite) {
+        await fetchTestSuite();
+      }
+
+      onClose(true);
     } catch (error) {
-      addToast("Failed to add issues: " + error, { appearance: "error" });
+      addToast("Failed to add issues: " + (error.message || error), {
+        appearance: "error",
+      });
     }
   };
 
   if (!isOpen) return null;
 
-  // Custom styles for react-select
   const customStyles = {
     control: (provided) => ({
       ...provided,
@@ -205,7 +208,7 @@ const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
     }),
     multiValue: (provided) => ({
       ...provided,
-      display: "none", // Hide the selected values in the input field
+      display: "none",
     }),
   };
 
@@ -247,7 +250,7 @@ const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
           <span className="text-lg font-semibold">Add Issue:</span>
           <button
             className="text-gray-500 hover:text-gray-700"
-            onClick={onClose}
+            onClick={() => onClose(false)}
           >
             ✖
           </button>
@@ -358,17 +361,15 @@ const AddIssue = ({ isOpen, onClose, testSuiteId }) => {
         <div className="flex justify-between space-x-2 mt-6">
           <button
             className="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
-            onClick={onClose}
-            disabled={isAddIssuesLoading}
+            onClick={() => onClose(false)}
           >
             Cancel
           </button>
           <button
             className="px-6 py-2 bg-pink-400 text-white rounded hover:bg-pink-600"
             onClick={handleAddIssue}
-            disabled={isAddIssuesLoading}
           >
-            {isAddIssuesLoading ? "Adding..." : "Add"}
+            Add
           </button>
         </div>
       </div>
