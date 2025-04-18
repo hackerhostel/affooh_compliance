@@ -1,4 +1,3 @@
-// IssueListPopup.jsx
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -6,14 +5,13 @@ import {
   selectIssues,
   selectIsIssuesLoading,
   selectIsIssuesError,
-} from "../../state/slice/testPlansSlice";
+} from "../../state/slice/testIssueSlice";
 
 const IssueListPopup = ({
   isOpen,
   onClose,
   testSuiteID,
   testCaseID,
-  userEmail,
   token,
   platform,
 }) => {
@@ -22,22 +20,21 @@ const IssueListPopup = ({
   const isLoading = useSelector(selectIsIssuesLoading);
   const isError = useSelector(selectIsIssuesError);
 
-useEffect(() => {
-  if (isOpen && testSuiteID && userEmail && token && testCaseID) {
-    console.log(
-      `Fetching issues with testCaseID: ${testCaseID}, platform: ${platform}`
-    );
-    dispatch(
-      doGetIssues({
-        testSuiteID,
-        email: userEmail,
-        token,
-        testCaseID,
-        platform, // Pass the original platform value
-      })
-    );
-  }
-}, [isOpen, dispatch, testSuiteID, testCaseID, userEmail, token, platform]);
+  useEffect(() => {
+    if (isOpen && testSuiteID && token && testCaseID) {
+      console.log(
+        `Fetching issues with testCaseID: ${testCaseID}, platform: ${platform}`
+      );
+      dispatch(
+        doGetIssues({
+          testSuiteID,
+          token,
+          testCaseID,
+          platform,
+        })
+      );
+    }
+  }, [isOpen, dispatch, testSuiteID, testCaseID, token, platform]);
 
   useEffect(() => {
     if (issues) {

@@ -1,4 +1,3 @@
-// TestSuiteContentPage.jsx
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { selectSelectedTestPlanId } from "../../state/slice/testPlansSlice.js";
@@ -26,7 +25,7 @@ import FormTextArea from "../../components/FormTextArea.jsx";
 import AddIssue from "./AddIssue.jsx";
 import IssueListPopup from "./IssueListPopup.jsx";
 import useFetchTestSuite from "../../hooks/custom-hooks/test-plan/useFetchTestSuite.jsx";
-import { getCurrentUser } from "aws-amplify/auth";
+import useFetchIssue from "../../hooks/custom-hooks/test-plan/useFetchIssue.jsx"; // New hook
 
 const TestSuiteContentPage = () => {
   const dispatch = useDispatch();
@@ -55,30 +54,14 @@ const TestSuiteContentPage = () => {
     pending: 0,
   });
 
-  const [userEmail, setUserEmail] = useState("");
-  const {
-    token,
-    issueCount: fetchedIssueCounts,
-    fetchTestSuite,
-  } = useFetchTestSuite(testSuiteID);
+  const { token, fetchTestSuite } = useFetchTestSuite(testSuiteID);
+  const { issueCount, fetchIssue } = useFetchIssue(testSuiteID);
 
   useEffect(() => {
-    const fetchUserEmail = async () => {
-      try {
-        const user = await getCurrentUser();
-        const email = user.signInDetails?.loginId;
-        if (email) {
-          setUserEmail(email);
-        } else {
-          addToast("Failed to fetch user email", { appearance: "error" });
-        }
-      } catch (error) {
-        console.error("Error fetching user email:", error);
-        addToast("Failed to fetch user email", { appearance: "error" });
-      }
-    };
-    fetchUserEmail();
-  }, [addToast]);
+    if (!testCaseStatuses.length) {
+      dispatch(doGetTestCaseFormData(selectedProject?.id));
+    }
+  }, [dispatch, selectedProject, testCaseStatuses]);
 
   const {
     loading: testPlanLoading,
@@ -102,9 +85,6 @@ const TestSuiteContentPage = () => {
         setTestExecutionOptions(testEOP);
         setTestSuiteId(testEOP[0].id);
       }
-    }
-    if (!testCaseStatuses.length) {
-      dispatch(doGetTestCaseFormData(selectedProject?.id));
     }
   }, [testPlanResponse]);
 
@@ -145,12 +125,12 @@ const TestSuiteContentPage = () => {
     }
   }, [testSuiteID]);
 
-  // Fetch test suite data when testSuiteID or token changes
   useEffect(() => {
     if (testSuiteID && token) {
       fetchTestSuite();
+      fetchIssue();
     }
-  }, [testSuiteID, token, fetchTestSuite]);
+  }, [testSuiteID, token, fetchTestSuite, fetchIssue]);
 
   const handleAddIssue = (testCaseID, platform) => {
     setSelectedTestCaseId(testCaseID);
@@ -204,9 +184,10 @@ const TestSuiteContentPage = () => {
   const handleAddIssueClose = async (issueAdded) => {
     setIsOpenAddIssue(false);
     if (issueAdded) {
-      await fetchTestSuite(); // Refresh issue count
-      refetchTextExecution(true); // Refresh the page
-      setTestSuiteId((prev) => prev); // Trigger useFetchTestSuite to refetch
+      await fetchTestSuite();
+      await fetchIssue(); // Refresh issue count
+      refetchTextExecution(true);
+      setTestSuiteId((prev) => prev);
     }
     setSelectedTestCaseId(null);
   };
@@ -253,18 +234,16 @@ const TestSuiteContentPage = () => {
     const [status, setStatus] = React.useState(row?.status || 8);
     const [note, setNote] = React.useState(row?.notes || "");
     const [noteChanged, setNoteChanged] = React.useState(false);
-    const [issueCount, setIssueCount] = useState(0);
+    const [issueCountForRow, setIssueCountForRow] = useState(0);
 
-    // Fetch issue count for this row only once when the row or fetchedIssueCounts changes
     useEffect(() => {
       const count =
-        fetchedIssueCounts[`${row.testCaseID}-${row.platform.toLowerCase()}`] ||
-        0;
-      setIssueCount(count);
+        issueCount[`${row.testCaseID}-${row.platform.toLowerCase()}`] || 0;
+      setIssueCountForRow(count);
       console.log(
         `Frontend issue count for testCaseID: ${row.testCaseID}, platform: ${row.platform} => ${count}`
       );
-    }, [row.testCaseID, row.platform, fetchedIssueCounts]); // Dependencies: only log when these change
+    }, [row.testCaseID, row.platform, issueCount]);
 
     const handleStatusUpdate = (name, value) => {
       setStatus(value);
@@ -340,7 +319,7 @@ const TestSuiteContentPage = () => {
                 className="px-2 py-1 bg-white rounded-sm border-count-notification"
                 onClick={() => handleIssueList(row.testCaseID, row.platform)}
               >
-                {issueCount}
+                {issueCountForRow}
               </button>
               <PlusCircleIcon
                 className="w-8 h-8 items-center text-pink-500 cursor-pointer ml-2"
@@ -600,7 +579,6 @@ const TestSuiteContentPage = () => {
             onClose={handleAddIssueClose}
             testSuiteID={testSuiteID}
             testCaseID={selectedTestCaseId}
-            userEmail={userEmail}
             token={token}
             platform={selectedPlatform}
             fetchTestSuite={fetchTestSuite}
@@ -610,7 +588,6 @@ const TestSuiteContentPage = () => {
             onClose={() => setIsIssueList(false)}
             testSuiteID={testSuiteID}
             testCaseID={selectedTestCaseId}
-            userEmail={userEmail}
             token={token}
             platform={selectedPlatform}
           />

@@ -6,9 +6,8 @@ import useFetchFlatTasks from "../../hooks/custom-hooks/task/useFetchFlatTasks.j
 import useFetchTask from "../../hooks/custom-hooks/task/useFetchTask.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import { useToasts } from "react-toast-notifications";
-import { doAddIssues } from "../../state/slice/testPlansSlice.js";
+import { doAddIssues } from "../../state/slice/testIssueSlice.js";
 
-// Status mapping
 const statusMapping = {
   1: "To Do",
   2: "In Progress",
@@ -17,15 +16,13 @@ const statusMapping = {
   5: "Done",
 };
 
-
-  const AddIssue = ({
+const AddIssue = ({
   isOpen,
   onClose,
   testSuiteID,
   testCaseID,
-  userEmail,
   token,
-  platform, // platform prop එක එකතු කරනවා
+  platform,
   fetchTestSuite,
 }) => {
   const dispatch = useDispatch();
@@ -156,22 +153,13 @@ const statusMapping = {
 
     const taskIDs = selectedTasks.map((task) => task.value);
     try {
-      const email = userEmail;
-      if (!email) {
-        addToast("User email is missing. Please log in again.", {
-          appearance: "error",
-        });
-        return;
-      }
-
       await dispatch(
         doAddIssues({
           testSuiteID,
           taskIDs,
-          email,
           testCaseID,
           token,
-          platform: platform.toLowerCase(), // Convert to lowercase
+          platform: platform.toLowerCase(),
         })
       ).unwrap();
 
