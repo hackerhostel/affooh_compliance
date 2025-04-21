@@ -1,51 +1,30 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
-import { getCurrentUser } from "aws-amplify/auth";
+import { useEffect, useState } from "react";
 
 const useFetchIssue = (testSuiteID) => {
+  const [data, setData] = useState({});
+  const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [issueCount, setIssueCount] = useState({});
-  const [token, setToken] = useState("");
-
-  useEffect(() => {
-    const getAuthToken = async () => {
-      try {
-        const currentSession = await getCurrentUser();
-        if (currentSession) {
-          setToken(
-            currentSession.signInUserSession?.accessToken?.jwtToken || ""
-          );
-        }
-      } catch (err) {
-        console.error("Error getting auth token:", err);
-        setError("Failed to authenticate user");
-      }
-    };
-
-    getAuthToken();
-  }, []);
 
   const fetchIssue = async () => {
-    if (!testSuiteID || !token) return;
+    if (!testSuiteID) return;
 
     setLoading(true);
-    setError(null);
+    setError(false);
+
     try {
       const response = await axios.get(
-        `https://dev-api.affooh.com/test-plans/test-suites/${testSuiteID}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `/test-plans/test-suites/${testSuiteID}`
       );
+      const testSuiteResponse = response?.data?.testSuite;
 
-      if (response.data.testSuite?.testCases?.length) {
-        const testCasePromises = response.data.testSuite.testCases.map(
+      if (testSuiteResponse?.testCases?.length) {
+        const testCasePromises = testSuiteResponse.testCases.map(
           async (testCase) => {
             try {
               const platforms = [
                 ...new Set(
-                  response.data.testSuite.testExecutions
+                  testSuiteResponse.testExecutions
                     .filter((exec) => exec.testCaseID === testCase.id)
                     .map((exec) => exec.platform)
                 ),
@@ -54,13 +33,12 @@ const useFetchIssue = (testSuiteID) => {
               const platformPromises = platforms.map(async (platform) => {
                 try {
                   const countResponse = await axios.get(
-                    `https://dev-api.affooh.com/test-plans/test-suites/${testSuiteID}/issues/count`,
+                    `/test-plans/test-suites/${testSuiteID}/issues/count`,
                     {
                       params: {
                         testCaseID: testCase.id,
                         platform: platform.toLowerCase(),
                       },
-                      headers: { Authorization: `Bearer ${token}` },
                     }
                   );
 
@@ -99,25 +77,26 @@ const useFetchIssue = (testSuiteID) => {
             return acc;
           }, {});
 
-        setIssueCount(countMap);
+        setData(countMap);
+        setLoading(false);
       } else {
-        setIssueCount({});
+        setData({});
+        setLoading(false);
       }
     } catch (err) {
       console.error("Error fetching issues:", err);
-      setError(err.message || "Failed to fetch issues");
-    } finally {
+      setError(true);
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (testSuiteID && token) {
+    if (testSuiteID) {
       fetchIssue();
     }
-  }, [testSuiteID, token]);
+  }, [testSuiteID]);
 
-  return { loading, error, issueCount, fetchIssue };
+  return { data, error, loading, refetch: fetchIssue };
 };
 
 export default useFetchIssue;
