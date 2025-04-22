@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import Select from "react-select";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import useFetchFlatTasks from "../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
 import useFetchTask from "../../hooks/custom-hooks/task/useFetchTask.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import { useToasts } from "react-toast-notifications";
-import { doAddIssues } from "../../state/slice/testIssueSlice.js";
+import axios from "axios";
+import { getCurrentUser } from "aws-amplify/auth";
 
 const statusMapping = {
   1: "To Do",
@@ -21,17 +22,17 @@ const AddIssue = ({
   onClose,
   testSuiteID,
   testCaseID,
-  token,
   platform,
   fetchTestSuite,
+  token,
 }) => {
-  const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
   const { loading, data: tasks } = useFetchFlatTasks(selectedProject?.id);
   const [selectedTasks, setSelectedTasks] = useState([]);
   const [taskOptions, setTaskOptions] = useState([]);
   const [selectedTaskForDetails, setSelectedTaskForDetails] = useState(null);
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const selectRef = useRef(null);
   const { addToast } = useToasts();
 
@@ -135,45 +136,58 @@ const AddIssue = ({
     }
   }, [taskError, addToast]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setSelectedTasks([]);
-      setSelectedTaskForDetails(null);
-      setTaskDetailsCache({});
-    }
-  }, [isOpen]);
+  const handleClose = () => {
+    onClose(false);
+    setSelectedTasks([]);
+    setSelectedTaskForDetails(null);
+    setTaskDetailsCache({});
+  };
 
-  const handleAddIssue = async () => {
-    if (selectedTasks.length === 0) {
-      addToast("Please select at least one task to add as an issue.", {
-        appearance: "warning",
-      });
-      return;
-    }
+  const createIssue = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
 
-    const taskIDs = selectedTasks.map((task) => task.value);
     try {
-      await dispatch(
-        doAddIssues({
-          testSuiteID,
-          taskIDs,
-          testCaseID,
-          token,
-          platform: platform.toLowerCase(),
-        })
-      ).unwrap();
-
-      addToast("Issues added successfully!", { appearance: "success" });
-
-      if (fetchTestSuite) {
-        await fetchTestSuite();
+      const currentUser = await getCurrentUser();
+      const email =
+        currentUser?.signInUserSession?.idToken?.payload?.email || "";
+      if (!token) {
+        throw new Error("Authorization token is missing");
       }
 
-      onClose(true);
+      const taskIDs = selectedTasks.map((task) => task.value);
+      const issueData = {
+        testSuiteID,
+        taskIDs,
+        createdByEmail: email,
+        testCaseId: testCaseID,
+        platform: platform ? platform.toLowerCase() : null,
+      };
+
+      const response = await axios.post(
+        `/test-plans/test-suites/${testSuiteID}/issues`,
+        issueData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { testCaseID },
+        }
+      );
+
+      if (response?.status === 201) {
+        addToast("Issues added successfully!", { appearance: "success" });
+        if (fetchTestSuite) {
+          await fetchTestSuite();
+        }
+        handleClose();
+      } else {
+        addToast("Failed to add issues.", { appearance: "error" });
+      }
     } catch (error) {
       addToast("Failed to add issues: " + (error.message || error), {
         appearance: "error",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -238,13 +252,14 @@ const AddIssue = ({
           <span className="text-lg font-semibold">Add Issue:</span>
           <button
             className="text-gray-500 hover:text-gray-700"
-            onClick={() => onClose(false)}
+            onClick={handleClose}
+            disabled={isSubmitting}
           >
             ✖
           </button>
         </div>
 
-        <div className="mt-4">
+        <form className="mt-4" onClick={createIssue}>
           {loading ? (
             <SkeletonLoader />
           ) : (
@@ -263,6 +278,7 @@ const AddIssue = ({
                 isSearchable={true}
                 filterOption={filterOption}
                 hideSelectedOptions={false}
+                isDisabled={isSubmitting}
               />
 
               {selectedTasks.length > 0 && (
@@ -282,6 +298,7 @@ const AddIssue = ({
                         <button
                           className="text-gray-500 hover:text-gray-700"
                           onClick={() => removeTask(task.value)}
+                          disabled={isSubmitting}
                         >
                           ✕
                         </button>
@@ -344,22 +361,26 @@ const AddIssue = ({
               )}
             </>
           )}
-        </div>
 
-        <div className="flex justify-between space-x-2 mt-6">
-          <button
-            className="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
-            onClick={() => onClose(false)}
-          >
-            Cancel
-          </button>
-          <button
-            className="px-6 py-2 bg-pink-400 text-white rounded hover:bg-pink-600"
-            onClick={handleAddIssue}
-          >
-            Add
-          </button>
-        </div>
+          <div className="flex justify-between space-x-2 mt-6">
+            <button
+              type="button"
+              className="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="px-6 py-2 bg-pink-400 text-white rounded hover:bg-pink-600"
+              onClick={createIssue}
+              disabled={isSubmitting}
+            >
+              Add
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

@@ -25,7 +25,8 @@ import FormTextArea from "../../components/FormTextArea.jsx";
 import AddIssue from "./AddIssue.jsx";
 import IssueListPopup from "./IssueListPopup.jsx";
 import useFetchTestSuite from "../../hooks/custom-hooks/test-plan/useFetchTestSuite.jsx";
-import useFetchIssue from "../../hooks/custom-hooks/test-plan/useFetchIssue.jsx"; // New hook
+import useFetchIssue from "../../hooks/custom-hooks/test-plan/useFetchIssue.jsx";
+import { doGetIssueCount } from "../../state/slice/testIssueSlice.js";
 
 const TestSuiteContentPage = () => {
   const dispatch = useDispatch();
@@ -47,6 +48,7 @@ const TestSuiteContentPage = () => {
   const [isOpenAddIssue, setIsOpenAddIssue] = useState(false);
   const [isOpenIssueList, setIsIssueList] = useState(false);
   const [selectedTestCaseId, setSelectedTestCaseId] = useState(null);
+  const [selectedPlatform, setSelectedPlatform] = useState(null);
   const [statusCounts, setStatusCounts] = useState({
     all: 0,
     pass: 0,
@@ -55,7 +57,12 @@ const TestSuiteContentPage = () => {
   });
 
   const { token, fetchTestSuite } = useFetchTestSuite(testSuiteID);
-  const { issueCount, fetchIssue } = useFetchIssue(testSuiteID);
+  const {
+    data: issues,
+    error: issueError,
+    loading: issueLoading,
+    refetch: fetchIssue,
+  } = useFetchIssue(testSuiteID);
 
   useEffect(() => {
     if (!testCaseStatuses.length) {
@@ -144,8 +151,6 @@ const TestSuiteContentPage = () => {
     setIsIssueList(true);
   };
 
-  const [selectedPlatform, setSelectedPlatform] = useState(null);
-
   const handleSuiteChange = (value) => {
     if (value) {
       setTestSuiteId(Number(value));
@@ -185,11 +190,12 @@ const TestSuiteContentPage = () => {
     setIsOpenAddIssue(false);
     if (issueAdded) {
       await fetchTestSuite();
-      await fetchIssue(); // Refresh issue count
+      await fetchIssue();
       refetchTextExecution(true);
       setTestSuiteId((prev) => prev);
     }
     setSelectedTestCaseId(null);
+    setSelectedPlatform(null);
   };
 
   if (testPlanLoading) {
@@ -235,15 +241,40 @@ const TestSuiteContentPage = () => {
     const [note, setNote] = React.useState(row?.notes || "");
     const [noteChanged, setNoteChanged] = React.useState(false);
     const [issueCountForRow, setIssueCountForRow] = useState(0);
+    const [issueCountLoading, setIssueCountLoading] = useState(false);
 
     useEffect(() => {
-      const count =
-        issueCount[`${row.testCaseID}-${row.platform.toLowerCase()}`] || 0;
-      setIssueCountForRow(count);
-      console.log(
-        `Frontend issue count for testCaseID: ${row.testCaseID}, platform: ${row.platform} => ${count}`
-      );
-    }, [row.testCaseID, row.platform, issueCount]);
+      const fetchIssueCount = async () => {
+        if (!testSuiteID || !row.testCaseID || !row.platform) return;
+
+        setIssueCountLoading(true);
+        try {
+          const result = await dispatch(
+            doGetIssueCount({
+              testSuiteID,
+              token,
+              testCaseID: row.testCaseID,
+              platform: row.platform.toLowerCase(),
+            })
+          ).unwrap();
+
+          setIssueCountForRow(result || 0);
+          console.log(
+            `Frontend issue count for testCaseID: ${row.testCaseID}, platform: ${row.platform} => ${result}`
+          );
+        } catch (err) {
+          console.error(
+            `Error fetching issue count for testCaseID: ${row.testCaseID}, platform: ${row.platform}:`,
+            err
+          );
+          setIssueCountForRow(0);
+        } finally {
+          setIssueCountLoading(false);
+        }
+      };
+
+      fetchIssueCount();
+    }, [row.testCaseID, row.platform, testSuiteID, token]);
 
     const handleStatusUpdate = (name, value) => {
       setStatus(value);
@@ -319,7 +350,7 @@ const TestSuiteContentPage = () => {
                 className="px-2 py-1 bg-white rounded-sm border-count-notification"
                 onClick={() => handleIssueList(row.testCaseID, row.platform)}
               >
-                {issueCountForRow}
+                {issueCountLoading ? "..." : issueCountForRow}
               </button>
               <PlusCircleIcon
                 className="w-8 h-8 items-center text-pink-500 cursor-pointer ml-2"
