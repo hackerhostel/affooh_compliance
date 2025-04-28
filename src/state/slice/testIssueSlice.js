@@ -18,15 +18,12 @@ const initialState = {
 // Fetch Issue Count for a Test Suite
 export const doGetIssueCount = createAsyncThunk(
   "testIssues/getIssueCount",
-  async ({ testSuiteID, token, testCaseID }, thunkApi) => {
+  async ({ testSuiteID, testCaseID }, thunkApi) => {
     try {
       const response = await axios.get(
         `/test-plans/test-suites/${testSuiteID}/issues/count`,
         {
           params: { testCaseID },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
       const responseData = response.data;
@@ -46,15 +43,12 @@ export const doGetIssueCount = createAsyncThunk(
 // Fetch Issues for a Test Suite
 export const doGetIssues = createAsyncThunk(
   "testIssues/getIssues",
-  async ({ testSuiteID, token, testCaseID, platform }, thunkApi) => {
+  async ({ testSuiteID, testCaseID, platform }, thunkApi) => {
     try {
       const response = await axios.get(
         `/test-plans/test-suites/${testSuiteID}/issues`,
         {
           params: { testCaseID, platform },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
       const responseData = response.data;
@@ -73,7 +67,7 @@ export const doGetIssues = createAsyncThunk(
 
 export const doAddIssues = createAsyncThunk(
   "testIssues/addIssues",
-  async ({ testSuiteID, taskIDs, testCaseID, token, platform }, thunkApi) => {
+  async ({ testSuiteID, taskIDs, testCaseID, platform }, thunkApi) => {
     try {
       const response = await axios.post(
         `/test-plans/test-suites/${testSuiteID}/issues`,
@@ -84,9 +78,6 @@ export const doAddIssues = createAsyncThunk(
         },
         {
           params: { testCaseID },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
       const responseData = response.data;

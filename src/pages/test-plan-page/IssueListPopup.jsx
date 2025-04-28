@@ -12,7 +12,6 @@ const IssueListPopup = ({
   onClose,
   testSuiteID,
   testCaseID,
-  token,
   platform,
 }) => {
   const dispatch = useDispatch();
@@ -21,20 +20,19 @@ const IssueListPopup = ({
   const isError = useSelector(selectIsIssuesError);
 
   useEffect(() => {
-    if (isOpen && testSuiteID && token && testCaseID) {
+    if (isOpen && testSuiteID && testCaseID) {
       console.log(
         `Fetching issues with testCaseID: ${testCaseID}, platform: ${platform}`
       );
       dispatch(
         doGetIssues({
           testSuiteID,
-          token,
           testCaseID,
           platform,
         })
       );
     }
-  }, [isOpen, dispatch, testSuiteID, testCaseID, token, platform]);
+  }, [isOpen, dispatch, testSuiteID, testCaseID, platform]);
 
   useEffect(() => {
     if (issues) {

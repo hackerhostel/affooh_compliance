@@ -56,7 +56,7 @@ const TestSuiteContentPage = () => {
     pending: 0,
   });
 
-  const { token, fetchTestSuite } = useFetchTestSuite(testSuiteID);
+  const { fetchTestSuite } = useFetchTestSuite(testSuiteID);
   const {
     data: issues,
     error: issueError,
@@ -133,11 +133,11 @@ const TestSuiteContentPage = () => {
   }, [testSuiteID]);
 
   useEffect(() => {
-    if (testSuiteID && token) {
+    if (testSuiteID) {
       fetchTestSuite();
       fetchIssue();
     }
-  }, [testSuiteID, token, fetchTestSuite, fetchIssue]);
+  }, [testSuiteID, fetchTestSuite, fetchIssue]);
 
   const handleAddIssue = (testCaseID, platform) => {
     setSelectedTestCaseId(testCaseID);
@@ -224,245 +224,154 @@ const TestSuiteContentPage = () => {
 
     return (
       <div
-        className={`flex flex-col items-center justify-center p-4 rounded-lg min-w-[200px] border-2 ${variants[variant]}`}
-        style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}
+        className={`border rounded-full px-3 py-1 text-sm ${variants[variant]}`}
       >
-        <span className="text-2xl font-semibold mb-1">{count}</span>
-        <span className="text-sm">{label}</span>
+        {count} {label}
       </div>
     );
   };
 
-  const GenerateRow = (props) => {
-    const { row } = props;
-    const [open, setOpen] = React.useState(false);
+  const TestExecutionRow = ({ testExecution, onUpdate }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const [status, setStatus] = React.useState(row?.status || 8);
-    const [note, setNote] = React.useState(row?.notes || "");
-    const [noteChanged, setNoteChanged] = React.useState(false);
-    const [issueCountForRow, setIssueCountForRow] = useState(0);
-    const [issueCountLoading, setIssueCountLoading] = useState(false);
+    const [editMode, setEditMode] = useState(false);
+    const [updatedExecution, setUpdatedExecution] = useState({
+      ...testExecution,
+    });
+    const [issueCount, setIssueCount] = useState(0);
 
     useEffect(() => {
-      const fetchIssueCount = async () => {
-        if (!testSuiteID || !row.testCaseID || !row.platform) return;
-
-        setIssueCountLoading(true);
-        try {
-          const result = await dispatch(
-            doGetIssueCount({
-              testSuiteID,
-              token,
-              testCaseID: row.testCaseID,
-              platform: row.platform.toLowerCase(),
-            })
-          ).unwrap();
-
-          setIssueCountForRow(result || 0);
-          console.log(
-            `Frontend issue count for testCaseID: ${row.testCaseID}, platform: ${row.platform} => ${result}`
-          );
-        } catch (err) {
-          console.error(
-            `Error fetching issue count for testCaseID: ${row.testCaseID}, platform: ${row.platform}:`,
-            err
-          );
-          setIssueCountForRow(0);
-        } finally {
-          setIssueCountLoading(false);
-        }
-      };
-
-      fetchIssueCount();
-    }, [row.testCaseID, row.platform, testSuiteID, token]);
-
-    const handleStatusUpdate = (name, value) => {
-      setStatus(value);
-      props.onUpdate(row.testCycleExecutionID, { ...row, status: value });
-    };
-
-    const onNoteChange = (value) => {
-      if (value || value === "") {
-        setNoteChanged(true);
-        setNote(value);
-      } else {
-        setNoteChanged(false);
-        setNote(row.notes);
+      if (testSuiteID && testExecution.testCaseId) {
+        dispatch(
+          doGetIssueCount({
+            testSuiteID,
+            testCaseID: testExecution.testCaseId,
+          })
+        ).then((response) => {
+          if (response.payload) {
+            setIssueCount(response.payload.count || 0);
+          }
+        });
       }
+    }, [testSuiteID, testExecution.testCaseId, dispatch]);
+
+    const handleInputChange = (field, value) => {
+      setUpdatedExecution((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
     };
 
-    const onSaveNote = async () => {
-      setNoteChanged(false);
-      props.onUpdate(row.testCycleExecutionID, { ...row, notes: note });
+    const handleSubmit = () => {
+      onUpdate(testExecution.id, updatedExecution);
+      setEditMode(false);
     };
 
-    const handleExpandToggle = () => {
-      setIsExpanded(!isExpanded);
+    const handleCancel = () => {
+      setUpdatedExecution({ ...testExecution });
+      setEditMode(false);
     };
 
     return (
       <>
-        <tr className="border-b hover:bg-slate-100">
-          <td className="px-4 py-2">
-            <div
-              className="text-gray-600 hover:text-gray-900 focus:outline-none"
-              onClick={() => setOpen(!open)}
-            >
-              {open ? (
-                <ChevronDownIcon className="w-4 h-4 text-black cursor-pointer" />
+        <tr className="border-b">
+          <td className="p-2">
+            <button onClick={() => setIsExpanded(!isExpanded)}>
+              {isExpanded ? (
+                <ChevronDownIcon className="h-5 w-5" />
               ) : (
-                <ChevronRightIcon className="w-4 h-4 text-black cursor-pointer" />
+                <ChevronRightIcon className="h-5 w-5" />
               )}
-            </div>
+            </button>
           </td>
-          <td className="w-42 px-4 py-2 text-secondary-text-color">
-            {isExpanded ? (
-              <>
-                {row?.summary}
-                <span
-                  className="text-secondary-text-color ml-2 cursor-pointer hover:underline"
-                  onClick={handleExpandToggle}
-                >
-                  ....
-                </span>
-              </>
+          <td className="p-2">{testExecution.testCaseId}</td>
+          <td className="p-2">{testExecution.testCaseName}</td>
+          <td className="p-2">{testExecution.platform}</td>
+          <td className="p-2">
+            {editMode ? (
+              <FormSelect
+                name="status"
+                value={updatedExecution.status}
+                options={getSelectOptions(testCaseStatuses, "id", "value")}
+                onChange={(value) => handleInputChange("status", Number(value))}
+              />
             ) : (
-              <>
-                {row?.summary?.slice(0, 20)}
-                <span
-                  className="text-secondary-text-color ml-2 cursor-pointer hover:underline"
-                  onClick={handleExpandToggle}
-                >
-                  ....
-                </span>
-              </>
+              testCaseStatuses.find((s) => s.id === testExecution.status)?.value
             )}
           </td>
-          <td className="px-4 py-2 text-secondary-text-color">
-            {row?.platform}
-          </td>
-          <td className="px-4 py-2 text-secondary-text-color">
-            {row?.priority}
-          </td>
-          <td className="px-4 py-2 text-secondary-text-color">
-            <div className="flex items-center">
+          <td className="p-2">
+            <div className="flex space-x-2">
+              {editMode ? (
+                <>
+                  <button onClick={handleSubmit}>
+                    <CheckIcon className="h-5 w-5 text-green-500" />
+                  </button>
+                  <button onClick={handleCancel}>
+                    <XMarkIcon className="h-5 w-5 text-red-500" />
+                  </button>
+                </>
+              ) : (
+                <button onClick={() => setEditMode(true)}>
+                  <svg
+                    className="h-5 w-5 text-gray-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.732z"
+                    />
+                  </svg>
+                </button>
+              )}
               <button
-                className="px-2 py-1 bg-white rounded-sm border-count-notification"
-                onClick={() => handleIssueList(row.testCaseID, row.platform)}
-              >
-                {issueCountLoading ? "..." : issueCountForRow}
-              </button>
-              <PlusCircleIcon
-                className="w-8 h-8 items-center text-pink-500 cursor-pointer ml-2"
-                onClick={() => handleAddIssue(row.testCaseID, row.platform)}
-              />
-            </div>
-          </td>
-          <td className="px-4 py-2">
-            <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
-              {row?.assignee ? getInitials(row?.assignee) : "N/A"}
-            </div>
-          </td>
-          <td className="px-4 py-2 text-secondary-text-color">
-            <div>
-              <select
-                disabled={isUpdating}
-                onChange={({ target: { name, value } }) =>
-                  handleStatusUpdate(name, value)
+                onClick={() =>
+                  handleAddIssue(
+                    testExecution.testCaseId,
+                    testExecution.platform
+                  )
                 }
-                value={status}
-                className="w-24 h-8 text-xs border border-gray-300 rounded py-1"
               >
-                {testCaseStatuses.map((option) => (
-                  <option key={option?.id} value={option?.id}>
-                    {option?.value}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </td>
-          <td className="px-4 py-2">
-            <div className="relative">
-              <FormTextArea
-                name="note"
-                formValues={{ note }}
-                disabled={isUpdating}
-                type="text"
-                value={note || ""}
-                onChange={(e) => onNoteChange(e.target.value)}
-                className="px-4 py-2 w-54 h-10 mt-3 border rounded-lg focus:outline-none focus:ring-2 text-secondary-text-color focus:ring-blue-500 pr-20"
-              />
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                {noteChanged && (
-                  <div>
-                    <button
-                      className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                      aria-label="Clear input"
-                    >
-                      <XMarkIcon
-                        onClick={() => onNoteChange(false)}
-                        className="w-5 h-5 text-gray-500"
-                      />
-                    </button>
-                    <button
-                      className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                      aria-label="Save input"
-                    >
-                      <CheckIcon
-                        onClick={() => onSaveNote()}
-                        className="w-5 h-5 text-green-500"
-                      />
-                    </button>
-                  </div>
-                )}
-              </div>
+                <PlusCircleIcon className="h-5 w-5 text-pink-400" />
+              </button>
+              <button
+                onClick={() =>
+                  handleIssueList(
+                    testExecution.testCaseId,
+                    testExecution.platform
+                  )
+                }
+              >
+                <span className="text-blue-500 underline">
+                  {issueCount} Issues
+                </span>
+              </button>
             </div>
           </td>
         </tr>
-        {row?.steps && row.steps.length > 0 && (
-          <tr className="py-0">
-            <td className="p-2" colSpan={8}>
-              <div
-                className={`overflow-hidden transition-[max-height] duration-300 ${
-                  open ? "max-h-[1000px]" : "max-h-0"
-                } px-5`}
-              >
-                <div className="rounded-xl border p-4 bg-slate-50 shadow-sm">
-                  <p className="text-gray-600 font-medium mb-4">
-                    Verify that the system validates the email address
-                  </p>
-                  <table className="min-w-full border-collapse rounded-xl overflow-hidden">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-2"></th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                          Steps
-                        </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                          Input Data
-                        </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                          Expected Outcome
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {row.steps.map((step) => (
-                        <tr key={step.id}>
-                          <td className="px-4 py-2"></td>
-                          <td className="px-4 py-2 w-96 text-secondary-text-color">
-                            {step?.description}
-                          </td>
-                          <td className="px-4 py-2 text-secondary-text-color">
-                            {step?.inputData}
-                          </td>
-                          <td className="px-4 py-2 text-secondary-text-color">
-                            {step?.expectedOutcome}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+        {isExpanded && (
+          <tr>
+            <td colSpan={6} className="p-4 bg-gray-50">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold">Expected Result:</h4>
+                  <p>{testExecution.expectedResult || "N/A"}</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Actual Result:</h4>
+                  {editMode ? (
+                    <FormTextArea
+                      name="actualResult"
+                      value={updatedExecution.actualResult || ""}
+                      onChange={(value) =>
+                        handleInputChange("actualResult", value)
+                      }
+                    />
+                  ) : (
+                    <p>{testExecution.actualResult || "N/A"}</p>
+                  )}
                 </div>
               </div>
             </td>
@@ -473,157 +382,103 @@ const TestSuiteContentPage = () => {
   };
 
   return (
-    <div className="p-2 bg-dashboard-bgc h-full">
-      <div className="flex w-full justify-between items-center mb-10 mt-6">
-        <div>
-          {testPlan?.id && (
-            <p className="text-secondary-grey font-bold text-sm align-left">
-              Projects <span className="mx-1"></span>{" "}
-              <span className="text-black">{testPlan.name}</span>
-            </p>
-          )}
-          <p className="text-secondary-grey font-bold text-xl align-middle mt-11">
-            Test Execution List
-          </p>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold">
+          {testPlan.name || "Test Plan"} - Test Suite
+        </h1>
+        <button
+          onClick={openTestSuiteEdit}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Edit Test Plan
+        </button>
+      </div>
+
+      <div className="flex space-x-4 mb-6">
+        <div className="w-1/4">
+          <FormSelect
+            label="Test Suite"
+            name="testSuite"
+            value={testSuiteID}
+            options={getSelectOptions(testExecutionOptions, "id", "name")}
+            onChange={handleSuiteChange}
+          />
         </div>
-        <div className="flex space-x-1 justify-end w-1/2">
-          {testPlanId !== 0 && testExecutionOptions.length > 0 && (
-            <div>
-              <FormSelect
-                name="suite"
-                className="w-28 h-10"
-                formValues={{ suite: testSuiteID }}
-                options={
-                  testExecutionOptions.length
-                    ? getSelectOptions(testExecutionOptions)
-                    : []
-                }
-                onChange={({ target: { value } }) => handleSuiteChange(value)}
-              />
-            </div>
-          )}
-          {testCycleId !== 0 && testExecutionCycles.length > 0 && (
-            <div>
-              <FormSelect
-                name="cycle"
-                className="w-32 h-10"
-                formValues={{ cycle: testCycleId }}
-                options={
-                  testExecutionCycles.length
-                    ? getSelectOptions(testExecutionCycles)
-                    : []
-                }
-                onChange={({ target: { value } }) => handleCycleChange(value)}
-              />
-            </div>
-          )}
-          {testExecutionOptions.length > 0 &&
-            testExecutionCycles.length > 0 && (
-              <button
-                onClick={openTestSuiteEdit}
-                className="bg-primary-pink text-white px-14 rounded-lg w-32 h-10"
-              >
-                Edit
-              </button>
-            )}
+        <div className="w-1/4">
+          <FormSelect
+            label="Test Cycle"
+            name="testCycle"
+            value={testCycleId}
+            options={getSelectOptions(testExecutionCycles, "id", "name")}
+            onChange={handleCycleChange}
+          />
         </div>
       </div>
-      {testPlanId === 0 ? (
-        <div className="p-8 text-center">
-          No Details Available, Please Select a Test Plan
-        </div>
-      ) : testExecutionOptions?.length === 0 ? (
-        <div className="p-8 text-center flex flex-col gap-4 items-center">
-          <p>No Test Suites Available, Please Create a Test Suite</p>
-          <button
-            className="btn-primary w-24"
-            onClick={() => history.push(`/test-plans/${selectedTestPlanId}`)}
-          >
-            Start
-          </button>
-        </div>
-      ) : testCycleId === 0 ? (
-        <div className="p-8 text-center">
-          No Details Available, Please Select a Test Cycle
-        </div>
+
+      <div className="flex space-x-4 mb-6">
+        <StatusCount count={statusCounts.all} label="Total" />
+        <StatusCount
+          count={statusCounts.pass}
+          label="Passed"
+          variant="success"
+        />
+        <StatusCount
+          count={statusCounts.fail}
+          label="Failed"
+          variant="danger"
+        />
+        <StatusCount
+          count={statusCounts.pending}
+          label="Pending"
+          variant="warning"
+        />
+      </div>
+
+      {testExecutionLoading || isUpdating ? (
+        <SkeletonLoader />
+      ) : testExecutions.length === 0 ? (
+        <p>No test executions found for this suite and cycle.</p>
       ) : (
-        <div className="flex-col h-[calc(100vh-250px)] overflow-y-auto">
-          <div className="p-4 rounded-md">
-            {testExecutionLoading ? (
-              <div className="m-10">
-                <SkeletonLoader />
-              </div>
-            ) : (
-              <>
-                <div className="bg-white p-4 rounded-md mb-5 -mt-7 h-40 -ml-3">
-                  <div className="flex gap-4 justify-around mt-3">
-                    <StatusCount
-                      count={statusCounts.all}
-                      label="All"
-                      variant="default"
-                    />
-                    <StatusCount
-                      count={statusCounts.pass}
-                      label="Pass"
-                      variant="success"
-                    />
-                    <StatusCount
-                      count={statusCounts.fail}
-                      label="Fail"
-                      variant="danger"
-                    />
-                    <StatusCount
-                      count={statusCounts.pending}
-                      label="Pending"
-                      variant="warning"
-                    />
-                  </div>
-                </div>
-                <table className="min-w-full rounded-md border-collapse bg-white -ml-3">
-                  <thead>
-                    <tr className="h-16 text-secondary-grey">
-                      <th className="px-4 py-2"></th>
-                      <th className="px-4 py-2 text-left">Summary</th>
-                      <th className="px-4 py-2 text-left">Platform</th>
-                      <th className="px-4 py-2 text-left">Priority</th>
-                      <th className="px-4 py-2 text-center">Issues</th>
-                      <th className="px-4 py-2 text-left">Assignee</th>
-                      <th className="px-4 py-2 text-left">Status</th>
-                      <th className="px-4 py-2 text-left">Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {testExecutions.map((row) => (
-                      <GenerateRow
-                        row={row}
-                        key={row.testCycleExecutionID}
-                        onUpdate={updateRow}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </>
-            )}
-          </div>
-          <AddIssue
-            isOpen={isOpenAddIssue}
-            onClose={handleAddIssueClose}
-            testSuiteID={testSuiteID}
-            testCaseID={selectedTestCaseId}
-            token={token}
-            platform={selectedPlatform}
-            fetchTestSuite={fetchTestSuite}
-          />
-          <IssueListPopup
-            isOpen={isOpenIssueList}
-            onClose={() => setIsIssueList(false)}
-            testSuiteID={testSuiteID}
-            testCaseID={selectedTestCaseId}
-            token={token}
-            platform={selectedPlatform}
-          />
-        </div>
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100 text-gray-600 text-sm border-b">
+              <th className="p-2 w-10"></th>
+              <th className="p-2 text-left">Test Case ID</th>
+              <th className="p-2 text-left">Test Case Name</th>
+              <th className="p-2 text-left">Platform</th>
+              <th className="p-2 text-left">Status</th>
+              <th className="p-2 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {testExecutions.map((execution) => (
+              <TestExecutionRow
+                key={execution.id}
+                testExecution={execution}
+                onUpdate={updateRow}
+              />
+            ))}
+          </tbody>
+        </table>
       )}
+
+      <AddIssue
+        isOpen={isOpenAddIssue}
+        onClose={handleAddIssueClose}
+        testSuiteID={testSuiteID}
+        testCaseID={selectedTestCaseId}
+        platform={selectedPlatform}
+        fetchTestSuite={fetchTestSuite}
+      />
+
+      <IssueListPopup
+        isOpen={isOpenIssueList}
+        onClose={() => setIsIssueList(false)}
+        testSuiteID={testSuiteID}
+        testCaseID={selectedTestCaseId}
+        platform={selectedPlatform}
+      />
     </div>
   );
 };

@@ -7,7 +7,6 @@ import useFetchTask from "../../hooks/custom-hooks/task/useFetchTask.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import { useToasts } from "react-toast-notifications";
 import axios from "axios";
-import { getCurrentUser } from "aws-amplify/auth";
 
 const statusMapping = {
   1: "To Do",
@@ -24,7 +23,6 @@ const AddIssue = ({
   testCaseID,
   platform,
   fetchTestSuite,
-  token,
 }) => {
   const selectedProject = useSelector(selectSelectedProject);
   const { loading, data: tasks } = useFetchFlatTasks(selectedProject?.id);
@@ -148,27 +146,18 @@ const AddIssue = ({
     setIsSubmitting(true);
 
     try {
-      const currentUser = await getCurrentUser();
-      const email =
-        currentUser?.signInUserSession?.idToken?.payload?.email || "";
-      if (!token) {
-        throw new Error("Authorization token is missing");
-      }
-
       const taskIDs = selectedTasks.map((task) => task.value);
       const issueData = {
         testSuiteID,
         taskIDs,
-        createdByEmail: email,
         testCaseId: testCaseID,
-        platform: platform ? platform.toLowerCase() : null,
+        platform: platform.toLowerCase(),
       };
 
       const response = await axios.post(
         `/test-plans/test-suites/${testSuiteID}/issues`,
         issueData,
         {
-          headers: { Authorization: `Bearer ${token}` },
           params: { testCaseID },
         }
       );
