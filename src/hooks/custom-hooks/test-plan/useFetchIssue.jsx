@@ -51,13 +51,13 @@ const useFetchIssue = (testSuiteID) => {
                     `Frontend issue count for testCaseID: ${testCase.id}, platform: ${platform} => ${count}`
                   );
 
-                  return { testCaseId: testCase.id, platform, count };
+                  return { testCaseID: testCase.id, platform, count };
                 } catch (err) {
                   console.error(
                     `Error fetching count for test case ${testCase.id} and platform ${platform}:`,
                     err
                   );
-                  return { testCaseId: testCase.id, platform, count: 0 };
+                  return { testCaseID: testCase.id, platform, count: 0 };
                 }
               });
 
@@ -72,8 +72,8 @@ const useFetchIssue = (testSuiteID) => {
         const countsArray = await Promise.all(testCasePromises);
         const countMap = countsArray
           .flat()
-          .reduce((acc, { testCaseId, platform, count }) => {
-            acc[`${testCaseId}-${platform.toLowerCase()}`] = count;
+          .reduce((acc, { testCaseID, platform, count }) => {
+            acc[`${testCaseID}-${platform.toLowerCase()}`] = count;
             return acc;
           }, {});
 

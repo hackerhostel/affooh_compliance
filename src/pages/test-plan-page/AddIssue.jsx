@@ -150,7 +150,6 @@ const AddIssue = ({
       const issueData = {
         testSuiteID,
         taskIDs,
-        testCaseId: testCaseID,
         platform: platform.toLowerCase(),
       };
 
@@ -158,7 +157,7 @@ const AddIssue = ({
         `/test-plans/test-suites/${testSuiteID}/issues`,
         issueData,
         {
-          params: { testCaseID },
+          params: { testCaseId: testCaseID },
         }
       );
 
@@ -248,7 +247,7 @@ const AddIssue = ({
           </button>
         </div>
 
-        <form className="mt-4" onClick={createIssue}>
+        <form className="mt-4" onSubmit={createIssue}>
           {loading ? (
             <SkeletonLoader />
           ) : (
@@ -361,9 +360,8 @@ const AddIssue = ({
               Cancel
             </button>
             <button
-              type="button"
+              type="submit"
               className="px-6 py-2 bg-pink-400 text-white rounded hover:bg-pink-600"
-              onClick={createIssue}
               disabled={isSubmitting}
             >
               Add
