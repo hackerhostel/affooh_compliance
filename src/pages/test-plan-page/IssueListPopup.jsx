@@ -37,7 +37,7 @@ const IssueListPopup = ({
   useEffect(() => {
     if (issues) {
       console.log(
-        `Frontend fetched issues for testCaseID: ${testCaseID}, platform: ${platform} => ${issues.length} issues`
+        `Frontend fetched issues for testCaseID: ${testCaseID}, platform: ${platform} => ${issues?.length} issues`
       );
     }
   }, [issues, testCaseID, platform]);
@@ -100,15 +100,15 @@ const IssueListPopup = ({
                         Error loading issues. Please try again.
                       </td>
                     </tr>
-                  ) : issues.length === 0 ? (
+                  ) : issues?.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="p-2 text-center">
                         No issues linked to this test case.
                       </td>
                     </tr>
                   ) : (
-                    issues.flatMap((issue) =>
-                      issue.tasks.map((task) => (
+                    issues?.flatMap((issue) =>
+                      issue?.tasks.map((task) => (
                         <tr key={`${issue.id}-${task.id}`} className="border-b">
                           <td className="p-2">{task.id}</td>
                           <td className="p-2">{task.type || "Bug"}</td>

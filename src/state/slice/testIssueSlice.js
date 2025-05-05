@@ -18,12 +18,12 @@ const initialState = {
 // Fetch Issue Count for a Test Suite
 export const doGetIssueCount = createAsyncThunk(
   "testIssues/getIssueCount",
-  async ({ testSuiteID, testCaseID }, thunkApi) => {
+  async ({ testSuiteID, testCaseID, platform }, thunkApi) => {
     try {
       const response = await axios.get(
         `/test-plans/test-suites/${testSuiteID}/issues/count`,
         {
-          params: { testCaseID },
+          params: { testCaseID, platform },
         }
       );
       const responseData = response.data;

@@ -157,7 +157,7 @@ const AddIssue = ({
         `/test-plans/test-suites/${testSuiteID}/issues`,
         issueData,
         {
-          params: { testCaseId: testCaseID },
+          params: { testCaseID: testCaseID },
         }
       );
 

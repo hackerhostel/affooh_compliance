@@ -1,32 +1,30 @@
-import { useDispatch, useSelector } from "react-redux";
-import React, { useEffect, useState } from "react";
-import { selectSelectedTestPlanId } from "../../state/slice/testPlansSlice.js";
+import {useDispatch, useSelector} from "react-redux";
+import React, {useEffect, useState} from "react";
+import {selectSelectedTestPlanId} from "../../state/slice/testPlansSlice.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import {
+  ArrowPathRoundedSquareIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  PlusCircleIcon,
+  PlusCircleIcon
 } from "@heroicons/react/24/outline/index.js";
-import {
-  doGetTestCaseFormData,
-  selectTestCaseStatuses,
-} from "../../state/slice/testCaseFormDataSlice.js";
-import { selectSelectedProject } from "../../state/slice/projectSlice.js";
+import {doGetTestCaseFormData, selectTestCaseStatuses,} from "../../state/slice/testCaseFormDataSlice.js";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
 import FormSelect from "../../components/FormSelect.jsx";
-import { getInitials, getSelectOptions } from "../../utils/commonUtils.js";
+import {getInitials, getSelectOptions} from "../../utils/commonUtils.js";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
-import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {CheckIcon, XMarkIcon} from "@heroicons/react/24/outline";
 import axios from "axios";
-import { useToasts } from "react-toast-notifications";
-import { useHistory } from "react-router-dom";
+import {useToasts} from "react-toast-notifications";
+import {useHistory} from "react-router-dom";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import AddIssue from "./AddIssue.jsx";
 import IssueListPopup from "./IssueListPopup.jsx";
 import useFetchTestSuite from "../../hooks/custom-hooks/test-plan/useFetchTestSuite.jsx";
 import useFetchIssue from "../../hooks/custom-hooks/test-plan/useFetchIssue.jsx";
-import { doGetIssueCount } from "../../state/slice/testIssueSlice.js";
+import {doGetIssueCount} from "../../state/slice/testIssueSlice.js";
 
 const TestSuiteContentPage = () => {
   const dispatch = useDispatch();
@@ -55,7 +53,8 @@ const TestSuiteContentPage = () => {
     fail: 0,
     pending: 0,
   });
-  const [issueCounts, setIssueCounts] = useState({}); // Store issue counts for each test case
+  const [issueCounts, setIssueCounts] = useState([]);
+  const [issueCountsLoading, setIssueCountsLoading] = useState(false);
 
   const { fetchTestSuite } = useFetchTestSuite(testSuiteId);
   const {
@@ -139,22 +138,25 @@ const TestSuiteContentPage = () => {
 
   useEffect(() => {
     if (testSuiteId && testExecutions.length) {
+      setIssueCountsLoading(true)
       const fetchIssueCounts = async () => {
-        const counts = {};
+        const counts = [];
         for (const execution of testExecutions) {
           if (execution.testCaseID) {
             const response = await dispatch(
               doGetIssueCount({
                 testSuiteID: testSuiteId,
-                testCaseID: execution.testCaseID,
+                testCaseID: execution?.testCaseID,
+                platform: execution?.platform
               })
             );
-            if (response.payload) {
-              counts[execution.testCaseID] = response.payload.count || 0;
+            if (response.payload?.count) {
+              counts.push({testCycleExecutionID: execution.testCycleExecutionID, count: response.payload?.count})
             }
           }
         }
         setIssueCounts(counts);
+        setIssueCountsLoading(false)
       };
       fetchIssueCounts();
     }
@@ -350,16 +352,21 @@ const TestSuiteContentPage = () => {
           </td>
           <div className="flex items-center mt-3 px-4 py-2 text-secondary-text-color">
             <td className="px-4 py-2">
-              <button
-                className="px-2 py-1 bg-white rounded-sm border-count-notification"
-                onClick={() => handleIssueList(row.testCaseID, row.platform)}
+              {issueCountsLoading ? (
+                  <ArrowPathRoundedSquareIcon
+                      className={"w-4 h-4 text-black"}
+                  />
+              ) : (
+                  <button
+                      className="px-2 py-1 bg-white rounded-sm border-count-notification"
+                      onClick={() => handleIssueList(row.testCaseID, row.platform)}
               >
                 {issueCount}
-              </button>
+                  </button>)}
             </td>
             <PlusCircleIcon
-              className={"w-8 h-8 items-center text-pink-500 cursor-pointer"}
-              onClick={() => handleAddIssue(row.testCaseID, row.platform)}
+                className={"w-8 h-8 items-center text-pink-500 cursor-pointer"}
+                onClick={() => handleAddIssue(row.testCaseID, row.platform)}
             />
           </div>
           <td className="px-4 py-2">
@@ -605,7 +612,7 @@ const TestSuiteContentPage = () => {
                       <GenerateRow
                         row={row}
                         key={row.testCycleExecutionID}
-                        issueCount={issueCounts[row.testCaseID] || 0}
+                        issueCount={issueCounts.find(ic => ic.testCycleExecutionID === row.testCycleExecutionID)?.count || 0}
                         onUpdate={updateRow}
                       />
                     ))}
