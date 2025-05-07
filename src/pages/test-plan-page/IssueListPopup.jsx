@@ -1,14 +1,68 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {doGetIssues, selectIsIssuesError, selectIsIssuesLoading, selectIssues,} from "../../state/slice/testIssueSlice";
 
-const IssueListPopup = ({ isOpen, onClose }) => {
+const IssueListPopup = ({
+  isOpen,
+  onClose,
+  testSuiteID,
+  testCaseID,
+  platform,
+}) => {
+  const dispatch = useDispatch();
+  const issuesData = useSelector(selectIssues);
+  const isLoading = useSelector(selectIsIssuesLoading);
+  const isError = useSelector(selectIsIssuesError);
+  const [issues, setIssues] = useState([]);
+
+  useEffect(() => {
+    if (isOpen && testSuiteID && testCaseID) {
+      dispatch(doGetIssues({testSuiteID, testCaseID, platform})
+      )
+    }
+  }, [isOpen, dispatch, testSuiteID, testCaseID, platform]);
+
+  useEffect(() => {
+    if (issuesData && issuesData.length) {
+      setIssues(issuesData)
+    }else{
+      setIssues([])
+    }
+  }, [issuesData]);
+
+  const renderAssignee = (assignee) => {
+    if (!assignee || !assignee.id) return "Unassigned";
+
+    const firstInitial = assignee.firstName
+      ? assignee.firstName.charAt(0)
+      : "N";
+    const fullName = assignee.firstName
+      ? `${assignee.firstName} ${assignee.lastName || ""}`
+      : "Nilanga";
+
+    return (
+      <div className="flex items-center space-x-2">
+        <div className="w-6 h-6 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center">
+          {firstInitial}
+        </div>
+        <span>{fullName}</span>
+      </div>
+    );
+  };
+
+  // Updated logic to handle direct issue array instead of looking for tasks
+  const hasIssues = issues && Array.isArray(issues) && issues.length > 0;
+
   return (
     <>
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-[600px]">
-      
             <div className="flex justify-end items-center border-b pb-2">
-              <button className="text-gray-500 hover:text-gray-700" onClick={onClose}>
+              <button
+                className="text-gray-500 hover:text-gray-700"
+                onClick={onClose}
+              >
                 ✖
               </button>
             </div>
@@ -25,19 +79,40 @@ const IssueListPopup = ({ isOpen, onClose }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  
-                    <tr className="border-b">
-                      <td className="p-2">id</td>
-                      <td className="p-2">type</td>
-                      <td className="p-2">summery</td>
-                      <td className="p-2 flex items-center space-x-2">
-                        <img alt="Avatar" className="w-6 h-6 rounded-full" />
-                        <span>name</span>
-                      </td>
-                      <td className="p-2">
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={5} className="p-2 text-center">
+                        Loading issues...
                       </td>
                     </tr>
-                  
+                  ) : isError ? (
+                    <tr>
+                      <td colSpan={5} className="p-2 text-center text-red-500">
+                        Error loading issues. Please try again.
+                      </td>
+                    </tr>
+                  ) : !hasIssues ? (
+                    <tr>
+                      <td colSpan={5} className="p-2 text-center">
+                        No issues linked to this test case.
+                      </td>
+                    </tr>
+                  ) : (
+                    // Direct mapping of issues array
+                    issues.map((issue, index) => (
+                      <tr key={`${issue.id}-${index}`} className="border-b">
+                        <td className="p-2">{issue.id}</td>
+                        <td className="p-2">{issue.type || "Bug"}</td>
+                        <td className="p-2">{issue.summary}</td>
+                        <td className="p-2">
+                          {renderAssignee(issue.assignee)}
+                        </td>
+                        <td className="p-2">
+                          {issue.status?.value || "To Do"}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
