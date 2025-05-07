@@ -30,20 +30,30 @@ const IssueListPopup = ({
           testCaseID,
           platform,
         })
-      );
+      )
+        .then(() => {
+          console.log("Dispatch completed, checking issues state");
+        })
+        .catch((error) => {
+          console.error("Dispatch error:", error);
+        });
     }
   }, [isOpen, dispatch, testSuiteID, testCaseID, platform]);
 
   useEffect(() => {
-    if (issues) {
-      console.log(
-        `Frontend fetched issues for testCaseID: ${testCaseID}, platform: ${platform} => ${issues?.length} issues`
-      );
+    console.log(
+      "Issues state updated:",
+      issues ? JSON.stringify(issues, null, 2) : "undefined"
+    );
+
+    // Debug logs to understand data structure
+    if (issues && Array.isArray(issues)) {
+      console.log("Number of issues:", issues.length);
     }
-  }, [issues, testCaseID, platform]);
+  }, [issues]);
 
   const renderAssignee = (assignee) => {
-    if (!assignee) return "Unassigned";
+    if (!assignee || !assignee.id) return "Unassigned";
 
     const firstInitial = assignee.firstName
       ? assignee.firstName.charAt(0)
@@ -61,6 +71,9 @@ const IssueListPopup = ({
       </div>
     );
   };
+
+  // Updated logic to handle direct issue array instead of looking for tasks
+  const hasIssues = issues && Array.isArray(issues) && issues.length > 0;
 
   return (
     <>
@@ -100,28 +113,27 @@ const IssueListPopup = ({
                         Error loading issues. Please try again.
                       </td>
                     </tr>
-                  ) : issues?.length === 0 ? (
+                  ) : !hasIssues ? (
                     <tr>
                       <td colSpan={5} className="p-2 text-center">
                         No issues linked to this test case.
                       </td>
                     </tr>
                   ) : (
-                    issues?.flatMap((issue) =>
-                      issue?.tasks.map((task) => (
-                        <tr key={`${issue.id}-${task.id}`} className="border-b">
-                          <td className="p-2">{task.id}</td>
-                          <td className="p-2">{task.type || "Bug"}</td>
-                          <td className="p-2">{task.summary}</td>
-                          <td className="p-2">
-                            {renderAssignee(issue.createdBy)}
-                          </td>
-                          <td className="p-2">
-                            {task.status?.value || "To Do"}
-                          </td>
-                        </tr>
-                      ))
-                    )
+                    // Direct mapping of issues array
+                    issues.map((issue, index) => (
+                      <tr key={`${issue.id}-${index}`} className="border-b">
+                        <td className="p-2">{issue.id}</td>
+                        <td className="p-2">{issue.type || "Bug"}</td>
+                        <td className="p-2">{issue.summary}</td>
+                        <td className="p-2">
+                          {renderAssignee(issue.assignee)}
+                        </td>
+                        <td className="p-2">
+                          {issue.status?.value || "To Do"}
+                        </td>
+                      </tr>
+                    ))
                   )}
                 </tbody>
               </table>
