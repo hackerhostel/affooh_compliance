@@ -123,13 +123,11 @@ export const testIssueSlice = createSlice({
         state.isIssuesError = false;
       })
       .addCase(doGetIssues.fulfilled, (state, action) => {
-        console.log("doGetIssues fulfilled with payload:", action.payload);
         state.issues = action.payload || [];
         state.isIssuesLoading = false;
         state.isIssuesError = false;
       })
       .addCase(doGetIssues.rejected, (state, action) => {
-        console.log("doGetIssues rejected:", action.payload);
         state.isIssuesLoading = false;
         state.isIssuesError = true;
       })

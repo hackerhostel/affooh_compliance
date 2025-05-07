@@ -1,11 +1,6 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  doGetIssues,
-  selectIssues,
-  selectIsIssuesLoading,
-  selectIsIssuesError,
-} from "../../state/slice/testIssueSlice";
+import React, {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {doGetIssues, selectIsIssuesError, selectIsIssuesLoading, selectIssues,} from "../../state/slice/testIssueSlice";
 
 const IssueListPopup = ({
   isOpen,
@@ -15,42 +10,25 @@ const IssueListPopup = ({
   platform,
 }) => {
   const dispatch = useDispatch();
-  const issues = useSelector(selectIssues);
+  const issuesData = useSelector(selectIssues);
   const isLoading = useSelector(selectIsIssuesLoading);
   const isError = useSelector(selectIsIssuesError);
+  const [issues, setIssues] = useState([]);
 
   useEffect(() => {
     if (isOpen && testSuiteID && testCaseID) {
-      console.log(
-        `Fetching issues with testCaseID: ${testCaseID}, platform: ${platform}`
-      );
-      dispatch(
-        doGetIssues({
-          testSuiteID,
-          testCaseID,
-          platform,
-        })
+      dispatch(doGetIssues({testSuiteID, testCaseID, platform})
       )
-        .then(() => {
-          console.log("Dispatch completed, checking issues state");
-        })
-        .catch((error) => {
-          console.error("Dispatch error:", error);
-        });
     }
   }, [isOpen, dispatch, testSuiteID, testCaseID, platform]);
 
   useEffect(() => {
-    console.log(
-      "Issues state updated:",
-      issues ? JSON.stringify(issues, null, 2) : "undefined"
-    );
-
-    // Debug logs to understand data structure
-    if (issues && Array.isArray(issues)) {
-      console.log("Number of issues:", issues.length);
+    if (issuesData && issuesData.length) {
+      setIssues(issuesData)
+    }else{
+      setIssues([])
     }
-  }, [issues]);
+  }, [issuesData]);
 
   const renderAssignee = (assignee) => {
     if (!assignee || !assignee.id) return "Unassigned";
