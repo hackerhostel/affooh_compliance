@@ -1,6 +1,11 @@
-import React, {useEffect, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {doGetIssues, selectIsIssuesError, selectIsIssuesLoading, selectIssues,} from "../../state/slice/testIssueSlice";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  doGetIssues,
+  selectIsIssuesError,
+  selectIsIssuesLoading,
+  selectIssues,
+} from "../../state/slice/testIssueSlice";
 
 const IssueListPopup = ({
   isOpen,
@@ -17,16 +22,15 @@ const IssueListPopup = ({
 
   useEffect(() => {
     if (isOpen && testSuiteID && testCaseID) {
-      dispatch(doGetIssues({testSuiteID, testCaseID, platform})
-      )
+      dispatch(doGetIssues({ testSuiteID, testCaseID, platform }));
     }
   }, [isOpen, dispatch, testSuiteID, testCaseID, platform]);
 
   useEffect(() => {
     if (issuesData && issuesData.length) {
-      setIssues(issuesData)
-    }else{
-      setIssues([])
+      setIssues(issuesData);
+    } else {
+      setIssues([]);
     }
   }, [issuesData]);
 
@@ -50,8 +54,11 @@ const IssueListPopup = ({
     );
   };
 
-  // Updated logic to handle direct issue array instead of looking for tasks
-  const hasIssues = issues && Array.isArray(issues) && issues.length > 0;
+  // Check if there are issues with tasks
+  const hasIssues =
+    issues &&
+    Array.isArray(issues) &&
+    issues.some((issue) => issue.tasks && issue.tasks.length > 0);
 
   return (
     <>
@@ -98,20 +105,23 @@ const IssueListPopup = ({
                       </td>
                     </tr>
                   ) : (
-                    // Direct mapping of issues array
-                    issues.map((issue, index) => (
-                      <tr key={`${issue.id}-${index}`} className="border-b">
-                        <td className="p-2">{issue.id}</td>
-                        <td className="p-2">{issue.type || "Bug"}</td>
-                        <td className="p-2">{issue.summary}</td>
-                        <td className="p-2">
-                          {renderAssignee(issue.assignee)}
-                        </td>
-                        <td className="p-2">
-                          {issue.status?.value || "To Do"}
-                        </td>
-                      </tr>
-                    ))
+                    issues.flatMap((issue) =>
+                      issue.tasks?.map((task, index) => (
+                        <tr key={`${task.id}-${index}`} className="border-b">
+                          <td className="p-2">{task.id}</td>
+                          <td className="p-2">{task.type || "Bug"}</td>
+                          <td className="p-2">
+                            {task.summary || "No summary"}
+                          </td>
+                          <td className="p-2">
+                            {renderAssignee(issue.assignee)}
+                          </td>
+                          <td className="p-2">
+                            {task.status?.value || "To Do"}
+                          </td>
+                        </tr>
+                      ))
+                    )
                   )}
                 </tbody>
               </table>
