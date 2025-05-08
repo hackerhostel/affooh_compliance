@@ -72,6 +72,10 @@ const UserContentPage = () => {
     stories: 0,
   });
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const tasksPerPage = 5;
+
   // Fetch tasks using useFetchSprint hook
   const {
     data: sprintData,
@@ -167,6 +171,7 @@ const UserContentPage = () => {
         (task) => task.type === "Story"
       ).length;
       setTaskCounts({ all, tasks, bugs, stories });
+      setCurrentPage(1); // Reset to first page when data changes
     } else {
       setFilteredTaskList([]);
       setTaskCounts({ all: 0, tasks: 0, bugs: 0, stories: 0 });
@@ -258,6 +263,7 @@ const UserContentPage = () => {
     }));
 
     setFilteredTaskList(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
   };
 
   const resetFilters = () => {
@@ -286,6 +292,17 @@ const UserContentPage = () => {
         });
     }
   };
+
+  // Calculate pagination
+  const indexOfLastTask = currentPage * tasksPerPage;
+  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
+  const currentTasks = filteredTaskList.slice(
+    indexOfFirstTask,
+    indexOfLastTask
+  );
+  const totalPages = Math.ceil(filteredTaskList.length / tasksPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const statusOptions = [
     { value: "", label: "All Statuses" },
@@ -449,7 +466,7 @@ const UserContentPage = () => {
                 formValues={{ assignee: assigneeFilter }}
                 options={assigneeOptions}
                 onChange={({ target: { value } }) => setAssigneeFilter(value)}
-                className="w-32 h-10"
+                className="w-40 h-10"
               />
             </div>
 
@@ -460,7 +477,7 @@ const UserContentPage = () => {
                 formValues={{ status: statusFilter }}
                 options={statusOptions}
                 onChange={({ target: { value } }) => setStatusFilter(value)}
-                className="w-32 h-10"
+                className="w-40 h-10"
               />
             </div>
 
@@ -471,33 +488,39 @@ const UserContentPage = () => {
                 formValues={{ priority: priorityFilter }}
                 options={priorityOptions}
                 onChange={({ target: { value } }) => setPriorityFilter(value)}
-                className="w-32 h-10"
+                className="w-40 h-10"
               />
             </div>
 
             <div className="flex flex-col">
               <label className="text-sm mb-1 text-gray-500">Start Date</label>
-              <DatePicker
-                selected={startDateFilter}
-                onChange={(date) => setStartDateFilter(date)}
-                className="h-8 w-28 border border-gray-300 rounded-md px-2 text-sm"
-                placeholderText="Start Date"
-                dateFormat="yyyy/MM/dd"
-                popperPlacement="bottom-start"
-                calendarClassName="custom-calendar"
+              <input
+                type="date"
+                value={
+                  startDateFilter
+                    ? startDateFilter.toISOString().split("T")[0]
+                    : ""
+                }
+                onChange={(e) => {
+                  const date = e.target.value ? new Date(e.target.value) : null;
+                  setStartDateFilter(date);
+                }}
+                className="h-8 w-32 border border-gray-300 rounded-md px-2 text-sm"
               />
             </div>
 
             <div className="flex flex-col">
               <label className="text-sm mb-1 text-gray-500">End Date</label>
-              <DatePicker
-                selected={endDateFilter}
-                onChange={(date) => setEndDateFilter(date)}
-                className="h-8 w-28 border border-gray-300 rounded-md px-2 text-sm"
-                placeholderText="End Date"
-                dateFormat="yyyy/MM/dd"
-                popperPlacement="bottom-start"
-                calendarClassName="custom-calendar"
+              <input
+                type="date"
+                value={
+                  endDateFilter ? endDateFilter.toISOString().split("T")[0] : ""
+                }
+                onChange={(e) => {
+                  const date = e.target.value ? new Date(e.target.value) : null;
+                  setEndDateFilter(date);
+                }}
+                className="h-8 w-32 border border-gray-300 rounded-md px-2 text-sm"
               />
             </div>
 
@@ -515,51 +538,116 @@ const UserContentPage = () => {
             <p>No project selected. Please select a project first.</p>
           )}
           {!loading && !error && selectedProject && (
-            <table className="w-full">
-              <thead className="text-left text-sm text-gray-500">
-                <tr>
-                  <th className="pb-3">Task ID</th>
-                  <th className="pb-3">Task Name</th>
-                  <th className="pb-3">Priority</th>
-                  <th className="pb-3">Status</th>
-                  <th className="pb-3">Assignee</th>
-                  <th className="pb-3">Start Date</th>
-                  <th className="pb-3">End Date</th>
-                  <th className="pb-3">Type</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm">
-                {filteredTaskList.length > 0 ? (
-                  filteredTaskList.map((task) => (
-                    <tr key={task.key} className="border-t">
-                      <td className="py-3">{task.code}</td>
-                      <td className="py-3">{task.title}</td>
-                      <td className="py-3">
-                        {priorityCellRender({ value: task.priority })}
-                      </td>
-                      <td className="py-3">
-                        {statusCellRender({ value: task.status })}
-                      </td>
-                      <td className="py-3">{task.assignee}</td>
-                      <td className="py-3">{task.startDate}</td>
-                      <td className="py-3">{task.endDate}</td>
-                      <td className="py-3">{task.type}</td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="text-left text-sm text-gray-500">
+                    <tr>
+                      <th className="pb-3 w-1/12">Task ID</th>
+                      <th className="pb-3 w-3/12">Task Name</th>
+                      <th className="pb-3 w-1/12 text-center">Priority</th>
+                      <th className="pb-3 w-1/12 text-center">Status</th>
+                      <th className="pb-3 w-2/12 pl-6">Assignee</th>
+                      <th className="pb-3 w-1/12">Start Date</th>
+                      <th className="pb-3 w-1/12">End Date</th>
+                      <th className="pb-3 w-1/12">Type</th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="py-3 text-center">
-                      No tasks found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="text-sm">
+                    {currentTasks.length > 0 ? (
+                      currentTasks.map((task) => (
+                        <tr key={task.key} className="border-t">
+                          <td className="py-3">{task.code}</td>
+                          <td className="py-3">
+                            <div className="line-clamp-3">{task.title}</div>
+                          </td>
+                          <td className="py-3">
+                            {priorityCellRender({ value: task.priority })}
+                          </td>
+                          <td className="py-3 text-center">
+                            {statusCellRender({ value: task.status })}
+                          </td>
+                          <td className="py-3 pl-6">{task.assignee}</td>
+                          <td className="py-3">{task.startDate}</td>
+                          <td className="py-3">{task.endDate}</td>
+                          <td className="py-3">{task.type}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="8" className="py-3 text-center">
+                          No tasks found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              {filteredTaskList.length > tasksPerPage && (
+                <div className="flex justify-center items-center mt-6 gap-2">
+                  <button
+                    onClick={() => paginate(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className={`w-8 h-8 flex items-center justify-center rounded-md ${
+                      currentPage === 1
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    &lt;
+                  </button>
+
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    // Show pages around current page
+                    const pageNum =
+                      currentPage > 3 && totalPages > 5
+                        ? currentPage - 2 + i
+                        : i + 1;
+
+                    // Only show page numbers that are valid
+                    if (pageNum <= totalPages) {
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => paginate(pageNum)}
+                          className={`w-8 h-8 flex items-center justify-center rounded-md ${
+                            currentPage === pageNum
+                              ? "bg-primary-pink text-white"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
+                        >
+                          {pageNum.toString().padStart(2, "0")}
+                        </button>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  <button
+                    onClick={() =>
+                      paginate(Math.min(totalPages, currentPage + 1))
+                    }
+                    disabled={currentPage === totalPages}
+                    className={`w-8 h-8 flex items-center justify-center rounded-md ${
+                      currentPage === totalPages
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    &gt;
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
     </div>
   );
 };
+
+
 
 export default UserContentPage;
