@@ -18,8 +18,7 @@ import {
 } from "../../state/slice/appSlice.js";
 import useFetchSprint from "../../hooks/custom-hooks/sprint/useFetchSprint.jsx";
 import SearchBar from "../../components/SearchBar.jsx";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
 import {
   priorityCellRender,
   statusCellRender,
