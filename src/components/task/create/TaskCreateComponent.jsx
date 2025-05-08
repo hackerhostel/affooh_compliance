@@ -1,23 +1,23 @@
-import React, { useRef, useState } from 'react';
+import React, {useRef, useState} from 'react';
 import FormInput from "../../FormInput.jsx";
 import useValidation from "../../../utils/use-validation.jsx";
-import { TaskCreateSchema } from "../../../state/domains/authModels.js";
+import {TaskCreateSchema} from "../../../state/domains/authModels.js";
 import FormSelect from "../../FormSelect.jsx";
 import TaskScreenDetails from "./TaskScreenDetails.jsx";
-import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import {ArrowUpTrayIcon} from '@heroicons/react/24/outline';
 import axios from "axios";
-import { useSelector } from "react-redux";
-import { selectAppConfig } from "../../../state/slice/appSlice.js";
-import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import {useSelector} from "react-redux";
+import {selectAppConfig} from "../../../state/slice/appSlice.js";
+import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 import SkeletonLoader from "../../SkeletonLoader.jsx";
 import ErrorAlert from "../../ErrorAlert.jsx";
-import { useToasts } from "react-toast-notifications";
-import { XMarkIcon } from "@heroicons/react/24/outline/index.js";
-import { getUserSelectOptions } from "../../../utils/commonUtils.js";
-import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
+import {useToasts} from "react-toast-notifications";
+import {XMarkIcon} from "@heroicons/react/24/outline/index.js";
+import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
 import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 import UserSelect from "../../UserSelect.jsx";
-import Select from 'react-select';
+import useFetchEpics from "../../../hooks/custom-hooks/task/useFetchEpics.jsx";
+import {getSelectOptions} from "../../../utils/commonUtils.js";
 
 function getRequiredAdditionalFieldList(fieldsArray) {
     const requiredFields = [];
@@ -35,10 +35,11 @@ function getRequiredAdditionalFieldList(fieldsArray) {
     return requiredFields;
 }
 
-const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }) => {
+const TaskCreateComponent = ({sprintId, onClose, isOpen, refetchSprint}) => {
     const appConfig = useSelector(selectAppConfig);
     const selectedProject = useSelector(selectSelectedProject);
     const users = useSelector(selectProjectUserList);
+    const {data: epics} = useFetchEpics(selectedProject?.id)
     const { addToast } = useToasts();
 
     const [loading, setLoading] = useState(false);
@@ -259,12 +260,12 @@ const TaskCreateComponent = ({ sprintId, onClose, isOpen, epics, refetchSprint }
 
                         {!isEpicScreen && (
                             <div className="mb-6">
-                                <Select
+                                <FormSelect
                                     showLabel
                                     placeholder="Epic"
                                     name="epicID"
                                     formValues={createTaskForm}
-                                    options={epics}
+                                    options={getSelectOptions(epics)}
                                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                 />
                             </div>
