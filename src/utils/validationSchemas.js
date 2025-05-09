@@ -63,9 +63,3 @@ export const ProjectUpdateSchema = yup.object({
     name: yup.string().required('Project name is required').min(3, 'Project name must be at least 3 characters long').max(50, 'Project name must be at most 50 characters long'),
     projectType: yup.string().required('Project type is required')
 });
-
-export const SprintCreateSchema = yup.object({
-    name: yup.string().required("Sprint name is required"),
-    startDate: yup.string().required("Start date is required"),
-    endDate: yup.string().required("End date is required")
-})

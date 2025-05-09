@@ -1,44 +1,43 @@
-import React, { useState } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import FormInput from '../../components/FormInput.jsx';
-import { useToasts } from 'react-toast-notifications';
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
-import { SprintCreateSchema } from '../../utils/validationSchemas.js';
-import { selectSelectedProject } from '../../state/slice/projectSlice.js';
-import {
-  doGetSprintBreakdown,
-  selectSprintFormData,
-} from '../../state/slice/sprintSlice.js';
-import useValidation from '../../utils/use-validation.jsx';
+import React, {useState} from 'react';
+import {XMarkIcon} from '@heroicons/react/24/outline';
+import FormInput from "../../components/FormInput.jsx";
+import {useToasts} from "react-toast-notifications";
+import axios from "axios";
+import {useDispatch, useSelector} from "react-redux";
+import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {doGetSprintBreakdown, selectSprintFormData} from "../../state/slice/sprintSlice.js";
 
-const CreateSprintPopup = ({ isOpen, handleClosePopup }) => {
+const CreateSprintPopup = ({
+  isOpen,
+  formErrors,
+  isValidationErrorsShown,
+  handleClosePopup
+}) => {
+  const {addToast} = useToasts();
   const dispatch = useDispatch();
-  const { addToast } = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
   const sprintStatusList = useSelector(selectSprintFormData);
-  const [formValues, setFormValues] = useState({
+
+  const [createSprintDetails, setCreateSprintDetails] = useState({
     name: '',
     startDate: '',
-    endDate: '',
+    endDate: ''
   });
-
-  const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formErrors] = useValidation(SprintCreateSchema, formValues);
 
-  const handleFormChange = (name, value) => {
-    setFormValues((prev) => ({ ...prev, [name]: value }));
-    setIsValidationErrorsShown(false);
+  const handleLocalFormChange = (name, value) => {
+    setCreateSprintDetails(prevDetails => ({
+      ...prevDetails,
+      [name]: value
+    }));
   };
 
   const resetForm = () => {
-    setFormValues({
+    setCreateSprintDetails({
       name: '',
       startDate: '',
-      endDate: '',
+      endDate: ''
     });
-    setIsValidationErrorsShown(false);
   };
 
   const handleClose = () => {
@@ -50,36 +49,30 @@ const CreateSprintPopup = ({ isOpen, handleClosePopup }) => {
 
   const createSprint = async (event) => {
     event.preventDefault();
-    setIsSubmitting(true);
+    setIsSubmitting(true)
 
-    if (formErrors && Object.keys(formErrors).length > 0) {
-      setIsValidationErrorsShown(true);
-    } else {
-      setIsValidationErrorsShown(false);
-      try {
-        const response = await axios.post('/sprints', {
-          project: {
-            ...formValues,
-            projectID: selectedProject?.id,
-            statusID: sprintStatusList[0]?.id,
-          },
-        });
-
-        const sprintID = response?.data?.body?.sprintID;
-
-        if (sprintID > 0) {
-          addToast('Sprint Successfully Created', { appearance: 'success' });
-          dispatch(doGetSprintBreakdown(selectedProject?.id));
-          handleClose();
-        } else {
-          addToast('Failed To Create The Sprint', { appearance: 'error' });
+    try {
+      const response = await axios.post("/sprints", {
+        project: {
+          ...createSprintDetails,
+          projectID: selectedProject?.id,
+          statusID: sprintStatusList[0]?.id
         }
-      } catch (error) {
-        addToast('Failed To Create The Sprint', { appearance: 'error' });
+      })
+      const sprintID = response?.data?.body?.sprintID
+
+      if (sprintID > 0) {
+        addToast('Sprint Successfully Created', {appearance: 'success'});
+        dispatch(doGetSprintBreakdown(selectedProject?.id))
+        handleClose()
+      } else {
+        addToast('Failed To Create The Sprint', {appearance: 'error'});
       }
+    } catch (error) {
+      addToast('Failed To Create The Sprint', {appearance: 'error'});
     }
-    setIsSubmitting(false);
-  };
+    setIsSubmitting(false)
+  }
 
   return (
     <>
@@ -101,11 +94,9 @@ const CreateSprintPopup = ({ isOpen, handleClosePopup }) => {
                   <FormInput
                     type="text"
                     name="name"
+                    formValues={createSprintDetails}
                     placeholder="Sprint Name"
-                    formValues={formValues}
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
-                    }
+                    onChange={({ target: { name, value } }) => handleLocalFormChange(name, value)}
                     formErrors={formErrors}
                     showErrors={isValidationErrorsShown}
                   />
@@ -115,11 +106,9 @@ const CreateSprintPopup = ({ isOpen, handleClosePopup }) => {
                     <FormInput
                       type="date"
                       name="startDate"
+                      formValues={createSprintDetails}
                       placeholder="Start Date"
-                      formValues={formValues}
-                      onChange={({ target: { name, value } }) =>
-                        handleFormChange(name, value)
-                      }
+                      onChange={({ target: { name, value } }) => handleLocalFormChange(name, value)}
                       formErrors={formErrors}
                       showErrors={isValidationErrorsShown}
                     />
@@ -128,11 +117,9 @@ const CreateSprintPopup = ({ isOpen, handleClosePopup }) => {
                     <FormInput
                       type="date"
                       name="endDate"
+                      formValues={createSprintDetails}
                       placeholder="End Date"
-                      formValues={formValues}
-                      onChange={({ target: { name, value } }) =>
-                        handleFormChange(name, value)
-                      }
+                      onChange={({ target: { name, value } }) => handleLocalFormChange(name, value)}
                       formErrors={formErrors}
                       showErrors={isValidationErrorsShown}
                     />
@@ -144,7 +131,6 @@ const CreateSprintPopup = ({ isOpen, handleClosePopup }) => {
                   type="button"
                   onClick={handleClose}
                   className="btn-secondary"
-                  disabled={isSubmitting}
                 >
                   Cancel
                 </button>
@@ -153,7 +139,7 @@ const CreateSprintPopup = ({ isOpen, handleClosePopup }) => {
                   className="btn-primary"
                   disabled={isSubmitting}
                 >
-                  Create
+                  Create New Sprint
                 </button>
               </div>
             </form>
