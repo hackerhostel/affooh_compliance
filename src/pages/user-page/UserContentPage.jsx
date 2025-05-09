@@ -18,7 +18,6 @@ import {
 } from "../../state/slice/appSlice.js";
 import useFetchSprint from "../../hooks/custom-hooks/sprint/useFetchSprint.jsx";
 import SearchBar from "../../components/SearchBar.jsx";
-
 import {
   priorityCellRender,
   statusCellRender,

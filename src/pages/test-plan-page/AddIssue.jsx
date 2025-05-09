@@ -7,6 +7,8 @@ import useFetchTask from "../../hooks/custom-hooks/task/useFetchTask.jsx";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import { useToasts } from "react-toast-notifications";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { doGetIssues } from "../../state/slice/testIssueSlice";
 
 const statusMapping = {
   1: "To Do",
@@ -24,6 +26,7 @@ const AddIssue = ({
   platform,
   fetchTestSuite,
 }) => {
+  const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
   const { loading, data: tasks } = useFetchFlatTasks(selectedProject?.id);
   const [selectedTasks, setSelectedTasks] = useState([]);
@@ -42,6 +45,22 @@ const AddIssue = ({
   } = useFetchTask(taskCode);
 
   const [taskDetailsCache, setTaskDetailsCache] = useState({});
+  const [existingTaskIds, setExistingTaskIds] = useState(new Set());
+
+  useEffect(() => {
+    if (isOpen && testSuiteID && testCaseID && platform) {
+      dispatch(doGetIssues({ testSuiteID, testCaseID, platform })).then(
+        (response) => {
+          const existingIds = new Set(
+            response.payload.flatMap((issue) =>
+              issue.tasks.map((task) => task.id)
+            )
+          );
+          setExistingTaskIds(existingIds);
+        }
+      );
+    }
+  }, [isOpen, dispatch, testSuiteID, testCaseID, platform]);
 
   useEffect(() => {
     if (tasks && tasks.length > 0) {
@@ -50,13 +69,16 @@ const AddIssue = ({
       );
 
       const formattedTasks = bugTasks.map((task) => ({
-        label: `${task.id.toString().padStart(2, "0")} - ${task.name || "Unnamed Task"}`,
+        label: `${task.id.toString().padStart(2, "0")} - ${task.name || "Unnamed Task"} ${
+          existingTaskIds.has(task.id) ? " (Already Added)" : ""
+        }`,
         value: task.id,
         taskData: task,
+        isDisabled: existingTaskIds.has(task.id),
       }));
       setTaskOptions(formattedTasks);
     }
-  }, [tasks]);
+  }, [tasks, existingTaskIds]);
 
   const handleSelectChange = (selectedOptions, actionMeta) => {
     setSelectedTasks(selectedOptions || []);
@@ -179,8 +201,6 @@ const AddIssue = ({
     }
   };
 
-  if (!isOpen) return null;
-
   const customStyles = {
     control: (provided) => ({
       ...provided,
@@ -194,7 +214,12 @@ const AddIssue = ({
         : state.isFocused
           ? "#f3f4f6"
           : "white",
-      color: state.isSelected ? "white" : "black",
+      color: state.isSelected
+        ? "white"
+        : state.data.isDisabled
+          ? "#ef4444"
+          : "black",
+      cursor: state.data.isDisabled ? "not-allowed" : "pointer",
     }),
     multiValue: (provided) => ({
       ...provided,
@@ -203,10 +228,7 @@ const AddIssue = ({
   };
 
   const filterOption = (option, inputValue) => {
-    const isAlreadySelected = selectedTasks.some(
-      (task) => task.value === option.value
-    );
-    if (isAlreadySelected) return false;
+    if (option.isDisabled) return false;
 
     if (!inputValue) return true;
 
@@ -232,6 +254,8 @@ const AddIssue = ({
       </div>
     );
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
