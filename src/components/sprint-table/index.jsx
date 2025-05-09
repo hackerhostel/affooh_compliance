@@ -44,6 +44,8 @@ const SprintTable = ({
   const [editOptions, setEditOptions] = useState({});
   const [isOptionOpen, setIsOptionOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
+
 
 
   useEffect(() => {
@@ -235,30 +237,30 @@ const SprintTable = ({
                   className="h-4 w-4 text-gray-600 hover:text-black cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
+                    const rect = e.currentTarget.getBoundingClientRect(); // ← Get icon position
+                    setPopupPosition({ top: rect.bottom + 5, left: rect.left }); // Add some spacing
                     setSelectedTask(task);
                     setIsOptionOpen(true);
                   }}
                 />
-
               </div>
-
             );
           }}
         />
+      </DataGrid>
 
-        <div className='-mt-44'>
-        {isOptionOpen && selectedTask && (
-          <TaskOptionsPopup
-            isOpen={true}
-            onClose={() => setIsOptionOpen(false)}
-            task={selectedTask} 
-          />
-        )}
+      <div className='-mt-44'>
+          {isOptionOpen && selectedTask && (
+            <TaskOptionsPopup
+              isOpen={true}
+              onClose={() => setIsOptionOpen(false)}
+              task={selectedTask}
+              position={popupPosition}
+            />
+          )}
+
 
         </div>
-
-      
-      </DataGrid>
       <TaskAttriEditPopUp editOptions={editOptions} setEditOptions={setEditOptions} taskAttributes={taskAttributes}
         refetchSprint={refetchSprint} />
     </div>
