@@ -26,6 +26,8 @@ import {
 import FormSelect from "../FormSelect.jsx";
 import SearchBar from "../SearchBar.jsx";
 import TaskAttriEditPopUp from "../popupForms/taskAttriEditPopUp.jsx";
+import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
+import TaskOptionsPopup from '../task/edit/TaskOptionPopup.jsx';
 
 const SprintTable = ({
                        taskList,
@@ -40,6 +42,8 @@ const SprintTable = ({
   const history = useHistory();
   const [filteredTaskList, setFilteredTaskList] = useState(taskList);
   const [editOptions, setEditOptions] = useState({});
+  const [isOptionOpen,setIsOptionOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     setFilteredTaskList(taskList)
@@ -215,13 +219,41 @@ const SprintTable = ({
               cellRender={customCellRender}
               groupIndex={getGroupIndex('type', sprintConfig)}
           />
-          <Column
-              dataField="priority"
-              caption="Priority"
-              headerCellRender={customHeaderRender}
-              cellRender={priorityCellRender}
-              groupIndex={getGroupIndex('priority', sprintConfig)}
-          />
+         <Column
+  dataField="priority"
+  caption="Priority"
+  headerCellRender={customHeaderRender}
+  groupIndex={getGroupIndex('priority', sprintConfig)}
+  cellRender={(cellData) => {
+    const task = cellData.data;
+
+    return (
+      <div className="flex space-x-8 items-center ml-6 w-full">
+        <span className="truncate">{task.priority}</span>
+        <EllipsisVerticalIcon
+          className="h-4 w-4 text-gray-600 hover:text-black cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedTask(task);
+            setIsOptionOpen(true);
+          }}
+        />
+      </div>
+    );
+  }}
+/>
+
+<div className='-mt-56'>
+<TaskOptionsPopup
+  isOpen={isOptionOpen}
+  onClose={() => setIsOptionOpen(false)}
+  task={selectedTask}
+/>
+</div>
+
+
+
+
         </DataGrid>
         <TaskAttriEditPopUp editOptions={editOptions} setEditOptions={setEditOptions} taskAttributes={taskAttributes}
                             refetchSprint={refetchSprint}/>
