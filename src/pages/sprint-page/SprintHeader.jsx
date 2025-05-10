@@ -1,4 +1,4 @@
-  import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import TaskCreateComponent from "../../components/task/create/TaskCreateComponent.jsx";
 import timeCalender from '../../assets/Time_Calender.png'
 import EditIcon from '../../assets/Edit_Icon.png'
@@ -185,6 +185,15 @@ const SprintHeader = ({
                     onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
                 />
               </div>
+              <div className={"flex-col ml-3 min-w-32"}>
+                <FormSelect
+                    name="epics"
+                    formValues={{epics: filters?.epics}}
+                    className="w-40 h-10"
+                    options={[{value: -1, label: 'No Epic'}, ...epics]}
+                    onChange={({target: {name, value}}) => onSelectFilterChange(value, name)}
+                />
+              </div>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -213,7 +222,7 @@ const SprintHeader = ({
         </div>
 
         <TaskCreateComponent sprintId={sprint?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}
-                             epics={epics} refetchSprint={refetchSprint}/>
+                             refetchSprint={refetchSprint}/>
         <DateRangeSelector isOpen={dateRangelOpen} onClose={closeDateRange} startDate={sprint?.startDate}
                            endDate={sprint?.endDate} onSave={updateDateRange}/>
       </>
