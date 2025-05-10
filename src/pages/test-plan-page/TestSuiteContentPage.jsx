@@ -1,30 +1,34 @@
-import {useDispatch, useSelector} from "react-redux";
-import React, {useEffect, useState} from "react";
-import {selectSelectedTestPlanId} from "../../state/slice/testPlansSlice.js";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState, useCallback } from "react";
+import { selectSelectedTestPlanId } from "../../state/slice/testPlansSlice.js";
 import SkeletonLoader from "../../components/SkeletonLoader.jsx";
 import ErrorAlert from "../../components/ErrorAlert.jsx";
 import {
   ArrowPathRoundedSquareIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  PlusCircleIcon
+  PlusCircleIcon,
 } from "@heroicons/react/24/outline/index.js";
-import {doGetTestCaseFormData, selectTestCaseStatuses,} from "../../state/slice/testCaseFormDataSlice.js";
-import {selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {
+  doGetTestCaseFormData,
+  selectTestCaseStatuses,
+} from "../../state/slice/testCaseFormDataSlice.js";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import FormSelect from "../../components/FormSelect.jsx";
-import {getInitials, getSelectOptions} from "../../utils/commonUtils.js";
+import { getInitials, getSelectOptions } from "../../utils/commonUtils.js";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
-import {CheckIcon, XMarkIcon} from "@heroicons/react/24/outline";
+import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
-import {useToasts} from "react-toast-notifications";
-import {useHistory} from "react-router-dom";
+import { useToasts } from "react-toast-notifications";
+import { useHistory } from "react-router-dom";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import AddIssue from "./AddIssue.jsx";
 import IssueListPopup from "./IssueListPopup.jsx";
 import useFetchTestSuite from "../../hooks/custom-hooks/test-plan/useFetchTestSuite.jsx";
 import useFetchIssue from "../../hooks/custom-hooks/test-plan/useFetchIssue.jsx";
-import {doGetIssueCount} from "../../state/slice/testIssueSlice.js";
+import { doGetIssueCount } from "../../state/slice/testIssueSlice.js";
+import debounce from "lodash/debounce"; 
 
 const TestSuiteContentPage = () => {
   const dispatch = useDispatch();
@@ -53,8 +57,9 @@ const TestSuiteContentPage = () => {
     fail: 0,
     pending: 0,
   });
-  const [issueCounts, setIssueCounts] = useState([]);
+  const [issueCounts, setIssueCounts] = useState([]); 
   const [issueCountsLoading, setIssueCountsLoading] = useState(false);
+  const [issueCountCache, setIssueCountCache] = useState({}); 
 
   const { fetchTestSuite } = useFetchTestSuite(testSuiteId);
   const {
@@ -62,7 +67,7 @@ const TestSuiteContentPage = () => {
     error: issueError,
     loading: issueLoading,
     refetch: fetchIssue,
-  } = useFetchIssue(testSuiteId);
+  } = useFetchIssue(testSuiteId, testCycleId);
 
   const {
     loading: testPlanLoading,
@@ -84,7 +89,16 @@ const TestSuiteContentPage = () => {
       let testEOP = testPlanResponse?.testExecutionOptions || [];
       if (testEOP.length) {
         setTestExecutionOptions(testEOP);
-        setTestSuiteId(testEOP[0].id);
+       
+        const firstSuiteId = testEOP[0].id;
+        setTestSuiteId(firstSuiteId);
+
+        
+        const firstSuiteCycles = testEOP[0]?.cycles || [];
+        if (firstSuiteCycles.length) {
+          setTestExecutionCycles(firstSuiteCycles);
+          setTestCycleId(firstSuiteCycles[0].id);
+        }
       }
     }
     if (!testCaseStatuses.length) {
@@ -102,8 +116,10 @@ const TestSuiteContentPage = () => {
   }, [selectedTestPlanId]);
 
   useEffect(() => {
-    if (testExecutionResponse.length) {
+    if (testExecutionResponse?.length) {
       setTestExecutions(testExecutionResponse);
+    } else {
+      setTestExecutions([]);
     }
   }, [testExecutionResponse]);
 
@@ -119,12 +135,16 @@ const TestSuiteContentPage = () => {
 
   useEffect(() => {
     if (testSuiteId !== 0) {
-      const filteredTestExecutionCycles = testExecutionOptions.filter(
-        (to) => to.id === Number(testSuiteId)
-      )[0]?.cycles;
-      if (filteredTestExecutionCycles && filteredTestExecutionCycles.length) {
+      const filteredTestExecutionCycles =
+        testExecutionOptions.filter((to) => to.id === Number(testSuiteId))[0]
+          ?.cycles || [];
+      if (filteredTestExecutionCycles.length) {
         setTestExecutionCycles(filteredTestExecutionCycles);
+        
         setTestCycleId(filteredTestExecutionCycles[0].id);
+      } else {
+        setTestExecutionCycles([]);
+        setTestCycleId(0);
       }
     }
   }, [testSuiteId, testExecutionOptions]);
@@ -134,33 +154,61 @@ const TestSuiteContentPage = () => {
       fetchTestSuite();
       fetchIssue();
     }
-  }, [testSuiteId]); // Removed fetchTestSuite and fetchIssue from dependencies
+  }, [testSuiteId]);
 
-  useEffect(() => {
-    if (testSuiteId && testExecutions.length) {
-      setIssueCountsLoading(true)
-      const fetchIssueCounts = async () => {
-        const counts = [];
-        for (const execution of testExecutions) {
-          if (execution.testCaseID) {
-            const response = await dispatch(
-              doGetIssueCount({
-                testSuiteID: testSuiteId,
-                testCaseID: execution?.testCaseID,
-                platform: execution?.platform
-              })
-            );
-            if (response.payload?.count) {
-              counts.push({testCycleExecutionID: execution.testCycleExecutionID, count: response.payload?.count})
-            }
+  // Debounced function to fetch issue counts
+  const fetchIssueCounts = useCallback(
+    debounce(async () => {
+      if (!testSuiteId || !testCycleId || !testExecutions.length) return;
+
+      setIssueCountsLoading(true);
+      const counts = [];
+      for (const execution of testExecutions) {
+        if (execution.testCaseID) {
+          const cacheKey = `${execution.testCaseID}-${execution.platform}-${testCycleId}`;
+          // Check if count is in cache
+          if (issueCountCache[cacheKey] !== undefined) {
+            counts.push({
+              testCycleExecutionID: execution.testCycleExecutionID,
+              count: issueCountCache[cacheKey],
+            });
+            continue;
+          }
+
+          const response = await dispatch(
+            doGetIssueCount({
+              testSuiteID: testSuiteId,
+              testCaseID: execution?.testCaseID,
+              platform: execution?.platform,
+              testCycleID: testCycleId,
+            })
+          );
+
+          if (response.payload?.count !== undefined) {
+            const count = response.payload.count;
+            // Update cache
+            setIssueCountCache((prev) => ({
+              ...prev,
+              [cacheKey]: count,
+            }));
+            counts.push({
+              testCycleExecutionID: execution.testCycleExecutionID,
+              count,
+            });
           }
         }
-        setIssueCounts(counts);
-        setIssueCountsLoading(false)
-      };
-      fetchIssueCounts();
-    }
-  }, [testSuiteId, testExecutions, dispatch]);
+      }
+      setIssueCounts(counts);
+      setIssueCountsLoading(false);
+    }, 500), // 500ms debounce
+    [testSuiteId, testCycleId, testExecutions, dispatch, issueCountCache]
+  );
+
+  // Trigger issue count fetch only on testSuiteId or testCycleId change
+  useEffect(() => {
+    fetchIssueCounts();
+    return () => fetchIssueCounts.cancel(); 
+  }, [testSuiteId, testCycleId, fetchIssueCounts]);
 
   const handleAddIssue = (testCaseID, platform) => {
     setSelectedTestCaseId(testCaseID);
@@ -177,10 +225,12 @@ const TestSuiteContentPage = () => {
   const handleAddIssueClose = async (issueAdded) => {
     setIsOpenAddIssue(false);
     if (issueAdded) {
-      await fetchTestSuite();
-      await fetchIssue();
-      refetchTextExecution(true);
-      setTestSuiteId((prev) => prev);
+      await fetchTestSuite(); 
+      await fetchIssue(); 
+      const updatedExecutions = await refetchTextExecution(true); 
+      setTestExecutions(updatedExecutions || []); 
+      setTestSuiteId((prev) => prev); // Trigger re-render if needed
+      fetchIssueCounts(); 
     }
     setSelectedTestCaseId(null);
     setSelectedPlatform(null);
@@ -189,12 +239,14 @@ const TestSuiteContentPage = () => {
   const handleSuiteChange = (value) => {
     if (value) {
       setTestSuiteId(Number(value));
+      setIssueCounts([]); 
     }
   };
 
   const handleCycleChange = (value) => {
     if (value) {
       setTestCycleId(Number(value));
+      setIssueCounts([]); 
     }
   };
 
@@ -214,6 +266,14 @@ const TestSuiteContentPage = () => {
           appearance: "success",
         });
         refetchTextExecution(true);
+        
+        setStatusCounts({
+          ...statusCounts,
+          all: testExecutions.length,
+          pass: testExecutions.filter((item) => item.status === 20).length,
+          fail: testExecutions.filter((item) => item.status === 21).length,
+          pending: testExecutions.filter((item) => item.status === 13).length,
+        });
       }
     } catch (e) {
       setIsUpdating(false);
@@ -353,20 +413,19 @@ const TestSuiteContentPage = () => {
           <div className="flex items-center mt-3 px-4 py-2 text-secondary-text-color">
             <td className="px-4 py-2">
               {issueCountsLoading ? (
-                  <ArrowPathRoundedSquareIcon
-                      className={"w-4 h-4 text-black"}
-                  />
+                <ArrowPathRoundedSquareIcon className={"w-4 h-4 text-black"} />
               ) : (
-                  <button
-                      className="px-2 py-1 bg-white rounded-sm border-count-notification"
-                      onClick={() => handleIssueList(row.testCaseID, row.platform)}
-              >
-                {issueCount}
-                  </button>)}
+                <button
+                  className="px-2 py-1 bg-white rounded-sm border-count-notification"
+                  onClick={() => handleIssueList(row.testCaseID, row.platform)}
+                >
+                  {issueCount}
+                </button>
+              )}
             </td>
             <PlusCircleIcon
-                className={"w-8 h-8 items-center text-pink-500 cursor-pointer"}
-                onClick={() => handleAddIssue(row.testCaseID, row.platform)}
+              className={"w-8 h-8 items-center text-pink-500 cursor-pointer"}
+              onClick={() => handleAddIssue(row.testCaseID, row.platform)}
             />
           </div>
           <td className="px-4 py-2">
@@ -434,7 +493,9 @@ const TestSuiteContentPage = () => {
           <tr className="py-0">
             <td className="p-2" colSpan={8}>
               <div
-                className={`overflow-hidden transition-[max-height] duration-300 ${open ? "max-h-[1000px]" : "max-h-0"} px-5`}
+                className={`overflow-hidden transition-[max-height] duration-300 ${
+                  open ? "max-h-[1000px]" : "max-h-0"
+                } px-5`}
               >
                 <div className="rounded-xl border p-4 bg-slate-50 shadow-sm">
                   <p className="text-gray-600 font-medium mb-4">
@@ -486,8 +547,15 @@ const TestSuiteContentPage = () => {
       <div className={"flex w-full justify-between items-center mb-10 mt-6"}>
         <div>
           {testPlan?.id && (
-            <p className={"text-secondary-grey font-bold text-sm align-left"}>
-              Projects <span className="mx-1"></span>{" "}
+            <p
+              className={
+                "text-secondary-grey font-bold text-sm align-left flex items-center"
+              }
+            >
+              Test Plan{" "}
+              <span className="mx-1">
+                <ChevronRightIcon className="w-4 h-4 text-secondary-grey" />
+              </span>{" "}
               <span className="text-black">{testPlan.name}</span>
             </p>
           )}
@@ -545,6 +613,8 @@ const TestSuiteContentPage = () => {
         <div className="p-8 text-center">
           No Details Available, Please Select a Test Plan
         </div>
+      ) : testPlanLoading ? (
+        <div className="p-8 text-center">Loading Test Plan Details...</div>
       ) : testExecutionOptions?.length === 0 ? (
         <div className="p-8 text-center flex flex-col gap-4 items-center">
           <p>No Test Suites Available, Please Create a Test Suite</p>
@@ -556,9 +626,7 @@ const TestSuiteContentPage = () => {
           </button>
         </div>
       ) : testCycleId === 0 ? (
-        <div className="p-8 text-center">
-          No Details Available, Please Select a Test Cycle
-        </div>
+        <div className="p-8 text-center">Loading Test Cycle Details...</div>
       ) : (
         <div className={"flex-col h-[calc(100vh-250px)] overflow-y-auto"}>
           <div className={"p-4 rounded-md"}>
@@ -612,7 +680,13 @@ const TestSuiteContentPage = () => {
                       <GenerateRow
                         row={row}
                         key={row.testCycleExecutionID}
-                        issueCount={issueCounts.find(ic => ic.testCycleExecutionID === row.testCycleExecutionID)?.count || 0}
+                        issueCount={
+                          issueCounts.find(
+                            (ic) =>
+                              ic.testCycleExecutionID ===
+                              row.testCycleExecutionID
+                          )?.count || 0
+                        }
                         onUpdate={updateRow}
                       />
                     ))}
@@ -627,6 +701,7 @@ const TestSuiteContentPage = () => {
             testSuiteID={testSuiteId}
             testCaseID={selectedTestCaseId}
             platform={selectedPlatform}
+            testCycleID={testCycleId}
             fetchTestSuite={fetchTestSuite}
           />
           <IssueListPopup
@@ -635,6 +710,7 @@ const TestSuiteContentPage = () => {
             testSuiteID={testSuiteId}
             testCaseID={selectedTestCaseId}
             platform={selectedPlatform}
+            testCycleID={testCycleId}
           />
         </div>
       )}

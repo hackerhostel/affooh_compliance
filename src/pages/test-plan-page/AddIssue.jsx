@@ -24,6 +24,7 @@ const AddIssue = ({
   testSuiteID,
   testCaseID,
   platform,
+  testCycleID, 
   fetchTestSuite,
 }) => {
   const dispatch = useDispatch();
@@ -48,8 +49,12 @@ const AddIssue = ({
   const [existingTaskIds, setExistingTaskIds] = useState(new Set());
 
   useEffect(() => {
-    if (isOpen && testSuiteID && testCaseID && platform) {
-      dispatch(doGetIssues({ testSuiteID, testCaseID, platform })).then(
+    if (isOpen && testSuiteID && testCaseID && platform && testCycleID) {
+      
+      dispatch(
+        doGetIssues({ testSuiteID, testCaseID, platform, testCycleID })
+      ).then(
+        
         (response) => {
           const existingIds = new Set(
             response.payload.flatMap((issue) =>
@@ -60,7 +65,7 @@ const AddIssue = ({
         }
       );
     }
-  }, [isOpen, dispatch, testSuiteID, testCaseID, platform]);
+  }, [isOpen, dispatch, testSuiteID, testCaseID, platform, testCycleID]); 
 
   useEffect(() => {
     if (tasks && tasks.length > 0) {
@@ -173,13 +178,14 @@ const AddIssue = ({
         testSuiteID,
         taskIDs,
         platform: platform.toLowerCase(),
+        testCycleID, 
       };
 
       const response = await axios.post(
         `/test-plans/test-suites/${testSuiteID}/issues`,
         issueData,
         {
-          params: { testCaseID: testCaseID },
+          params: { testCaseID },
         }
       );
 
