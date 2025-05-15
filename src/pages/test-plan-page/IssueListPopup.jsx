@@ -13,6 +13,7 @@ const IssueListPopup = ({
   testSuiteID,
   testCaseID,
   platform,
+  testCycleID, 
 }) => {
   const dispatch = useDispatch();
   const issuesData = useSelector(selectIssues);
@@ -21,10 +22,11 @@ const IssueListPopup = ({
   const [issues, setIssues] = useState([]);
 
   useEffect(() => {
-    if (isOpen && testSuiteID && testCaseID) {
-      dispatch(doGetIssues({ testSuiteID, testCaseID, platform }));
+    if (isOpen && testSuiteID && testCaseID && testCycleID) {
+      
+      dispatch(doGetIssues({ testSuiteID, testCaseID, platform, testCycleID })); 
     }
-  }, [isOpen, dispatch, testSuiteID, testCaseID, platform]);
+  }, [isOpen, dispatch, testSuiteID, testCaseID, platform, testCycleID]); 
 
   useEffect(() => {
     if (issuesData && issuesData.length) {

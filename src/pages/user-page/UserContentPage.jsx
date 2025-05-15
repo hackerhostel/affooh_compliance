@@ -320,9 +320,9 @@ const UserContentPage = () => {
 
   return (
     <div className="p-6 bg-dashboard-bgc min-h-screen">
-      <div className="flex flex-wrap gap-6 pb-6">
-        {/* Left Sidebar */}
-        <div className="w-72 bg-white mt-16 rounded-lg p-6 h-fit">
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Left Sidebar - Fixed width for user profile */}
+        <div className="w-full md:w-72 bg-white rounded-lg p-6 h-fit sticky top-16">
           <div className="flex justify-end">
             <PencilIcon
               onClick={toggleEditable}
@@ -350,65 +350,64 @@ const UserContentPage = () => {
             </div>
             <hr className="w-full mt-6 border-t border-gray-200" />
             <div className="w-full space-y-4 mt-6">
-              <div className="w-full space-y-4 mt-6">
-                <FormInput
-                  name="email"
-                  formValues={formValues}
-                  placeholder="Email"
-                  onChange={(e) =>
-                    setFormValues({ ...formValues, email: e.target.value })
-                  }
-                  className={`w-full p-2 border rounded-md ${
-                    isEditable
-                      ? "bg-white text-secondary-grey border-border-color"
-                      : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                  }`}
-                  disabled={!isEditable}
-                  formErrors={formErrors}
-                  showErrors={true}
-                  showLabel={true}
-                />
+              <FormInput
+                name="email"
+                formValues={formValues}
+                placeholder="Email"
+                onChange={(e) =>
+                  setFormValues({ ...formValues, email: e.target.value })
+                }
+                className={`w-full p-2 border rounded-md ${
+                  isEditable
+                    ? "bg-white text-secondary-grey border-border-color"
+                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                }`}
+                disabled={!isEditable}
+                formErrors={formErrors}
+                showErrors={true}
+                showLabel={true}
+              />
 
-                <FormInput
-                  name="contactNumber"
-                  formValues={formValues}
-                  placeholder="Contact Number"
-                  onChange={(e) =>
-                    setFormValues({
-                      ...formValues,
-                      contactNumber: e.target.value,
-                    })
-                  }
-                  className={`w-full p-2 border rounded-md ${
-                    isEditable
-                      ? "bg-white text-secondary-grey border-border-color"
-                      : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                  }`}
-                  disabled={!isEditable}
-                  formErrors={formErrors}
-                  showErrors={true}
-                  showLabel={true}
-                />
+              <FormInput
+                name="contactNumber"
+                formValues={formValues}
+                placeholder="Contact Number"
+                onChange={(e) =>
+                  setFormValues({
+                    ...formValues,
+                    contactNumber: e.target.value,
+                  })
+                }
+                className={`w-full p-2 border rounded-md ${
+                  isEditable
+                    ? "bg-white text-secondary-grey border-border-color"
+                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                }`}
+                disabled={!isEditable}
+                formErrors={formErrors}
+                showErrors={true}
+                showLabel={true}
+              />
 
-                <FormSelect
-                  name="userRole"
-                  formValues={formValues}
-                  options={getSelectOptions(roles)}
-                  placeholder="Roles"
-                  onChange={(e) =>
-                    setFormValues({ ...formValues, userRole: e.target.value })
-                  }
-                  className={`w-full p-2 border rounded-md ${
-                    isEditable
-                      ? "bg-white text-secondary-grey border-border-color"
-                      : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                  }`}
-                  disabled={!isEditable}
-                  formErrors={formErrors}
-                  showErrors={true}
-                  showLabel={true}
-                />
-              </div>
+              <FormSelect
+                name="userRole"
+                formValues={formValues}
+                options={getSelectOptions(roles)}
+                placeholder="Roles"
+                onChange={(e) =>
+                  setFormValues({ ...formValues, userRole: e.target.value })
+                }
+                className={`w-full p-2 border rounded-md ${
+                  isEditable
+                    ? "bg-white text-secondary-grey border-border-color"
+                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                }`}
+                disabled={!isEditable}
+                formErrors={formErrors}
+                showErrors={true}
+                showLabel={true}
+              />
+
               <button
                 onClick={updateUser}
                 type="submit"
@@ -420,18 +419,20 @@ const UserContentPage = () => {
           </div>
         </div>
 
-        {/* Tasks Section */}
+        {/* Tasks Section - Responsive design that takes the remaining space */}
         <div className="flex-1 bg-white rounded-lg p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex gap-5 items-center">
-              <h6 className="font-semibold">{`Tasks (${filteredTaskList.length})`}</h6>
-              <SearchBar
-                placeholder="Search"
-                onSearch={handleSearch}
-                value={searchTerm}
-              />
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <div className="flex flex-col md:flex-row gap-5 items-start md:items-center w-full md:w-auto">
+              <h6 className="font-semibold whitespace-nowrap">{`Tasks (${filteredTaskList.length})`}</h6>
+              <div className="w-full md:w-auto">
+                <SearchBar
+                  placeholder="Search"
+                  onSearch={handleSearch}
+                  value={searchTerm}
+                />
+              </div>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 w-full md:w-auto justify-between md:justify-end">
               {Object.entries(taskCounts).map(([type, count]) => (
                 <div key={type} className="text-center">
                   <div
@@ -456,7 +457,8 @@ const UserContentPage = () => {
             </div>
           </div>
 
-          <div className="flex gap-4 items-center mb-4">
+          {/* Filter controls - Responsive grid for small screens */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
             <div className="flex flex-col">
               <label className="text-sm mb-1 text-gray-500">Assignee</label>
               <FormSelect
@@ -464,7 +466,7 @@ const UserContentPage = () => {
                 formValues={{ assignee: assigneeFilter }}
                 options={assigneeOptions}
                 onChange={({ target: { value } }) => setAssigneeFilter(value)}
-                className="w-40 h-10"
+                className="w-full h-10"
               />
             </div>
 
@@ -475,7 +477,7 @@ const UserContentPage = () => {
                 formValues={{ status: statusFilter }}
                 options={statusOptions}
                 onChange={({ target: { value } }) => setStatusFilter(value)}
-                className="w-40 h-10"
+                className="w-full h-10"
               />
             </div>
 
@@ -486,7 +488,7 @@ const UserContentPage = () => {
                 formValues={{ priority: priorityFilter }}
                 options={priorityOptions}
                 onChange={({ target: { value } }) => setPriorityFilter(value)}
-                className="w-40 h-10"
+                className="w-full h-10"
               />
             </div>
 
@@ -503,7 +505,7 @@ const UserContentPage = () => {
                   const date = e.target.value ? new Date(e.target.value) : null;
                   setStartDateFilter(date);
                 }}
-                className="h-8 w-32 border border-gray-300 rounded-md px-2 text-sm"
+                className="h-10 w-full border border-gray-300 rounded-md px-2 text-sm"
               />
             </div>
 
@@ -518,17 +520,22 @@ const UserContentPage = () => {
                   const date = e.target.value ? new Date(e.target.value) : null;
                   setEndDateFilter(date);
                 }}
-                className="h-8 w-32 border border-gray-300 rounded-md px-2 text-sm"
+                className="h-10 w-full border border-gray-300 rounded-md px-2 text-sm"
               />
             </div>
 
-            <button
-              onClick={resetFilters}
-              className="mt-4 h-9 px-7 rounded-md bg-red-500 hover:bg-gray-200 text-white text-sm font-medium transition-colors"
-            >
-              Reset
-            </button>
+            <div className="flex flex-col">
+              <label className="text-sm mb-1 text-gray-500">&nbsp;</label>
+              <button
+                onClick={resetFilters}
+                className="h-10 w-full rounded-md bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
+              >
+                Reset
+              </button>
+            </div>
           </div>
+
+          
 
           {loading && <p>Loading tasks...</p>}
           {error && <p>Error: {error}</p>}
@@ -582,9 +589,9 @@ const UserContentPage = () => {
                 </table>
               </div>
 
-              {/* Pagination */}
+              {/* Pagination - Centered and responsive */}
               {filteredTaskList.length > tasksPerPage && (
-                <div className="flex justify-center items-center mt-6 gap-2">
+                <div className="flex justify-center items-center mt-6 gap-2 flex-wrap">
                   <button
                     onClick={() => paginate(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
@@ -645,7 +652,5 @@ const UserContentPage = () => {
     </div>
   );
 };
-
-
 
 export default UserContentPage;

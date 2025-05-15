@@ -18,12 +18,13 @@ const initialState = {
 // Fetch Issue Count for a Test Suite
 export const doGetIssueCount = createAsyncThunk(
   "testIssues/getIssueCount",
-  async ({ testSuiteID, testCaseID, platform }, thunkApi) => {
+  async ({ testSuiteID, testCaseID, platform, testCycleID }, thunkApi) => {
+    
     try {
       const response = await axios.get(
         `/test-plans/test-suites/${testSuiteID}/issues/count`,
         {
-          params: { testCaseID, platform },
+          params: { testCaseID, platform, testCycleID }, 
         }
       );
       const responseData = response.data;
@@ -43,12 +44,13 @@ export const doGetIssueCount = createAsyncThunk(
 // Fetch Issues for a Test Suite
 export const doGetIssues = createAsyncThunk(
   "testIssues/getIssues",
-  async ({ testSuiteID, testCaseID, platform }, thunkApi) => {
+  async ({ testSuiteID, testCaseID, platform, testCycleID }, thunkApi) => {
+    
     try {
       const response = await axios.get(
         `/test-plans/test-suites/${testSuiteID}/issues`,
         {
-          params: { testCaseID, platform },
+          params: { testCaseID, platform, testCycleID }, 
         }
       );
       const responseData = response.data;
@@ -67,9 +69,14 @@ export const doGetIssues = createAsyncThunk(
   }
 );
 
+// Add Issues
 export const doAddIssues = createAsyncThunk(
   "testIssues/addIssues",
-  async ({ testSuiteID, taskIDs, testCaseID, platform }, thunkApi) => {
+  async (
+    { testSuiteID, taskIDs, testCaseID, platform, testCycleID },
+    thunkApi
+  ) => {
+    
     try {
       const response = await axios.post(
         `/test-plans/test-suites/${testSuiteID}/issues`,
@@ -77,6 +84,7 @@ export const doAddIssues = createAsyncThunk(
           testSuiteID,
           taskIDs,
           platform,
+          testCycleID, 
         },
         {
           params: { testCaseID },

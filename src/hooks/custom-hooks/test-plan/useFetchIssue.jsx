@@ -1,13 +1,14 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const useFetchIssue = (testSuiteID) => {
+const useFetchIssue = (testSuiteID, testCycleID) => {
+  
   const [data, setData] = useState({});
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const fetchIssue = async () => {
-    if (!testSuiteID) return;
+    if (!testSuiteID || !testCycleID) return; 
 
     setLoading(true);
     setError(false);
@@ -38,6 +39,7 @@ const useFetchIssue = (testSuiteID) => {
                       params: {
                         testCaseID: testCase.id,
                         platform: platform.toLowerCase(),
+                        testCycleID, 
                       },
                     }
                   );
@@ -48,7 +50,7 @@ const useFetchIssue = (testSuiteID) => {
                       : Number(countResponse.data || 0);
 
                   console.log(
-                    `Frontend issue count for testCaseID: ${testCase.id}, platform: ${platform} => ${count}`
+                    `Frontend issue count for testCaseID: ${testCase.id}, platform: ${platform}, testCycleID: ${testCycleID} => ${count}`
                   );
 
                   return { testCaseID: testCase.id, platform, count };
@@ -91,10 +93,11 @@ const useFetchIssue = (testSuiteID) => {
   };
 
   useEffect(() => {
-    if (testSuiteID) {
+    if (testSuiteID && testCycleID) {
+      
       fetchIssue();
     }
-  }, [testSuiteID]);
+  }, [testSuiteID, testCycleID]); 
 
   return { data, error, loading, refetch: fetchIssue };
 };
