@@ -25,11 +25,31 @@ import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import axios from "axios";
 import { useToasts } from "react-toast-notifications";
 import { getSelectOptions } from "../../utils/commonUtils.js";
-import useFetchReleaseTasks from "../../hooks/custom-hooks/task/useFetchReleaseTasks.jsx";
+import useFetchReleaseTasks from "../../hooks/custom-hooks/release/useFetchReleaseTasks.jsx";
+import useFetchReleaseTypes from "../../hooks/custom-hooks/release/useFetchReleaseTypes.jsx"; 
 import {
   priorityCellRender,
   statusCellRender,
 } from "../../utils/taskutils.jsx";
+
+const transformTask = (task) => {
+  return {
+    key: "",
+    code: task.code || "N/A",
+    title: task.name || "N/A",
+    priority: task.attributes?.priority?.value || "N/A",
+    status: task.attributes?.status?.value || "N/A",
+    startDate: task.attributes?.startDate?.value || "N/A",
+    endDate: task.attributes?.endDate?.value || "N/A",
+    type: task.taskType?.name || "N/A",
+    assigneeId: task?.assignee?.id ? task?.assignee?.id : 0,
+    assignee: task?.assignee?.firstName
+      ? `${task?.assignee?.firstName} ${task?.assignee?.lastName}`
+      : "Unassigned",
+    priorityId: task.attributes?.priority?.id || 0,
+    statusId: task.attributes?.status?.id || 0,
+  };
+};
 
 const ReleaseContentPage = () => {
   const { addToast } = useToasts();
@@ -48,6 +68,13 @@ const ReleaseContentPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [toDeleteItem, setToDeleteItem] = useState({});
 
+  const [filteredTaskList, setFilteredTaskList] = useState([]);
+  const [assigneeFilter, setAssigneeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
+  const [startDateFilter, setStartDateFilter] = useState(null);
+  const [endDateFilter, setEndDateFilter] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [taskCounts, setTaskCounts] = useState({
     all: 0,
     tasks: 0,
@@ -88,26 +115,20 @@ const ReleaseContentPage = () => {
     { value: "UNRELEASED", label: "UNRELEASED" },
   ];
 
+  // Use the new hook to fetch tasks for the selected release
   const {
     data: releaseTasksData,
     error,
     loading,
     refetch: refetchReleaseTasks,
-    filteredTaskList,
-    setAssigneeFilter,
-    setStatusFilter,
-    setPriorityFilter,
-    setStartDateFilter,
-    setEndDateFilter,
-    setSearchTerm,
-    resetFilters,
-    searchTerm,
-    assigneeFilter,
-    statusFilter,
-    priorityFilter,
-    startDateFilter,
-    endDateFilter,
   } = useFetchReleaseTasks(selectedRelease?.id);
+
+  // Use the new hook to fetch release types
+  const {
+    data: releaseTypesData,
+    error: releaseTypesError,
+    loading: releaseTypesLoading,
+  } = useFetchReleaseTypes();
 
   useEffect(() => {
     if (selectedProject?.id) {
@@ -134,8 +155,13 @@ const ReleaseContentPage = () => {
   }, [selectedRelease]);
 
   useEffect(() => {
-    getReleaseTypes();
-  }, []);
+    if (releaseTypesData) {
+      setReleaseTypes(releaseTypesData);
+    }
+    if (releaseTypesError) {
+      addToast("Failed to load release types", { appearance: "error" });
+    }
+  }, [releaseTypesData, releaseTypesError, addToast]);
 
   useEffect(() => {
     if (releaseTasksData?.tasks && releaseTasksData.tasks.length > 0) {
@@ -163,33 +189,42 @@ const ReleaseContentPage = () => {
 
   useEffect(() => {
     if (releaseTasksData?.tasks && releaseTasksData.tasks.length > 0) {
-      const all = filteredTaskList.length;
-      const tasks = filteredTaskList.filter(
+      const transformedTasks = releaseTasksData.tasks.map((task, index) => ({
+        ...transformTask(task),
+        key: `${(index + 1).toString().padStart(3, "0")}`,
+      }));
+
+      setFilteredTaskList(transformedTasks);
+
+      const all = transformedTasks.length;
+      const tasks = transformedTasks.filter(
         (task) => task.type === "Task"
       ).length;
-      const bugs = filteredTaskList.filter(
+      const bugs = transformedTasks.filter(
         (task) => task.type === "Bug"
       ).length;
-      const stories = filteredTaskList.filter(
+      const stories = transformedTasks.filter(
         (task) => task.type === "Story"
       ).length;
       setTaskCounts({ all, tasks, bugs, stories });
       setCurrentPage(1);
     } else {
+      setFilteredTaskList([]);
       setTaskCounts({ all: 0, tasks: 0, bugs: 0, stories: 0 });
     }
-  }, [filteredTaskList]);
+  }, [releaseTasksData]);
 
-  const getReleaseTypes = async () => {
-    await axios
-      .get("releases/types")
-      .then((r) => {
-        setReleaseTypes(r?.data?.releaseType);
-      })
-      .catch((e) => {
-        addToast("Failed To Get Release Types", { appearance: "error" });
-      });
-  };
+  useEffect(() => {
+    applyFilters();
+  }, [
+    assigneeFilter,
+    statusFilter,
+    priorityFilter,
+    startDateFilter,
+    endDateFilter,
+    releaseTasksData,
+    searchTerm,
+  ]);
 
   const toggleEditable = () => {
     setIsEditable(!isEditable);
@@ -311,6 +346,87 @@ const ReleaseContentPage = () => {
       }
     }
     setIsDialogOpen(false);
+  };
+
+  const applyFilters = () => {
+    if (!releaseTasksData?.tasks || releaseTasksData.tasks.length === 0) return;
+
+    let filtered = releaseTasksData.tasks.map((task, index) => ({
+      ...transformTask(task),
+      key: `${(index + 1).toString().padStart(3, "0")}`,
+    }));
+
+    if (searchTerm.trim() !== "") {
+      filtered = filtered.filter((task) =>
+        task.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (assigneeFilter !== "") {
+      filtered = filtered.filter(
+        (task) =>
+          assigneeFilter === "" || task.assigneeId === Number(assigneeFilter)
+      );
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter(
+        (task) =>
+          task.status &&
+          task.status.toLowerCase() === statusFilter.toLowerCase()
+      );
+    }
+
+    if (priorityFilter) {
+      filtered = filtered.filter(
+        (task) =>
+          task.priority &&
+          task.priority.toLowerCase() === priorityFilter.toLowerCase()
+      );
+    }
+
+    if (startDateFilter) {
+      filtered = filtered.filter((task) => {
+        if (!task.startDate || task.startDate === "N/A") return false;
+        const taskStartDate = new Date(task.startDate);
+        if (isNaN(taskStartDate.getTime())) return false;
+        return (
+          taskStartDate.getDate() === startDateFilter.getDate() &&
+          taskStartDate.getMonth() === startDateFilter.getMonth() &&
+          taskStartDate.getFullYear() === startDateFilter.getFullYear()
+        );
+      });
+    }
+
+    if (endDateFilter) {
+      filtered = filtered.filter((task) => {
+        if (!task.endDate || task.endDate === "N/A") return false;
+        const taskEndDate = new Date(task.endDate);
+        if (isNaN(taskEndDate.getTime())) return false;
+        return (
+          taskEndDate.getDate() === endDateFilter.getDate() &&
+          taskEndDate.getMonth() === endDateFilter.getMonth() &&
+          taskEndDate.getFullYear() === endDateFilter.getFullYear()
+        );
+      });
+    }
+
+    filtered = filtered.map((task, index) => ({
+      ...task,
+      key: `${(index + 1).toString().padStart(3, "0")}`,
+    }));
+
+    setFilteredTaskList(filtered);
+    setCurrentPage(1);
+  };
+
+  const resetFilters = () => {
+    setAssigneeFilter("");
+    setStatusFilter("");
+    setPriorityFilter("");
+    setStartDateFilter(null);
+    setEndDateFilter(null);
+    setSearchTerm("");
   };
 
   const handleSearch = (term) => {
@@ -592,8 +708,8 @@ const ReleaseContentPage = () => {
                     ? "bg-white text-secondary-grey border-border-color"
                     : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
                 }`}
-                disabled={!isEditable}
-                placeholder="Type"
+                disabled={!isEditable || releaseTypesLoading}
+                placeholder={releaseTypesLoading ? "Loading types..." : "Type"}
                 options={getSelectOptions(releaseTypes)}
                 formErrors={formErrors}
                 onChange={({ target: { name, value } }) =>
@@ -605,8 +721,8 @@ const ReleaseContentPage = () => {
               <button
                 form="editReleaseForm"
                 type="submit"
-                disabled={isSubmitting}
-                className="px-4 py-2 bg-primary-pink w-full text-white rounded-md"
+                disabled={isSubmitting || releaseTypesLoading}
+                className="px-4 py-2 bg-primary-pink w-full text-white rounded-md disabled:bg-gray-300"
               >
                 Update
               </button>
