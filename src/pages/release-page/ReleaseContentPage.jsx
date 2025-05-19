@@ -25,7 +25,7 @@ import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import axios from "axios";
 import { useToasts } from "react-toast-notifications";
 import { getSelectOptions } from "../../utils/commonUtils.js";
-import useFetchReleaseTasks from "../../hooks/custom-hooks/release/useFetchReleaseTasks.jsx"; // New hook
+import useFetchReleaseTasks from "../../hooks/custom-hooks/task/useFetchReleaseTasks.jsx"; // New hook
 import {
   priorityCellRender,
   statusCellRender,
