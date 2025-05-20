@@ -65,7 +65,7 @@ export const ProjectUpdateSchema = yup.object({
 });
 
 export const CustomFieldCreateSchema = yup.object({
-    fieldType: yup.string().required("Field type is required"),
+    fieldTypeID: yup.string().required("Field type is required"),
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required")
 })
