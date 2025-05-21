@@ -26,7 +26,7 @@ import axios from "axios";
 import { useToasts } from "react-toast-notifications";
 import { getSelectOptions } from "../../utils/commonUtils.js";
 import useFetchReleaseTasks from "../../hooks/custom-hooks/release/useFetchReleaseTasks.jsx";
-import useFetchReleaseTypes from "../../hooks/custom-hooks/release/useFetchReleaseTypes.jsx"; 
+import useFetchReleaseTypes from "../../hooks/custom-hooks/release/useFetchReleaseTypes.jsx";
 import {
   priorityCellRender,
   statusCellRender,
@@ -93,7 +93,7 @@ const ReleaseContentPage = () => {
   const [newRow, setNewRow] = useState(initialNewRowState);
 
   const [formValues, setFormValues] = useState({
-    id: selectedRelease?.id,
+    id: selectedRelease?.rID,
     name: selectedRelease?.name,
     description: selectedRelease?.description,
     releaseDate: selectedRelease?.releaseDate
@@ -115,15 +115,13 @@ const ReleaseContentPage = () => {
     { value: "UNRELEASED", label: "UNRELEASED" },
   ];
 
-  // Use the new hook to fetch tasks for the selected release
   const {
     data: releaseTasksData,
     error,
     loading,
     refetch: refetchReleaseTasks,
-  } = useFetchReleaseTasks(selectedRelease?.id);
+  } = useFetchReleaseTasks(selectedRelease?.rID);
 
-  // Use the new hook to fetch release types
   const {
     data: releaseTypesData,
     error: releaseTypesError,
@@ -140,7 +138,7 @@ const ReleaseContentPage = () => {
   useEffect(() => {
     if (selectedRelease) {
       setFormValues({
-        id: selectedRelease.id,
+        id: selectedRelease.rID,
         name: selectedRelease.name,
         description: selectedRelease?.description,
         releaseDate: selectedRelease.releaseDate
@@ -238,7 +236,7 @@ const ReleaseContentPage = () => {
     event.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await axios.put(`releases/${selectedRelease.id}`, {
+      const response = await axios.put(`releases/${selectedRelease.rID}`, {
         release: formValues,
       });
       const status = response?.data?.status;
@@ -274,7 +272,7 @@ const ReleaseContentPage = () => {
     if (newRow.name !== "") {
       try {
         const response = await axios.post(
-          `releases/${selectedRelease.id}/checkListItem`,
+          `releases/${selectedRelease.rID}/checkListItem`,
           {
             checkListItem: {
               ...newRow,
@@ -303,7 +301,7 @@ const ReleaseContentPage = () => {
 
   const updateCheckLitItem = async (row) => {
     await axios
-      .put(`releases/${selectedRelease?.id}/checkListItem`, {
+      .put(`releases/${selectedRelease.rID}/checkListItem`, {
         checkListItem: row,
       })
       .then((r) => {
@@ -330,7 +328,7 @@ const ReleaseContentPage = () => {
     if (toDeleteItem) {
       try {
         const response = await axios.delete(
-          `releases/${selectedRelease.id}/checkListItem/${toDeleteItem.checklistItemID}`
+          `releases/${selectedRelease.rID}/checkListItem/${toDeleteItem.checklistItemID}`
         );
         const deleted = response?.data?.body?.checkListItem;
         if (deleted) {
@@ -589,7 +587,7 @@ const ReleaseContentPage = () => {
   ];
 
   let releaseCheckListItems = checkListItems.filter(
-    (item) => item.releaseID === selectedRelease?.id
+    (item) => item.releaseID === selectedRelease?.rID
   );
 
   return (
