@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { doGetOrganizationUsers } from "./appSlice.js";
 
 const initialState = {
   selectedRelease: undefined,
@@ -16,9 +15,8 @@ export const doGetReleases = createAsyncThunk(
     try {
       const response = await axios.get(`/projects/${projectId}/releases`);
       const responseData = response.data.releases;
-
       if (responseData) {
-        return responseData;
+        return responseData.map((release) => ({ ...release, rID: release.id }));
       } else {
         return thunkApi.rejectWithValue("Releases not found");
       }
@@ -35,7 +33,6 @@ export const doGetReleasesCheckListItems = createAsyncThunk(
     try {
       const response = await axios.get(`/releases/checkListItems`);
       const responseData = response.data.checklistItems;
-
       if (responseData) {
         return responseData;
       } else {
@@ -54,7 +51,7 @@ export const releaseSlice = createSlice({
   reducers: {
     clearReleaseState: () => initialState,
     setSelectedRelease: (state, action) => {
-      state.selectedRelease = action.payload;
+      state.selectedRelease = { ...action.payload, rID: action.payload.rID };
     },
   },
   extraReducers: (builder) => {
@@ -69,7 +66,7 @@ export const releaseSlice = createSlice({
           (release) => release.status === "UNRELEASED"
         );
         if (unreleased) {
-          state.selectedRelease = unreleased;
+          state.selectedRelease = { ...unreleased, rID: unreleased.rID };
         }
 
         state.isReleaseListForProjectLoading = false;
