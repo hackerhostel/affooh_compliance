@@ -163,25 +163,13 @@ const ReleaseContentPage = () => {
 
   useEffect(() => {
     if (releaseTasksData?.tasks && releaseTasksData.tasks.length > 0) {
-      const assigneeMap = new Map();
-      assigneeMap.set("", { value: "", label: "All Assignees" });
-
-      releaseTasksData.tasks.forEach((task) => {
-        const assignee = task.assignee;
-        if (assignee?.id && assignee?.firstName && assignee?.lastName) {
-          const fullName = `${assignee.firstName} ${assignee.lastName}`;
-          if (!assigneeMap.has(assignee.id)) {
-            assigneeMap.set(assignee.id, {
-              value: assignee.id,
-              label: fullName,
-            });
-          }
-        }
-      });
-
-      setAssigneeOptions(Array.from(assigneeMap.values()));
+      const transformedTasks = releaseTasksData.tasks.map((task, index) => ({
+        ...transformTask(task),
+        key: `${(index + 1).toString().padStart(3, "0")}`,
+      }));
+      setFilteredTaskList(transformedTasks);
     } else {
-      setAssigneeOptions([{ value: "", label: "All Assignees" }]);
+      setFilteredTaskList([]);
     }
   }, [releaseTasksData]);
 
