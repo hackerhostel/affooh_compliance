@@ -13,10 +13,11 @@ export const doGetReleases = createAsyncThunk(
   "release/getReleases",
   async (projectId, thunkApi) => {
     try {
-      const response = await axios.get(`/projects/${projectId}/releases`);
-      const responseData = response.data.releases;
+      const response = await axios.get(`/projects/${projectId}/releases`);      const responseData = response.data.releases;
+      
       if (responseData) {
-        return responseData.map((release) => ({ ...release, rID: release.id }));
+        
+        return responseData;
       } else {
         return thunkApi.rejectWithValue("Releases not found");
       }
@@ -47,11 +48,10 @@ export const doGetReleasesCheckListItems = createAsyncThunk(
 
 export const releaseSlice = createSlice({
   name: "release",
-  initialState,
-  reducers: {
+  initialState,  reducers: {
     clearReleaseState: () => initialState,
     setSelectedRelease: (state, action) => {
-      state.selectedRelease = { ...action.payload, rID: action.payload.rID };
+      state.selectedRelease = action.payload; // Backend data already has rID
     },
   },
   extraReducers: (builder) => {
@@ -60,13 +60,11 @@ export const releaseSlice = createSlice({
         state.isReleaseListForProjectLoading = true;
       })
       .addCase(doGetReleases.fulfilled, (state, action) => {
-        state.releaseListForProject = action.payload;
-
-        const unreleased = action.payload.find(
+        state.releaseListForProject = action.payload;        const unreleased = action.payload.find(
           (release) => release.status === "UNRELEASED"
         );
         if (unreleased) {
-          state.selectedRelease = { ...unreleased, rID: unreleased.rID };
+          state.selectedRelease = unreleased; // Backend already provides rID
         }
 
         state.isReleaseListForProjectLoading = false;
