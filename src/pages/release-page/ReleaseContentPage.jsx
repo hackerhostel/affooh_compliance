@@ -32,6 +32,7 @@ import {
   statusCellRender,
 } from "../../utils/taskutils.jsx";
 
+
 const transformTask = (task) => {
   return {
     key: "",
@@ -160,15 +161,21 @@ const ReleaseContentPage = () => {
       addToast("Failed to load release types", { appearance: "error" });
     }
   }, [releaseTypesData, releaseTypesError, addToast]);
-
   useEffect(() => {
+    console.log('Release Tasks Data:', releaseTasksData);
     if (releaseTasksData?.tasks && releaseTasksData.tasks.length > 0) {
-      const transformedTasks = releaseTasksData.tasks.map((task, index) => ({
-        ...transformTask(task),
-        key: `${(index + 1).toString().padStart(3, "0")}`,
-      }));
+      const transformedTasks = releaseTasksData.tasks.map((task, index) => {
+        const transformed = transformTask(task);
+        console.log(`Transformed Task ${index}:`, transformed);
+        return {
+          ...transformed,
+          key: `${(index + 1).toString().padStart(3, "0")}`,
+        };
+      });
+      console.log('Setting Filtered Task List:', transformedTasks);
       setFilteredTaskList(transformedTasks);
     } else {
+      console.log('No tasks found in releaseTasksData');
       setFilteredTaskList([]);
     }
   }, [releaseTasksData]);
@@ -332,15 +339,22 @@ const ReleaseContentPage = () => {
       }
     }
     setIsDialogOpen(false);
-  };
+  };  const applyFilters = () => {
+    if (!releaseTasksData?.tasks) {
+      setFilteredTaskList([]);
+      return;
+    }
 
-  const applyFilters = () => {
-    if (!releaseTasksData?.tasks || releaseTasksData.tasks.length === 0) return;
+    
 
-    let filtered = releaseTasksData.tasks.map((task, index) => ({
-      ...transformTask(task),
-      key: `${(index + 1).toString().padStart(3, "0")}`,
-    }));
+    let filtered = Array.isArray(releaseTasksData.tasks) ? releaseTasksData.tasks.map((task, index) => {
+      const transformedTask = transformTask(task);
+      
+      return {
+        ...transformedTask,
+        key: `${(index + 1).toString().padStart(3, "0")}`,
+      };
+    }) : [];
 
     if (searchTerm.trim() !== "") {
       filtered = filtered.filter((task) =>
@@ -882,23 +896,33 @@ const ReleaseContentPage = () => {
                           <th className="pb-3 w-1/12">Type</th>
                         </tr>
                       </thead>
+                      
                       <tbody className="text-sm">
                         {currentTasks.length > 0 ? (
                           currentTasks.map((task) => (
                             <tr key={task.key} className="border-t">
                               <td className="py-3">{task.code}</td>
                               <td className="py-3">
-                                <div className="line-clamp-3">{task.title}</div>
+                                <div className="line-clamp-3">{task.name}</div>
                               </td>
                               <td className="py-3">
-                                {priorityCellRender({ value: task.priority })}
+                                {priorityCellRender({
+                                  value:
+                                    task.attributes.priority?.value || "N/A",
+                                })}
                               </td>
                               <td className="py-3 text-center">
-                                {statusCellRender({ value: task.status })}
+                                {statusCellRender({
+                                  value: task.attributes.status?.value || "N/A",
+                                })}
                               </td>
                               <td className="py-3 pl-6">{task.assignee}</td>
-                              <td className="py-3">{task.startDate}</td>
-                              <td className="py-3">{task.endDate}</td>
+                              <td className="py-3">
+                                {task.attributes.startDate?.value || "N/A"}
+                              </td>
+                              <td className="py-3">
+                                {task.attributes.endDate?.value || "N/A"}
+                              </td>
                               <td className="py-3">{task.type}</td>
                             </tr>
                           ))

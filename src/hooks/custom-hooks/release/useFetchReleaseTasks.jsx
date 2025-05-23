@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
+
 const useFetchReleaseTasks = (releaseId) => {
   const [data, setData] = useState({ tasks: [] });
   const [error, setError] = useState(false);
@@ -10,12 +11,22 @@ const useFetchReleaseTasks = (releaseId) => {
     setLoading(true);
     setError(false);
     try {
-      const response = await axios.get(`/releases/${releaseId}/tasks`);
+      const response = await axios.get(`/releases/${releaseId}/tasks`, {
+        headers: { Accept: "application/json" },
+      });
       const releaseTasksResponse = response?.data;
-
       if (releaseTasksResponse?.tasks) {
+        const tasksWithAttributes = releaseTasksResponse.tasks.map(task => ({
+          ...task,
+          attributes: {
+            status: task.attributes?.status || { id: "", value: "N/A" },
+            priority: task.attributes?.priority || { id: "", value: "N/A" },
+            startDate: task.attributes?.startDate || { value: "N/A" },
+            endDate: task.attributes?.endDate || { value: "N/A" },
+          }
+        }));
         setLoading(false);
-        setData(releaseTasksResponse);
+        setData({ tasks: tasksWithAttributes });
       }
     } catch (error) {
       setError(true);
