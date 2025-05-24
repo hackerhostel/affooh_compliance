@@ -32,7 +32,6 @@ import {
   statusCellRender,
 } from "../../utils/taskutils.jsx";
 
-
 const transformTask = (task) => {
   return {
     key: "",
@@ -49,6 +48,7 @@ const transformTask = (task) => {
       : "Unassigned",
     priorityId: task.attributes?.priority?.id || 0,
     statusId: task.attributes?.status?.id || 0,
+    name: task.name || "N/A", 
   };
 };
 
@@ -219,6 +219,12 @@ const ReleaseContentPage = () => {
     searchTerm,
   ]);
 
+  useEffect(() => {
+    if (projectUsers) {
+      setAssigneeOptions(getProjectUsers());
+    }
+  }, [projectUsers]);
+
   const toggleEditable = () => {
     setIsEditable(!isEditable);
   };
@@ -344,8 +350,6 @@ const ReleaseContentPage = () => {
       setFilteredTaskList([]);
       return;
     }
-
-    
 
     let filtered = Array.isArray(releaseTasksData.tasks) ? releaseTasksData.tasks.map((task, index) => {
       const transformedTask = transformTask(task);
@@ -890,9 +894,9 @@ const ReleaseContentPage = () => {
                           <th className="pb-3 w-3/12">Task Name</th>
                           <th className="pb-3 w-1/12 text-center">Priority</th>
                           <th className="pb-3 w-1/12 text-center">Status</th>
-                          <th className="pb-3 w-2/12 pl-6">Assignee</th>
                           <th className="pb-3 w-1/12">Start Date</th>
                           <th className="pb-3 w-1/12">End Date</th>
+                          <th className="pb-3 w-2/12 pl-6">Assignee</th>
                           <th className="pb-3 w-1/12">Type</th>
                         </tr>
                       </thead>
@@ -916,13 +920,13 @@ const ReleaseContentPage = () => {
                                   value: task.attributes.status?.value || "N/A",
                                 })}
                               </td>
+                              <td className="py-3">
+                                {task.startDate}
+                              </td>
+                              <td className="py-3">
+                                {task.endDate}
+                              </td>
                               <td className="py-3 pl-6">{task.assignee}</td>
-                              <td className="py-3">
-                                {task.attributes.startDate?.value || "N/A"}
-                              </td>
-                              <td className="py-3">
-                                {task.attributes.endDate?.value || "N/A"}
-                              </td>
                               <td className="py-3">{task.type}</td>
                             </tr>
                           ))
