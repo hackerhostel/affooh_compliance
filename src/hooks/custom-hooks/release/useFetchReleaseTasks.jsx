@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-
 const useFetchReleaseTasks = (releaseId) => {
   const [data, setData] = useState({ tasks: [] });
   const [error, setError] = useState(false);
@@ -16,14 +15,26 @@ const useFetchReleaseTasks = (releaseId) => {
       });
       const releaseTasksResponse = response?.data;
       if (releaseTasksResponse?.tasks) {
-        const tasksWithAttributes = releaseTasksResponse.tasks.map(task => ({
+        const tasksWithAttributes = releaseTasksResponse.tasks.map((task) => ({
           ...task,
           attributes: {
-            status: task.attributes?.status || { id: "", value: "N/A" },
-            priority: task.attributes?.priority || { id: "", value: "N/A" },
-            startDate: task.attributes?.startDate || { value: "N/A" },
-            endDate: task.attributes?.endDate || { value: "N/A" },
-          }
+            status:
+              task.attributes?.status?.value != null
+                ? task.attributes.status
+                : { id: "", value: "N/A" },
+            priority:
+              task.attributes?.priority?.value != null
+                ? task.attributes.priority
+                : { id: "", value: "N/A" },
+            startDate:
+              task.attributes?.startDate?.value != null
+                ? task.attributes.startDate
+                : { value: "N/A" },
+            endDate:
+              task.attributes?.endDate?.value != null
+                ? task.attributes.endDate
+                : { value: "N/A" },
+          },
         }));
         setLoading(false);
         setData({ tasks: tasksWithAttributes });
