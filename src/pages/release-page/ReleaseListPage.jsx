@@ -40,6 +40,12 @@ const ReleaseListPage = () => {
     released: 0,
   });
 
+  
+
+  useEffect(() => {
+    
+  }, [selectedRelease]);
+
   const filteredReleaseList = releases.filter((release) => {
     // If both filters are unchecked, show nothing
     if (!selectedFilters.unreleased && !selectedFilters.released) {
@@ -103,7 +109,7 @@ const ReleaseListPage = () => {
   const handleConfirmDelete = () => {
     if (toDeleteRelease) {
       axios
-        .delete(`/releases/${toDeleteRelease.id}`)
+        .delete(`/releases/${toDeleteRelease.rID}`)
         .then((response) => {
           const deleted = response?.data?.status;
 
@@ -172,9 +178,14 @@ const ReleaseListPage = () => {
               <button
                 key={index}
                 style={{ width: "266px" }}
-                className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedRelease?.rID === element.rID ? "border-primary-pink" : "border-gray-200"}`}
+                className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${
+                  selectedRelease?.rID === element.rID
+                    ? "border-primary-pink"
+                    : "border-gray-200"
+                }`}
                 onClick={() => {
-                  dispatch(setSelectedRelease({ ...element, id: element.rID }));
+                  dispatch(setSelectedRelease(element));
+                  
                 }}
               >
                 <div className="text-left">
