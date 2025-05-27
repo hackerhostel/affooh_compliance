@@ -9,6 +9,7 @@ import { CustomFieldCreateSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
 import { getSelectOptions } from "../../utils/commonUtils.js";
 
+
 const CreateNewCustomField = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
     const [formValues, setFormValues] = useState({
@@ -71,15 +72,24 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
         setIsSubmitting(false);
     };
 
-    const fieldType = async () => {
-        const response = await axios.get("/custom-fields/field-types");
-        console.log("types", response.data)
-        setFieldTypes(response.data);
+    useEffect(() => {
+    const fetchFieldTypes = async () => {
+        try {
+            const response = await axios.get('/custom-fields/field-types');
+            setFieldTypes(response.data);
+        } catch (error) {
+            console.error('Error fetching field types:', error);
+            addToast('Failed to load field types', { appearance: 'error' });
+        }
     };
 
-    useEffect(() => {
-        fieldType();
-    }, []);
+    if (isOpen) {
+        fetchFieldTypes();
+    }
+}, [isOpen]);
+
+
+  
 
     return (
         <>

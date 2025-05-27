@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   TrashIcon,
   PencilSquareIcon,
@@ -8,16 +9,14 @@ import DataGrid, { Column, Paging, Scrolling, Sorting } from "devextreme-react/d
 import "../../components/sprint-table/custom-style.css";
 import CustomFieldUpdate from "./CustomFieldUpdate";
 import CreateCustomField from "./CreateCustomField";
-import axios from "axios";
+import { fetchCustomFields } from "../../state/slice/customFieldSlice";
 
 const CustomFieldPage = () => {
   const [customFields, setCustomFields] = useState([]);
   const [editingRow, setEditingRow] = useState(null);
   const [showUpdateComponent, setShowUpdateComponent] = useState(false);
   const [newCustomField, setNewCustomField] = useState(false);
-
- 
-
+  const dispatch = useDispatch();
   const closeCreateCustomField = () => setNewCustomField(false);
 
   const handleEdit = (field) => {
@@ -25,18 +24,23 @@ const CustomFieldPage = () => {
     setShowUpdateComponent(true);
   };
 
-  const handleDelete = (id) => {
-    axios.delete(`/api/custom-fields/${id}`)
-      .then(() => {
-        const updatedFields = customFields.filter((field) => field.id !== id);
-        setCustomFields(updatedFields);
-      })
-      .catch(error => console.error("Error deleting custom field:", error));
+  useEffect(() => {
+  const getCustomFields = async () => {
+    try {
+      const result = await dispatch(fetchCustomFields()).unwrap();
+      setCustomFields(result);
+      console.log("Fetched custom fields:", result);
+    } catch (error) {
+      console.error("Failed to fetch custom fields:", error);
+    }
   };
 
-  if (showUpdateComponent) {
-    return <CustomFieldUpdate field={editingRow} onClose={() => setShowUpdateComponent(false)} />;
-  }
+  getCustomFields();
+}, [dispatch]);
+
+
+
+  
 
   return (
     <div className="p-3 bg-dashboard-bgc h-full">
