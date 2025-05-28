@@ -35,20 +35,20 @@ import {
 const transformTask = (task) => {
   return {
     key: "",
-    code: task.code || "N/A",
-    title: task.name || "N/A",
-    priority: task.attributes?.priority?.value || "N/A",
-    status: task.attributes?.status?.value || "N/A",
-    startDate: task.attributes?.startDate?.value || "N/A",
-    endDate: task.attributes?.endDate?.value || "N/A",
-    type: task.taskType?.name || "N/A",
-    assigneeId: task?.assignee?.id ? task?.assignee?.id : 0,
+    code: task?.code || "N/A",
+    title: task?.name || "N/A",
+    priority: task?.attributes?.priority?.value || "N/A",
+    status: task?.attributes?.status?.value || "N/A",
+    startDate: task?.attributes?.startDate?.value || "N/A",
+    endDate: task?.attributes?.endDate?.value || "N/A",
+    type: task?.taskType?.name || "N/A",
+    assigneeId: task?.assignee?.id || 0,
     assignee: task?.assignee?.firstName
-      ? `${task?.assignee?.firstName} ${task?.assignee?.lastName}`
+      ? `${task.assignee.firstName} ${task.assignee.lastName}`
       : "Unassigned",
-    priorityId: task.attributes?.priority?.id || 0,
-    statusId: task.attributes?.status?.id || 0,
-    name: task.name || "N/A", 
+    priorityId: task?.attributes?.priority?.id || 0,
+    statusId: task?.attributes?.status?.id || 0,
+    name: task?.name || "N/A",
   };
 };
 
@@ -890,7 +890,7 @@ const ReleaseContentPage = () => {
                     <table className="w-full">
                       <thead className="text-left text-sm text-gray-500">
                         <tr>
-                          <th className="pb-3 w-1/12">Task ID</th>
+                          <th className="pb-3 w-1/12">ID</th>
                           <th className="pb-3 w-3/12">Task Name</th>
                           <th className="pb-3 w-1/12 text-center">Priority</th>
                           <th className="pb-3 w-1/12 text-center">Status</th>
@@ -911,13 +911,12 @@ const ReleaseContentPage = () => {
                               </td>
                               <td className="py-3">
                                 {priorityCellRender({
-                                  value:
-                                    task.attributes.priority?.value || "N/A",
+                                  value: task.priority
                                 })}
                               </td>
                               <td className="py-3 text-center">
                                 {statusCellRender({
-                                  value: task.attributes.status?.value || "N/A",
+                                  value: task.status
                                 })}
                               </td>
                               <td className="py-3">
