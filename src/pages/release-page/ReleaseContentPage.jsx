@@ -890,7 +890,7 @@ const ReleaseContentPage = () => {
                     <table className="w-full">
                       <thead className="text-left text-sm text-gray-500">
                         <tr>
-                          <th className="pb-3 w-1/12">Task ID</th>
+                          <th className="pb-3 w-1/12">ID</th>
                           <th className="pb-3 w-3/12">Task Name</th>
                           <th className="pb-3 w-1/12 text-center">Priority</th>
                           <th className="pb-3 w-1/12 text-center">Status</th>
