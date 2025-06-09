@@ -74,7 +74,7 @@ const CustomFieldPage = () => {
 
           <Column dataField="name" caption="Name" width="20%" />
           <Column dataField="description" caption="Description" width="40%" />
-          <Column dataField="type" caption="Type" width="20%" />
+          <Column dataField="fieldType.name" caption="Type" width="20%" />
           <Column
             caption="Actions"
             width="20%"
