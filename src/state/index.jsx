@@ -12,6 +12,7 @@ import releaseReducer from "./slice/releaseSlice.js";
 import platformReducer from "./slice/platformSlice.js";
 import testCaseReducer from "./slice/testCaseSlice.js";
 import settingReducer from "./slice/settingSlice.js"
+import customFieldReducer from "./slice/customFieldSlice.js"
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     release: releaseReducer,
     platform: platformReducer,
     testCase: testCaseReducer,
-    setting: settingReducer
+    setting: settingReducer,
+    customField: customFieldReducer
   },
 });

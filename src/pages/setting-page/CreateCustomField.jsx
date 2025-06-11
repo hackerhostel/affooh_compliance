@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import FormInput from "../../components/FormInput.jsx";
-import FormSelect from "../../components/FormSelect.jsx"
+import FormSelect from "../../components/FormSelect.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
 import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
 import { CustomFieldCreateSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
 import { getSelectOptions } from "../../utils/commonUtils.js";
-
 
 const CreateNewCustomField = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
@@ -27,7 +26,7 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
 
     const handleFormChange = (name, value) => {
         if (name === "fieldTypeID") {
-            value = value.toString(); 
+            value = value.toString();
         }
 
         setFormValues({ ...formValues, [name]: value });
@@ -36,7 +35,7 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
 
     const handleClose = () => {
         onClose();
-        setFormValues({ fieldTypeID: '', name: '', description: '' });
+        setFormValues({ fieldTypeID: '', name: '', description: '', optionName: '' });
         setOptionName("");
         setIsValidationErrorsShown(false);
     };
@@ -51,15 +50,20 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
         } else {
             setIsValidationErrorsShown(false);
             try {
+                const token = localStorage.getItem("token"); // or use your token retrieval method
+
                 const payload = {
                     ...formValues,
                     fieldValues: optionName
                         ? [{ value: optionName, colourCode: '#fff' }]
                         : []
                 };
-                console.log("Submitting payload:", payload);
-                await axios.post("/custom-fields", { customField: payload });
-                
+
+                await axios.post("/custom-fields", { customField: payload }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                });
 
                 addToast('Custom field created successfully!', { appearance: 'success' });
                 handleClose();
@@ -72,24 +76,25 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
         setIsSubmitting(false);
     };
 
-    useEffect(() => {
-    const fetchFieldTypes = async () => {
+    const fieldType = async () => {
         try {
-            const response = await axios.get('/custom-fields/field-types');
+            const token = localStorage.getItem("authToken"); // Or get token from context/state
+            const response = await axios.get("/custom-fields/field-types", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+            console.log("types", response.data);
             setFieldTypes(response.data);
         } catch (error) {
-            console.error('Error fetching field types:', error);
+            console.error("Error fetching field types:", error);
             addToast('Failed to load field types', { appearance: 'error' });
         }
     };
 
-    if (isOpen) {
-        fetchFieldTypes();
-    }
-}, [isOpen]);
-
-
-  
+    useEffect(() => {
+        fieldType();
+    }, []);
 
     return (
         <>
@@ -140,7 +145,6 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
                                         showErrors={isValidationErrorsShown}
                                     />
                                 </div>
-
                                 <div className="flex-col">
                                     <p className="text-secondary-grey">Option Name</p>
                                     <FormInput

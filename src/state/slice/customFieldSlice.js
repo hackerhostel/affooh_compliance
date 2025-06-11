@@ -3,11 +3,25 @@ import axios from "axios";
 
 const initialState = {
     customFields: [],
+    fieldTypes: [],
     loading: false,
     error: null,
 };
 
-// Create a custom field
+// Fetch Field Types
+export const fetchFieldTypes = createAsyncThunk(
+    "customField/fetchFieldTypes",
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await axios.get("/custom-fields/field-types");
+            return response.data.body;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || "Something went wrong");
+        }
+    }
+);
+
+// Create Custom Field
 export const createCustomField = createAsyncThunk(
     "customField/create",
     async (customFieldData, { rejectWithValue }) => {
@@ -20,13 +34,12 @@ export const createCustomField = createAsyncThunk(
     }
 );
 
-// Fetch all custom fields
+// Fetch All Custom Fields
 export const fetchCustomFields = createAsyncThunk(
     "customField/fetchAll",
     async (_, { rejectWithValue }) => {
         try {
             const response = await axios.get("/custom-fields");
-            console.log("Fetched custom fields:", response.data.body); 
             return response.data.body;
         } catch (error) {
             return rejectWithValue(error.response?.data || "Something went wrong");
@@ -34,8 +47,7 @@ export const fetchCustomFields = createAsyncThunk(
     }
 );
 
-
-// Delete a custom field
+// Delete Custom Field
 export const deleteCustomField = createAsyncThunk(
     "customField/delete",
     async (customFieldId, { rejectWithValue }) => {
@@ -54,6 +66,20 @@ const customFieldSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
+            // Fetch Field Types
+            .addCase(fetchFieldTypes.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchFieldTypes.fulfilled, (state, action) => {
+                state.loading = false;
+                state.fieldTypes = action.payload;
+            })
+            .addCase(fetchFieldTypes.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+
             // Create
             .addCase(createCustomField.pending, (state) => {
                 state.loading = true;
@@ -67,6 +93,7 @@ const customFieldSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
+
             // Fetch All
             .addCase(fetchCustomFields.pending, (state) => {
                 state.loading = true;
@@ -80,6 +107,7 @@ const customFieldSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
+
             // Delete
             .addCase(deleteCustomField.pending, (state) => {
                 state.loading = true;
