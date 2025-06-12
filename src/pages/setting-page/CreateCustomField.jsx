@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, TrashIcon } from '@heroicons/react/24/outline';
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import useValidation from "../../utils/use-validation.jsx";
@@ -8,6 +8,8 @@ import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
 import { CustomFieldCreateSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
 import { getSelectOptions } from "../../utils/commonUtils.js";
+import DataGrid, { Column, Scrolling, Sorting } from 'devextreme-react/data-grid';
+
 
 const CreateNewCustomField = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
@@ -15,10 +17,11 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
         fieldTypeID: '',
         name: '',
         description: '',
-        optionName: ""
+        optionName: ''
     });
 
     const [optionName, setOptionName] = useState("");
+    const [optionsList, setOptionsList] = useState([]);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors] = useValidation(CustomFieldCreateSchema, formValues);
@@ -27,6 +30,7 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
     const handleFormChange = (name, value) => {
         if (name === "fieldTypeID") {
             value = value.toString();
+            setOptionsList([]);
         }
 
         setFormValues({ ...formValues, [name]: value });
@@ -37,7 +41,21 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
         onClose();
         setFormValues({ fieldTypeID: '', name: '', description: '', optionName: '' });
         setOptionName("");
+        setOptionsList([]);
         setIsValidationErrorsShown(false);
+    };
+
+    const handleAddOption = () => {
+        if (optionName.trim()) {
+            setOptionsList([...optionsList, { value: optionName, colourCode: '#fff' }]);
+            setOptionName("");
+        }
+    };
+
+    const handleDeleteOption = (index) => {
+        const newList = [...optionsList];
+        newList.splice(index, 1);
+        setOptionsList(newList);
     };
 
     const createNewCustomField = async (event) => {
@@ -52,9 +70,7 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
             try {
                 const payload = {
                     ...formValues,
-                    fieldValues: optionName
-                        ? [{ value: optionName, colourCode: '#fff' }]
-                        : []
+                    fieldValues: optionsList
                 };
 
                 await axios.post("/custom-fields", { customField: payload });
@@ -73,7 +89,6 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
     const fieldType = async () => {
         try {
             const response = await axios.get("/custom-fields/field-types");
-            console.log("types", response.data);
             setFieldTypes(response.data);
         } catch (error) {
             console.error("Error fetching field types:", error);
@@ -85,66 +100,111 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
         fieldType();
     }, []);
 
+    const showOptionsInput = ['DDL', 'MULTI_SELECT'].includes(
+        fieldTypes.body?.find(ft => ft.id.toString() === formValues.fieldTypeID)?.name
+    );
+
     return (
         <>
             {isOpen && (
                 <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
-                    <div className="bg-white p-6 shadow-lg w-2/4">
+                    <div className="bg-white p-6 shadow-lg w-2/4 max-h-screen overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">
                             <p className="font-bold text-2xl">New Custom Field</p>
                             <div className="cursor-pointer" onClick={handleClose}>
                                 <XMarkIcon className="w-6 h-6 text-gray-500" />
                             </div>
                         </div>
-                        <form className="flex flex-col justify-between h-5/6 mt-10" onSubmit={createNewCustomField}>
-                            <div className="space-y-4">
-                                <div className="flex-col">
-                                    <FormSelect
-                                        name="fieldTypeID"
-                                        placeholder="Field Type"
-                                        formValues={formValues}
-                                        options={getSelectOptions(fieldTypes.body)}
-                                        onChange={({ target: { name, value } }) =>
-                                            handleFormChange(name, value)
-                                        }
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-                                <div className="flex-col">
-                                    <p className="text-secondary-grey">Name</p>
-                                    <FormInput
-                                        type="text"
-                                        name="name"
-                                        formValues={formValues}
-                                        onChange={({ target: { name, value } }) =>
-                                            handleFormChange(name, value)
-                                        }
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-                                <div className="flex-col">
-                                    <p className="text-secondary-grey">Description</p>
-                                    <WYSIWYGInput
-                                        name="description"
-                                        value={formValues.description}
-                                        onchange={(name, value) => handleFormChange(name, value)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-                                <div className="flex-col">
-                                    <p className="text-secondary-grey">Option Name</p>
-                                    <FormInput
-                                        type="text"
-                                        name="optionName"
-                                        value={optionName}
-                                        onChange={({ target: { value } }) => setOptionName(value)}
-                                    />
-                                </div>
+                        <form onSubmit={createNewCustomField} className="flex flex-col space-y-6">
+                            <FormSelect
+                                name="fieldTypeID"
+                                placeholder="Field Type"
+                                formValues={formValues}
+                                options={getSelectOptions(fieldTypes.body)}
+                                onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                formErrors={formErrors}
+                                showErrors={isValidationErrorsShown}
+                            />
+                            <div>
+                                <p className="text-secondary-grey">Name</p>
+                                <FormInput
+                                    type="text"
+                                    name="name"
+                                    formValues={formValues}
+                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                    formErrors={formErrors}
+                                    showErrors={isValidationErrorsShown}
+                                />
                             </div>
-                            <div className="flex space-x-4 mt-6 self-end w-full">
+                            <div>
+                                <p className="text-secondary-grey">Description</p>
+                                <WYSIWYGInput
+                                    name="description"
+                                    value={formValues.description}
+                                    onchange={(name, value) => handleFormChange(name, value)}
+                                    formErrors={formErrors}
+                                    showErrors={isValidationErrorsShown}
+                                />
+                            </div>
+
+                            {showOptionsInput && (
+                                <>
+                                    <div className="flex-col">
+                                        <p className="text-secondary-grey">Option Name</p>
+                                        <div className='flex justify-between items-center'>
+                                            <FormInput
+                                                type="text"
+                                                style={{ width: "600px" }}
+                                                name="optionName"
+                                                value={optionName}
+                                                onChange={({ target: { value } }) => setOptionName(value)}
+                                            />
+                                            <button
+                                                type="button"
+                                                className="w-24 h-11 text-text-color border rounded-md"
+                                                onClick={handleAddOption}
+                                            >
+                                                Add
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {optionsList.length > 0 && (
+                                        <div className="mt-4">
+                                            <DataGrid
+                                                dataSource={optionsList}
+                                                keyExpr="value"
+                                                allowColumnReordering={true}
+                                                showBorders={false}
+                                                width="100%"
+                                                className="rounded-lg overflow-hidden"
+                                                showRowLines={true}
+                                                showColumnLines={false}
+                                            >
+                                                <Scrolling columnRenderingMode="virtual" />
+                                                <Sorting mode="none" />
+
+                                                <Column width={50} cellRender={({ rowIndex }) => rowIndex + 1} />
+                                                <Column dataField="value" caption="Option" />
+                                                <Column
+                                                    caption="Action"
+                                                    width={100}
+                                                    cellRender={({ rowIndex }) => (
+                                                        <div className="flex items-center">
+                                                            <TrashIcon
+                                                                className="w-5 h-5 text-text-color cursor-pointer"
+                                                                onClick={() => handleDeleteOption(rowIndex)}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                />
+                                            </DataGrid>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            <div className="flex justify-end space-x-4 mt-6">
                                 <button
                                     onClick={handleClose}
                                     className="btn-secondary"
