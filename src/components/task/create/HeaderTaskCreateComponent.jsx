@@ -1,23 +1,24 @@
-import React, { useRef, useState } from 'react';
+import React, {useRef, useState} from 'react';
 import FormInput from "../../FormInput.jsx";
 import useValidation from "../../../utils/use-validation.jsx";
-import { HeaderTaskCreateSchema } from "../../../state/domains/authModels.js";
+import {HeaderTaskCreateSchema} from "../../../state/domains/authModels.js";
 import FormSelect from "../../FormSelect.jsx";
 import TaskScreenDetails from "./TaskScreenDetails.jsx";
-import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import {ArrowUpTrayIcon} from '@heroicons/react/24/outline';
 import axios from "axios";
-import { useSelector } from "react-redux";
-import { selectAppConfig } from "../../../state/slice/appSlice.js";
-import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import {useSelector} from "react-redux";
+import {selectAppConfig} from "../../../state/slice/appSlice.js";
+import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
 import SkeletonLoader from "../../SkeletonLoader.jsx";
 import ErrorAlert from "../../ErrorAlert.jsx";
-import { useToasts } from "react-toast-notifications";
-import { XMarkIcon } from "@heroicons/react/24/outline/index.js";
-import { getSelectOptions, getUserSelectOptions } from "../../../utils/commonUtils.js";
-import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
-import { selectSprintListForProject } from "../../../state/slice/sprintSlice.js";
+import {useToasts} from "react-toast-notifications";
+import {XMarkIcon} from "@heroicons/react/24/outline/index.js";
+import {getSelectOptions} from "../../../utils/commonUtils.js";
+import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
+import {selectSprintListForProject} from "../../../state/slice/sprintSlice.js";
 import WYSIWYGInput from "../../WYSIWYGInput.jsx";
 import UserSelect from "../../UserSelect.jsx";
+import useFetchEpics from "../../../hooks/custom-hooks/task/useFetchEpics.jsx";
 
 function getRequiredAdditionalFieldList(fieldsArray) {
     const requiredFields = [];
@@ -41,6 +42,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
     const selectedProject = useSelector(selectSelectedProject);
     const users = useSelector(selectProjectUserList);
     const sprintListForProject = useSelector(selectSprintListForProject);
+    const {data: epics} = useFetchEpics(selectedProject?.id)
 
     const [loading, setLoading] = useState(false);
     const [createTaskForm, setCreateTaskForm] = useState({ name: '', taskTypeID: '', sprintID: '' });
@@ -51,6 +53,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
     const [isTaskTypeLoading, setIsTaskTypeLoading] = useState(false);
     const [isTaskTypeApiError, setIsTaskTypeApiError] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isEpicScreen, setIsEpicScreen] = useState(false);
 
     const [screenDetails, setScreenDetails] = useState(null);
     const [additionalFormValues, setAdditionalFormValues] = useState({});
@@ -61,6 +64,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
             const selectedTaskType = appConfig.taskTypes.find(tt => tt.id === parseInt(value))
             if (selectedTaskType?.screenID) {
                 fetchScreenForTask(selectedTaskType.screenID)
+                setIsEpicScreen(selectedTaskType.value === 'Epic')
             }
         }
 
@@ -263,6 +267,18 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
                                 </div>
                             </div>
                         </div>
+                        {!isEpicScreen && (
+                            <div className="mb-6">
+                                <FormSelect
+                                    showLabel
+                                    placeholder="Epic"
+                                    name="epicID"
+                                    formValues={createTaskForm}
+                                    options={getSelectOptions(epics)}
+                                    onChange={({target: {name, value}}) => handleFormChange(name, value)}
+                                />
+                            </div>
+                        )}
                         <div className="flex space-x-4 mb-6">
                             <div className="w-2/4">
                                 <UserSelect
@@ -277,7 +293,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
                                 <UserSelect
                                     label='Task Owner'
                                     name="taskOwner"
-                                    value="createTaskForm"
+                                    value={createTaskForm.taskOwner}
                                     users={users}
                                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                 />

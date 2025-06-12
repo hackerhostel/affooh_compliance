@@ -1,4 +1,3 @@
-
 import registerReducer from './slice/registerSlice.js';
 import {configureStore} from '@reduxjs/toolkit'
 import appReducer from './slice/appSlice.js'
@@ -13,6 +12,7 @@ import platformReducer from "./slice/platformSlice.js";
 import testCaseReducer from "./slice/testCaseSlice.js";
 import settingReducer from "./slice/settingSlice.js"
 import customFieldReducer from "./slice/customFieldSlice.js"
+import testIssueReducer from "./slice/testIssueSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -28,5 +28,5 @@ export const store = configureStore({
     testCase: testCaseReducer,
     setting: settingReducer,
     customField: customFieldReducer
-  },
+    testIssues: testIssueReduce
 });
