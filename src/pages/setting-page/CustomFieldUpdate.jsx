@@ -4,10 +4,10 @@ import FormTextArea from '../../components/FormTextArea';
 import DataGrid, { Column, Paging, Scrolling, Sorting } from "devextreme-react/data-grid";
 import "../../components/sprint-table/custom-style.css";
 import {
-    EllipsisVerticalIcon,
     TrashIcon,
 } from "@heroicons/react/24/outline";
-import axios from 'axios'; // Assuming axios is used for API calls
+import { useToasts } from 'react-toast-notifications';
+import axios from 'axios';
 
 const OptionsTable = ({ options, handleDelete }) => {
     return (
@@ -49,35 +49,37 @@ const OptionsTable = ({ options, handleDelete }) => {
     );
 };
 
-const CustomFieldUpdate = ({ customFieldId }) => {
+const CustomFieldUpdate = ({ customFieldId, onClose }) => {
     const [formValues, setFormValues] = useState({ name: '', description: '' });
     const [options, setOptions] = useState([]);
     const [formErrors, setFormErrors] = useState({});
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [fieldTypes, setFieldTypes] = useState([]);
+    const { addToast } = useToasts();
+
+    const fetchCustomFieldData = async () => {
+        try {
+            const { data } = await axios.get(`/custom-fields/${customFieldId}`);
+            setFormValues({
+                name: data.body.name || '',
+                description: data.body.description || ''
+            });
+            setOptions(data.body.options || []);
+        } catch (error) {
+            console.error("Error fetching custom field data:", error);
+        }
+    };
+
+    const fetchFieldTypes = async () => {
+        try {
+            const { data } = await axios.get('/custom-fields/field-types');
+            setFieldTypes(data.body);
+        } catch (error) {
+            console.error("Error fetching field types:", error);
+        }
+    };
 
     useEffect(() => {
-        // Fetch current custom field data
-        const fetchCustomFieldData = async () => {
-            try {
-                const { data } = await axios.get(`/custom-fields/${customFieldId}`);
-                setFormValues({ name: data.body.name, description: data.body.description });
-                setOptions(data.body.options || []);
-            } catch (error) {
-                console.error("Error fetching custom field data:", error);
-            }
-        };
-
-        // Fetch available field types
-        const fetchFieldTypes = async () => {
-            try {
-                const { data } = await axios.get('/custom-fields/field-types');
-                setFieldTypes(data.body);
-            } catch (error) {
-                console.error("Error fetching field types:", error);
-            }
-        };
-
         fetchCustomFieldData();
         fetchFieldTypes();
     }, [customFieldId]);
@@ -85,41 +87,55 @@ const CustomFieldUpdate = ({ customFieldId }) => {
     const handleFormChange = (name, value, validate) => {
         setFormValues((prev) => ({ ...prev, [name]: value }));
         if (validate) {
-            // Validate form logic
+            // Optional validation logic
         }
     };
 
     const handleDeleteOption = async (optionId) => {
         try {
             await axios.delete(`/custom-fields/${customFieldId}/field-values/${optionId}`);
-            setOptions(options.filter(option => option.id !== optionId));
+            await fetchCustomFieldData(); // ✅ refresh after delete
         } catch (error) {
             console.error("Error deleting custom field option:", error);
         }
     };
 
-    const handleUpdateCustomField = async () => {
-        try {
-            await axios.put(`/custom-fields/${customFieldId}`, {
-                customField: formValues,
-            });
-            alert("Custom field updated successfully!");
-        } catch (error) {
-            console.error("Error updating custom field:", error);
-        }
+  const handleUpdateCustomField = async () => {
+  if (!customFieldId) {
+    addToast('Invalid custom field ID', { appearance: 'error' });
+    return; // Don't proceed if ID is missing or invalid
+  }
+
+  try {
+    const payload = {
+      customField: {
+        name: formValues.name,
+        description: formValues.description,
+        // fieldTypeId: formValues.fieldTypeId, // if used
+      },
     };
+
+    await axios.put(`/custom-fields/${customFieldId}`, payload);
+
+    addToast('Custom field updated successfully!', { appearance: 'success' });
+    if (onClose) onClose();
+
+    await fetchCustomFieldData();
+  } catch (error) {
+    console.error("Error updating custom field:", error);
+    addToast('Failed to update custom field', { appearance: 'error' });
+  }
+};
+
+
 
     return (
         <div className='p-3 bg-dashboard-bgc h-full'>
             <div className='flex p-3 justify-between'>
                 <div className='flex flex-col space-y-5'>
                     <div className='flex items-center space-x-3'>
-                        <div>
-                            <span className='text-lg font-semibold'>Custom Field</span>
-                        </div>
-                        <div>
-                            <span className='bg-primary-pink text-white rounded-full px-6 py-1 inline-block'>Text box</span>
-                        </div>
+                        <span className='text-lg font-semibold'>Custom Field</span>
+                        <span className='bg-primary-pink text-white rounded-full px-6 py-1 inline-block'>Text box</span>
                     </div>
                     <div className='flex space-x-5 text-text-color'>
                         <span>Created date: <span>05/03/2025</span></span>

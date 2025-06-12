@@ -50,8 +50,6 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
         } else {
             setIsValidationErrorsShown(false);
             try {
-                const token = localStorage.getItem("token"); // or use your token retrieval method
-
                 const payload = {
                     ...formValues,
                     fieldValues: optionName
@@ -59,11 +57,7 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
                         : []
                 };
 
-                await axios.post("/custom-fields", { customField: payload }, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                });
+                await axios.post("/custom-fields", { customField: payload });
 
                 addToast('Custom field created successfully!', { appearance: 'success' });
                 handleClose();
@@ -78,12 +72,7 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
 
     const fieldType = async () => {
         try {
-            const token = localStorage.getItem("authToken"); // Or get token from context/state
-            const response = await axios.get("/custom-fields/field-types", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            });
+            const response = await axios.get("/custom-fields/field-types");
             console.log("types", response.data);
             setFieldTypes(response.data);
         } catch (error) {
@@ -95,6 +84,9 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
     useEffect(() => {
         fieldType();
     }, []);
+
+  
+
 
     return (
         <>
