@@ -85,9 +85,6 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
         fieldType();
     }, []);
 
-  
-
-
     return (
         <>
             {isOpen && (

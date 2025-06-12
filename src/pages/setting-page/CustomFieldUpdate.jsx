@@ -87,14 +87,14 @@ const CustomFieldUpdate = ({ customFieldId, onClose }) => {
     const handleFormChange = (name, value, validate) => {
         setFormValues((prev) => ({ ...prev, [name]: value }));
         if (validate) {
-            // Optional validation logic
+        
         }
     };
 
     const handleDeleteOption = async (optionId) => {
         try {
             await axios.delete(`/custom-fields/${customFieldId}/field-values/${optionId}`);
-            await fetchCustomFieldData(); // ✅ refresh after delete
+            await fetchCustomFieldData(); 
         } catch (error) {
             console.error("Error deleting custom field option:", error);
         }
@@ -103,7 +103,7 @@ const CustomFieldUpdate = ({ customFieldId, onClose }) => {
   const handleUpdateCustomField = async () => {
   if (!customFieldId) {
     addToast('Invalid custom field ID', { appearance: 'error' });
-    return; // Don't proceed if ID is missing or invalid
+    return;
   }
 
   try {
@@ -111,7 +111,7 @@ const CustomFieldUpdate = ({ customFieldId, onClose }) => {
       customField: {
         name: formValues.name,
         description: formValues.description,
-        // fieldTypeId: formValues.fieldTypeId, // if used
+    
       },
     };
 

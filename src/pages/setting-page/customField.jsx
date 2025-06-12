@@ -55,7 +55,7 @@ const CustomFieldPage = () => {
       try {
         const result = await dispatch(fetchCustomFields()).unwrap();
         setCustomFields(result);
-        setCurrentPage(1); // Reset to first page when data updates
+        setCurrentPage(1); 
         console.log("Fetched custom fields:", result);
       } catch (error) {
         console.error("Failed to fetch custom fields:", error);
@@ -107,7 +107,7 @@ const CustomFieldPage = () => {
           >
             <Scrolling columnRenderingMode="virtual" />
             <Sorting mode="multiple" />
-            {/* No Paging here since we use custom pagination */}
+            
 
             <Column dataField="name" caption="Name" width="20%" />
             <Column dataField="description" caption="Description" width="40%" />
@@ -148,11 +148,10 @@ const CustomFieldPage = () => {
             <div className="w-full flex gap-5 items-center justify-end mt-4 mb-4">
               <button
                 onClick={handlePreviousPage}
-                className={`p-2 rounded-full bg-gray-200 ${
-                  currentPage === 1
+                className={`p-2 rounded-full bg-gray-200 ${currentPage === 1
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-gray-300"
-                }`}
+                  }`}
                 disabled={currentPage === 1}
               >
                 <ChevronLeftIcon className={"w-4 h-4 text-secondary-grey"} />
@@ -162,11 +161,10 @@ const CustomFieldPage = () => {
               </span>
               <button
                 onClick={handleNextPage}
-                className={`p-2 rounded-full bg-gray-200 ${
-                  currentPage === totalPages
+                className={`p-2 rounded-full bg-gray-200 ${currentPage === totalPages
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-gray-300"
-                }`}
+                  }`}
                 disabled={currentPage === totalPages}
               >
                 <ChevronRightIcon className={"w-4 h-4 text-secondary-grey"} />
@@ -181,7 +179,7 @@ const CustomFieldPage = () => {
         </>
       ) : (
         <CustomFieldUpdate
-          field={editingRow.id}
+          customFieldId={editingRow?.id}
           onClose={() => {
             setShowUpdateComponent(false);
             setEditingRow(null);
@@ -194,6 +192,7 @@ const CustomFieldPage = () => {
               .catch(console.error);
           }}
         />
+
       )}
     </div>
   );
