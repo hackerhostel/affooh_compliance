@@ -28,5 +28,5 @@ export const store = configureStore({
     testCase: testCaseReducer,
     setting: settingReducer,
     customField: customFieldReducer,
-    testIssues: testIssueReduce
+    testIssues: testIssueReducer
 }});
