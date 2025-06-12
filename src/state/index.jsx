@@ -27,6 +27,6 @@ export const store = configureStore({
     platform: platformReducer,
     testCase: testCaseReducer,
     setting: settingReducer,
-    customField: customFieldReducer
+    customField: customFieldReducer,
     testIssues: testIssueReduce
-});
+}});
