@@ -41,6 +41,7 @@ export const fetchCustomFields = createAsyncThunk(
         try {
             const response = await axios.get("/custom-fields");
             return response.data.body;
+            console.log("ttt",response)
         } catch (error) {
             return rejectWithValue(error.response?.data || "Something went wrong");
         }
