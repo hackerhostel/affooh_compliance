@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useToasts } from "react-toast-notifications";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   TrashIcon,
   PencilSquareIcon,
@@ -15,10 +15,18 @@ import DataGrid, { Column, Scrolling, Sorting } from "devextreme-react/data-grid
 import "../../components/sprint-table/custom-style.css";
 import CustomFieldUpdate from "./CustomFieldUpdate";
 import CreateCustomField from "./CreateCustomField";
-import { fetchCustomFields } from "../../state/slice/customFieldSlice";
+import {
+  fetchCustomFields,
+  setSelectedCustomFieldId,
+  clearSelectedCustomFieldId,
+} from "../../state/slice/customFieldSlice";
 
 const CustomFieldPage = () => {
-  const [customFields, setCustomFields] = useState([]);
+  const dispatch = useDispatch();
+  const { addToast } = useToasts();
+
+  const customFields = useSelector((state) => state.customField.customFields);
+
   const [editingRow, setEditingRow] = useState(null);
   const [showUpdateComponent, setShowUpdateComponent] = useState(false);
   const [newCustomField, setNewCustomField] = useState(false);
@@ -26,18 +34,20 @@ const CustomFieldPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 4;
 
-  const dispatch = useDispatch();
-  const { addToast } = useToasts();
-
   const totalPages = Math.ceil(customFields.length / pageSize);
   const paginatedFields = customFields.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
 
+  useEffect(() => {
+    dispatch(fetchCustomFields()).catch(console.error);
+  }, [dispatch]);
+
   const closeCreateCustomField = () => setNewCustomField(false);
 
   const handleEdit = (field) => {
+    dispatch(setSelectedCustomFieldId(field.id));
     setEditingRow({ ...field });
     setShowUpdateComponent(true);
   };
@@ -50,28 +60,11 @@ const CustomFieldPage = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
 
-  useEffect(() => {
-    const getCustomFields = async () => {
-      try {
-        const result = await dispatch(fetchCustomFields()).unwrap();
-        setCustomFields(result);
-        setCurrentPage(1); 
-        console.log("Fetched custom fields:", result);
-      } catch (error) {
-        console.error("Failed to fetch custom fields:", error);
-      }
-    };
-
-    getCustomFields();
-  }, [dispatch]);
-
   const deleteCustomField = async (id) => {
     try {
       await axios.delete(`/custom-fields/${id}`);
       addToast("Custom field deleted successfully!", { appearance: "success" });
-
-      const result = await dispatch(fetchCustomFields()).unwrap();
-      setCustomFields(result);
+      dispatch(fetchCustomFields());
       setCurrentPage(1);
     } catch (error) {
       console.error("Delete error:", error);
@@ -107,7 +100,6 @@ const CustomFieldPage = () => {
           >
             <Scrolling columnRenderingMode="virtual" />
             <Sorting mode="multiple" />
-            
 
             <Column dataField="name" caption="Name" width="20%" />
             <Column dataField="description" caption="Description" width="40%" />
@@ -143,14 +135,13 @@ const CustomFieldPage = () => {
             />
           </DataGrid>
 
-         
           {customFields.length > 0 && (
             <div className="w-full flex gap-5 items-center justify-end mt-4 mb-4">
               <button
                 onClick={handlePreviousPage}
                 className={`p-2 rounded-full bg-gray-200 ${currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-300"
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-300"
                   }`}
                 disabled={currentPage === 1}
               >
@@ -162,8 +153,8 @@ const CustomFieldPage = () => {
               <button
                 onClick={handleNextPage}
                 className={`p-2 rounded-full bg-gray-200 ${currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-300"
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-300"
                   }`}
                 disabled={currentPage === totalPages}
               >
@@ -172,10 +163,7 @@ const CustomFieldPage = () => {
             </div>
           )}
 
-          <CreateCustomField
-            isOpen={newCustomField}
-            onClose={closeCreateCustomField}
-          />
+          <CreateCustomField isOpen={newCustomField} onClose={closeCreateCustomField} />
         </>
       ) : (
         <CustomFieldUpdate
@@ -183,16 +171,11 @@ const CustomFieldPage = () => {
           onClose={() => {
             setShowUpdateComponent(false);
             setEditingRow(null);
-            dispatch(fetchCustomFields())
-              .unwrap()
-              .then((result) => {
-                setCustomFields(result);
-                setCurrentPage(1);
-              })
-              .catch(console.error);
+            dispatch(clearSelectedCustomFieldId());
+            dispatch(fetchCustomFields());
+            setCurrentPage(1);
           }}
         />
-
       )}
     </div>
   );

@@ -4,6 +4,7 @@ import axios from "axios";
 const initialState = {
     customFields: [],
     fieldTypes: [],
+    selectedCustomFieldId: null, // ✅ Added for tracking selected field
     loading: false,
     error: null,
 };
@@ -40,8 +41,8 @@ export const fetchCustomFields = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await axios.get("/custom-fields");
+            console.log("Fetched custom fields:", response.data.body); // ✅ Useful log
             return response.data.body;
-            console.log("ttt",response)
         } catch (error) {
             return rejectWithValue(error.response?.data || "Something went wrong");
         }
@@ -61,10 +62,18 @@ export const deleteCustomField = createAsyncThunk(
     }
 );
 
+// ✅ New reducer to set selected ID
 const customFieldSlice = createSlice({
     name: "customField",
     initialState,
-    reducers: {},
+    reducers: {
+        setSelectedCustomFieldId: (state, action) => {
+            state.selectedCustomFieldId = action.payload;
+        },
+        clearSelectedCustomFieldId: (state) => {
+            state.selectedCustomFieldId = null;
+        },
+    },
     extraReducers: (builder) => {
         builder
             // Fetch Field Types
@@ -126,5 +135,7 @@ const customFieldSlice = createSlice({
             });
     },
 });
+
+export const { setSelectedCustomFieldId, clearSelectedCustomFieldId } = customFieldSlice.actions;
 
 export default customFieldSlice.reducer;

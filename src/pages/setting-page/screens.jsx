@@ -7,8 +7,9 @@ import {
 import DataGrid, { Column, Paging, Scrolling, Sorting } from "devextreme-react/data-grid";
 import "../../components/sprint-table/custom-style.css";
 import CustomFieldUpdate from "./CustomFieldUpdate";
-import CreateCustomField from "./CreateCustomField";
+import CreateScreen from "./CreateScreens";
 import axios from "axios";
+
 
 const Screens = () => {
   const [customFields, setCustomFields] = useState([]);
@@ -89,7 +90,7 @@ const Screens = () => {
           />
         </DataGrid>
       </div>
-      <CreateCustomField isOpen ={newCustomField} onClose={closeCreateCustomField}/>
+      <CreateScreen isOpen ={newCustomField} onClose={closeCreateCustomField}/>
     </div>
   );
 };

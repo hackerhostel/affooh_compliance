@@ -18,7 +18,7 @@ export const doRegisterUser = createAsyncThunk(
     try {
       const response = await post({
         apiName: "AffoohAPI",
-        path: "/users/register-u",
+        path: "/users/register-user",
         options: {
           body: {
             user: {
