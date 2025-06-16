@@ -63,3 +63,9 @@ export const ProjectUpdateSchema = yup.object({
     name: yup.string().required('Project name is required').min(3, 'Project name must be at least 3 characters long').max(50, 'Project name must be at most 50 characters long'),
     projectType: yup.string().required('Project type is required')
 });
+
+export const CustomFieldCreateSchema = yup.object({
+    fieldTypeID: yup.string().required("Field type is required"),
+    name: yup.string().required("Name is required"),
+    description: yup.string().required("Description is required")
+})

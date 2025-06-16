@@ -32,11 +32,15 @@ export const getFirstName = (name) => {
 export const getSelectOptions = (options) => {
   if (options && options.length) {
     return options.map(o => ({
-      value: o?.id ? Number(o?.id) : o?.rID ? Number(o?.rID) : Number(o?.checklistID),
+      value: o?.id 
+        ? String(o?.id) 
+        : o?.rID 
+        ? String(o?.rID) 
+        : String(o?.checklistID),
       label: o?.name || o?.value || o?.summary
     }));
   } else {
-    return []
+    return [];
   }
 };
 

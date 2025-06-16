@@ -1,4 +1,6 @@
-import {Menu, Transition} from '@headlessui/react';
+import { Menu, Transition } from '@headlessui/react';
+import { CogIcon, BellIcon } from '@heroicons/react/24/outline';
+
 import {signOut} from 'aws-amplify/auth';
 import {
   ArrowRightStartOnRectangleIcon,
@@ -157,7 +159,7 @@ function Sidebar() {
                                 </button>
                             )}
                           </Menu.Item>
-                          {/* <Menu.Item>
+                          <Menu.Item>
                             {({active}) => (
                                 <button
                                     className={`${
@@ -188,7 +190,7 @@ function Sidebar() {
                                   Notifications
                                 </button>
                             )}
-                          </Menu.Item> */}
+                          </Menu.Item>
                           <Menu.Item>
                             {({active}) => (
                                 <button

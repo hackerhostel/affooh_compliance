@@ -10,6 +10,8 @@ import projectUsersReducer from "./slice/projectUsersSlice.js";
 import releaseReducer from "./slice/releaseSlice.js";
 import platformReducer from "./slice/platformSlice.js";
 import testCaseReducer from "./slice/testCaseSlice.js";
+import settingReducer from "./slice/settingSlice.js"
+import customFieldReducer from "./slice/customFieldSlice.js"
 import testIssueReducer from "./slice/testIssueSlice.js";
 
 export const store = configureStore({
@@ -25,6 +27,7 @@ export const store = configureStore({
     release: releaseReducer,
     platform: platformReducer,
     testCase: testCaseReducer,
+    setting: settingReducer,
+    customField: customFieldReducer,
     testIssues: testIssueReducer
-  },
-});
+}});

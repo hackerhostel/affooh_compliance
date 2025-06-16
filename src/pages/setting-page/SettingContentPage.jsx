@@ -1,19 +1,19 @@
-import {useSelector} from "react-redux";
-import {selectSelectedProjectFromList} from "../../state/slice/projectSlice.js";
+import React from "react";
+import { useSelector } from "react-redux";
+import CustomFieldPage from "./customField";
+import Screens from "./screens";
+import TaskTypes from "./taskTypes";
 
 const SettingContentPage = () => {
-  const selectedProject = useSelector(selectSelectedProjectFromList);
+  const selectedView = useSelector((state) => state.setting.selectedView);
 
   return (
-   <>
-     {!selectedProject ? (
-       <div className="p-4 text-center">No Details</div>
-     ): (
-       <div className="p-4 text-center">selected id: {selectedProject?.id}</div>
-     )
-     }
-   </>
-  )
-}
+    <div>
+      {selectedView === "customFields" && <CustomFieldPage />}
+      {selectedView === "screens" && <Screens />}
+      {selectedView === "taskTypes" && <TaskTypes />}
+    </div>
+  );
+};
 
 export default SettingContentPage;
