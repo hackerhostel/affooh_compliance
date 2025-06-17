@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { XMarkIcon, TrashIcon } from '@heroicons/react/24/outline';
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
 import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
+import FormTextArea from "../../components/FormTextArea.jsx"
 import { CustomFieldCreateSchema } from '../../utils/validationSchemas.js';
+import {
+  fetchCustomFields,
+} from '../../state/slice/customFieldSlice';
 import { useToasts } from 'react-toast-notifications';
 import { getSelectOptions } from "../../utils/commonUtils.js";
 import DataGrid, { Column, Scrolling, Sorting } from 'devextreme-react/data-grid';
 
 
 const CreateNewCustomField = ({ isOpen, onClose }) => {
+    const dispatch = useDispatch();
     const { addToast } = useToasts();
     const [formValues, setFormValues] = useState({
         fieldTypeID: '',
         name: '',
         description: '',
-        optionName: ''
     });
 
     const [optionName, setOptionName] = useState("");
@@ -37,9 +42,13 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
         setIsValidationErrorsShown(false);
     };
 
+      useEffect(() => {
+        dispatch(fetchCustomFields());
+      }, [dispatch]);
+
     const handleClose = () => {
         onClose();
-        setFormValues({ fieldTypeID: '', name: '', description: '', optionName: '' });
+        setFormValues({ fieldTypeID: '', name: '', description: '' });
         setOptionName("");
         setOptionsList([]);
         setIsValidationErrorsShown(false);
@@ -58,33 +67,46 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
         setOptionsList(newList);
     };
 
-    const createNewCustomField = async (event) => {
-        event.preventDefault();
-        setIsSubmitting(true);
+ // put this at the top of your component
 
-        if (formErrors && Object.keys(formErrors).length > 0) {
-            console.log("Validation errors:", formErrors);
-            setIsValidationErrorsShown(true);
-        } else {
-            setIsValidationErrorsShown(false);
-            try {
-                const payload = {
-                    ...formValues,
-                    fieldValues: optionsList
-                };
+const createNewCustomField = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
 
-                await axios.post("/custom-fields", { customField: payload });
+    if (formErrors && Object.keys(formErrors).length > 0) {
+        console.log("Validation errors:", formErrors);
+        setIsValidationErrorsShown(true);
+    } else {
+        setIsValidationErrorsShown(false);
+        try {
+            const selectedFieldType = fieldTypes.body?.find(
+                ft => ft.id.toString() === formValues.fieldTypeID
+            )?.name;
 
-                addToast('Custom field created successfully!', { appearance: 'success' });
-                handleClose();
-            } catch (error) {
-                console.error(error);
-                addToast('Failed to create the custom field', { appearance: 'error' });
-            }
+            const payload = {
+                ...formValues,
+                ...(selectedFieldType === 'DDL' || selectedFieldType === 'MULTI_SELECT'
+                    ? { fieldValues: optionsList }
+                    : {})
+            };
+
+            await axios.post("/custom-fields", { customField: payload });
+
+            addToast('Custom field created successfully!', { appearance: 'success' });
+
+            dispatch(fetchCustomFields());
+
+            handleClose();
+        } catch (error) {
+            console.error(error);
+            addToast('Failed to create the custom field', { appearance: 'error' });
         }
+    }
 
-        setIsSubmitting(false);
-    };
+    setIsSubmitting(false);
+};
+
+
 
     const fieldType = async () => {
         try {
@@ -138,13 +160,16 @@ const CreateNewCustomField = ({ isOpen, onClose }) => {
                             </div>
                             <div>
                                 <p className="text-secondary-grey">Description</p>
-                                <WYSIWYGInput
+
+                                <FormTextArea
                                     name="description"
-                                    value={formValues.description}
-                                    onchange={(name, value) => handleFormChange(name, value)}
+                                    formValues={formValues}
+                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                     formErrors={formErrors}
                                     showErrors={isValidationErrorsShown}
                                 />
+
+
                             </div>
 
                             {showOptionsInput && (
