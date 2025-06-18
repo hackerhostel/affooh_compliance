@@ -5,17 +5,13 @@ import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
-import { getSelectOptions } from "../../utils/commonUtils.js";
 import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
 import { CreateScreenSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
 import DataGrid, { Column, Scrolling, Sorting } from 'devextreme-react/data-grid';
 import { selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
-import {
-    fetchCustomFields,
-    setSelectedCustomFieldId,
-    clearSelectedCustomFieldId,
-} from "../../state/slice/customFieldSlice";
+import { fetchCustomFields } from "../../state/slice/customFieldSlice";
+import { doGetWhoAmI } from '../../state/slice/authSlice.js';
 
 const CreateNewScreen = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
@@ -27,6 +23,9 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
 
 
     const [optionsList, setOptionsList] = useState([]);
+    const [isUserDetailsLoading, setIsUserDetailsLoading] = useState(false);
+
+    const [userDetails, setUserDetails] = useState(null);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [customFieldOptions, setCustomFieldOptions] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,6 +43,33 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
         setFormValues({ ...formValues, [name]: value });
         setIsValidationErrorsShown(false);
     };
+
+useEffect(() => {
+    const fetchUserDetails = async () => {
+        try {
+            setIsUserDetailsLoading(true);
+            const resultAction = await dispatch(doGetWhoAmI());
+            if (doGetWhoAmI.fulfilled.match(resultAction)) {
+                setUserDetails(resultAction.payload);
+            } else {
+                console.error("Failed to fetch user details");
+                setUserDetails(null);
+            }
+        } catch (error) {
+            console.error("Error fetching user details", error);
+            setUserDetails(null);
+        } finally {
+            setIsUserDetailsLoading(false);
+        }
+    };
+
+    if (isOpen) {
+        fetchUserDetails();
+    }
+}, [dispatch, isOpen]);
+
+
+
 
     useEffect(() => {
         const fetchFields = async () => {
@@ -129,7 +155,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
         const payload = {
             name: formValues.name,
             description: formValues.description,
-            organizationID: selectedProject?.organizationID, // Add this if available
+            organizationID: userDetails?.organization?.id, // Use fetched organizationID
             projectIDs: Array.isArray(formValues.projectIDs) ? formValues.projectIDs : [formValues.projectIDs],
             tabs: tabsList.length > 0
                 ? tabsList.map(tab => ({
@@ -163,6 +189,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
 
     setIsSubmitting(false);
 };
+
 
 
 
