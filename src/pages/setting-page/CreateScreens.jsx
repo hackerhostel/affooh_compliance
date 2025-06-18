@@ -5,9 +5,9 @@ import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
-
+import { getSelectOptions } from "../../utils/commonUtils.js";
 import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
-import { CustomFieldCreateSchema } from '../../utils/validationSchemas.js';
+import { CreateScreenSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
 import DataGrid, { Column, Scrolling, Sorting } from 'devextreme-react/data-grid';
 import { selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
@@ -20,18 +20,19 @@ import {
 const CreateNewScreen = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
     const [formValues, setFormValues] = useState({
-        fieldTypeID: '',
         name: '',
         description: '',
-
+        projectIDs: [],
     });
+
 
     const [optionsList, setOptionsList] = useState([]);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [customFieldOptions, setCustomFieldOptions] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formErrors] = useValidation(CustomFieldCreateSchema, formValues);
+    const [formErrors] = useValidation(CreateScreenSchema, formValues);
     const [selectedFields, setSelectedFields] = useState([]);
+    const [tabsList, setTabsList] = useState([]);
     const projectList = useSelector(selectProjectList);
     const selectedProject = useSelector(selectSelectedProject);
     const [showGeneralInput, setShowGeneralInput] = useState(false);
@@ -40,11 +41,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
 
     const handleFormChange = (name, value) => {
-        if (name === "fieldTypeID") {
-            value = value.toString();
-            setOptionsList([]);
-        }
-
         setFormValues({ ...formValues, [name]: value });
         setIsValidationErrorsShown(false);
     };
@@ -57,7 +53,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
                     const options = resultAction.payload.map(field => ({
                         label: field.name || `Field ${field.id}`,
                         value: field.id,
-                        field  // store full field object
+                        field
                     }));
                     setCustomFieldOptions(options);
                 }
@@ -74,8 +70,11 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
 
     const handleClose = () => {
         onClose();
-        setFormValues({ fieldTypeID: '', name: '', description: '' });
-        setOptionName("");
+        setFormValues({
+            name: '',
+            description: '',
+            projectIDs: [],
+        });
         setOptionsList([]);
         setSelectedFields([]);
         setIsValidationErrorsShown(false);
@@ -114,42 +113,67 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
         );
     };
 
-    const createNewCustomField = async (event) => {
-        event.preventDefault();
-        setIsSubmitting(true);
+    const createScreen = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
 
-        if (formErrors && Object.keys(formErrors).length > 0) {
-            setIsValidationErrorsShown(true);
-        } else {
-            setIsValidationErrorsShown(false);
-            try {
-                const payload = {
-                    ...formValues,
-                    fieldValues: optionsList,
-                    attachedFields: selectedFields.map(f => ({
-                        id: f.id,
-                        status: f.status
-                    }))
-                };
-
-                await axios.post("/custom-fields", { customField: payload });
-                addToast('Custom field created successfully!', { appearance: 'success' });
-                handleClose();
-            } catch (error) {
-                console.error(error);
-                addToast('Failed to create the custom field', { appearance: 'error' });
-            }
-        }
-
+    if (formErrors && Object.keys(formErrors).length > 0) {
+        setIsValidationErrorsShown(true);
         setIsSubmitting(false);
-    };
+        return;
+    }
+
+    setIsValidationErrorsShown(false);
+
+    try {
+        const payload = {
+            name: formValues.name,
+            description: formValues.description,
+            organizationID: selectedProject?.organizationID, // Add this if available
+            projectIDs: Array.isArray(formValues.projectIDs) ? formValues.projectIDs : [formValues.projectIDs],
+            tabs: tabsList.length > 0
+                ? tabsList.map(tab => ({
+                    name: tab.name,
+                    fields: tab.fields.map(field => ({
+                        id: field.id,
+                        required: field.required,
+                    })),
+                }))
+                : [
+                    {
+                        name: "General",
+                        fields: selectedFields.map(field => ({
+                            id: field.id,
+                            required: field.status === 'required',
+                        })),
+                    }
+                ],
+            generalTabs: generalList.map(name => ({
+                name,
+                required: false,
+            })),
+        };
+
+        await axios.post("/screens", { screen: payload });
+        addToast('Screen created successfully!', { appearance: 'success' });
+        handleClose();
+    } catch (error) {
+        addToast('Failed to create the screen', { appearance: 'error' });
+    }
+
+    setIsSubmitting(false);
+};
+
+
+
 
     const getProjectOptions = useCallback(() => {
         return projectList.map((project) => ({
-            value: project.id,
+            value: String(project.id),
             label: project.name,
         }));
     }, [projectList]);
+
 
     return (
         <>
@@ -162,7 +186,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
                                 <XMarkIcon className="w-6 h-6 text-gray-500" />
                             </div>
                         </div>
-                        <form onSubmit={createNewCustomField} className="flex flex-col space-y-6">
+                        <form onSubmit={createScreen} className="flex flex-col space-y-6">
                             <div>
                                 <p className="text-secondary-grey">Name</p>
                                 <FormInput
@@ -178,13 +202,14 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
                             <div>
                                 <p className="text-secondary-grey">Projects</p>
                                 <FormSelect
-                                    name="project"
-                                    showLabel={false}
-                                    formValues={{ project: selectedProject?.id }}
+                                    name="projectIDs"
+                                    formValues={formValues}
                                     placeholder="Select a project"
                                     options={getProjectOptions()}
-                                    onChange={handleFormChange}
+                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+
                                 />
+
                             </div>
 
                             <div>

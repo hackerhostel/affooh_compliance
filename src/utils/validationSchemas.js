@@ -69,3 +69,10 @@ export const CustomFieldCreateSchema = yup.object({
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required")
 })
+
+export const CreateScreenSchema = yup.object({
+    name: yup.string().required("name type is required"),
+    description: yup.string().required("description type is required"),
+    projectIDs: yup.string().required("projectIDs type is required"),
+    
+})
