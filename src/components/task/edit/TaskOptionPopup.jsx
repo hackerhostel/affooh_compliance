@@ -4,6 +4,7 @@ import ChangeTypePopup from "./TaskOptionPopup/ChangeType";
 import SubTaskPopup from "./TaskOptionPopup/SubTask";
 import MoveSprintPopup from "./TaskOptionPopup/moveSprint"
 import CloneIssue from "./TaskOptionPopup/CloneIssue"
+import TaskDelete from "./TaskOptionPopup/TaskDelete.jsx";
 
 const TaskOptionsPopup = ({isOpen, onClose, task}) => {
     const menuRef = useRef(null);
@@ -12,12 +13,14 @@ const TaskOptionsPopup = ({isOpen, onClose, task}) => {
     const subTaskPopupRef = useRef(null);
     const moveSprintRef = useRef(null);
     const cloneIssueRef = useRef(null);
+    const taskDeleteRef = useRef(null);
 
     const [isMovePopupOpen, setMovePopupOpen] = useState(false);
     const [isChangeTypePopupOpen, setChangeTypePopupOpen] = useState(false);
     const [isSubTaskPopupOpen, setChangeSubTaskPopupOpen] = useState(false);
     const [isMoveSprintPopup, setChangeSprintPopup] = useState(false);
     const [isCloneIssue, setIsCloneIssue] = useState(false);
+    const [isTaskDelete, setIsTaskDelete] = useState(false);
 
     useEffect(() => {
         if (!isOpen) {
@@ -36,9 +39,10 @@ const TaskOptionsPopup = ({isOpen, onClose, task}) => {
                 !changeTypePopupRef.current?.contains(event.target) &&
                 !subTaskPopupRef.current?.contains(event.target) &&
                 !moveSprintRef.current?.contains(event.target) &&
-                !cloneIssueRef.current?.contains(event.target)
+                !cloneIssueRef.current?.contains(event.target) &&
+                !taskDeleteRef.current?.contains(event.target)
             ) {
-                if (!isMovePopupOpen && !isChangeTypePopupOpen && !isSubTaskPopupOpen && !isMoveSprintPopup && !isCloneIssue) {
+                if (!isMovePopupOpen && !isChangeTypePopupOpen && !isSubTaskPopupOpen && !isMoveSprintPopup && !isCloneIssue && !isTaskDelete) {
                     onClose();
                 }
             }
@@ -73,6 +77,10 @@ const TaskOptionsPopup = ({isOpen, onClose, task}) => {
         setIsCloneIssue(true);
     }
 
+    const handleTaskDelete = () => {
+        setIsTaskDelete(true);
+    }
+
     if (!isOpen) return null;
 
     return (
@@ -93,7 +101,9 @@ const TaskOptionsPopup = ({isOpen, onClose, task}) => {
                     </li>
                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleCloneIssue}>Clone</li>
                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleChangeSprint}>Move Sprint</li>
-                    <li className="px-4 py-2 text-red-500 hover:bg-gray-100 cursor-pointer">Delete</li>
+                    <li className="px-4 py-2 text-red-500 hover:bg-gray-100 cursor-pointer"
+                        onClick={handleTaskDelete}>Delete
+                    </li>
                 </ul>
             </div>
 
@@ -146,6 +156,18 @@ const TaskOptionsPopup = ({isOpen, onClose, task}) => {
                     <CloneIssue
                         isOpen={isCloneIssue}
                         onClose={() => setIsCloneIssue(false)}
+                    />
+                </div>
+            )}
+
+            {isTaskDelete && (
+                <div ref={taskDeleteRef}>
+                    <TaskDelete
+                        id={task?.id}
+                        name={task?.name}
+                        sprintId={task?.sprint?.id}
+                        isOpen={isTaskDelete}
+                        onClose={() => setIsTaskDelete(false)}
                     />
                 </div>
             )}
