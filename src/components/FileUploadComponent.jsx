@@ -392,7 +392,7 @@ const FileUploadComponent = React.forwardRef(
                 {" "}
                 <span className="text-sm font-medium text-blue-700">
                   {createdTaskId
-                    ? `Task ${createdTaskId} created! Uploading files... (${currentFileIndex}/${attachments.length})`
+                    ? `Task ${createdTaskId} created! Uploading files..... (${currentFileIndex}/${attachments.length})`
                     : "Creating task..."}
                 </span>
                 <span className="text-sm text-blue-600">{uploadProgress}%</span>
