@@ -11,7 +11,7 @@ import { useToasts } from 'react-toast-notifications';
 import DataGrid, { Column, Scrolling, Sorting } from 'devextreme-react/data-grid';
 import { selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
 import { fetchCustomFields } from "../../state/slice/customFieldSlice";
-import { doGetWhoAmI } from '../../state/slice/authSlice.js';
+import {doGetMasterData} from "../../state/slice/appSlice.js"
 
 const CreateNewScreen = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
@@ -23,9 +23,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
 
 
     const [optionsList, setOptionsList] = useState([]);
-    const [isUserDetailsLoading, setIsUserDetailsLoading] = useState(false);
-
-    const [userDetails, setUserDetails] = useState(null);
+    const [hasFetchedMasterData, setHasFetchedMasterData] = useState(false);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [customFieldOptions, setCustomFieldOptions] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,32 +42,14 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
         setIsValidationErrorsShown(false);
     };
 
-useEffect(() => {
-    const fetchUserDetails = async () => {
-        try {
-            setIsUserDetailsLoading(true);
-            const resultAction = await dispatch(doGetWhoAmI());
-            if (doGetWhoAmI.fulfilled.match(resultAction)) {
-                setUserDetails(resultAction.payload);
-            } else {
-                console.error("Failed to fetch user details");
-                setUserDetails(null);
-            }
-        } catch (error) {
-            console.error("Error fetching user details", error);
-            setUserDetails(null);
-        } finally {
-            setIsUserDetailsLoading(false);
-        }
-    };
-
+    useEffect(() => {
     if (isOpen) {
-        fetchUserDetails();
+        dispatch(doGetMasterData());
     }
-}, [dispatch, isOpen]);
+}, [isOpen, dispatch]);
 
 
-
+  
 
     useEffect(() => {
         const fetchFields = async () => {
