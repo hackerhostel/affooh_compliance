@@ -15,6 +15,7 @@ import DataGrid, { Column, Scrolling, Sorting } from "devextreme-react/data-grid
 import "../../components/sprint-table/custom-style.css";
 import CustomFieldUpdate from "./CustomFieldUpdate";
 import CreateCustomField from "./CreateCustomField";
+import DeleteConformation from "./DeleteConformation"
 import {
   fetchCustomFields,
   setSelectedCustomFieldId,
@@ -28,6 +29,7 @@ const CustomFieldPage = () => {
   const customFields = useSelector((state) => state.customField.customFields);
 
   const [editingRow, setEditingRow] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [showUpdateComponent, setShowUpdateComponent] = useState(false);
   const [newCustomField, setNewCustomField] = useState(false);
   const [showActionsId, setShowActionsId] = useState(null);
@@ -117,7 +119,7 @@ const CustomFieldPage = () => {
                       />
                       <TrashIcon
                         className="w-5 h-5 text-text-color cursor-pointer"
-                        onClick={() => deleteCustomField(data.data.id)}
+                        onClick={() => setConfirmDeleteId(data.data.id)}
                       />
                       <XMarkIcon
                         className="w-5 h-5 text-text-color cursor-pointer"
@@ -160,6 +162,17 @@ const CustomFieldPage = () => {
               >
                 <ChevronRightIcon className={"w-4 h-4 text-secondary-grey"} />
               </button>
+
+              <DeleteConformation
+                isOpen={confirmDeleteId !== null}
+                onClose={() => setConfirmDeleteId(null)}
+                onConfirm={() => {
+                  deleteCustomField(confirmDeleteId);
+                  setConfirmDeleteId(null);
+                }}
+                title="Delete Custom Field"
+                message="Are you sure you want to delete this custom field?"
+              />
             </div>
           )}
 
@@ -178,6 +191,8 @@ const CustomFieldPage = () => {
         />
       )}
     </div>
+
+
   );
 };
 
