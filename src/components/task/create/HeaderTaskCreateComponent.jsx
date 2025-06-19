@@ -223,7 +223,8 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
         handleTaskCreateClose();
       }, 2000);
     } catch (error) {
-      console.error("Error creating task:", error);      addToast(error.message || "Failed to create task", {
+      console.error("Error creating task:", error);      
+      addToast(error.message || "Failed to create task", {
         appearance: "error",
         autoDismiss: true,
       });
@@ -400,7 +401,8 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
                     }
                   />
                 </div>
-              </div>              <FileUpload
+              </div>              
+              <FileUpload
                 ref={fileUploadRef}
                 onUploadComplete={handleFileUploads}
                 isUploading={isUploadingFiles}

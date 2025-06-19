@@ -275,7 +275,8 @@ const FileUploadComponent = React.forwardRef(({
     if (isUploading) return;
 
     setAttachments((prev) => prev.filter((f) => f.id !== fileId));
-    uppy.current?.removeFile(fileId);    addToast("File has been removed", {
+    uppy.current?.removeFile(fileId);    
+    addToast("File has been removed", {
       appearance: "info",
       autoDismiss: true,
     });
@@ -377,7 +378,8 @@ const FileUploadComponent = React.forwardRef(({
 
         {isUploading && (
           <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="flex justify-between items-center mb-2">              <span className="text-sm font-medium text-blue-700">
+            <div className="flex justify-between items-center mb-2">              
+              <span className="text-sm font-medium text-blue-700">
                 {createdTaskId
                   ? `Task ${createdTaskId} created! Uploading files... (${currentFileIndex}/${attachments.length})`
                   : "Creating task..."}
