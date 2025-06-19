@@ -117,7 +117,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
       setAdditionalFormValues({});
     }
   };
-  // Create ref for FileUploadComponent
+  
   const fileUploadRef = useRef(null);
 
   // Define handleFileUploads to call FileUploadComponent's handleFileUploads through ref
@@ -193,7 +193,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
         }
 
         delete payload?.taskOwner;
-      }      // Step 1: Create task
+      }      
       addToast("Creating task...", {
         appearance: "info",
         autoDismiss: true,
@@ -209,7 +209,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
         autoDismiss: true,
       });
 
-      // Step 2: Upload files
+      
       const uploadResult = await handleFileUploads(taskID);
 
       if (!uploadResult.success) {
@@ -218,7 +218,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
         );
       }
 
-      // Success - close modal after delay
+      
       setTimeout(() => {
         handleTaskCreateClose();
       }, 2000);
@@ -228,7 +228,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
         autoDismiss: true,
       });
 
-      // Reset states on error
+      
       setLoading(false);
       setUploadProgress(0);
       setIsUploadingFiles(false);

@@ -117,10 +117,10 @@ const TaskCreateComponent = ({ onClose, isOpen }) => {
       setAdditionalFormValues({});
     }
   };
-  // Create ref for FileUploadComponent
+  
   const fileUploadRef = useRef(null);
 
-  // Define handleFileUploads to call FileUploadComponent's handleFileUploads through ref
+  
   const handleFileUploads = async (taskID) => {
     if (fileUploadRef.current) {
       return await fileUploadRef.current.handleFileUploads(taskID);
@@ -139,9 +139,8 @@ const TaskCreateComponent = ({ onClose, isOpen }) => {
     });
 
     if (formErrors || additionalFieldFormErrors || attachments.length === 0) {
-      setIsValidationErrorsShown(true);
-      if (attachments.length === 0) {
-        addToast("අවම වශයෙන් එක් ගොනුවක් එකතු කරන්න", {
+      setIsValidationErrorsShown(true);      if (attachments.length === 0) {
+        addToast("Please add at least one file", {
           appearance: "error",
           autoDismiss: true,
         });
@@ -196,7 +195,7 @@ const TaskCreateComponent = ({ onClose, isOpen }) => {
         delete payload?.taskOwner;
       }
 
-      // Step 1: Create task
+      
       const response = await axios.post("tasks", {
         task: payload,
       });
@@ -204,20 +203,19 @@ const TaskCreateComponent = ({ onClose, isOpen }) => {
       const taskID = response.data.id;
       setCreatedTaskId(taskID);
 
-      // Step 2: Upload files
+      
       const uploadResult = await handleFileUploads(taskID);
 
       if (!uploadResult.success) {
         throw new Error("File upload failed");
       }
 
-      // Close after success
+      
       setTimeout(() => {
         handleTaskCreateClose();
       }, 1500);
     } catch (error) {
-      console.error("Error creating task:", error);
-      addToast(error.message || "Task නිර්මාණය කිරීම අසාර්ථකයි", {
+      console.error("Error creating task:", error);      addToast(error.message || "Failed to create task", {
         appearance: "error",
         autoDismiss: true,
       });

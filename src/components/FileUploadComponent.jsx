@@ -5,9 +5,9 @@ import Dashboard from "@uppy/dashboard";
 import ProgressBar from "@uppy/progress-bar";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { uploadData } from "aws-amplify/storage";
-import axios from "axios"; // Added axios import
+import axios from "axios"; 
 
-// Uppy styles
+
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/progress-bar/dist/style.css";
@@ -31,7 +31,7 @@ const FileUploadComponent = React.forwardRef(({
 
   useEffect(() => {
     if (uppy.current) {
-      return; // Prevent multiple initializations
+      return; 
     }
     
     uppy.current = new Uppy({
@@ -72,7 +72,8 @@ const FileUploadComponent = React.forwardRef(({
         meta: file.meta,
         uploaded: false,
       };
-      setAttachments((prev) => [...prev, filePreview]);      addToast(`${file.name} has been added`, {
+      setAttachments((prev) => [...prev, filePreview]);      
+      addToast(`${file.name} has been added`, {
         appearance: "info",
         autoDismiss: true,
       });
@@ -133,7 +134,7 @@ const FileUploadComponent = React.forwardRef(({
     } catch (error) {
       console.error("S3 upload error:", error);
 
-      // More specific error handling
+      // error handling
       let errorMessage = "File upload failed";
       if (error.name === "AccessDenied") {
         errorMessage = "Access denied to S3 bucket. Please check permissions.";
@@ -258,7 +259,7 @@ const FileUploadComponent = React.forwardRef(({
       failed: failedUploads,
     };
   };
-  // Create a ref to expose handleFileUploads
+  
   React.useImperativeHandle(ref, () => ({
     handleFileUploads
   }));
