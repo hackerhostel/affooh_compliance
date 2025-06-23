@@ -8,16 +8,26 @@ import DataGrid, { Column, Paging, Scrolling, Sorting } from "devextreme-react/d
 import "../../components/sprint-table/custom-style.css";
 import CustomFieldUpdate from "./CustomFieldUpdate";
 import CreateNewScreen from "./CreateScreens";
-import axios from "axios";
-
+import { useDispatch, useSelector } from "react-redux";
+import { fetchScreensByProject, selectScreens, selectScreenLoading, selectScreenError } from "../../state/slice/screenSlice";
+import { selectSelectedProject } from "../../state/slice/projectSlice";
 
 const Screens = () => {
-  const [customFields, setCustomFields] = useState([]);
+  const dispatch = useDispatch();
+  const screens = useSelector(selectScreens);
+  const loading = useSelector(selectScreenLoading);
+  const error = useSelector(selectScreenError);
+  const selectedProject = useSelector(selectSelectedProject);
+
   const [editingRow, setEditingRow] = useState(null);
   const [showUpdateComponent, setShowUpdateComponent] = useState(false);
   const [newCustomField, setNewCustomField] = useState(false);
 
- 
+  useEffect(() => {
+    if (selectedProject && selectedProject.id) {
+      dispatch(fetchScreensByProject(selectedProject.id));
+    }
+  }, [dispatch, selectedProject]);
 
   const closeCreateCustomField = () => setNewCustomField(false);
 
@@ -27,16 +37,19 @@ const Screens = () => {
   };
 
   const handleDelete = (id) => {
-    axios.delete(`/api/custom-fields/${id}`)
-      .then(() => {
-        const updatedFields = customFields.filter((field) => field.id !== id);
-        setCustomFields(updatedFields);
-      })
-      .catch(error => console.error("Error deleting custom field:", error));
+    // TODO: Implement delete screen logic using Redux/Thunk if needed
   };
 
   if (showUpdateComponent) {
     return <CustomFieldUpdate field={editingRow} onClose={() => setShowUpdateComponent(false)} />;
+  }
+
+  if (loading) {
+    return <div>Loading screens...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
   }
 
   return (
@@ -44,12 +57,11 @@ const Screens = () => {
       <div>
         <div className="flex items-center justify-between p-4">
           <p className="text-secondary-grey text-lg font-medium">
-            {`Screens (${customFields.length})`}
+            {`Screens (${screens.length})`}
           </p>
           <div
             className="flex items-center space-x-2 text-text-color cursor-pointer"
             onClick={() => setNewCustomField(true)}
-
           >
             <PlusCircleIcon className="w-5 text-text-color" />
             <span>Add New</span>
@@ -57,7 +69,7 @@ const Screens = () => {
         </div>
 
         <DataGrid
-          dataSource={customFields}
+          dataSource={screens}
           allowColumnReordering={true}
           showBorders={false}
           width="100%"
@@ -90,7 +102,7 @@ const Screens = () => {
           />
         </DataGrid>
       </div>
-      <CreateNewScreen isOpen ={newCustomField} onClose={closeCreateCustomField}/>
+      <CreateNewScreen isOpen={newCustomField} onClose={closeCreateCustomField} />
     </div>
   );
 };

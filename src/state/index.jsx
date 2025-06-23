@@ -13,6 +13,7 @@ import testCaseReducer from "./slice/testCaseSlice.js";
 import settingReducer from "./slice/settingSlice.js"
 import customFieldReducer from "./slice/customFieldSlice.js"
 import testIssueReducer from "./slice/testIssueSlice.js";
+import screenReducer from "./slice/screenSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -29,5 +30,6 @@ export const store = configureStore({
     testCase: testCaseReducer,
     setting: settingReducer,
     customField: customFieldReducer,
-    testIssues: testIssueReducer
+    testIssues: testIssueReducer,
+    screen: screenReducer
 }});

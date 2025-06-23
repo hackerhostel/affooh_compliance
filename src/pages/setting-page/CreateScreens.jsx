@@ -194,7 +194,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
       // Create the correct payload structure
       const payload = {
         name: formValues.name,
-        description: stripHtmlTags(formValues.description), // Strip HTML tags
+        description: stripHtmlTags(formValues.description), 
         organizationID: user?.organization?.id?.toString(),
         projectIDs: Array.isArray(formValues.projectIDs)
           ? formValues.projectIDs
@@ -203,7 +203,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
           selectedFields.length > 0
             ? [
                 {
-                  id: generateUUID(), // Generate UUID for General tab
+                  id: generateUUID(), 
                   name: "General",
                   fields: selectedFields.map((field) => ({
                     id: field.id,
