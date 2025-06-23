@@ -11,7 +11,8 @@ import { useToasts } from 'react-toast-notifications';
 import DataGrid, { Column, Scrolling, Sorting } from 'devextreme-react/data-grid';
 import { selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
 import { fetchCustomFields } from "../../state/slice/customFieldSlice";
-import {doGetMasterData} from "../../state/slice/appSlice.js"
+import { doGetWhoAmI, selectUser, selectInitialUserDataLoading } from "../../state/slice/authSlice.js";
+
 
 const CreateNewScreen = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
@@ -23,7 +24,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
 
 
     const [optionsList, setOptionsList] = useState([]);
-    const [hasFetchedMasterData, setHasFetchedMasterData] = useState(false);
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [customFieldOptions, setCustomFieldOptions] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,19 +37,32 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     const [generalList, setGeneralList] = useState([]);
     const dispatch = useDispatch();
 
+    // Get user data from Redux store
+    const user = useSelector(selectUser);
+    const initialUserDataLoading = useSelector(selectInitialUserDataLoading);
+
     const handleFormChange = (name, value) => {
         setFormValues({ ...formValues, [name]: value });
         setIsValidationErrorsShown(false);
     };
 
+    // Fetch user data if the modal is open and we don't have user data yet.
     useEffect(() => {
-    if (isOpen) {
-        dispatch(doGetMasterData());
-    }
-}, [isOpen, dispatch]);
+        // The user object initially is {permissions: []}. We check for more keys to see if we have real data.
+        const hasUserData = user && Object.keys(user).length > 1;
 
+        if (isOpen && !hasUserData) {
+            console.log('🚀 CreateScreen: Modal opened and user data is needed. Dispatching doGetWhoAmI...');
+            dispatch(doGetWhoAmI());
+        }
+    }, [isOpen, user, dispatch]);
 
-  
+    // Log when user data is received from the store
+    useEffect(() => {
+        if (user && user.organization) {
+            console.log('📊 CreateScreen: User data is available in the component:', user);
+        }
+    }, [user]);
 
     useEffect(() => {
         const fetchFields = async () => {
@@ -123,6 +136,13 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     event.preventDefault();
     setIsSubmitting(true);
 
+    // Prevent submission if user data is still loading
+    if (initialUserDataLoading) {
+        addToast('Please wait, user data is loading...', { appearance: 'warning' });
+        setIsSubmitting(false);
+        return;
+    }
+
     if (formErrors && Object.keys(formErrors).length > 0) {
         setIsValidationErrorsShown(true);
         setIsSubmitting(false);
@@ -135,7 +155,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
         const payload = {
             name: formValues.name,
             description: formValues.description,
-            organizationID: userDetails?.organization?.id, // Use fetched organizationID
+            organizationID: user?.organization?.id, // Use organizationID from the user object
             projectIDs: Array.isArray(formValues.projectIDs) ? formValues.projectIDs : [formValues.projectIDs],
             tabs: tabsList.length > 0
                 ? tabsList.map(tab => ({
@@ -160,6 +180,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
             })),
         };
 
+        console.log('📤 CreateScreen: Sending payload to API:', payload);
         await axios.post("/screens", { screen: payload });
         addToast('Screen created successfully!', { appearance: 'success' });
         handleClose();
@@ -193,6 +214,17 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
                                 <XMarkIcon className="w-6 h-6 text-gray-500" />
                             </div>
                         </div>
+                        
+                        {/* Loading indicator for user data */}
+                        {initialUserDataLoading && (
+                            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                <div className="flex items-center">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                                    <span className="text-blue-800 text-sm">Loading user data...</span>
+                                </div>
+                            </div>
+                        )}
+                        
                         <form onSubmit={createScreen} className="flex flex-col space-y-6">
                             <div>
                                 <p className="text-secondary-grey">Name</p>
@@ -373,16 +405,16 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
                                 <button
                                     onClick={handleClose}
                                     className="btn-secondary"
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || initialUserDataLoading}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     className="btn-primary"
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || initialUserDataLoading}
                                 >
-                                    Create
+                                    {initialUserDataLoading ? 'Loading...' : 'Create'}
                                 </button>
                             </div>
                         </form>

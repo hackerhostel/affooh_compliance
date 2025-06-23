@@ -15,7 +15,6 @@ export const doGetMasterData = createAsyncThunk(
   {
   try {
     const response = await axios.get('/organizations/master-data');
-
     thunkApi.dispatch(doGetOrganizationUsers());
 
     const responseData = response.data;
