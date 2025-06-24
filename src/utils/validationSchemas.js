@@ -76,3 +76,17 @@ export const CreateScreenSchema = yup.object({
     projectIDs: yup.string().required("projectIDs type is required"),
     
 })
+
+export const CreateTaskTypeSchema = yup.object({
+  name: yup.string().required("Name is required"),
+  description: yup.string().required("Description is required"),
+  projectIDs: yup
+    .array()
+    .required()
+    .of(yup.string().required())
+    .min(1, "At least one projectID is required"),
+  screenID: yup
+    .number()
+    .required("Screen ID is required")
+    .integer("Screen ID must be an integer"),
+});
