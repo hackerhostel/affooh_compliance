@@ -6,7 +6,7 @@ import FormSelect from "../../components/FormSelect.jsx"
 import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
 import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
-import { CustomFieldCreateSchema } from '../../utils/validationSchemas.js';
+import { CreateTaskTypeSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
 import { getSelectOptions } from "../../utils/commonUtils.js";
 import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
@@ -24,7 +24,7 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
     const [optionName, setOptionName] = useState("");
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formErrors] = useValidation(CustomFieldCreateSchema, formValues);
+    const [formErrors] = useValidation(CreateTaskTypeSchema, formValues);
     const [fieldTypes, setFieldTypes] = useState([]);
     const dispatch = useDispatch();
     const projectList = useSelector(selectProjectList);
@@ -77,19 +77,34 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
         event.preventDefault();
         setIsSubmitting(true);
 
+        // Convert projectIDs to array if not already
+        let projectIDs = formValues.projectIDs;
+        if (!Array.isArray(projectIDs)) {
+            projectIDs = projectIDs ? [projectIDs] : [];
+        }
+        // Convert all projectIDs to string
+        projectIDs = projectIDs.map(id => String(id));
+
+        // Convert screenID to number
+        let screenID = formValues.screenID;
+        if (typeof screenID === 'string' && screenID !== '') {
+            screenID = Number(screenID);
+        }
+
+        const payload = {
+            name: formValues.name,
+            description: formValues.description,
+            projectIDs,
+            screenID,
+        };
+
         if (formErrors && Object.keys(formErrors).length > 0) {
             console.log("Validation errors:", formErrors);
             setIsValidationErrorsShown(true);
         } else {
             setIsValidationErrorsShown(false);
             try {
-                const payload = {
-                    ...formValues,
-                };
-                console.log("Submitting payload:", payload);
-                await axios.post("/task-types", { taskTypes: payload });
-                
-
+                await axios.post("/task-types", { taskType: payload });
                 addToast('Task type created successfully!', { appearance: 'success' });
                 handleClose();
             } catch (error) {
@@ -148,6 +163,7 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
                                             placeholder="Projects"
                                             options={getProjectOptions()}
                                             onChange={handleFormChange}
+                                            isMulti={true}
                                           />
                                 </div>
 

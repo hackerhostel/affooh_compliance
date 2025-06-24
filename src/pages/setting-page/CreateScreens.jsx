@@ -9,7 +9,6 @@ import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import axios from "axios";
-import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
 import { CreateScreenSchema } from "../../utils/validationSchemas.js";
 import { useToasts } from "react-toast-notifications";
 import DataGrid, {
@@ -86,14 +85,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
   }, [isOpen, user, dispatch]);
 
 
-  useEffect(() => {
-    if (user && user.organization) {
-      console.log(
-        "📊 CreateScreen: User data is available in the component:",
-        user
-      );
-    }
-  }, [user]);
 
   useEffect(() => {
     const fetchFields = async () => {
@@ -140,7 +131,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
       const option = customFieldOptions.find(
         (opt) => opt.value.toString() === value.toString()
       );
-      console.log("Selected field option:", option);
       if (option && option.field) {
         setSelectedFields((prev) => [
           ...prev,
@@ -219,7 +209,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
       dispatch(fetchScreensByOrganization());
       handleClose();
     } catch (error) {
-      console.error("❌ CreateScreen: Error:", error);
+      console.error(" CreateScreen: Error:", error);
       if (error.response) {
         console.error("Error response:", error.response.data);
         addToast(

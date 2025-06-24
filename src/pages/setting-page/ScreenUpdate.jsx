@@ -28,7 +28,6 @@ const ScreenUpdate = ({ screen, onClose }) => {
   const [editingValue, setEditingValue] = useState('');
 
   useEffect(() => {
-    console.log('Screen ID:', screen?.id);
     dispatch(fetchCustomFields());
   }, [dispatch, screen]);
 
@@ -46,8 +45,8 @@ const ScreenUpdate = ({ screen, onClose }) => {
   
     try {
       const tabFields = fields.map((f) => ({
-        id: f.id?.toString(), // custom field id
-        name: f.name,         // custom field name
+        id: f.id?.toString(), 
+        name: f.name,        
         required: f.required ?? false,
       }));
   
@@ -56,15 +55,15 @@ const ScreenUpdate = ({ screen, onClose }) => {
           screenID: Number(screen.id),
           name: formValues.name,
           description: formValues.description,
-          organizationID: screen?.organizationID || user?.organizationID, // ✅ add this
+          organizationID: screen?.organizationID || user?.organizationID, 
           tabs: [
             {
               id: screen.tabs?.[0]?.id?.toString() || 'default-tab-id',
               name: screen.tabs?.[0]?.name || 'Main',
-              fields: tabFields, // contains fieldID and required
+              fields: tabFields, 
             },
           ],
-          generalTabs: [], // optional, send if needed
+          generalTabs: [], 
         },
       };
       
@@ -82,8 +81,6 @@ const ScreenUpdate = ({ screen, onClose }) => {
   
   
   
-
-  // Field actions
   const handleAddNew = () => {
     setAddingNew(true);
     setNewFieldName('');
@@ -110,7 +107,6 @@ const ScreenUpdate = ({ screen, onClose }) => {
     setFields(fields.filter(f => f.id !== id));
   };
 
-  // Header info
   const createdDate = screen?.createdAt ? new Date(screen.createdAt).toLocaleDateString() : '—';
   const createdBy = screen?.createdBy || '—';
 

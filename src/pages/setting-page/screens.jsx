@@ -87,10 +87,16 @@ const Screens = () => {
   const handleConfirmDelete = async () => {
     if (confirmDeleteId) {
       try {
-        await axios.delete(`/screens/${confirmDeleteId}`);
-        addToast("Screen deleted successfully!", { appearance: "success" });
-        setCurrentPage(1);
-        dispatch(fetchScreensByOrganization());
+        const response = await axios.delete(`/screens/${confirmDeleteId}`);
+        const status = response?.status;
+  
+        if (status === 200 || status === 204) {
+          addToast("Screen deleted successfully!", { appearance: "success" });
+          setCurrentPage(1);
+          dispatch(fetchScreensByOrganization());
+        } else {
+          addToast("Failed to delete screen", { appearance: "error" });
+        }
       } catch (error) {
         addToast("Failed to delete screen", { appearance: "error" });
       } finally {
@@ -98,6 +104,8 @@ const Screens = () => {
       }
     }
   };
+  
+
 
   const handlePreviousPage = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
