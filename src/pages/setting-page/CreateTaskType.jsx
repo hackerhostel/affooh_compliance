@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {useSelector} from "react-redux";
+import {useSelector, useDispatch} from "react-redux";
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx"
@@ -9,7 +9,8 @@ import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
 import { CustomFieldCreateSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
 import { getSelectOptions } from "../../utils/commonUtils.js";
-import {selectProjectList} from "../../state/slice/projectSlice.js";
+import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {fetchScreensByProject, selectScreens} from "../../state/slice/screenSlice.js";
 
 const CreateNewTaskType = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
@@ -25,7 +26,16 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors] = useValidation(CustomFieldCreateSchema, formValues);
     const [fieldTypes, setFieldTypes] = useState([]);
-      const projectList = useSelector(selectProjectList);
+    const dispatch = useDispatch();
+    const projectList = useSelector(selectProjectList);
+    const selectedProject = useSelector(selectSelectedProject);
+    const screens = useSelector(selectScreens);
+
+    useEffect(() => {
+        if (selectedProject && selectedProject.id) {
+            dispatch(fetchScreensByProject(selectedProject.id));
+        }
+    }, [dispatch, selectedProject]);
 
     const handleFormChange = (name, value) => {
         if (name === "fieldTypeID") {
@@ -42,6 +52,19 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
           label: project.name,
         }));
       }, [projectList]);
+
+    const getScreenOptions = useCallback(() => {
+        if (!selectedProject || !selectedProject.id) return [];
+        return (screens || [])
+            .filter(screen =>
+                Array.isArray(screen.projects) &&
+                screen.projects.some(project => project.id === selectedProject.id)
+            )
+            .map(screen => ({
+                value: screen.id,
+                label: screen.name,
+            }));
+    }, [screens, selectedProject]);
 
     const handleClose = () => {
         onClose();
@@ -131,11 +154,11 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
                                 <div className="flex-col">
                                      <p className="text-secondary-grey">Screens</p>
                                    <FormSelect
-                                            name="ScreenID"
+                                            name="screenID"
                                             showLabel={false}
                                             formValues={formValues}
                                             placeholder="Screens"
-                                            options={getProjectOptions()}
+                                            options={getScreenOptions()}
                                             onChange={handleFormChange}
                                           />
                                 </div>
