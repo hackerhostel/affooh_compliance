@@ -16,6 +16,7 @@ export const fetchScreensByProject = createAsyncThunk(
             const response = await axios.get("/screens", {
                 params: { projectID: projectId },
             });
+            console.log(response);
             return response.data.screens || response.data; 
         } catch (error) {
             return rejectWithValue(error.response?.data || "Something went wrong");

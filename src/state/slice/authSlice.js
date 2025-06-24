@@ -10,11 +10,8 @@ const initialState = {
 }
 
 export const doGetWhoAmI = createAsyncThunk('src/auth/doGetWhoAmI', async (_, thunkApi) => {
-  console.log('🔄 doGetWhoAmI: Starting to fetch user data...');
   try {
-    console.log('⏳ doGetWhoAmI: Making API call to /users/who-am-i...');
-    const response = await axios.get('/users/who-am-i');
-    console.log('✅ doGetWhoAmI: API call successful. Response received.');
+    const response = await axios.get('/users/who-am-i');   
 
     const responseData = response.data.body;
     if (responseData) {
@@ -39,17 +36,14 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(doGetWhoAmI.pending, (state, action) => {
-      console.log('⏳ doGetWhoAmI.pending: Setting loading state to true.');
       state.initialDataLoading = true;
     });
     builder.addCase(doGetWhoAmI.fulfilled, (state, action) => {
-      console.log('✅ doGetWhoAmI.fulfilled: User data loaded. Setting loading state to false.');
       state.initialDataLoading = false;
       state.initialDataError = false;
       state.user = action.payload
     });
     builder.addCase(doGetWhoAmI.rejected, (state, action) => {
-      console.error('❌ doGetWhoAmI.rejected: Request failed. Setting loading state to false.');
       state.initialDataLoading = false;
       state.initialDataError = true;
     });

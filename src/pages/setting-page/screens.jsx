@@ -3,6 +3,10 @@ import {
   TrashIcon,
   PencilSquareIcon,
   PlusCircleIcon,
+  XMarkIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
 import DataGrid, {
   Column,
@@ -11,28 +15,40 @@ import DataGrid, {
   Sorting,
 } from "devextreme-react/data-grid";
 import "../../components/sprint-table/custom-style.css";
-import CustomFieldUpdate from "./CustomFieldUpdate";
 import CreateNewScreen from "./CreateScreens";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchScreensByOrganization,
   selectScreens,
-  selectScreenLoading,
   selectScreenError,
 } from "../../state/slice/screenSlice";
 import { selectSelectedProject } from "../../state/slice/projectSlice";
+import ScreenUpdate from "./ScreenUpdate";
+import ConfirmDialog from "./DeleteConformation";
+import axios from "axios";
+import { useToasts } from "react-toast-notifications";
 
 const Screens = () => {
   const dispatch = useDispatch();
   const screens = useSelector(selectScreens);
-  const loading = useSelector(selectScreenLoading);
   const error = useSelector(selectScreenError);
   const selectedProject = useSelector(selectSelectedProject);
+  const { addToast } = useToasts();
 
   const [editingRow, setEditingRow] = useState(null);
   const [showUpdateComponent, setShowUpdateComponent] = useState(false);
   const [newCustomField, setNewCustomField] = useState(false);
   const [filteredScreens, setFilteredScreens] = useState([]);
+  const [showActionsId, setShowActionsId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 4;
+
+  const totalPages = Math.ceil(filteredScreens.length / pageSize);
+  const paginatedScreens = filteredScreens.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   useEffect(() => {
     // Fetch all organization screens on component mount
@@ -53,6 +69,10 @@ const Screens = () => {
     }
   }, [selectedProject, screens]);
 
+  useEffect(() => {
+    console.log('Current Screens:', screens);
+  }, [screens]);
+
   const closeCreateCustomField = () => setNewCustomField(false);
 
   const handleEdit = (field) => {
@@ -61,20 +81,39 @@ const Screens = () => {
   };
 
   const handleDelete = (id) => {
-    // TODO: Implement delete screen logic using Redux/Thunk if needed
+    setConfirmDeleteId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (confirmDeleteId) {
+      try {
+        await axios.delete(`/screens/${confirmDeleteId}`);
+        addToast("Screen deleted successfully!", { appearance: "success" });
+        setCurrentPage(1);
+        dispatch(fetchScreensByOrganization());
+      } catch (error) {
+        addToast("Failed to delete screen", { appearance: "error" });
+      } finally {
+        setConfirmDeleteId(null);
+      }
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
 
   if (showUpdateComponent) {
     return (
-      <CustomFieldUpdate
-        field={editingRow}
+      <ScreenUpdate
+        screen={editingRow}
         onClose={() => setShowUpdateComponent(false)}
       />
     );
-  }
-
-  if (loading) {
-    return <div>Loading screens...</div>;
   }
 
   if (error) {
@@ -98,7 +137,7 @@ const Screens = () => {
         </div>
 
         <DataGrid
-          dataSource={filteredScreens}
+          dataSource={paginatedScreens}
           allowColumnReordering={true}
           showBorders={false}
           width="100%"
@@ -108,7 +147,6 @@ const Screens = () => {
         >
           <Scrolling columnRenderingMode="virtual" />
           <Sorting mode="multiple" />
-          <Paging enabled={true} pageSize={4} />
 
           <Column dataField="name" caption="Name" width="20%" />
           <Column dataField="description" caption="Description" width="40%" />
@@ -133,23 +171,73 @@ const Screens = () => {
             width="20%"
             cellRender={(data) => (
               <div className="flex space-x-2">
-                <PencilSquareIcon
-                  className="w-5 text-text-color cursor-pointer"
-                  onClick={() => handleEdit(data.data)}
-                />
-                <TrashIcon
-                  className="w-5 text-text-color cursor-pointer"
-                  onClick={() => handleDelete(data.data.id)}
-                />
+                {showActionsId === data.data.id ? (
+                  <div className="flex items-center gap-3">
+                    <PencilSquareIcon
+                      className="w-5 h-5 text-text-color cursor-pointer"
+                      onClick={() => handleEdit(data.data)}
+                    />
+                    <TrashIcon
+                      className="w-5 h-5 text-text-color cursor-pointer"
+                      onClick={() => handleDelete(data.data.id)}
+                    />
+                    <XMarkIcon
+                      className="w-5 h-5 text-text-color cursor-pointer"
+                      onClick={() => setShowActionsId(null)}
+                    />
+                  </div>
+                ) : (
+                  <EllipsisVerticalIcon
+                    className="w-5 h-5 text-text-color cursor-pointer"
+                    onClick={() => setShowActionsId(data.data.id)}
+                  />
+                )}
               </div>
             )}
           />
         </DataGrid>
+
+        {filteredScreens.length > 0 && (
+          <div className="w-full flex gap-5 items-center justify-end mt-4 mb-4">
+            <button
+              onClick={handlePreviousPage}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === 1
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
+                }`}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeftIcon className={"w-4 h-4 text-secondary-grey"} />
+            </button>
+            <span className="text-gray-500 text-center">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === totalPages
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
+                }`}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRightIcon className={"w-4 h-4 text-secondary-grey"} />
+            </button>
+
+            <ConfirmDialog
+              isOpen={confirmDeleteId !== null}
+              onClose={() => setConfirmDeleteId(null)}
+              onConfirm={handleConfirmDelete}
+              title="Delete Screen"
+              message="Are you sure you want to delete this screen?"
+            />
+          </div>
+        )}
+
+        <CreateNewScreen
+          isOpen={newCustomField}
+          onClose={closeCreateCustomField}
+        />
       </div>
-      <CreateNewScreen
-        isOpen={newCustomField}
-        onClose={closeCreateCustomField}
-      />
     </div>
   );
 };

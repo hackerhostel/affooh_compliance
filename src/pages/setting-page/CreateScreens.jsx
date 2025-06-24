@@ -22,20 +22,21 @@ import {
   selectSelectedProject,
 } from "../../state/slice/projectSlice.js";
 import { fetchCustomFields } from "../../state/slice/customFieldSlice";
+import { fetchScreensByOrganization } from "../../state/slice/screenSlice";
 import {
   doGetWhoAmI,
   selectUser,
   selectInitialUserDataLoading,
 } from "../../state/slice/authSlice.js";
+import FormTextArea from "../../components/FormTextArea.jsx";
 
-// Helper function to strip HTML tags
 const stripHtmlTags = (html) => {
   const tmp = document.createElement("div");
   tmp.innerHTML = html;
   return tmp.textContent || tmp.innerText || "";
 };
 
-// Helper function to generate UUID
+
 const generateUUID = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0;
@@ -66,7 +67,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
   const [generalList, setGeneralList] = useState([]);
   const dispatch = useDispatch();
 
-  // Get user data from Redux store
+
   const user = useSelector(selectUser);
   const initialUserDataLoading = useSelector(selectInitialUserDataLoading);
 
@@ -75,20 +76,16 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     setIsValidationErrorsShown(false);
   };
 
-  // Fetch user data if the modal is open and we don't have user data yet.
+
   useEffect(() => {
-    // The user object initially is {permissions: []}. We check for more keys to see if we have real data.
     const hasUserData = user && Object.keys(user).length > 1;
 
     if (isOpen && !hasUserData) {
-      console.log(
-        "🚀 CreateScreen: Modal opened and user data is needed. Dispatching doGetWhoAmI..."
-      );
       dispatch(doGetWhoAmI());
     }
   }, [isOpen, user, dispatch]);
 
-  // Log when user data is received from the store
+
   useEffect(() => {
     if (user && user.organization) {
       console.log(
@@ -173,7 +170,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     event.preventDefault();
     setIsSubmitting(true);
 
-    // Prevent submission if user data is still loading
+
     if (initialUserDataLoading) {
       addToast("Please wait, user data is loading...", {
         appearance: "warning",
@@ -191,7 +188,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     setIsValidationErrorsShown(false);
 
     try {
-      // Create the correct payload structure
       const payload = {
         name: formValues.name,
         description: stripHtmlTags(formValues.description), 
@@ -218,10 +214,9 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
         })),
       };
 
-      console.log("📤 CreateScreen: Sending payload to API:", payload);
       const response = await axios.post("/screens", { screen: payload });
-      console.log("✅ CreateScreen: Success response:", response.data);
       addToast("Screen created successfully!", { appearance: "success" });
+      dispatch(fetchScreensByOrganization());
       handleClose();
     } catch (error) {
       console.error("❌ CreateScreen: Error:", error);
@@ -290,7 +285,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
                 <FormSelect
                   name="projectIDs"
                   formValues={formValues}
-                  placeholder="Select a project"
                   options={getProjectOptions()}
                   onChange={({ target: { name, value } }) =>
                     handleFormChange(name, value)
@@ -300,12 +294,13 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
 
               <div>
                 <p className="text-secondary-grey">Description</p>
-                <WYSIWYGInput
+                <FormTextArea
                   name="description"
-                  value={formValues.description}
-                  onchange={(name, value) => handleFormChange(name, value)}
+                  formValues={formValues}
+                  onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                   formErrors={formErrors}
                   showErrors={isValidationErrorsShown}
+                  rows={6}
                 />
               </div>
 
@@ -326,7 +321,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
                     <FormInput
                       style={{ width: "600px" }}
                       name="generalInput"
-                      placeholder="Enter general item"
                       value={generalInputValue}
                       onChange={({ target: { value } }) =>
                         setGeneralInputValue(value)
