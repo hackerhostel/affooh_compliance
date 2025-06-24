@@ -34,36 +34,34 @@ function getRequiredAdditionalFieldList(fieldsArray) {
   return requiredFields;
 }
 
-const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
-  const { addToast } = useToasts();
-  const appConfig = useSelector(selectAppConfig);
-  const selectedProject = useSelector(selectSelectedProject);
-  const users = useSelector(selectProjectUserList);
-  const sprintListForProject = useSelector(selectSprintListForProject);
-  const { data: epics } = useFetchEpics(selectedProject?.id);
+const HeaderTaskCreateComponent = ({ onClose, isOpen }) => { const { addToast } = useToasts();
+const appConfig = useSelector(selectAppConfig);
+const selectedProject = useSelector(selectSelectedProject);
+const users = useSelector(selectProjectUserList);
+const sprintListForProject = useSelector(selectSprintListForProject);
+const { data: epics } = useFetchEpics(selectedProject?.id);
 
-  const [loading, setLoading] = useState(false);
-  const [createTaskForm, setCreateTaskForm] = useState({
+const [loading, setLoading] = useState(false);
+const [createTaskForm, setCreateTaskForm] = useState({
     name: "",
     taskTypeID: "",
     sprintID: "",
-  });
-  const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
-  const formRef = useRef(null);
-  const [formErrors] = useValidation(HeaderTaskCreateSchema, createTaskForm);
-  const [isTaskTypeLoading, setIsTaskTypeLoading] = useState(false);
-  const [isTaskTypeApiError, setIsTaskTypeApiError] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isEpicScreen, setIsEpicScreen] = useState(false);
-  const [screenDetails, setScreenDetails] = useState(null);
-  const [additionalFormValues, setAdditionalFormValues] = useState({});
-  const [requiredAdditionalFieldList, setRequiredAdditionalFieldList] =
-    useState([]);
-  const [attachments, setAttachments] = useState([]);
-  const [isUploadingFiles, setIsUploadingFiles] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [currentFileIndex, setCurrentFileIndex] = useState(0);
-  const [createdTaskId, setCreatedTaskId] = useState(null);
+});
+const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
+const formRef = useRef(null);
+const [formErrors] = useValidation(HeaderTaskCreateSchema, createTaskForm);
+const [isTaskTypeLoading, setIsTaskTypeLoading] = useState(false);
+const [isTaskTypeApiError, setIsTaskTypeApiError] = useState(false);
+const [isSubmitting, setIsSubmitting] = useState(false);
+const [isEpicScreen, setIsEpicScreen] = useState(false);
+const [screenDetails, setScreenDetails] = useState(null);
+const [additionalFormValues, setAdditionalFormValues] = useState({});
+const [requiredAdditionalFieldList, setRequiredAdditionalFieldList] = useState([]);
+const [attachments, setAttachments] = useState([]);
+const [isUploadingFiles, setIsUploadingFiles] = useState(false);
+const [uploadProgress, setUploadProgress] = useState(0);
+const [currentFileIndex, setCurrentFileIndex] = useState(0);
+const [createdTaskId, setCreatedTaskId] = useState(null);
 
   const handleFormChange = (name, value) => {
     if (name === "taskTypeID") {
@@ -195,6 +193,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
 
         delete payload?.taskOwner;
       }
+
       addToast("Creating task...", {
         appearance: "info",
         autoDismiss: true,
@@ -274,8 +273,8 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
           <div className="bg-white pl-10 pt-6 pr-6 pb-10 shadow-lg w-3/6 h-screen overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <p className="text-2xl font-semibold">Create New Task</p>
-              <div className={"cursor-pointer"} onClick={handleTaskCreateClose}>
-                <XMarkIcon className={"w-6 h-6 text-gray-500"} />
+              <div className="cursor-pointer" onClick={handleTaskCreateClose}>
+                <XMarkIcon className="w-6 h-6 text-gray-500" />
               </div>
             </div>
             <form
@@ -357,7 +356,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
                     <WYSIWYGInput
                       initialValue={{ description: "" }}
                       value={createTaskForm.description}
-                      name={"description"}
+                      name="description"
                       onchange={handleFormChange}
                     />
                   </div>
@@ -400,7 +399,7 @@ const HeaderTaskCreateComponent = ({ onClose, isOpen }) => {
                     }
                   />
                 </div>
-              </div>{" "}
+              </div>
               <FileUpload
                 ref={fileUploadRef}
                 onUploadComplete={handleFileUploads}

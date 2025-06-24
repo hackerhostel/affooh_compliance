@@ -154,12 +154,16 @@ const FileUploadComponent = React.forwardRef(
     };
 
     const handleFileUploads = async (taskID) => {
+      // Allow creating tasks without attachments
       if (attachments.length === 0) {
-        addToast("Please add at least one file", {
-          appearance: "error",
-          autoDismiss: true,
-        });
-        return { success: false, uploaded: 0, failed: 0 };
+        addToast(
+          `Task ID: ${taskID} created successfully without attachments!`,
+          {
+            appearance: "success",
+            autoDismiss: true,
+          }
+        );
+        return { success: true, uploaded: 0, failed: 0 };
       }
 
       setIsUploading(true);
@@ -389,7 +393,6 @@ const FileUploadComponent = React.forwardRef(
           {isUploading && (
             <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex justify-between items-center mb-2">
-                {" "}
                 <span className="text-sm font-medium text-blue-700">
                   {createdTaskId
                     ? `Task ${createdTaskId} created! Uploading files..... (${currentFileIndex}/${attachments.length})`
