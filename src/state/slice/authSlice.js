@@ -11,18 +11,19 @@ const initialState = {
 
 export const doGetWhoAmI = createAsyncThunk('src/auth/doGetWhoAmI', async (_, thunkApi) => {
   try {
-    const response = await axios.get('/users/who-am-i')
+    const response = await axios.get('/users/who-am-i');   
 
     const responseData = response.data.body;
-    if (response.data.body) {
+    if (responseData) {
       thunkApi.dispatch(setProjectList(responseData.projects));
       thunkApi.dispatch(setSelectedProject(responseData.projects[0]));
-
       return responseData.userDetails;
     } else {
-      return thunkApi.rejectWithValue('User details not found');
+      console.error('❌ doGetWhoAmI: Response body is missing.');
+      return thunkApi.rejectWithValue('User details not found in response body');
     }
   } catch (error) {
+    console.error('❌ doGetWhoAmI: API call failed with an error:', error);
     return thunkApi.rejectWithValue(error);
   }
 });
@@ -43,6 +44,7 @@ export const authSlice = createSlice({
       state.user = action.payload
     });
     builder.addCase(doGetWhoAmI.rejected, (state, action) => {
+      state.initialDataLoading = false;
       state.initialDataError = true;
     });
   }
