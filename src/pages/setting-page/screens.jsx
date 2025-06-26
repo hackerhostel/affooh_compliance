@@ -119,7 +119,12 @@ const Screens = () => {
     return (
       <ScreenUpdate
         screen={editingRow}
-        onClose={() => setShowUpdateComponent(false)}
+        onClose={() => {
+          setShowUpdateComponent(false);
+          setEditingRow(null);
+          dispatch(fetchScreensByOrganization()); 
+          setCurrentPage(1); 
+        }}
       />
     );
   }
