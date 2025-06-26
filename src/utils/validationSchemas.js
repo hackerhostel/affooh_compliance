@@ -98,7 +98,6 @@ export const ProjectUpdateSchema = yup.object({
 });
 
 export const CustomFieldCreateSchema = yup.object({
-<<<<<<< development/lakshan
   fieldTypeID: yup.string().required("Field type is required"),
   name: yup.string().required("Name is required"),
   description: yup.string().required("Description is required"),
@@ -109,19 +108,6 @@ export const CreateScreenSchema = yup.object({
   description: yup.string().required("description type is required"),
   projectIDs: yup.string().required("projectIDs type is required"),
 });
-=======
-    fieldTypeID: yup.string().required("Field type is required"),
-    name: yup.string().required("Name is required"),
-    description: yup.string().required("Description is required")
-})
-
-export const CreateScreenSchema = yup.object({
-    name: yup.string().required("name type is required"),
-    description: yup.string().required("description type is required"),
-    projectIDs: yup.string().required("projectIDs type is required"),
-    
-})
->>>>>>> main
 
 export const CreateTaskTypeSchema = yup.object({
   name: yup.string().required("Name is required"),
@@ -135,8 +121,4 @@ export const CreateTaskTypeSchema = yup.object({
     .number()
     .required("Screen ID is required")
     .integer("Screen ID must be an integer"),
-<<<<<<< development/lakshan
 });
-=======
-});
->>>>>>> main

@@ -1,11 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useToasts } from "react-toast-notifications";
-import Uppy from "@uppy/core";
 import Dashboard from "@uppy/dashboard";
 import ProgressBar from "@uppy/progress-bar";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { uploadData } from "aws-amplify/storage";
 import axios from "axios";
+import Uppy from "@uppy/core";
 
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
