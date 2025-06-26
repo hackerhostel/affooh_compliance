@@ -13,6 +13,9 @@
     "@headlessui/react": "^2.1.2",
     "@heroicons/react": "^2.1.4",
     "@reduxjs/toolkit": "^2.2.6",
+    "@uppy/core": "^4.4.6",
+    "@uppy/dashboard": "^4.3.4",
+    "@uppy/progress-bar": "^4.2.1",
     "autoprefixer": "^10.4.19",
     "aws-amplify": "^6.6.5",
     "axios": "^1.7.4",
@@ -47,6 +50,6 @@
     "@vitejs/plugin-react": "^4.3.1",
     "prettier": "^3.3.3",
     "typescript": "^5.6.3",
-    "vite": "5.4.6"
+    "vite": "6.3.4"
   }
 }
