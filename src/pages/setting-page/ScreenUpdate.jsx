@@ -321,7 +321,7 @@ const ScreenUpdate = ({ screen, onClose, onRefresh }) => {
                     colSpan="3"
                     className="py-4 px-2 text-center text-gray-500"
                   >
-                    No fields added yet
+                    No fields added this screen yet
                   </td>
                 </tr>
               )}
