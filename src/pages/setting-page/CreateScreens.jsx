@@ -35,9 +35,6 @@ const stripHtmlTags = (html) => {
   return tmp.textContent || tmp.innerText || "";
 };
 
-
-<<<<<<< development/lakshan
-=======
 const generateUUID = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0;
@@ -45,7 +42,6 @@ const generateUUID = () => {
     return v.toString(16);
   });
 };
->>>>>>> main
 
 const CreateNewScreen = ({ isOpen, onClose }) => {
   const { addToast } = useToasts();
@@ -68,11 +64,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
   const [generalInputValue, setGeneralInputValue] = useState("");
   const [generalList, setGeneralList] = useState([]);
   const dispatch = useDispatch();
-
-<<<<<<< development/lakshan
-=======
-
->>>>>>> main
   const user = useSelector(selectUser);
   const initialUserDataLoading = useSelector(selectInitialUserDataLoading);
 
@@ -81,10 +72,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     setIsValidationErrorsShown(false);
   };
 
-<<<<<<< development/lakshan
-=======
-
->>>>>>> main
   useEffect(() => {
     const hasUserData = user && Object.keys(user).length > 1;
 
@@ -93,11 +80,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     }
   }, [isOpen, user, dispatch]);
 
-<<<<<<< development/lakshan
-=======
-
-
->>>>>>> main
   useEffect(() => {
     const fetchFields = async () => {
       try {
@@ -172,10 +154,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     event.preventDefault();
     setIsSubmitting(true);
 
-<<<<<<< development/lakshan
-=======
-
->>>>>>> main
     if (initialUserDataLoading) {
       addToast("Please wait, user data is loading...", {
         appearance: "warning",
@@ -195,11 +173,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     try {
       const payload = {
         name: formValues.name,
-<<<<<<< development/lakshan
         description: stripHtmlTags(formValues.description),
-=======
-        description: stripHtmlTags(formValues.description), 
->>>>>>> main
         organizationID: user?.organization?.id?.toString(),
         projectIDs: Array.isArray(formValues.projectIDs)
           ? formValues.projectIDs
@@ -208,11 +182,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
           selectedFields.length > 0
             ? [
                 {
-<<<<<<< development/lakshan
-                  
-=======
-                  id: generateUUID(), 
->>>>>>> main
+                  id: generateUUID(),
                   name: "General",
                   fields: selectedFields.map((field) => ({
                     id: field.id,
@@ -310,13 +280,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
                 <FormTextArea
                   name="description"
                   formValues={formValues}
-<<<<<<< development/lakshan
-                  onChange={({ target: { name, value } }) =>
-                    handleFormChange(name, value)
-                  }
-=======
                   onChange={({ target: { name, value } }) => handleFormChange(name, value)}
->>>>>>> main
                   formErrors={formErrors}
                   showErrors={isValidationErrorsShown}
                   rows={6}
