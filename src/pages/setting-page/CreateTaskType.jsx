@@ -1,116 +1,142 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {useSelector, useDispatch} from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import FormInput from "../../components/FormInput.jsx";
-import FormSelect from "../../components/FormSelect.jsx"
+import FormSelect from "../../components/FormSelect.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
 import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
 import { CreateTaskTypeSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
-import { getSelectOptions } from "../../utils/commonUtils.js";
-import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
-import {fetchScreensByProject, selectScreens} from "../../state/slice/screenSlice.js";
+import { selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
+import { fetchScreensByOrganization, selectScreens } from "../../state/slice/screenSlice.js";
 
 const CreateNewTaskType = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
     const [formValues, setFormValues] = useState({
         name: '',
         description: '',
-        projectIDs: "",
-        screenID: ""
+        projectIDs: [],
+        screenID: null
     });
 
-    const [optionName, setOptionName] = useState("");
+
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formErrors] = useValidation(CreateTaskTypeSchema, formValues);
-    const [fieldTypes, setFieldTypes] = useState([]);
+    const [formErrors] = useValidation(CreateTaskTypeSchema, {
+        ...formValues,
+        projectIDs: formValues.projectIDs ? [String(formValues.projectIDs)] : [],
+    });
+
+
     const dispatch = useDispatch();
     const projectList = useSelector(selectProjectList);
     const selectedProject = useSelector(selectSelectedProject);
     const screens = useSelector(selectScreens);
 
     useEffect(() => {
-        if (selectedProject && selectedProject.id) {
-            dispatch(fetchScreensByProject(selectedProject.id));
-        }
-    }, [dispatch, selectedProject]);
+        dispatch(fetchScreensByOrganization());
+    }, [dispatch]);
 
     const handleFormChange = (name, value) => {
-        if (name === "fieldTypeID") {
-            value = value.toString(); 
+        console.log("Updating field:", name, "with value:", value);
+      
+        if (name === "projectIDs") {
+          setFormValues({ ...formValues, [name]: Array.isArray(value) ? value : [value] });
+        } else if (name === "screenID") {
+          setFormValues({ ...formValues, [name]: value ? Number(value) : null });
+        } else {
+          setFormValues({ ...formValues, [name]: value });
         }
-
-        setFormValues({ ...formValues, [name]: value });
         setIsValidationErrorsShown(false);
-    };
+      };
+      
+
+
 
     const getProjectOptions = useCallback(() => {
         return projectList.map((project) => ({
-          value: project.id,
-          label: project.name,
+            value: String(project.id),
+            label: project.name,
         }));
-      }, [projectList]);
+    }, [projectList]);
+
 
     const getScreenOptions = useCallback(() => {
-        if (!selectedProject || !selectedProject.id) return [];
-        return (screens || [])
-            .filter(screen =>
-                Array.isArray(screen.projects) &&
-                screen.projects.some(project => project.id === selectedProject.id)
-            )
-            .map(screen => ({
-                value: screen.id,
-                label: screen.name,
-            }));
+        if (!selectedProject?.id) return [];
+
+        const selectedProjectId = Number(selectedProject.id);
+
+        const filteredScreens = (screens || []).filter(screen => {
+            const hasMatchingProject = Array.isArray(screen.projects) &&
+                screen.projects.some(project => Number(project.id) === selectedProjectId);
+            return hasMatchingProject;
+        });
+
+        return filteredScreens.map(screen => ({
+            value: screen.id,
+            label: screen.name,
+        }));
     }, [screens, selectedProject]);
+
 
     const handleClose = () => {
         onClose();
-        setFormValues({ name: '', description: '', projectIDs: "", screenID: "" });
-        setOptionName("");
+        setFormValues({
+            name: '',
+            description: '',
+            projectIDs: [],
+            screenID: null
+        });
         setIsValidationErrorsShown(false);
     };
+    
 
     const createNewTaskType = async (event) => {
         event.preventDefault();
         setIsSubmitting(true);
 
-        // Convert projectIDs to array if not already
-        let projectIDs = formValues.projectIDs;
-        if (!Array.isArray(projectIDs)) {
-            projectIDs = projectIDs ? [projectIDs] : [];
-        }
-        // Convert all projectIDs to string
-        projectIDs = projectIDs.map(id => String(id));
-
-        // Convert screenID to number
-        let screenID = formValues.screenID;
-        if (typeof screenID === 'string' && screenID !== '') {
-            screenID = Number(screenID);
-        }
-
         const payload = {
             name: formValues.name,
             description: formValues.description,
-            projectIDs,
-            screenID,
+            projectIDs: Array.isArray(formValues.projectIDs)
+                ? formValues.projectIDs
+                : [formValues.projectIDs],
+            screenID: formValues.screenID ?? null,
         };
 
-        if (formErrors && Object.keys(formErrors).length > 0) {
+
+
+        console.log("Form Values:", formValues);
+        console.log("Submitting Payload:", payload);
+
+        if (
+            !payload.projectIDs.length ||
+            payload.screenID === null ||
+            isNaN(payload.screenID) ||
+            (formErrors && Object.keys(formErrors).length > 0)
+        ) {
             console.log("Validation errors:", formErrors);
+            console.log("Payload validation failed:", {
+                hasProjectIDs: payload.projectIDs.length > 0,
+                screenID: payload.screenID,
+                isScreenIDValid: !isNaN(payload.screenID),
+                hasFormErrors: formErrors && Object.keys(formErrors).length > 0
+            });
             setIsValidationErrorsShown(true);
-        } else {
-            setIsValidationErrorsShown(false);
-            try {
-                await axios.post("/task-types", { taskType: payload });
-                addToast('Task type created successfully!', { appearance: 'success' });
-                handleClose();
-            } catch (error) {
-                console.error(error);
-                addToast('Failed to create the Task type', { appearance: 'error' });
-            }
+            setIsSubmitting(false);
+            return;
+        }
+
+        try {
+            console.log("Making API call with payload:", { taskType: payload });
+            await axios.post("/task-types", { taskType: payload });
+            addToast('Task type created successfully!', { appearance: 'success' });
+            handleClose();
+        } catch (error) {
+            console.error("API Error:", error);
+            console.error("Error response:", error.response?.data);
+            addToast('Failed to create the Task type', { appearance: 'error' });
         }
 
         setIsSubmitting(false);
@@ -118,88 +144,91 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
 
 
     return (
-        <>
-            {isOpen && (
-                <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
-                    <div className="bg-white p-6 shadow-lg w-2/4">
-                        <div className="flex justify-between items-center mb-4">
-                            <p className="font-bold text-2xl">New Task Type</p>
-                            <div className="cursor-pointer" onClick={handleClose}>
-                                <XMarkIcon className="w-6 h-6 text-gray-500" />
+        isOpen && (
+            <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
+                <div className="bg-white p-6 shadow-lg w-2/4">
+                    <div className="flex justify-between items-center mb-4">
+                        <p className="font-bold text-2xl">New Task Type</p>
+                        <div className="cursor-pointer" onClick={handleClose}>
+                            <XMarkIcon className="w-6 h-6 text-gray-500" />
+                        </div>
+                    </div>
+                    <form className="flex flex-col justify-between h-5/6 mt-10" onSubmit={createNewTaskType}>
+                        <div className="space-y-4">
+                            <div className="flex-col">
+                                <p className="text-secondary-grey">Name</p>
+                                <FormInput
+                                    type="text"
+                                    name="name"
+                                    formValues={formValues}
+                                    onChange={({ target: { name, value } }) =>
+                                        handleFormChange(name, value)
+                                    }
+                                    formErrors={formErrors}
+                                    showErrors={isValidationErrorsShown}
+                                />
+                            </div>
+                            <div className="flex-col">
+                                <p className="text-secondary-grey">Description</p>
+                                <WYSIWYGInput
+                                    name="description"
+                                    value={formValues.description}
+                                    onchange={(name, value) => handleFormChange(name, value)}
+                                    formErrors={formErrors}
+                                    showErrors={isValidationErrorsShown}
+                                />
+                            </div>
+
+                            <div className="flex-col">
+                                <p className="text-secondary-grey">Project</p>
+                                <FormSelect
+                                    name="projectIDs"
+                                    formValues={formValues}
+                                    options={getProjectOptions()}
+                                    onChange={({ target: { name, value } }) =>
+                                        handleFormChange(name, value)
+                                    }
+                                />
+
+                            </div>
+
+                            <div className="flex-col">
+                                <p className="text-secondary-grey">Screens</p>
+                                <FormSelect
+  name="screenID"
+  formValues={formValues}
+  showLabel={false}
+  placeholder="Select a screen"
+  options={getScreenOptions()}
+  onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+  value={formValues.screenID}
+/>
+
+
+
+
                             </div>
                         </div>
-                        <form className="flex flex-col justify-between h-5/6 mt-10" onSubmit={createNewTaskType}>
-                            <div className="space-y-4">
-                                <div className="flex-col">
-                                    <p className="text-secondary-grey">Name</p>
-                                    <FormInput
-                                        type="text"
-                                        name="name"
-                                        formValues={formValues}
-                                        onChange={({ target: { name, value } }) =>
-                                            handleFormChange(name, value)
-                                        }
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-                                <div className="flex-col">
-                                    <p className="text-secondary-grey">Description</p>
-                                    <WYSIWYGInput
-                                        name="description"
-                                        value={formValues.description}
-                                        onchange={(name, value) => handleFormChange(name, value)}
-                                        formErrors={formErrors}
-                                        showErrors={isValidationErrorsShown}
-                                    />
-                                </div>
-
-                                 <div className="flex-col">
-                                     <p className="text-secondary-grey">Projects</p>
-                                   <FormSelect
-                                            name="projectIDs"
-                                            showLabel={false}
-                                            formValues={formValues}
-                                            placeholder="Projects"
-                                            options={getProjectOptions()}
-                                            onChange={handleFormChange}
-                                            isMulti={true}
-                                          />
-                                </div>
-
-                                <div className="flex-col">
-                                     <p className="text-secondary-grey">Screens</p>
-                                   <FormSelect
-                                            name="screenID"
-                                            showLabel={false}
-                                            formValues={formValues}
-                                            placeholder="Screens"
-                                            options={getScreenOptions()}
-                                            onChange={handleFormChange}
-                                          />
-                                </div>
-                            </div>
-                            <div className="flex space-x-4 mt-6 self-end w-full">
-                                <button
-                                    onClick={handleClose}
-                                    className="btn-secondary"
-                                    disabled={isSubmitting}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="btn-primary"
-                                    disabled={isSubmitting}
-                                >
-                                    Create
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        <div className="flex space-x-4 mt-6 self-end w-full">
+                            <button
+                                onClick={handleClose}
+                                className="btn-secondary"
+                                disabled={isSubmitting}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="btn-primary"
+                                disabled={isSubmitting}
+                            >
+                                Create
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            )}
-        </>
+            </div>
+        )
     );
 };
 

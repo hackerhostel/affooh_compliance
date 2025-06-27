@@ -88,5 +88,4 @@ export const CreateTaskTypeSchema = yup.object({
   screenID: yup
     .number()
     .required("Screen ID is required")
-    .integer("Screen ID must be an integer"),
 });
