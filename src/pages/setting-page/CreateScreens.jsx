@@ -35,7 +35,6 @@ const stripHtmlTags = (html) => {
   return tmp.textContent || tmp.innerText || "";
 };
 
-
 const generateUUID = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0;
@@ -65,8 +64,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
   const [generalInputValue, setGeneralInputValue] = useState("");
   const [generalList, setGeneralList] = useState([]);
   const dispatch = useDispatch();
-
-
   const user = useSelector(selectUser);
   const initialUserDataLoading = useSelector(selectInitialUserDataLoading);
 
@@ -75,7 +72,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     setIsValidationErrorsShown(false);
   };
 
-
   useEffect(() => {
     const hasUserData = user && Object.keys(user).length > 1;
 
@@ -83,8 +79,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
       dispatch(doGetWhoAmI());
     }
   }, [isOpen, user, dispatch]);
-
-
 
   useEffect(() => {
     const fetchFields = async () => {
@@ -160,7 +154,6 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     event.preventDefault();
     setIsSubmitting(true);
 
-
     if (initialUserDataLoading) {
       addToast("Please wait, user data is loading...", {
         appearance: "warning",
@@ -180,7 +173,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     try {
       const payload = {
         name: formValues.name,
-        description: stripHtmlTags(formValues.description), 
+        description: stripHtmlTags(formValues.description),
         organizationID: user?.organization?.id?.toString(),
         projectIDs: Array.isArray(formValues.projectIDs)
           ? formValues.projectIDs
@@ -189,7 +182,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
           selectedFields.length > 0
             ? [
                 {
-                  id: generateUUID(), 
+                  id: generateUUID(),
                   name: "General",
                   fields: selectedFields.map((field) => ({
                     id: field.id,

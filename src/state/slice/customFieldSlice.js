@@ -4,7 +4,7 @@ import axios from "axios";
 const initialState = {
     customFields: [],
     fieldTypes: [],
-    selectedCustomFieldId: null, // ✅ Added for tracking selected field
+    selectedCustomFieldId: null, 
     loading: false,
     error: null,
 };
@@ -61,7 +61,7 @@ export const deleteCustomField = createAsyncThunk(
     }
 );
 
-// ✅ New reducer to set selected ID
+
 const customFieldSlice = createSlice({
     name: "customField",
     initialState,

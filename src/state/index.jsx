@@ -30,6 +30,7 @@ export const store = configureStore({
     testCase: testCaseReducer,
     setting: settingReducer,
     customField: customFieldReducer,
-    testIssues: testIssueReducer,
-    screen: screenReducer
-}});
+    testIssue: testIssueReducer,
+    screen: screenReducer,
+  }
+});

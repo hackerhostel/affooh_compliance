@@ -16,16 +16,20 @@ import { selectUser } from "../../state/slice/authSlice";
 import { fetchCustomFields } from "../../state/slice/customFieldSlice";
 import { fetchScreensByOrganization } from "../../state/slice/screenSlice";
 
-const ScreenUpdate = ({ screen, onClose }) => {
+const ScreenUpdate = ({ screen, onClose, onRefresh }) => {
   const dispatch = useDispatch();
   const { addToast } = useToasts();
   const user = useSelector(selectUser);
+  const customFields = useSelector((state) => state.customField.customFields);
   const customFields = useSelector((state) => state.customField.customFields);
 
   const [formValues, setFormValues] = useState({
     name: screen?.name || "",
     description: screen?.description || "",
+    name: screen?.name || "",
+    description: screen?.description || "",
   });
+  const [fields, setFields] = useState([]);
   const [fields, setFields] = useState([]);
   const [formErrors, setFormErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -59,10 +63,13 @@ const ScreenUpdate = ({ screen, onClose }) => {
   const handleUpdateScreen = async () => {
     if (!screen?.id) {
       addToast("Invalid screen ID", { appearance: "error" });
+      addToast("Invalid screen ID", { appearance: "error" });
       return;
     }
 
+
     setIsLoading(true);
+
 
     try {
 <<<<<<< HEAD
@@ -138,6 +145,7 @@ const ScreenUpdate = ({ screen, onClose }) => {
 >>>>>>> 39e0388c758d3986b4dd60143985633d2ff1c534
   };
 
+
   const handleSaveNewField = () => {
     if (!newFieldId) return;
 
@@ -167,6 +175,7 @@ const ScreenUpdate = ({ screen, onClose }) => {
       fields.map((f) => (f.id === id ? { ...f, required: !f.required } : f))
     );
   };
+
 
   const handleDeleteField = (id) => {
     setFields(fields.filter((f) => f.id !== id));
@@ -200,6 +209,8 @@ const ScreenUpdate = ({ screen, onClose }) => {
           <div className="flex gap-8 text-xs mt-1 text-gray-500">
             <span>Created Date: {createdDate}</span>
             <span>Created By: {createdBy}</span>
+            <span>Created Date: {createdDate}</span>
+            <span>Created By: {createdBy}</span>
           </div>
         </div>
         <button
@@ -207,6 +218,7 @@ const ScreenUpdate = ({ screen, onClose }) => {
           onClick={handleUpdateScreen}
           disabled={isLoading}
         >
+          {isLoading ? "Updating..." : "Update"}
           {isLoading ? "Updating..." : "Update"}
         </button>
       </div>
@@ -327,6 +339,10 @@ const ScreenUpdate = ({ screen, onClose }) => {
                       className="w-5 h-5 text-text-color cursor-pointer inline-block"
                       onClick={() => handleDeleteField(field.id)}
                     />
+                    <TrashIcon
+                      className="w-5 h-5 text-text-color cursor-pointer inline-block"
+                      onClick={() => handleDeleteField(field.id)}
+                    />
                   </td>
                 </tr>
               ))}
@@ -341,5 +357,7 @@ const ScreenUpdate = ({ screen, onClose }) => {
     </div>
   );
 };
+
+export default ScreenUpdate;
 
 export default ScreenUpdate;
