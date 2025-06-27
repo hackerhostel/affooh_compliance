@@ -33,7 +33,10 @@ const ScreenUpdate = ({ screen, onClose }) => {
   const [newFieldId, setNewFieldId] = useState("");
 
   useEffect(() => {
+<<<<<<< HEAD
     console.log("Screen:", screen);
+=======
+>>>>>>> 39e0388c758d3986b4dd60143985633d2ff1c534
     dispatch(fetchCustomFields());
 
     // Set initial form values and fields from screen data
@@ -62,15 +65,25 @@ const ScreenUpdate = ({ screen, onClose }) => {
     setIsLoading(true);
 
     try {
+<<<<<<< HEAD
       const mainTab =
         screen?.tabs?.find((tab) => tab.isDefaultScreenTab) ||
         screen?.tabs?.[0];
 
+=======
+      const tabFields = fields.map((f) => ({
+        id: f.id?.toString(), 
+        name: f.name,        
+        required: f.required ?? false,
+      }));
+  
+>>>>>>> 39e0388c758d3986b4dd60143985633d2ff1c534
       const payload = {
         screen: {
           screenID: Number(screen.id),
           name: formValues.name,
           description: formValues.description,
+<<<<<<< HEAD
           organizationID: screen?.organizationID || user?.organizationID,
           tabs: [
             {
@@ -82,6 +95,17 @@ const ScreenUpdate = ({ screen, onClose }) => {
               })),
             },
           ],
+=======
+          organizationID: screen?.organizationID || user?.organizationID, 
+          tabs: [
+            {
+              id: screen.tabs?.[0]?.id?.toString() || 'default-tab-id',
+              name: screen.tabs?.[0]?.name || 'Main',
+              fields: tabFields, 
+            },
+          ],
+          generalTabs: [], 
+>>>>>>> 39e0388c758d3986b4dd60143985633d2ff1c534
         },
       };
 
@@ -98,11 +122,20 @@ const ScreenUpdate = ({ screen, onClose }) => {
       setIsLoading(false);
     }
   };
+<<<<<<< HEAD
 
   // Field actions
   const handleAddNewField = () => {
     setAddingNewField(true);
     setNewFieldId("");
+=======
+  
+  
+  
+  const handleAddNew = () => {
+    setAddingNew(true);
+    setNewFieldName('');
+>>>>>>> 39e0388c758d3986b4dd60143985633d2ff1c534
   };
 
   const handleSaveNewField = () => {
@@ -139,6 +172,7 @@ const ScreenUpdate = ({ screen, onClose }) => {
     setFields(fields.filter((f) => f.id !== id));
   };
 
+<<<<<<< HEAD
   // Header info
   const createdDate = screen?.createdAt
     ? new Date(screen.createdAt).toLocaleDateString("en-US", {
@@ -153,6 +187,10 @@ const ScreenUpdate = ({ screen, onClose }) => {
   const availableFields = customFields.filter(
     (cf) => !fields.some((f) => f.id === cf.id)
   );
+=======
+  const createdDate = screen?.createdAt ? new Date(screen.createdAt).toLocaleDateString() : '—';
+  const createdBy = screen?.createdBy || '—';
+>>>>>>> 39e0388c758d3986b4dd60143985633d2ff1c534
 
   return (
     <div className="p-3 bg-dashboard-bgc h-full">

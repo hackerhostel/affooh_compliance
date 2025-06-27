@@ -8,7 +8,7 @@ const initialState = {
     selectedScreenId: null,
 };
 
-// Fetch all screens for a project
+
 export const fetchScreensByProject = createAsyncThunk(
     "screen/fetchScreensByProject",
     async (projectId, { rejectWithValue }) => {
