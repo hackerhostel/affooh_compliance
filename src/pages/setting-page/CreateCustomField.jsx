@@ -5,7 +5,6 @@ import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
-import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
 import FormTextArea from "../../components/FormTextArea.jsx"
 import { CustomFieldCreateSchema } from '../../utils/validationSchemas.js';
 import {

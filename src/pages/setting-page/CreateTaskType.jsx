@@ -10,6 +10,7 @@ import { CreateTaskTypeSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
 import { selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
 import { fetchScreensByOrganization, selectScreens } from "../../state/slice/screenSlice.js";
+import FormTextArea from "../../components/FormTextArea.jsx";
 
 const CreateNewTaskType = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
@@ -40,17 +41,17 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
 
     const handleFormChange = (name, value) => {
         console.log("Updating field:", name, "with value:", value);
-      
+
         if (name === "projectIDs") {
-          setFormValues({ ...formValues, [name]: Array.isArray(value) ? value : [value] });
+            setFormValues({ ...formValues, [name]: Array.isArray(value) ? value : [value] });
         } else if (name === "screenID") {
-          setFormValues({ ...formValues, [name]: value ? Number(value) : null });
+            setFormValues({ ...formValues, [name]: value ? Number(value) : null });
         } else {
-          setFormValues({ ...formValues, [name]: value });
+            setFormValues({ ...formValues, [name]: value });
         }
         setIsValidationErrorsShown(false);
-      };
-      
+    };
+
 
 
 
@@ -90,7 +91,7 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
         });
         setIsValidationErrorsShown(false);
     };
-    
+
 
     const createNewTaskType = async (event) => {
         event.preventDefault();
@@ -170,8 +171,9 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
                             </div>
                             <div className="flex-col">
                                 <p className="text-secondary-grey">Description</p>
-                                <WYSIWYGInput
+                                <FormTextArea
                                     name="description"
+                                    formValues={formValues}
                                     value={formValues.description}
                                     onchange={(name, value) => handleFormChange(name, value)}
                                     formErrors={formErrors}
@@ -195,14 +197,14 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
                             <div className="flex-col">
                                 <p className="text-secondary-grey">Screens</p>
                                 <FormSelect
-  name="screenID"
-  formValues={formValues}
-  showLabel={false}
-  placeholder="Select a screen"
-  options={getScreenOptions()}
-  onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-  value={formValues.screenID}
-/>
+                                    name="screenID"
+                                    formValues={formValues}
+                                    showLabel={false}
+                                    placeholder="Select a screen"
+                                    options={getScreenOptions()}
+                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                                    value={formValues.screenID}
+                                />
 
 
 
