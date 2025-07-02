@@ -5,7 +5,6 @@ import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
-import WYSIWYGInput from "../../components/WYSIWYGInput.jsx";
 import { CreateTaskTypeSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
 import { selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
