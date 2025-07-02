@@ -173,11 +173,12 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
                                 <FormTextArea
                                     name="description"
                                     formValues={formValues}
-                                    value={formValues.description}
-                                    onchange={(name, value) => handleFormChange(name, value)}
+                                    onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                     formErrors={formErrors}
                                     showErrors={isValidationErrorsShown}
+                                    rows={6}
                                 />
+
                             </div>
 
                             <div className="flex-col">
