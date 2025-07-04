@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import {
   TrashIcon,
   PencilSquareIcon,
@@ -8,9 +9,12 @@ import DataGrid, { Column, Paging, Scrolling, Sorting } from "devextreme-react/d
 import "../../components/sprint-table/custom-style.css";
 import CustomFieldUpdate from "./CustomFieldUpdate";
 import CreateTaskType from "./CreateTaskType";
+import {fetchAllTaskTypes, selectTaskType} from "../../state/slice/taskTypeSlice"
 import axios from "axios";
 
 const TaskTypes = () => {
+  const dispatch = useDispatch();
+  const taskType = useSelector(selectTaskType);
   const [customFields, setCustomFields] = useState([]);
   const [editingRow, setEditingRow] = useState(null);
   const [showUpdateComponent, setShowUpdateComponent] = useState(false);
@@ -24,6 +28,12 @@ const TaskTypes = () => {
     setEditingRow({ ...field });
     setShowUpdateComponent(true);
   };
+
+  useEffect(() => {
+  dispatch(fetchAllTaskTypes());
+},[]);
+
+
 
   const handleDelete = (id) => {
     axios.delete(`/api/custom-fields/${id}`)
