@@ -51,25 +51,6 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
     };
 
 
-    const getProjectOptions = useCallback(() => {
-        return getSelectOptions(projectList);
-    }, [projectList]);
-
-
-    const getScreenOptions = useCallback(() => {
-        if (!selectedProject?.id) return [];
-
-        const selectedProjectId = Number(selectedProject.id);
-
-       const filteredScreens = (screens || []).filter(screen => {
-        return Array.isArray(screen.projects) &&
-            screen.projects.some(project => Number(project.id) === selectedProjectId);
-    });
-
-         return getSelectOptions(filteredScreens);
-    }, [screens, selectedProject]);
-
-
     const handleClose = () => {
         onClose();
         setFormValues({
@@ -165,7 +146,7 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
                                 <FormSelect
                                     name="projectIDs"
                                     formValues={formValues}
-                                    options={getProjectOptions()}
+                                    options={getSelectOptions(projectList && projectList.length ? projectList : [])}
                                     onChange={({ target: { name, value } }) =>
                                         handleFormChange(name, value)
                                     }
@@ -180,7 +161,12 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
                                     formValues={formValues}
                                     showLabel={false}
                                     placeholder="Select a screen"
-                                    options={getScreenOptions()}
+                                    options={getSelectOptions(
+                                        (screens || []).filter(screen =>
+                                            Array.isArray(screen.projects) &&
+                                            screen.projects.some(project => Number(project.id) === Number(selectedProject?.id))
+                                        )
+                                    )}
                                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                     value={formValues.screenID}
                                 />
