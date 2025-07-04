@@ -10,6 +10,7 @@ import { useToasts } from 'react-toast-notifications';
 import { selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
 import { fetchScreensByOrganization, selectScreens } from "../../state/slice/screenSlice.js";
 import FormTextArea from "../../components/FormTextArea.jsx";
+import { getSelectOptions } from "../../utils/commonUtils";
 
 const CreateNewTaskType = ({ isOpen, onClose }) => {
     const { addToast } = useToasts();
@@ -25,7 +26,7 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors] = useValidation(CreateTaskTypeSchema, {
         ...formValues,
-        projectIDs: formValues.projectIDs ? [String(formValues.projectIDs)] : [],
+        projectIDs: formValues.projectIDs ?? [],
     });
 
 
@@ -39,10 +40,8 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
     }, [dispatch]);
 
     const handleFormChange = (name, value) => {
-        console.log("Updating field:", name, "with value:", value);
-
         if (name === "projectIDs") {
-            setFormValues({ ...formValues, [name]: Array.isArray(value) ? value : [value] });
+            setFormValues({ ...formValues, [name]: [String(value)] });
         } else if (name === "screenID") {
             setFormValues({ ...formValues, [name]: value ? Number(value) : null });
         } else {
@@ -52,13 +51,8 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
     };
 
 
-
-
     const getProjectOptions = useCallback(() => {
-        return projectList.map((project) => ({
-            value: String(project.id),
-            label: project.name,
-        }));
+        return getSelectOptions(projectList);
     }, [projectList]);
 
 
@@ -107,29 +101,18 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
 
 
 
-        console.log("Form Values:", formValues);
-        console.log("Submitting Payload:", payload);
-
         if (
             !payload.projectIDs.length ||
             payload.screenID === null ||
             isNaN(payload.screenID) ||
             (formErrors && Object.keys(formErrors).length > 0)
         ) {
-            console.log("Validation errors:", formErrors);
-            console.log("Payload validation failed:", {
-                hasProjectIDs: payload.projectIDs.length > 0,
-                screenID: payload.screenID,
-                isScreenIDValid: !isNaN(payload.screenID),
-                hasFormErrors: formErrors && Object.keys(formErrors).length > 0
-            });
             setIsValidationErrorsShown(true);
             setIsSubmitting(false);
             return;
         }
 
         try {
-            console.log("Making API call with payload:", { taskType: payload });
             await axios.post("/task-types", { taskType: payload });
             addToast('Task type created successfully!', { appearance: 'success' });
             handleClose();

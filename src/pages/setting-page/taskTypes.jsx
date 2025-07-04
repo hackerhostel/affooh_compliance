@@ -48,7 +48,6 @@ const TaskTypes = () => {
       axios
         .delete(`/task-types/${id}`)
         .then(() => {
-          // Refresh the task types list after deletion
           dispatch(fetchAllTaskTypes());
         })
         .catch((error) => {
