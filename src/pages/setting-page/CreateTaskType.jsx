@@ -61,16 +61,12 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
 
         const selectedProjectId = Number(selectedProject.id);
 
-        const filteredScreens = (screens || []).filter(screen => {
-            const hasMatchingProject = Array.isArray(screen.projects) &&
-                screen.projects.some(project => Number(project.id) === selectedProjectId);
-            return hasMatchingProject;
-        });
+       const filteredScreens = (screens || []).filter(screen => {
+        return Array.isArray(screen.projects) &&
+            screen.projects.some(project => Number(project.id) === selectedProjectId);
+    });
 
-        return filteredScreens.map(screen => ({
-            value: screen.id,
-            label: screen.name,
-        }));
+         return getSelectOptions(filteredScreens);
     }, [screens, selectedProject]);
 
 
