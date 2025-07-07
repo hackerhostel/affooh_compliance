@@ -11,7 +11,6 @@ import {
 } from "@heroicons/react/24/outline";
 import DataGrid, {
   Column,
-  Paging,
   Scrolling,
   Sorting,
 } from "devextreme-react/data-grid";
@@ -41,7 +40,13 @@ const TaskTypes = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const closeCreateCustomField = () => setNewCustomField(false);
-  const [taskTypesList, setTaskTypesList] = useState([]);
+  const pageSize = 4;
+  const totalPages = Math.ceil(taskTypes.length / pageSize);
+
+  const paginatedTaskTypes = taskTypes.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const handleEdit = (field) => {
     setEditingRow({ ...field });
@@ -51,9 +56,6 @@ const TaskTypes = () => {
   useEffect(() => {
     dispatch(fetchAllTaskTypes());
   }, [dispatch]);
-
-
-
 
   const formatProjects = (projects) => {
     if (!projects || projects.length === 0) return "No Projects";
@@ -72,15 +74,15 @@ const TaskTypes = () => {
 
         if (status === 200 || status === 204) {
           addToast("Task type deleted successfully!", { appearance: "success" });
-          dispatch(fetchAllTaskTypes()); 
-          setCurrentPage(1); 
+          dispatch(fetchAllTaskTypes());
+          setCurrentPage(1);
         } else {
           addToast("Failed to delete Task Type", { appearance: "error" });
         }
       } catch (error) {
         addToast("Failed to delete Task Type", { appearance: "error" });
       } finally {
-        setConfirmDeleteId(null); 
+        setConfirmDeleteId(null);
       }
     }
   };
@@ -93,6 +95,14 @@ const TaskTypes = () => {
       />
     );
   }
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
 
 
 
@@ -131,7 +141,7 @@ const TaskTypes = () => {
         </div>
 
         <DataGrid
-          dataSource={taskTypes}
+          dataSource={paginatedTaskTypes}
           allowColumnReordering={true}
           showBorders={false}
           width="100%"
@@ -142,7 +152,6 @@ const TaskTypes = () => {
         >
           <Scrolling columnRenderingMode="virtual" />
           <Sorting mode="multiple" />
-          <Paging enabled={true} pageSize={10} />
 
           <Column dataField="name" caption="Name" width="20%" />
           <Column dataField="description" caption="Description" width="40%" />
@@ -153,8 +162,14 @@ const TaskTypes = () => {
             cellRender={(data) => <div>{formatProjects(data.value)}</div>}
           />
           <Column
-            dataField="screen"
-            caption="Screen"
+            caption="Screens"
+            width="40%"
+            cellRender={(data) => (
+              <div>{data.data.screen?.name}</div>
+            )}
+          />
+          <Column
+            caption="Action"
             width="15%"
             cellRender={(data) => (
               <div className="flex space-x-2">
@@ -183,8 +198,36 @@ const TaskTypes = () => {
             )}
           />
         </DataGrid>
-      </div>
 
+        {taskTypes.length > pageSize && (
+          <div className="w-full flex gap-5 items-center justify-end mt-4 mb-4">
+            <button
+              onClick={handlePreviousPage}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === 1
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
+                }`}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeftIcon className={"w-4 h-4 text-secondary-grey"} />
+            </button>
+            <span className="text-gray-500 text-center">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === totalPages
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
+                }`}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRightIcon className={"w-4 h-4 text-secondary-grey"} />
+            </button>
+          </div>
+        )}
+
+      </div>
       <ConfirmDialog
         isOpen={confirmDeleteId !== null}
         onClose={() => setConfirmDeleteId(null)}
@@ -192,7 +235,6 @@ const TaskTypes = () => {
         title="Delete Task Type"
         message="Are you sure you want to delete this task type?"
       />
-
 
       <CreateTaskType
         isOpen={newCustomField}

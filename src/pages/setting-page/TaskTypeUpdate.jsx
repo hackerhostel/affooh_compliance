@@ -2,19 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useToasts } from 'react-toast-notifications';
 import axios from 'axios';
-import {
-  ArrowLongLeftIcon,
-} from '@heroicons/react/24/outline';
-import {
-  selectProjectList,
-  selectSelectedProject,
-} from "../../state/slice/projectSlice.js";
-import {
-  fetchScreensByOrganization,
-  selectScreens
-} from "../../state/slice/screenSlice.js";
+import { ArrowLongLeftIcon} from '@heroicons/react/24/outline';
+import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
+import {selectScreens} from "../../state/slice/screenSlice.js";
 import { fetchAllTaskTypes ,selectTaskTypes } from "../../state/slice/taskTypeSlice.js";
-
 import FormInput from '../../components/FormInput';
 import FormTextArea from '../../components/FormTextArea';
 import FormSelect from "../../components/FormSelect.jsx";
@@ -35,13 +26,6 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
 
   const [formErrors, setFormErrors] = useState({});
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
-
-  const [addingNew, setAddingNew] = useState(false);
-  const [newOption, setNewOption] = useState('');
-  const [editingId, setEditingId] = useState(null);
-  const [editingValue, setEditingValue] = useState('');
-  const [showActionsId, setShowActionsId] = useState(null);
-
   const projectList = useSelector(selectProjectList);
   const selectedProject = useSelector(selectSelectedProject);
   const screens = useSelector(selectScreens);
@@ -72,9 +56,8 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
       addToast('Invalid Task Type ID', { appearance: 'error' });
       return;
     }
-
     try {
-      await axios.put("/task-types", {
+      await axios.put("/task-types/id", {
         taskType: {
           id: Number(taskTypeId),
           name: formValues.name,
@@ -93,28 +76,6 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
       console.error("Error updating Task Type:", error);
       addToast("Failed to update Task Type", { appearance: "error" });
     }
-  };
-
-  const handleAddNewRow = () => {
-    setAddingNew(true);
-    setNewOption('');
-    setShowActionsId(null);
-  };
-
-  const handleCancelNew = () => {
-    setAddingNew(false);
-    setNewOption('');
-  };
-
-  const handleEditOption = (id, value) => {
-    setEditingId(id);
-    setEditingValue(value);
-    setShowActionsId(null);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingId(null);
-    setEditingValue('');
   };
 
   return (
@@ -155,6 +116,7 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
             formErrors={formErrors}
             showErrors={isValidationErrorsShown}
           />
+
           <FormTextArea
             name="description"
             placeholder="Description"
@@ -166,7 +128,8 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
             showErrors={isValidationErrorsShown}
           />
 
-          <div className="flex-col">
+          <div className='flex space-x-5 mt-8'> 
+            <div className="flex-col w-1/2">
             <p className="text-secondary-grey">Project</p>
             <FormSelect
               name="projectIDs"
@@ -178,7 +141,7 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
             />
           </div>
 
-          <div className="flex-col">
+          <div className="flex-col w-1/2">
             <p className="text-secondary-grey">Screens</p>
             <FormSelect
               name="screenID"
@@ -194,6 +157,8 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
               onChange={({ target: { name, value } }) => handleFormChange(name, value)}
               value={formValues.screenID}
             />
+          </div>
+
           </div>
         </div>
       </div>

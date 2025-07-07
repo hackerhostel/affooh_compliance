@@ -158,7 +158,6 @@ const Screens = () => {
         >
           <Scrolling columnRenderingMode="virtual" />
           <Sorting mode="multiple" />
-
           <Column dataField="name" caption="Name" width="20%" />
           <Column dataField="description" caption="Description" width="40%" />
           <Column
