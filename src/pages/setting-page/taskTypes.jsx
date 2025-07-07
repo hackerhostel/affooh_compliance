@@ -52,7 +52,7 @@ const TaskTypes = () => {
     dispatch(fetchAllTaskTypes());
   }, [dispatch]);
 
-  
+
 
 
   const formatProjects = (projects) => {
@@ -64,26 +64,35 @@ const TaskTypes = () => {
     setConfirmDeleteId(id);
   };
 
- const handleConfirmDelete = async () => {
-  if (confirmDeleteId) {
-    try {
-      const response = await axios.delete(`/task-types/${confirmDeleteId}`);
-      const status = response?.status;
+  const handleConfirmDelete = async () => {
+    if (confirmDeleteId) {
+      try {
+        const response = await axios.delete(`/task-types/${confirmDeleteId}`);
+        const status = response?.status;
 
-      if (status === 200 || status === 204) {
-        addToast("Task type deleted successfully!", { appearance: "success" });
-        dispatch(fetchAllTaskTypes()); // Refetch to update list
-        setCurrentPage(1); // Reset to first page
-      } else {
+        if (status === 200 || status === 204) {
+          addToast("Task type deleted successfully!", { appearance: "success" });
+          dispatch(fetchAllTaskTypes()); 
+          setCurrentPage(1); 
+        } else {
+          addToast("Failed to delete Task Type", { appearance: "error" });
+        }
+      } catch (error) {
         addToast("Failed to delete Task Type", { appearance: "error" });
+      } finally {
+        setConfirmDeleteId(null); 
       }
-    } catch (error) {
-      addToast("Failed to delete Task Type", { appearance: "error" });
-    } finally {
-      setConfirmDeleteId(null); // Close confirmation dialog
     }
+  };
+
+  if (showUpdateComponent) {
+    return (
+      <TaskTypeUpdate
+        taskTypeId={editingRow?.id}
+        onClose={() => setShowUpdateComponent(false)}
+      />
+    );
   }
-};
 
 
 
@@ -177,14 +186,14 @@ const TaskTypes = () => {
       </div>
 
       <ConfirmDialog
-  isOpen={confirmDeleteId !== null}
-  onClose={() => setConfirmDeleteId(null)}
-  onConfirm={handleConfirmDelete} 
-  title="Delete Task Type"
-  message="Are you sure you want to delete this task type?"
-/>
+        isOpen={confirmDeleteId !== null}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Task Type"
+        message="Are you sure you want to delete this task type?"
+      />
 
-                  
+
       <CreateTaskType
         isOpen={newCustomField}
         onClose={closeCreateCustomField}
