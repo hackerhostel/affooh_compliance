@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useToasts } from 'react-toast-notifications';
 import axios from 'axios';
-import { ArrowLongLeftIcon} from '@heroicons/react/24/outline';
-import {selectProjectList, selectSelectedProject} from "../../state/slice/projectSlice.js";
-import {selectScreens} from "../../state/slice/screenSlice.js";
-import { fetchAllTaskTypes ,selectTaskTypes } from "../../state/slice/taskTypeSlice.js";
+import { ArrowLongLeftIcon } from '@heroicons/react/24/outline';
+import { selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
+import { selectScreens } from "../../state/slice/screenSlice.js";
+import { fetchAllTaskTypes, selectTaskTypes } from "../../state/slice/taskTypeSlice.js";
 import FormInput from '../../components/FormInput';
 import FormTextArea from '../../components/FormTextArea';
 import FormSelect from "../../components/FormSelect.jsx";
@@ -21,7 +21,9 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
     projectIDs: '',
     screenID: '',
     newValue: '',
-    editValue: ''
+    editValue: '',
+    createdAt: '',
+    createdBy: ''
   });
 
   const [formErrors, setFormErrors] = useState({});
@@ -32,20 +34,22 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
   const taskTypes = useSelector(selectTaskTypes)
 
   useEffect(() => {
-  if (taskTypeId && taskTypes.length > 0) {
-    const taskType = taskTypes.find((t) => t.id === Number(taskTypeId));
-    if (taskType) {
-      setFormValues({
-        name: taskType.name || '',
-        description: taskType.description || '',
-        projectIDs: (taskType.projects || []).map(p => p.id),
-        screenID: taskType.screen?.id || '',
-        newValue: '',
-        editValue: '',
-      });
+    if (taskTypeId && taskTypes.length > 0) {
+      const taskType = taskTypes.find((t) => t.id === Number(taskTypeId));
+      if (taskType) {
+        setFormValues({
+          name: taskType.name || '',
+          description: taskType.description || '',
+          projectIDs: (taskType.projects || []).map(p => p.id),
+          screenID: taskType.screen?.id || '',
+          newValue: '',
+          editValue: '',
+          createdAt: taskType.createdAt || '',
+          createdBy: taskType.createdBy || '',
+        });
+      }
     }
-  }
-}, [taskTypeId, taskTypes]);
+  }, [taskTypeId, taskTypes]);
 
   const handleFormChange = (name, value) => {
     setFormValues((prev) => ({ ...prev, [name]: value }));
@@ -57,7 +61,7 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
       return;
     }
     try {
-      await axios.put("/task-types/id", {
+      await axios.put("/task-types/${taskTypeId}", {
         taskType: {
           id: Number(taskTypeId),
           name: formValues.name,
@@ -78,6 +82,13 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
     }
   };
 
+ const createDate = formValues?.createdAt
+  ? new Date(formValues.createdAt).toLocaleDateString()
+  : "-";
+
+const createdBy = formValues?.createdBy || "-";
+
+
   return (
     <div className="p-3 bg-dashboard-bgc h-full">
       <div className="flex p-3 justify-between">
@@ -90,9 +101,9 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
           </div>
           <div className="flex space-x-5 text-text-color">
             <span>
-              Created date: <span>10/07/2025</span>
+              Created date: <span>{createDate}</span>
             </span>
-            <span>Created By: Nilanga</span>
+            <span>Created By: <span>{createdBy}</span></span>
           </div>
         </div>
         <div>
@@ -128,36 +139,36 @@ const TaskTypeUpdate = ({ onClose, taskTypeId }) => {
             showErrors={isValidationErrorsShown}
           />
 
-          <div className='flex space-x-5 mt-8'> 
+          <div className='flex space-x-5 mt-8'>
             <div className="flex-col w-1/2">
-            <p className="text-secondary-grey">Project</p>
-            <FormSelect
-              name="projectIDs"
-              formValues={formValues}
-              options={getSelectOptions(projectList && projectList.length ? projectList : [])}
-              onChange={({ target: { name, value } }) =>
-                handleFormChange(name, value)
-              }
-            />
-          </div>
+              <p className="text-secondary-grey">Project</p>
+              <FormSelect
+                name="projectIDs"
+                formValues={formValues}
+                options={getSelectOptions(projectList && projectList.length ? projectList : [])}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+              />
+            </div>
 
-          <div className="flex-col w-1/2">
-            <p className="text-secondary-grey">Screens</p>
-            <FormSelect
-              name="screenID"
-              formValues={formValues}
-              showLabel={false}
-              placeholder="Select a screen"
-              options={getSelectOptions(
-                (screens || []).filter(screen =>
-                  Array.isArray(screen.projects) &&
-                  screen.projects.some(project => Number(project.id) === Number(selectedProject?.id))
-                )
-              )}
-              onChange={({ target: { name, value } }) => handleFormChange(name, value)}
-              value={formValues.screenID}
-            />
-          </div>
+            <div className="flex-col w-1/2">
+              <p className="text-secondary-grey">Screens</p>
+              <FormSelect
+                name="screenID"
+                formValues={formValues}
+                showLabel={false}
+                placeholder="Select a screen"
+                options={getSelectOptions(
+                  (screens || []).filter(screen =>
+                    Array.isArray(screen.projects) &&
+                    screen.projects.some(project => Number(project.id) === Number(selectedProject?.id))
+                  )
+                )}
+                onChange={({ target: { name, value } }) => handleFormChange(name, value)}
+                value={formValues.screenID}
+              />
+            </div>
 
           </div>
         </div>
