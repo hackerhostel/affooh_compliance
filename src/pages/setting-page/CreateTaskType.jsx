@@ -170,11 +170,8 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
                                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                                     value={formValues.screenID}
                                 />
-
-
-
-
                             </div>
+                            
                         </div>
                         <div className="flex space-x-4 mt-6 self-end w-full">
                             <button
