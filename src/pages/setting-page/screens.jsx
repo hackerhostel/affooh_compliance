@@ -10,7 +10,6 @@ import {
 } from "@heroicons/react/24/outline";
 import DataGrid, {
   Column,
-  Paging,
   Scrolling,
   Sorting,
 } from "devextreme-react/data-grid";
@@ -51,7 +50,6 @@ const Screens = () => {
   );
 
   useEffect(() => {
-    // Fetch all organization screens on component mount
     dispatch(fetchScreensByOrganization());
   }, [dispatch]);
 
@@ -160,7 +158,6 @@ const Screens = () => {
         >
           <Scrolling columnRenderingMode="virtual" />
           <Sorting mode="multiple" />
-
           <Column dataField="name" caption="Name" width="20%" />
           <Column dataField="description" caption="Description" width="40%" />
           <Column

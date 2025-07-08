@@ -14,6 +14,7 @@ import settingReducer from "./slice/settingSlice.js"
 import customFieldReducer from "./slice/customFieldSlice.js"
 import testIssueReducer from "./slice/testIssueSlice.js";
 import screenReducer from "./slice/screenSlice.js";
+import taskTypeReducer from "./slice/taskTypeSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -32,5 +33,6 @@ export const store = configureStore({
     customField: customFieldReducer,
     testIssue: testIssueReducer,
     screen: screenReducer,
+    taskType: taskTypeReducer
   }
 });

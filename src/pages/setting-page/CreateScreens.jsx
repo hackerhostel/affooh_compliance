@@ -173,7 +173,7 @@ const CreateNewScreen = ({ isOpen, onClose }) => {
     try {
       const payload = {
         name: formValues.name,
-        description: stripHtmlTags(formValues.description),
+        description:(formValues.description),
         organizationID: user?.organization?.id?.toString(),
         projectIDs: Array.isArray(formValues.projectIDs)
           ? formValues.projectIDs
