@@ -40,7 +40,7 @@ const TaskTypes = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const closeCreateCustomField = () => setNewCustomField(false);
-  const pageSize = 4;
+  const pageSize = 25;
   const totalPages = Math.ceil(taskTypes.length / pageSize);
 
   const paginatedTaskTypes = taskTypes.slice(
