@@ -41,7 +41,7 @@ const Screens = () => {
   const [showActionsId, setShowActionsId] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 4;
+  const pageSize = 25;
 
   const totalPages = Math.ceil(filteredScreens.length / pageSize);
   const paginatedScreens = filteredScreens.slice(
