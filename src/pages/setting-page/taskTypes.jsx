@@ -43,10 +43,10 @@ const TaskTypes = () => {
   const pageSize = 25;
   const totalPages = Math.ceil(taskTypes.length / pageSize);
 
-  const paginatedTaskTypes = taskTypes.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+ const paginatedTaskTypes = [...taskTypes]
+  .reverse()
+  .slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
 
   const handleEdit = (field) => {
     setEditingRow({ ...field });
