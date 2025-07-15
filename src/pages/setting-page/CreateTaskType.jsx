@@ -7,6 +7,7 @@ import useValidation from "../../utils/use-validation.jsx";
 import axios from 'axios';
 import { CreateTaskTypeSchema } from '../../utils/validationSchemas.js';
 import { useToasts } from 'react-toast-notifications';
+import {fetchAllTaskTypes} from "../../state/slice/taskTypeSlice";
 import { selectProjectList, selectSelectedProject } from "../../state/slice/projectSlice.js";
 import { fetchScreensByOrganization, selectScreens } from "../../state/slice/screenSlice.js";
 import FormTextArea from "../../components/FormTextArea.jsx";
@@ -20,16 +21,12 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
         projectIDs: [],
         screenID: null
     });
-
-
     const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors] = useValidation(CreateTaskTypeSchema, {
         ...formValues,
         projectIDs: formValues.projectIDs ?? [],
     });
-
-
     const dispatch = useDispatch();
     const projectList = useSelector(selectProjectList);
     const selectedProject = useSelector(selectSelectedProject);
@@ -92,6 +89,7 @@ const CreateNewTaskType = ({ isOpen, onClose }) => {
         try {
             await axios.post("/task-types", { taskType: payload });
             addToast('Task type created successfully!', { appearance: 'success' });
+            dispatch(fetchAllTaskTypes());
             handleClose();
         } catch (error) {
             console.error("API Error:", error);
