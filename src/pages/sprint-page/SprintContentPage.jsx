@@ -196,7 +196,7 @@ const SprintContentPage = () => {
   if (error || attributeError) return <ErrorAlert message={error.message} />;
 
   return (
-    <div className="bg-slate-100 ">
+    <div className="bg-slate-100 max-h-[calc(100vh-275px)]">
       <SprintHeader
         sprint={sprint}
         isBacklog={isBacklog}
@@ -214,17 +214,18 @@ const SprintContentPage = () => {
         epics={epics}
         isKanban={isKanban}
       />
-
-<SprintTable
-    taskList={filteredList}
-    typeList={typeList}
-    filters={filters}
-    onSelectFilterChange={onSelectFilterChange}
-    sprintConfig={sprintConfig}
-    updateFilterGroups={updateFilterGroups}
-    taskAttributes={taskAttributes}
-    refetchSprint={refetchSprint}
-  />
+      <SprintTable
+        className=""
+        taskList={filteredList}
+        typeList={typeList}
+        filters={filters}
+        onSelectFilterChange={onSelectFilterChange}
+        sprintConfig={sprintConfig}
+        setConfigChanges={setConfigChanges}
+        updateFilterGroups={updateFilterGroups}
+        taskAttributes={taskAttributes}
+        refetchSprint={refetchSprint}
+      />
     </div>
   );
 };

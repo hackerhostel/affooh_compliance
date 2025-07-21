@@ -1,205 +1,270 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import DataGrid, {
   Column,
   ColumnChooser,
-  GroupPanel,
   Grouping,
+  GroupPanel,
   Paging,
   Scrolling,
   Sorting
 } from 'devextreme-react/data-grid';
 import './custom-style.css';
-import FormTextArea from "../FormTextArea.jsx";
-import FormSelect from '../FormSelect';
+import { useHistory } from "react-router-dom";
+import {
+  addObjectsToArrayByIndex,
+  assigneeCellRender,
+  columnMap,
+  customCellRender,
+  customHeaderRender,
+  extractNumberFromSquareBrackets,
+  getGroupIndex,
+  onToolbarPreparing,
+  priorityCellRender,
+  removeObjectFromArrayByDataField,
+  statusCellRender
+} from "./utils.jsx";
+import FormSelect from "../FormSelect.jsx";
+import SearchBar from "../SearchBar.jsx";
+import TaskAttriEditPopUp from "../popupForms/taskAttriEditPopUp.jsx";
+import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
+import TaskOptionsPopup from '../task/edit/TaskOptionPopup.jsx';
 
-// Dummy data for both tables
-const dummyData = [
-  {
-    id: 1,
-    title: 'ISO control - close/Annex A',
-    currentGaps: 'Gap 1: Missing documentation',
-    complianceStatus: 'Non-Compliant',
-    severity: 'High',
-    recommendedAction: 'Review and update documentation accordingly.',
-    responsibility: {
-      firstName: 'John',
-      lastName: 'Doe',
-      avatar: ''
-    },
-    dueDate: '2025-08-15',
-    status: 'In Progress',
-    task: 'Update ISO documentation'
-  }
-];
+const SprintTable = ({
+  taskList,
+  typeList,
+  filters,
+  onSelectFilterChange,
+  sprintConfig,
+  updateFilterGroups,
+  taskAttributes,
+  refetchSprint
+}) => {
+  const history = useHistory();
+  const [filteredTaskList, setFilteredTaskList] = useState(taskList);
+  const [editOptions, setEditOptions] = useState({});
+  const [isOptionOpen, setIsOptionOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
 
-const complianceOptions = [
-  { label: 'Non-Compliant', value: 'Non-Compliant' },
-  { label: 'Partially Compliant', value: 'Partially Compliant' },
-  { label: 'Compliant', value: 'Compliant' },
-];
 
-const severityOptions = [
-  { label: 'Low', value: 'Low' },
-  { label: 'Medium', value: 'Medium' },
-  { label: 'High', value: 'High' },
-];
 
-const statusOptions = [
-  { label: 'In Progress', value: 'In Progress' },
-  { label: 'Completed', value: 'Completed' },
-  { label: 'Pending', value: 'Pending' },
-];
+  useEffect(() => {
+    setFilteredTaskList(taskList)
+  }, [taskList]);
 
-const DummyTable = () => {
+  const taskTitleComponent = (data) => {
+    return <button
+      className="px-2 py-1 text-sm hover:bg-gray-50 rounded-lg text-wrap text-start"
+      onClick={() => {
+        history.push(`/task/${data?.key?.taskCode}`);
+      }}
+    >
+      {data.value}
+    </button>
+  };
+
+  const handleSearch = (term) => {
+    let filtered = taskList;
+    if (term.trim() !== '') {
+      filtered = filtered.filter(task =>
+        task.title.toLowerCase().includes(term.toLowerCase())
+      );
+    } else {
+      setFilteredTaskList(taskList);
+    }
+    setFilteredTaskList(filtered);
+  };
+
+  const onOptionChanged = (e) => {
+    const { fullName: funcName, value: index } = e || {};
+    const colID = funcName && funcName.includes('groupIndex') || funcName.includes('visibleIndex')
+      ? extractNumberFromSquareBrackets(funcName)
+      : null;
+
+    if (colID >= 0) {
+      const dataField = columnMap.find((col) => col.id === colID)?.dataField;
+
+      if (funcName.includes('groupIndex') && dataField && index >= 0) {
+        const updatedGroups = addObjectsToArrayByIndex(sprintConfig, { dataField, index });
+        updateFilterGroups(updatedGroups);
+      } else if (funcName.includes('visibleIndex') && dataField) {
+        const updatedGroups = removeObjectFromArrayByDataField(sprintConfig, dataField);
+        updateFilterGroups(updatedGroups);
+      }
+    }
+  };
+
+  const onCellClick = (e) => {
+    if (e.column) {
+      if (e.column.dataField === "assignee") {
+        const assigneeId = e.data.assigneeId;
+        setEditOptions({
+          dataFieldId: assigneeId,
+          id: e.data.id,
+          title: e.data.title,
+          caption: e.column.caption,
+          dataField: e.column.dataField,
+          editAttribute: {},
+          value: e.data[e.column.dataField]
+        })
+      } else if (e.column.dataField === "status") {
+        const statusId = e.data.statusId;
+        setEditOptions({
+          dataFieldId: statusId,
+          id: e.data.id,
+          title: e.data.title,
+          caption: e.column.caption,
+          dataField: e.column.dataField,
+          editAttribute: e.data.statusAttributes,
+          value: e.data[e.column.dataField]
+        })
+      } else if (e.column.dataField === "priority") {
+        const priorityId = e.data.priorityId;
+        setEditOptions({
+          dataFieldId: priorityId,
+          id: e.data.id,
+          title: e.data.title,
+          caption: e.column.caption,
+          dataField: e.column.dataField,
+          editAttribute: e.data.priorityAttributes,
+          value: e.data[e.column.dataField]
+        })
+      }
+    }
+  };
+
   return (
     <div className="px-4">
+      <div className="mb-2 mt-1 flex items-center justify-between w-full">
+        <div className="flex gap-5 w-1/2 items-center">
+          <p className='text-secondary-grey text-lg font-medium'>{`Tasks (${filteredTaskList && filteredTaskList.length})`}</p>
+          <div className={"min-w-28"}>
+            <FormSelect
+              name="type"
+              formValues={{ type: filters?.type }}
+              options={typeList}
+              onChange={({ target: { name, value } }) => onSelectFilterChange(value, name)}
+              className="w-28 h-10"
+            />
+          </div>
+          <SearchBar placeholder='Search' onSearch={handleSearch} />
+        </div>
+      </div>
       <DataGrid
-        dataSource={dummyData}
+        dataSource={filteredTaskList}
+        allowColumnReordering={true}
+        showBorders={true}
         width="100%"
-        className="shadow-lg rounded-lg overflow-hidden dummy-grid-table mb-10"
+        className="shadow-lg rounded-lg overflow-hidden sprint-grid-table h-task-list-screen"
         showRowLines={true}
-        showColumnLines={false}
+        showColumnLines={true}
+        onToolbarPreparing={onToolbarPreparing}
+        onOptionChanged={onOptionChanged}
+        onCellClick={onCellClick}
       >
-        <ColumnChooser enabled={false} mode="select" />
-        <GroupPanel visible={false} />
-        <Grouping autoExpandAll={false} />
+        <ColumnChooser enabled={true} mode="select" />
+        <GroupPanel visible />
+        <Grouping autoExpandAll />
         <Paging enabled={false} />
         <Scrolling columnRenderingMode="virtual" />
         <Sorting mode="multiple" />
-
         <Column
           dataField="title"
-          caption="ISO control - close/Annex A"
+          caption="Task Name"
           width={350}
+          headerCellRender={customHeaderRender}
+          cellRender={taskTitleComponent}
+          groupIndex={getGroupIndex('title', sprintConfig)}
         />
         <Column
-          dataField="currentGaps"
-          caption="Current Gaps"
-          cellRender={({ data }) => (
-            <FormTextArea
-              name="currentGaps"
-              formValues={{ currentGaps: data.currentGaps }}
-              onChange={() => { }}
-              showLabel={false}
-              className="w-full"
-            />
-          )}
-        />
-        <Column
-          dataField="complianceStatus"
-          caption="Compliance Status"
-          cellRender={({ data }) => (
-            <FormSelect
-              name="complianceStatus"
-              value={data.complianceStatus}
-              options={complianceOptions}
-              onChange={() => { }}
-              showLabel={false}
-              className="w-full"
-            />
-          )}
-        />
-        <Column
-          dataField="severity"
-          caption="Severity"
-          cellRender={({ data }) => (
-            <FormSelect
-              name="severity"
-              value={data.severity}
-              options={severityOptions}
-              onChange={() => { }}
-              showLabel={false}
-              className="w-full"
-            />
-          )}
-        />
-      </DataGrid>
-
-      {/* Second Table */}
-      <DataGrid
-        dataSource={dummyData}
-        width="100%"
-        className="shadow-lg rounded-lg overflow-hidden dummy-grid-table"
-        showRowLines={true}
-        showColumnLines={false}
-      >
-        <ColumnChooser enabled={false} mode="select" />
-        <GroupPanel visible={false} />
-        <Grouping autoExpandAll={false} />
-        <Paging enabled={false} />
-        <Scrolling columnRenderingMode="virtual" />
-        <Sorting mode="multiple" />
-
-        <Column
-          dataField="recommendedAction"
-          caption="Recommended Action"
-          wordWrapEnabled={true}
-          width={420}
-          cellRender={({ data }) => (
-            <FormTextArea
-              name="recommendedAction"
-              formValues={{ recommendedAction: data.recommendedAction }}
-              onChange={() => { }}
-              showLabel={false}
-              
-            />
-          )}
-        />
-        <Column
-          dataField="responsibility"
-          caption="Responsibility"
-          width={150}
-          cellRender={({ data }) => {
-            const user = data?.responsibility;
-
-            if (!user) return <span className="text-gray-400 italic">No user</span>;
-
-            return (
-              <div className="flex items-center space-x-2">
-                {user.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold">
-                    {user.firstName?.[0]}
-                    {user.lastName?.[0]}
-                  </div>
-                )}
-                <span>{user.firstName} {user.lastName}</span>
-              </div>
-            );
-          }}
-        />
-
-        <Column
-          dataField="dueDate"
-          caption="Due Date"
-          width={130}
+          dataField="assignee"
+          caption="Assignee"
+          headerCellRender={customHeaderRender}
+          cellRender={assigneeCellRender}
+          groupIndex={getGroupIndex('assignee', sprintConfig)}
         />
         <Column
           dataField="status"
           caption="Status"
-          cellRender={({ data }) => (
-            <FormSelect
-              name="status"
-              value={data.status}
-              options={statusOptions}
-              onChange={() => { }}
-              showLabel={false}
-              className="w-48"
-            />
-          )}
+          headerCellRender={customHeaderRender}
+          cellRender={statusCellRender}
+          width={120}
+          groupIndex={getGroupIndex('status', sprintConfig)}
         />
         <Column
-          dataField="task"
-          caption="Task"
+          dataField="startDate"
+          caption="Start Date"
+          dataType="date"
+          headerCellRender={customHeaderRender}
+          cellRender={customCellRender}
+          groupIndex={getGroupIndex('startDate', sprintConfig)}
+        />
+        <Column
+          dataField="endDate"
+          caption="End Date"
+          dataType="date"
+          headerCellRender={customHeaderRender}
+          cellRender={customCellRender}
+          groupIndex={getGroupIndex('endDate', sprintConfig)}
+        />
+        <Column
+          dataField="epic"
+          caption="Epic Name"
+          headerCellRender={customHeaderRender}
+          cellRender={customCellRender}
+          visible={false}
+          groupIndex={getGroupIndex('epic', sprintConfig)}
+        />
+        <Column
+          dataField="type"
+          caption="Type"
+          headerCellRender={customHeaderRender}
+          cellRender={customCellRender}
+          groupIndex={getGroupIndex('type', sprintConfig)}
+        />
+        <Column
+          dataField="priority"
+          caption="Priority"
+          headerCellRender={customHeaderRender}
+          groupIndex={getGroupIndex('priority', sprintConfig)}
+          cellRender={(cellData) => {
+            const task = cellData.data;
+            return (
+              <div className="relative flex justify-between items-center w-full z-50">
+                <span className="truncate">{task.priority}</span>
+
+                <EllipsisVerticalIcon
+                  className="h-4 w-4 text-gray-600 hover:text-black cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const rect = e.currentTarget.getBoundingClientRect(); // ← Get icon position
+                    setPopupPosition({ top: rect.bottom + 5, left: rect.left }); // Add some spacing
+                    setSelectedTask(task);
+                    setIsOptionOpen(true);
+                  }}
+                />
+              </div>
+            );
+          }}
         />
       </DataGrid>
+
+      <div className='-mt-44'>
+          {isOptionOpen && selectedTask && (
+            <TaskOptionsPopup
+              isOpen={true}
+              onClose={() => setIsOptionOpen(false)}
+              task={selectedTask}
+              position={popupPosition}
+            />
+          )}
+
+
+        </div>
+      <TaskAttriEditPopUp editOptions={editOptions} setEditOptions={setEditOptions} taskAttributes={taskAttributes}
+        refetchSprint={refetchSprint} />
     </div>
   );
 };
 
-export default DummyTable;
+export default SprintTable;

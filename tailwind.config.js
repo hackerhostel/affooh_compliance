@@ -44,9 +44,7 @@ module.exports = {
         'count-notification' : '#E6E6E6',
         'user-detail-box' : 'F4F5FB',
         'border-color' : 'E6E6E6',
-        'pass-border-color' : 'C6F8BD',
-        'fail-border-color' : '#DB5D5D',
-        'pending-border-color' : '#E4AF00',
+
       },
       height: {
         'list-screen': 'calc(100vh - 183px)',
