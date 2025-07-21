@@ -59,7 +59,7 @@ function FormSelect({
               }}
             >
               <option value="" disabled>
-                Select an option
+                {placeholder || "Select an option"}
               </option>
               {options.map((option) => (
                 <option key={option.value} value={option.value}>
