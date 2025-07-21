@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import TaskCreateComponent from "../../components/task/create/TaskCreateComponent.jsx";
-import timeCalender from '../../assets/Time_Calender.png'
-import EditIcon from '../../assets/Edit_Icon.png'
-import { formatShortDate } from "../../utils/commonUtils.js";
-import ToggleButton from "../../components/ToggleButton.jsx";
+import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import DateRangeSelector from "../../components/DateRangeSelector.jsx";
 import axios from "axios";
@@ -12,6 +9,7 @@ import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import { doGetSprintBreakdown, setRedirectSprint } from "../../state/slice/sprintSlice.js";
+import {EllipsisVerticalIcon} from "@heroicons/react/24/outline";
 
 const SprintHeader = ({
   sprint,
@@ -39,6 +37,9 @@ const SprintHeader = ({
   const [canClose, setCanClose] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState(sprint?.name || '');
+  const [formValues, setFormValues] = useState({
+    documentName: sprint?.name || ''
+  });
 
 
   let sprintStatus = sprint?.status?.value || "OPEN"
@@ -139,124 +140,154 @@ const SprintHeader = ({
   return (
     <>
       <div className="flex flex-col p-4 gap-4">
-        <div><span> <span className='text-popup-screen-header'>Project &gt;</span> <span className='font-semibold'>{selectedProject.name}</span></span></div>
-        <div style={{ marginTop: "22px" }} className="flex w-full h-10 bg-white rounded-lg justify-between">
-          <div className="flex justify-start items-center">
-            <div
-              className="flex w-36 text-white text-center bg-primary-pink pl-5 pr-14 rounded-l-lg font-semibold h-10 items-center cursor-pointer"
-              onClick={() => setIsEditingName(true)}
-            >
-              {isEditingName ? (
-                <input
-                  type="text"
-                  className="w-full h-full bg-transparent text-white outline-none"
-                  value={editedName}
-                  onChange={(e) => setEditedName(e.target.value)}
-                  // onBlur={handleSprintNameSave}
-                  // onKeyDown={(e) => {
-                  //   if (e.key === 'Enter') handleSprintNameSave();
-                  // }}
-                  autoFocus
-                />
-              ) : (
-                <p>{sprint?.name}</p>
-              )}
+        <div className="bg-white p-4 rounded-lg">
+          <div className='flex items-center gap-12'>
+            <div className='w-64'>
+              <label className='text-sm font-medium'>Document Name</label>
+              <FormInput
+                name="documentName"
+                formValues={formValues}
+                onChange={(e) => setFormValues({ ...formValues, documentName: e.target.value })}
+              />
             </div>
 
-            <div className="flex text-status-done font-medium pl-4 pr-5 gap-2">
-              <div className={"min-w-1 rounded-md bg-status-done"}></div>
-              <p>{sprintStatus}</p></div>
-            {!isKanban && !isBacklog && (
-              <div className="flex items-center">
-                <div className="h-7 w-px bg-gray-500 mr-4"></div>
-                <img
-                  src={timeCalender}
-                  alt="Time Calender"
-                  className="max-w-5"
-                />
-                <p className="ml-3 text-text-color mr-2.5">{formatShortDate(sprint?.startDate)} - {formatShortDate(sprint?.endDate)}</p>
-                <img
-                  src={EditIcon}
-                  alt="Edit Icon"
-                  className={`max-w-4 ${isBacklog ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-                  onClick={() => {
-                    if (!isBacklog) {
-                      setDateRangelOpen(true);
-                    }
-                  }}
-                />
-              </div>
-            )}
-          </div>
-          <div className="flex justify-end h-12 items-center gap-8 pr-2">
-            <ToggleButton label={"Epics"} onChange={e => onToggleFilterChange(e, 'epic')} checked={filters?.epic} />
-            <ToggleButton label={"Completed Tasks"} onChange={e => onToggleFilterChange(e, 'completed')}
-              checked={filters?.completed} />
-            <ToggleButton label={"Sub Tasks"} onChange={e => onToggleFilterChange(e, 'sub')}
-              checked={filters?.sub} />
+            <div className='w-64'>
+              <label className='text-sm font-medium'>Author</label>
+              <FormInput
+                name="author"
+                formValues={formValues}
+                onChange={(e) => setFormValues({ ...formValues, documentName: e.target.value })}
+              />
+            </div>
+
+            <div className='w-64'>
+              <label className='text-sm font-medium'>Version</label>
+              <FormSelect
+                name="version"
+                options={[]}
+                formValues={formValues}
+                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
+              />
+            </div>
+
+            <div className='w-64'>
+              <label className='text-sm font-medium'>Owner</label>
+              <FormSelect
+                name="owner"
+                options={[]}
+                formValues={formValues}
+                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="flex w-full h-9 justify-between">
-          <div className="flex items-center">
-            <div className={"flex-col"}>
+        <div className='bg-white p-4 flex rounded-lg space-x-6'>
+          <div className="flex gap-4">
+            <div className='border-2 border-secondary-bcg rounded-lg px-24 py-8'>
+              <div className='flex flex-col items-center gap-1 text-text-color'>
+                <span className='text-3xl font-medium'>25</span>
+                <span className='text-lg font-medium'>All</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className='border-2 border-pass-border-color rounded-lg px-24 py-8'>
+              <div className='flex flex-col items-center gap-1 text-text-color'>
+                <span className='text-3xl font-medium'>25</span>
+                <span className='text-lg font-medium'>Pass</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className='border-2 border-priority-high rounded-lg px-24 py-8'>
+              <div className='flex flex-col items-center gap-1 text-text-color'>
+                <span className='text-3xl font-medium'>12</span>
+                <span className='text-lg font-medium'>Fail</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className='border-2 border-pending-border-color rounded-lg px-24 py-8'>
+              <div className='flex flex-col items-center gap-1  text-text-color'>
+                <span className='text-3xl font-medium'>25</span>
+                <span className='text-lg font-medium'>Pending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className='flex items-center justify-between'>
+          <div className='flex space-x-4'>
+            <div className='w-28'>
+              <FormSelect
+                name="control"
+                options={[]}
+                placeholder="Control"
+                showLabel={false}
+                formValues={formValues}
+                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
+              />
+            </div>
+            <div className='w-28'>
               <FormSelect
                 name="assignee"
-                formValues={{ assignee: filters?.assignee }}
-                className="w-40 h-10"
-                options={assignees}
-                onChange={({ target: { name, value } }) => onSelectFilterChange(value, name)}
+                placeholder="Assignee"
+                showLabel={false}
+                options={[]}
+                formValues={formValues}
+                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
               />
             </div>
-            <div className={"flex-col ml-3 min-w-32"}>
+
+            <div className='w-36'>
+              <FormSelect
+                name="compliance"
+                placeholder="Compliance"
+                showLabel={false}
+                options={[]}
+                formValues={formValues}
+                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
+              />
+            </div>
+
+            <div className='w-28'>
+              <FormSelect
+                name="severity"
+                placeholder="Severity"
+                showLabel={false}
+                options={[]}
+                formValues={formValues}
+                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
+              />
+            </div>
+
+            <div className='w-28'>
               <FormSelect
                 name="status"
-                formValues={{ status: filters?.status }}
-                className="w-40 h-10"
-                options={statusList}
-                onChange={({ target: { name, value } }) => onSelectFilterChange(value, name)}
-              />
-            </div>
-            <div className={"flex-col ml-3 min-w-32"}>
-              <FormSelect
-                name="epics"
-                formValues={{ epics: filters?.epics }}
-                className="w-40 h-10"
-                options={[{ value: -1, label: 'No Epic' }, ...epics]}
-                onChange={({ target: { name, value } }) => onSelectFilterChange(value, name)}
+                placeholder="Status"
+                showLabel={false}
+                options={[]}
+                formValues={formValues}
+                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
               />
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
-              className="w-24 h-10 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
-              disabled={!configChanges || isSubmitting}
-              onClick={updateDisplayConfig}
-            >Save
-            </button>
-            {!isKanban && (
-              <button
-                className="w-36 h-10 text-primary-pink rounded-lg border border-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
-                disabled={isBacklog || sprintStatus === "Done" || isSubmitting || !canClose}
-                onClick={updateSprintStatus}
-              >
-                {sprintStatus === "Open" ? 'Start Sprint' : 'Complete Sprint'}
-              </button>
-            )}
-            <button
-              className="w-36 h-10 text-white rounded-lg border border-primary-pink bg-primary-pink cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:border-gray-300"
-              onClick={() => setNewTaskModalOpen(true)}>
-              New Task
-            </button>
-          </div>
+          <div className='flex w-32'>
+          <button
+            className='btn-primary h-10 rounded-md'
+            type='button'>
+            Update
+          </button>
+          <EllipsisVerticalIcon className="w-8"/>
+        </div>
         </div>
       </div>
 
-      <TaskCreateComponent sprintId={sprint?.id} onClose={closeCreateTaskModal} isOpen={newTaskModalOpen}
-        refetchSprint={refetchSprint} />
-      <DateRangeSelector isOpen={dateRangelOpen} onClose={closeDateRange} startDate={sprint?.startDate}
-        endDate={sprint?.endDate} onSave={updateDateRange} />
     </>
   );
 }
