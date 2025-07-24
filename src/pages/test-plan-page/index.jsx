@@ -1,6 +1,6 @@
 import MainPageLayout from '../../layouts/MainPageLayout.jsx'
 import TestPlanListPage from "./TestPlanListPage.jsx";
-import TestPlanContentPage from "./TestPlanContentPage.jsx";
+import RiskManagementContent from "./RiskManagementContent.jsx";
 import TestPlanCreateComponent from "./TestPlanCreateComponent.jsx";
 import {useState} from "react";
 
@@ -12,15 +12,15 @@ const TestPlanLayout = () => {
     }
 
     const handleClose = () => {
-        setIsOpen(false);
+        setIsOpen(false); 
     };
 
     return (
         <>
             <MainPageLayout
-                title="Test plan"
+                title={<span className={"text-xl"}>Risk Management</span>}
                 leftColumn={<TestPlanListPage/>}
-                rightColumn={<TestPlanContentPage/>}
+                rightColumn={<RiskManagementContent/>}
                 subText={"Add New"}
                 onAction={onAddNew}
             />

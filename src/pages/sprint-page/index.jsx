@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import MainPageLayout from '../../layouts/MainPageLayout.jsx';
-import SprintListPage from "./SprintListPage.jsx";
-import SprintContentPage from "./SprintContentPage.jsx";
+import GapAnalysisListPage from "./GapAnalysisListPage.jsx";
+import GapAnalysisContent from "./GapAnalysisContent.jsx";
 import CreateSprintPopup from '../../components/popupForms/createSprint.jsx';
 import {useSelector} from "react-redux";
 import {selectSelectedProject} from "../../state/slice/projectSlice.js";
@@ -24,8 +24,8 @@ const SprintLayout = () => {
             title={selectedProject?.projectType === 1 ? 'Gap Analysis ' : 'Kanban'}
             onAction={onAddNew}
             subText={selectedProject?.projectType === 1 ? 'Add New' : ''}
-            leftColumn={<SprintListPage/>}
-            rightColumn={<SprintContentPage/>}
+            leftColumn={<GapAnalysisListPage/>}
+            rightColumn={<GapAnalysisContent/>}
         />
         <CreateSprintPopup handleClosePopup={handleClose} isOpen={isOpen}/>
       </>
