@@ -24,7 +24,7 @@ const dummyData = [
     currentGaps: 'Gap 1: Missing documentation',
     complianceStatus: 'Non-Compliant ',
     severity: 'High',
-    recommendedAction: 'Review and update documentation accordingly.',
+    recommendedAction: 'Review dd and update documentation accordingly.',
     responsibility: {
       firstName: 'John',
       lastName: 'Doe',
