@@ -22,7 +22,7 @@ const dummyData = [
     id: 1,
     title: 'ISO control - close/Annex A',
     currentGaps: 'Gap 1: Missing documentation',
-    complianceStatus: 'Non-Compliant test',
+    complianceStatus: 'Non-Compliant ',
     severity: 'High',
     recommendedAction: 'Review and update documentation accordingly.',
     responsibility: {
