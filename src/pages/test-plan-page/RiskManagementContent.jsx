@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {useSelector} from 'react-redux';
-import SprintTable from '../../components/sprint-table/index.jsx';
+import SprintTable from '../../components/sprint-table/RiskManagementIndex.jsx';
+
 import {selectSelectedSprint, selectSprintFormData} from '../../state/slice/sprintSlice.js';
 import SkeletonLoader from '../../components/SkeletonLoader.jsx';
 import ErrorAlert from '../../components/ErrorAlert.jsx';
-import SprintHeader from './SprintHeader.jsx';
+import RiskManagementHeader from './RiskManagementHeader.jsx';
 import useFetchSprint from '../../hooks/custom-hooks/sprint/useFetchSprint.jsx';
 import {areObjectArraysEqual} from '../../components/sprint-table/utils.jsx';
 import useFetchTaskAttributes from '../../hooks/custom-hooks/sprint/useFetchTaskAttributes.jsx';
@@ -39,7 +40,7 @@ const transformTask = (task) => {
   };
 };
 
-const SprintContentPage = () => {
+const RiskManagementContentPage = () => {
   const selectedSprint = useSelector(selectSelectedSprint);
   const sprintStatusList = useSelector(selectSprintFormData);
   const users = useSelector(selectProjectUserList);
@@ -197,7 +198,7 @@ const SprintContentPage = () => {
 
   return (
     <div className="bg-slate-100 ">
-      <SprintHeader
+      <RiskManagementHeader
         sprint={sprint}
         isBacklog={isBacklog}
         refetchSprint={refetchSprint}
@@ -229,4 +230,4 @@ const SprintContentPage = () => {
   );
 };
 
-export default SprintContentPage;
+export default RiskManagementContentPage;
