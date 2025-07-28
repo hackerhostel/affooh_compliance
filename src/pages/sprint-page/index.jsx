@@ -21,7 +21,7 @@ const SprintLayout = () => {
   return (
       <>
         <MainPageLayout
-            title={selectedProject?.projectType === 1 ? 'Gap Analyse ' : 'Kanban'}
+            title={selectedProject?.projectType === 1 ? 'Gap Analysis ' : 'Kanban'}
             onAction={onAddNew}
             subText={selectedProject?.projectType === 1 ? 'Add New' : ''}
             leftColumn={<GapAnalysisListPage/>}
