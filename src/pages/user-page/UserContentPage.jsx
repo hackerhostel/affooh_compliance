@@ -5,6 +5,7 @@ import axios from "axios";
 import { useToasts } from "react-toast-notifications";
 import { getSelectOptions } from "../../utils/commonUtils.js";
 import FormSelect from "../../components/FormSelect.jsx";
+import UserSelect from "../../components/UserSelect.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import {
   clickedUser,
@@ -63,6 +64,7 @@ const UserContentPage = () => {
   const [startDateFilter, setStartDateFilter] = useState(null);
   const [endDateFilter, setEndDateFilter] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const [taskCounts, setTaskCounts] = useState({
     all: 0,
     tasks: 0,
@@ -277,20 +279,8 @@ const UserContentPage = () => {
     setSearchTerm(term);
   };
 
-  const updateUser = () => {
-    if (selectedUser) {
-      axios
-        .put(`/users/${selectedUser.id}`, { ...formValues })
-        .then(() => {
-          addToast("User Successfully Updated", { appearance: "success" });
-          dispatch(doGetOrganizationUsers());
-        })
-        .catch(() => {
-          addToast("User update request failed ", { appearance: "error" });
-        });
-    }
-  };
 
+ 
   // Calculate pagination
   const indexOfLastTask = currentPage * tasksPerPage;
   const indexOfFirstTask = indexOfLastTask - tasksPerPage;
@@ -318,6 +308,17 @@ const UserContentPage = () => {
     { value: "High", label: "High" },
   ];
 
+ const dummyUsers = [
+    { id: 1, name: "John Doe" },
+    { id: 2, firstName: "Jane", lastName: "Smith" },
+    { id: 3, firstName: "Mike", lastName: "Johnson" },
+  ];
+
+   const handleUserChange = (e) => {
+    setSelectedUserId(e.target.value);
+    console.log("Selected user ID:", e.target.value);
+  };
+
   return (
     <div className="p-6 bg-dashboard-bgc min-h-screen">
       <div className="flex flex-col md:flex-row gap-6">
@@ -342,26 +343,23 @@ const UserContentPage = () => {
                 {selectedUser?.lastName?.[0]}
               </div>
             )}
-            <span className="text-xl font-semibold mt-5 text-secondary-grey mb-1">
-              {selectedUser?.firstName} {selectedUser?.lastName}
+            <span className="text-xl font-semibold text-center mt-5 text-secondary-grey mb-1">
+              Scope of the quality management system
             </span>
-            <div className="bg-task-status-qa px-2 mt-1 rounded-md">
-              <span className="text-xs">Admin</span>
-            </div>
+
             <hr className="w-full mt-6 border-t border-gray-200" />
             <div className="w-full space-y-4 mt-6">
               <FormInput
-                name="email"
+                name="documentID"
                 formValues={formValues}
-                placeholder="Email"
+                placeholder="Document ID"
                 onChange={(e) =>
-                  setFormValues({ ...formValues, email: e.target.value })
+                  setFormValues({ ...formValues, documentID: e.target.value })
                 }
-                className={`w-full p-2 border rounded-md ${
-                  isEditable
-                    ? "bg-white text-secondary-grey border-border-color"
-                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                }`}
+                className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
                 disabled={!isEditable}
                 formErrors={formErrors}
                 showErrors={true}
@@ -369,20 +367,39 @@ const UserContentPage = () => {
               />
 
               <FormInput
-                name="contactNumber"
+                name="version"
                 formValues={formValues}
-                placeholder="Contact Number"
+                placeholder="Version"
                 onChange={(e) =>
                   setFormValues({
                     ...formValues,
-                    contactNumber: e.target.value,
+                    version: e.target.value,
                   })
                 }
-                className={`w-full p-2 border rounded-md ${
-                  isEditable
-                    ? "bg-white text-secondary-grey border-border-color"
-                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                }`}
+                className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
+                disabled={!isEditable}
+                formErrors={formErrors}
+                showErrors={true}
+                showLabel={true}
+              />
+
+              <FormInput
+                name="effectiveDate"
+                formValues={formValues}
+                placeholder="Effective Date"
+                onChange={(e) =>
+                  setFormValues({
+                    ...formValues,
+                    effectiveDate: e.target.value,
+                  })
+                }
+                className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
                 disabled={!isEditable}
                 formErrors={formErrors}
                 showErrors={true}
@@ -390,31 +407,69 @@ const UserContentPage = () => {
               />
 
               <FormSelect
-                name="userRole"
+                name="classification"
                 formValues={formValues}
                 options={getSelectOptions(roles)}
-                placeholder="Roles"
+                placeholder="Classification"
                 onChange={(e) =>
                   setFormValues({ ...formValues, userRole: e.target.value })
                 }
-                className={`w-full p-2 border rounded-md ${
-                  isEditable
-                    ? "bg-white text-secondary-grey border-border-color"
-                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                }`}
+                className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
                 disabled={!isEditable}
                 formErrors={formErrors}
                 showErrors={true}
                 showLabel={true}
               />
 
-              <button
-                onClick={updateUser}
-                type="submit"
-                className="px-4 py-2 bg-primary-pink w-full text-white rounded-md"
-              >
-                Update
-              </button>
+              <div className="mb-6 mt-5">
+                <UserSelect
+                  name="owner"
+                  label="Prepared By"
+                  value={selectedUserId}
+                  onChange={handleUserChange}
+                  users={dummyUsers}
+                   className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
+                disabled={!isEditable}
+                />
+              </div>
+
+                <div className="mb-6 mt-5">
+                <UserSelect
+                  name="owner"
+                  label="Approved By"
+                  value={selectedUserId}
+                  onChange={handleUserChange}
+                  users={dummyUsers}
+                   className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
+                disabled={!isEditable}
+                />
+              </div>
+
+                <div className="mb-6 mt-5">
+                <UserSelect
+                  name="owner"
+                  label="Owner"
+                  value={selectedUserId}
+                  onChange={handleUserChange}
+                  users={dummyUsers}
+                   className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
+                disabled={!isEditable}
+                />
+              </div>
+
+             
             </div>
           </div>
         </div>
@@ -437,15 +492,14 @@ const UserContentPage = () => {
                 <div key={type} className="text-center">
                   <div
                     className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold
-                    ${
-                      type === "all"
+                    ${type === "all"
                         ? "bg-pink-100 text-pink-500"
                         : type === "tasks"
                           ? "bg-green-100 text-green-500"
                           : type === "bugs"
                             ? "bg-red-100 text-red-500"
                             : "bg-blue-100 text-blue-500"
-                    }`}
+                      }`}
                   >
                     {count}
                   </div>
@@ -535,7 +589,7 @@ const UserContentPage = () => {
             </div>
           </div>
 
-          
+
 
           {loading && <p>Loading tasks...</p>}
           {error && <p>Error: {error}</p>}
@@ -595,11 +649,10 @@ const UserContentPage = () => {
                   <button
                     onClick={() => paginate(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className={`w-8 h-8 flex items-center justify-center rounded-md ${
-                      currentPage === 1
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`w-8 h-8 flex items-center justify-center rounded-md ${currentPage === 1
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     &lt;
                   </button>
@@ -617,11 +670,10 @@ const UserContentPage = () => {
                         <button
                           key={pageNum}
                           onClick={() => paginate(pageNum)}
-                          className={`w-8 h-8 flex items-center justify-center rounded-md ${
-                            currentPage === pageNum
-                              ? "bg-primary-pink text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
+                          className={`w-8 h-8 flex items-center justify-center rounded-md ${currentPage === pageNum
+                            ? "bg-primary-pink text-white"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            }`}
                         >
                           {pageNum.toString().padStart(2, "0")}
                         </button>
@@ -635,11 +687,10 @@ const UserContentPage = () => {
                       paginate(Math.min(totalPages, currentPage + 1))
                     }
                     disabled={currentPage === totalPages}
-                    className={`w-8 h-8 flex items-center justify-center rounded-md ${
-                      currentPage === totalPages
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`w-8 h-8 flex items-center justify-center rounded-md ${currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     &gt;
                   </button>

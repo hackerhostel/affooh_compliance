@@ -8,7 +8,7 @@ const UserLayout = () => {
     <MainPageLayout
       title={
         <div style={{ display: 'flex', gap: '96px', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span>Users</span>
+        <span className='text-lg'>Mandatory Documents</span>
       </div>
       }
       leftColumn={<UserListPage />}

@@ -88,16 +88,7 @@ const UserListPage = () => {
     }
   };
 
-  const handleSearch = (term) => {
-    if (term.trim() === '') {
-      setFilteredUserList(userListForOrg);
-    } else {
-      const filtered = userListForOrg.filter(user =>
-        `${user?.firstName} ${user?.lastName}`.toLowerCase().includes(term.toLowerCase())
-      );
-      setFilteredUserList(filtered);
-    }
-  };
+  
 
   if (userListForLoading) return <div className="p-2"><SkeletonLoader /></div>;
   if (userListError) return <ErrorAlert message="failed to fetch users at the moment" />;
@@ -105,42 +96,10 @@ const UserListPage = () => {
   return (
     <div className="h-list-screen overflow-y-auto w-full pl-3">
       <div className="flex flex-col gap-3 laptopL:w-64  w-full ">
-        <div>
-        <SearchBar onSearch={handleSearch}/>
-        </div>
+        
 
-        {/* Invite Section */}
-        <div className="flex items-center gap-2">
+     
 
-          <input
-            type="email"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-            placeholder="Invite"
-            className="border border-gray-300 rounded-md p-2  flex-grow"
-          />
-        </div>
-
-        <div className='flex gap-2'>
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="border border-gray-300 rounded-md p-2 w-full"
-          >
-            { roles?.map((r) => (
-                <option key={r.id} value={r.id}>{r.value}</option>
-            ))}
-          </select>
-
-          <button
-              onClick={handleInvite}
-            className="bg-primary-pink text-white rounded-md px-4 py-2"
-            style={{ width: "145px" }}
-          >
-            INVITE
-          </button>
-
-        </div>
 
         {filteredUserList.map((element, index) => (
           <button
