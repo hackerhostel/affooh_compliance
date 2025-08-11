@@ -1,6 +1,7 @@
 import MainPageLayout from '../../layouts/MainPageLayout.jsx'
 import ProjectListPage from "./ProjectListPage.jsx";
 import ProjectContentPage from "./ProjectContentPage.jsx";
+import ExternalProviders from "../project-page/ExternalProviders.jsx";
 import CreateNewProjectPopup from '../../components/popupForms/createNewProject.jsx';
 import {useState} from "react";
 const ProjectLayout = () => {
@@ -17,9 +18,9 @@ const ProjectLayout = () => {
   return (
     <>
     <MainPageLayout
-      title="All Projects"
+      title="External Providers"
       leftColumn={<ProjectListPage />}
-      rightColumn={<ProjectContentPage />}
+      rightColumn={<ExternalProviders />}
       subText = {"Add New"}
       onAction = {onAddNew}
     />
