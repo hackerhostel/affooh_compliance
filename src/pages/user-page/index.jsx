@@ -2,18 +2,30 @@ import MainPageLayout from '../../layouts/MainPageLayout.jsx'
 import UserListPage from "./UserListPage.jsx";
 import UserContentPage from "./UserContentPage.jsx";
 import { PlusCircleIcon } from "@heroicons/react/24/outline/index.js";
+import {useState} from "react";
+import CreateDocument from "./DocumentCreate.jsx" 
 
 const UserLayout = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+    const onAddNew = () => {
+      setIsOpen(true)
+    };
+  
+    const handleClose = () => {
+      setIsOpen(false);
+    }
   return (
+    <>
     <MainPageLayout
-      title={
-        <div style={{ display: 'flex', gap: '96px', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span className='text-lg'>Mandatory Documents</span>
-      </div>
-      }
+     title="Mandatory Documents"
       leftColumn={<UserListPage />}
       rightColumn={<UserContentPage />}
+      subText = {"Add New"}
+      onAction = {onAddNew}
     />
+    <CreateDocument onClose={handleClose} isOpen={isOpen}/>
+    </>
   );
 }
 
