@@ -46,7 +46,7 @@ const CreateSprintPopup = ({
       handleClosePopup();
     }
   };
-
+ 
   const createSprint = async (event) => {
     event.preventDefault();
     setIsSubmitting(true)
