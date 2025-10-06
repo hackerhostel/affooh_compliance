@@ -1,5 +1,5 @@
 import { Menu, Transition } from '@headlessui/react';
-import { CogIcon, BellIcon } from '@heroicons/react/24/outline';
+import { CogIcon, BellIcon, FolderIcon } from '@heroicons/react/24/outline';
 
 import {signOut} from 'aws-amplify/auth';
 import {
@@ -87,6 +87,7 @@ function Sidebar() {
             <MenuItem link="/test-plans" Icon={TableCellsIcon}/>
             <MenuItem link="/releases" Icon={DocumentTextIcon}/>
             <MenuItem link="/projects" Icon={Square3Stack3DIcon}/>
+            <MenuItem link="/folders" Icon={FolderIcon}/>
             <MenuItem link="/profile" Icon={UsersIcon}/>
 
             <div className="flex flex-col items-center ">
