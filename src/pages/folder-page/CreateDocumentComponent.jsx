@@ -33,7 +33,7 @@ const CreateDocumentComponent = ({ isOpen, onClose }) => {
         <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm">
           <div className="bg-white p-6 shadow-lg w-2/4">
             <div className="flex justify-between items-center mb-4">
-              <p className="font-bold text-2xl">Add New Document</p>
+              <p className="font-bold text-2xl">Add Document</p>
               <div className={"cursor-pointer"} onClick={handleClose}>
                 <XMarkIcon className={"w-6 h-6 text-gray-500"} />
               </div>
