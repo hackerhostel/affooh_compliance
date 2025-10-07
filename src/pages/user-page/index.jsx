@@ -1,6 +1,6 @@
 import MainPageLayout from '../../layouts/MainPageLayout.jsx'
 import UserListPage from "./UserListPage.jsx";
-import UserContentPage from "./UserContentPage.jsx";
+import DocumentaryContentPage from "./DocumentaryContentPage.jsx";
 import { PlusCircleIcon } from "@heroicons/react/24/outline/index.js";
 import {useState} from "react";
 import CreateDocument from "./DocumentCreate.jsx" 
@@ -20,7 +20,7 @@ const UserLayout = () => {
     <MainPageLayout
      title="Mandatory Documents"
       leftColumn={<UserListPage />}
-      rightColumn={<UserContentPage />}
+      rightColumn={<DocumentaryContentPage />}
       subText = {"Add New"}
       onAction = {onAddNew}
     />
