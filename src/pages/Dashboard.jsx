@@ -10,6 +10,7 @@ import {doGetWhoAmI, selectInitialUserDataError, selectInitialUserDataLoading} f
 import LoadingPage from "./LoadingPage.jsx";
 import ServiceDownPage from "./ServiceDownPage.jsx";
 import TestPlanLayout from "./test-plan-page/index.jsx";
+import FolderLayout from "./folder-page/index.jsx";
 import DashboardLayout from "./dashboard-page/index.jsx";
 import ReleaseLayout from "./release-page/index.jsx";
 import SprintLayout from "./sprint-page/index.jsx";
@@ -75,6 +76,10 @@ const Dashboard = () => {
 
             <Route path="/settings">
               <SettingLayout/>
+            </Route>
+
+            <Route path="/folders">
+              <FolderLayout/>
             </Route>
 
             <Route path="/sprints">
