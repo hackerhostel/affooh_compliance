@@ -1,5 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import DataGrid, { Column, ColumnChooser, GroupPanel, Grouping, Paging, Scrolling, Sorting } from 'devextreme-react/data-grid'
+import { PlusCircleIcon } from '@heroicons/react/24/outline'
+import CreateDocument from './CreateDocumentComponent.jsx'
+
 
 const FolderContentPage = ({ folder }) => {
     if (!folder) {
@@ -10,13 +13,23 @@ const FolderContentPage = ({ folder }) => {
         )
     }
 
+    const [isOpen, setIsOpen] = useState(false);
+
+    const onAddNew = () => setIsOpen(true);
+    const handleClose = () => setIsOpen(false);
+
     return (
         <div className="p-6 bg-dashboard-bgc h-full">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-5">
                 <span className='text-text-color text-2xl font-medium'>Documents</span>
+                <button type="button" onClick={onAddNew} className='flex items-center'>
+                    <PlusCircleIcon className='w-5 text-primary-pink'/>
+                    <span className='text-sm text-text-color ml-1 cursor-pointer'>Add New</span>
+                </button>
             </div>
 
-            <div className="px-0 mt-5 bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className='bg-white mt-5 h-full'>
+            <div className="p-10  bg-white rounded-lg shadow-lg overflow-hidden">
                 <DataGrid
                     dataSource={folder.documents || []}
                     width="100%"
@@ -36,6 +49,8 @@ const FolderContentPage = ({ folder }) => {
                     <Column dataField="modifiedBy" caption="Modified By" width={200} />
                 </DataGrid>
             </div>
+            </div>
+            <CreateDocument isOpen={isOpen} onClose={handleClose} />
         </div>
     )
 }

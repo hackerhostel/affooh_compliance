@@ -1,6 +1,7 @@
 import MainPageLayout from '../../layouts/MainPageLayout.jsx'
 import FolderListPage from "./FolderListPage.jsx";
 import FolderContentPage from "./FolderContentPage.jsx";
+import CreateDocument from "./CreateFolderComponent.jsx"
 import {useMemo, useState} from "react";
 
 const FolderLayout = () => {
@@ -12,15 +13,16 @@ const FolderLayout = () => {
   ]);
 
   const [selectedFolderId, setSelectedFolderId] = useState(null);
-
+  const [isOpen, setIsOpen] = useState(false);
   const selectedFolder = useMemo(() => folders.find(f => f.id === selectedFolderId) || null, [folders, selectedFolderId]);
 
-  const onAddNew = () => {
-    // Hook up to real create modal later
-    // eslint-disable-next-line no-alert
-    alert("Add New Folder - not yet implemented");
-  };
-
+ const onAddNew = () => {
+      setIsOpen(true)
+    };
+  
+    const handleClose = () => {
+      setIsOpen(false);
+    }
   return (
     <>
     <MainPageLayout
@@ -30,6 +32,7 @@ const FolderLayout = () => {
       subText = {"Add New"}
       onAction = {onAddNew}
     />
+    <CreateDocument onClose={handleClose} isOpen={isOpen}/>
     </>
   );
 }
