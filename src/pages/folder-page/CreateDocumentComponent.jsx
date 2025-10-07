@@ -41,10 +41,10 @@ const CreateDocumentComponent = ({ isOpen, onClose }) => {
             <form className={"flex flex-col justify-between h-5/6 mt-10"} onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div className={"flex-col"}>
-                  <p className={"text-secondary-grey"}>Name</p>
+                  <p className={"text-secondary-grey"}>link</p>
                   <FormInput
                     type="text"
-                    name="name"
+                    name="link"
                     formValues={formValues}
                     onChange={({ target: { name, value } }) => handleFormChange(name, value)}
                   />
