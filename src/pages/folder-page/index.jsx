@@ -1,5 +1,5 @@
 import MainPageLayout from '../../layouts/MainPageLayout.jsx'
-import FolderListPage from "./FolderListPage.jsx";
+import FolderListPage from "./DocumentaryListPage.jsx";
 import FolderContentPage from "./FolderContentPage.jsx";
 import CreateDocument from "./CreateFolderComponent.jsx"
 import {useMemo, useState} from "react";

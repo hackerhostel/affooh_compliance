@@ -15,6 +15,7 @@ import DashboardLayout from "./dashboard-page/index.jsx";
 import ReleaseLayout from "./release-page/index.jsx";
 import SprintLayout from "./sprint-page/index.jsx";
 import SettingLayout from "./setting-page/index.jsx";
+import OrganizationalLayout from "./organizational-page/index.jsx";
 import {doGetProjectBreakdown, selectSelectedProject} from "../state/slice/projectSlice.js";
 import {isNotEmptyObj} from "../utils/commonUtils.js";
 import EditTaskPage from "../pages/sprint-page/editTask/index.jsx"
@@ -56,6 +57,10 @@ const Dashboard = () => {
 
             <Route path="/projects">
               <ProjectLayout/>
+            </Route>
+
+            <Route path="/organizational">
+              <OrganizationalLayout/>
             </Route>
 
             <Route path="/profile">
