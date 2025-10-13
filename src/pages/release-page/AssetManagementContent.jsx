@@ -39,7 +39,7 @@ const transformTask = (task) => {
   };
 };
 
-const SprintContentPage = () => {
+const AssetContentPage = () => {
   const selectedSprint = useSelector(selectSelectedSprint);
   const sprintStatusList = useSelector(selectSprintFormData);
   const users = useSelector(selectProjectUserList);
@@ -229,4 +229,4 @@ const SprintContentPage = () => {
   );
 };
 
-export default SprintContentPage;
+export default AssetContentPage;

@@ -10,10 +10,12 @@ import {doGetWhoAmI, selectInitialUserDataError, selectInitialUserDataLoading} f
 import LoadingPage from "./LoadingPage.jsx";
 import ServiceDownPage from "./ServiceDownPage.jsx";
 import TestPlanLayout from "./test-plan-page/index.jsx";
+import FolderLayout from "./folder-page/index.jsx";
 import DashboardLayout from "./dashboard-page/index.jsx";
 import ReleaseLayout from "./release-page/index.jsx";
 import SprintLayout from "./sprint-page/index.jsx";
 import SettingLayout from "./setting-page/index.jsx";
+import OrganizationalLayout from "./organizational-page/index.jsx";
 import {doGetProjectBreakdown, selectSelectedProject} from "../state/slice/projectSlice.js";
 import {isNotEmptyObj} from "../utils/commonUtils.js";
 import EditTaskPage from "../pages/sprint-page/editTask/index.jsx"
@@ -57,6 +59,10 @@ const Dashboard = () => {
               <ProjectLayout/>
             </Route>
 
+            <Route path="/organizational">
+              <OrganizationalLayout/>
+            </Route>
+
             <Route path="/profile">
               <UserLayout />
             </Route>
@@ -75,6 +81,10 @@ const Dashboard = () => {
 
             <Route path="/settings">
               <SettingLayout/>
+            </Route>
+
+            <Route path="/folders">
+              <FolderLayout/>
             </Route>
 
             <Route path="/sprints">

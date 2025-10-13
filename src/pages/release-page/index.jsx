@@ -1,4 +1,4 @@
-import ReleaseListPage from "./ReleaseListPage.jsx";
+import AssetManagementListPage from "./AssetManagementListPage.jsx";
 import AssetManagementContent from "./AssetManagementContent.jsx";
 import ReleaseCreate from "./ReleaseCreate.jsx";
 import {useState} from "react";
@@ -21,7 +21,7 @@ const ReleaseLayout = () => {
           title={"Asset  Management"}
           onAction={onAddNew}
           subText={"Add New"}
-          leftColumn={<ReleaseListPage/>}
+          leftColumn={<AssetManagementListPage/>}
           rightColumn={
             <div className={"bg-dashboard-bgc"}>
               <AssetManagementContent />
