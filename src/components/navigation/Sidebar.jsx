@@ -88,7 +88,6 @@ function Sidebar() {
             <MenuItem link="/test-plans" Icon={TableCellsIcon}/>
             <MenuItem link="/releases" Icon={DocumentTextIcon}/>
             <MenuItem link="/projects" Icon={Square3Stack3DIcon}/>
-            <MenuItem link="/folders" Icon={FolderIcon}/>
             <MenuItem link="/profile" Icon={UsersIcon}/>
 
             <div className="flex flex-col items-center ">
