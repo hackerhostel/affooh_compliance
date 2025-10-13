@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import FormInput from "../../../components/FormInput.jsx";
 import FormTextArea from "../../../components/FormTextArea.jsx";
 import {
+  EllipsisVerticalIcon,
   PencilIcon,
   CheckBadgeIcon,
   XMarkIcon,
@@ -46,6 +47,8 @@ const ScopeOverview = () => {
   });
   const [editingInternalRowId, setEditingInternalRowId] = useState(null);
   const [internalCurrentPage, setInternalCurrentPage] = useState(1);
+  const [openActionMenu, setOpenActionMenu] = useState(false);
+  const [openActionRowId, setOpenActionRowId] = useState(null);
 
   // -------------------------------
   // EXTERNAL COMMUNICATION SECTION
@@ -180,6 +183,20 @@ const ScopeOverview = () => {
   const handleNextExternal = () =>
     setExternalCurrentPage((p) => Math.min(p + 1, externalTotalPages));
 
+  const toggleActionMenu = (rowId) => {
+    setOpenActionRowId((prevId) => (prevId === rowId ? null : rowId));
+  };
+
+  const handleSave = () => {
+    onSave();
+    setOpenActionMenu(false);
+  };
+
+  const handleCancel = () => {
+    onCancel();
+    setOpenActionMenu(false);
+  };
+
   return (
     <div>
       {/* ---------------- INTERNAL COMMUNICATION ---------------- */}
@@ -255,15 +272,38 @@ const ScopeOverview = () => {
                         <td className="py-3 px-2">{row.frequency}</td>
                         <td className="py-3 px-2">{row.responsibility}</td>
                         <td className="py-3 px-2">{row.targetTeam}</td>
-                        <td className="py-3 px-2 flex gap-3">
-                          <PencilIcon
-                            className="w-5 h-5 cursor-pointer text-text-color"
-                            onClick={() => handleStartEditInternal(row.id)}
-                          />
-                          <TrashIcon
-                            className="w-5 h-5 cursor-pointer text-text-color"
-                            onClick={() => handleDeleteInternalRow(row.id)}
-                          />
+                        <td className="py-3 px-2">
+                          <div className="flex items-center gap-3">
+                            {openActionRowId !== row.id ? (
+                              <div
+                                className="cursor-pointer inline-flex"
+                                onClick={() => toggleActionMenu(row.id)}
+                              >
+                                <EllipsisVerticalIcon className="w-5 h-5 text-secondary-grey" />
+                              </div>
+                            ) : (
+                              <>
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={() => handleStartEditInternal(row.id)}
+                                >
+                                  <PencilIcon className="w-5 h-5 text-text-color" />
+                                </div>
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={() => handleDeleteInternalRow(row.id)}
+                                >
+                                  <TrashIcon className="w-5 h-5 text-text-color" />
+                                </div>
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={() => setOpenActionRowId(null)}
+                                >
+                                  <XMarkIcon className="w-5 h-5 text-text-color" />
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </>
                     ) : (
@@ -303,11 +343,10 @@ const ScopeOverview = () => {
             <div className="w-full flex gap-5 items-center justify-end mt-4">
               <button
                 onClick={handlePrevInternal}
-                className={`p-2 rounded-full bg-gray-200 ${
-                  internalCurrentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-300"
-                }`}
+                className={`p-2 rounded-full bg-gray-200 ${internalCurrentPage === 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-300"
+                  }`}
                 disabled={internalCurrentPage === 1}
               >
                 <ChevronLeftIcon className="w-4 h-4 text-secondary-grey" />
@@ -317,11 +356,10 @@ const ScopeOverview = () => {
               </span>
               <button
                 onClick={handleNextInternal}
-                className={`p-2 rounded-full bg-gray-200 ${
-                  internalCurrentPage === internalTotalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-300"
-                }`}
+                className={`p-2 rounded-full bg-gray-200 ${internalCurrentPage === internalTotalPages
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-300"
+                  }`}
                 disabled={internalCurrentPage === internalTotalPages}
               >
                 <ChevronRightIcon className="w-4 h-4 text-secondary-grey" />
@@ -402,15 +440,38 @@ const ScopeOverview = () => {
                         <td className="py-3 px-2">{row.how}</td>
                         <td className="py-3 px-2">{row.who}</td>
                         <td className="py-3 px-2">{row.when}</td>
-                        <td className="py-3 px-2 flex gap-3">
-                          <PencilIcon
-                            className="w-5 h-5 cursor-pointer text-text-color"
-                            onClick={() => handleStartEditExternal(row.id)}
-                          />
-                          <TrashIcon
-                            className="w-5 h-5 cursor-pointer text-text-color"
-                            onClick={() => handleDeleteExternalRow(row.id)}
-                          />
+                        <td className="py-3 px-2">
+                          <div className="flex items-center gap-3">
+                            {openActionRowId !== row.id ? (
+                              <div
+                                className="cursor-pointer inline-flex"
+                                onClick={() => toggleActionMenu(row.id)}
+                              >
+                                <EllipsisVerticalIcon className="w-5 h-5 text-secondary-grey" />
+                              </div>
+                            ) : (
+                              <>
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={() => handleStartEditInternal(row.id)}
+                                >
+                                  <PencilIcon className="w-5 h-5 text-text-color" />
+                                </div>
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={() => handleDeleteInternalRow(row.id)}
+                                >
+                                  <TrashIcon className="w-5 h-5 text-text-color" />
+                                </div>
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={() => setOpenActionRowId(null)}
+                                >
+                                  <XMarkIcon className="w-5 h-5 text-text-color" />
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </>
                     ) : (
@@ -450,11 +511,10 @@ const ScopeOverview = () => {
             <div className="w-full flex gap-5 items-center justify-end mt-4">
               <button
                 onClick={handlePrevExternal}
-                className={`p-2 rounded-full bg-gray-200 ${
-                  externalCurrentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-300"
-                }`}
+                className={`p-2 rounded-full bg-gray-200 ${externalCurrentPage === 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-300"
+                  }`}
                 disabled={externalCurrentPage === 1}
               >
                 <ChevronLeftIcon className="w-4 h-4 text-secondary-grey" />
@@ -464,11 +524,10 @@ const ScopeOverview = () => {
               </span>
               <button
                 onClick={handleNextExternal}
-                className={`p-2 rounded-full bg-gray-200 ${
-                  externalCurrentPage === externalTotalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-300"
-                }`}
+                className={`p-2 rounded-full bg-gray-200 ${externalCurrentPage === externalTotalPages
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-300"
+                  }`}
                 disabled={externalCurrentPage === externalTotalPages}
               >
                 <ChevronRightIcon className="w-4 h-4 text-secondary-grey" />
