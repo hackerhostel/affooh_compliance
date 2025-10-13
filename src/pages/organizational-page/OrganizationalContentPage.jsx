@@ -1,6 +1,10 @@
 import React from "react";
 import ContextContent from "./context/ContextContent.jsx";
 import OrganizationChartContent from "./OrganizationChart/OrganizationChartContent.jsx";
+import SWOTContent from "./SWOT/SWOTContent.jsx";
+import PESTContent from "./PEST/PESTContent.jsx";
+import StakeholderContextContent from "./Stakeholder-context/StakeholderContent.jsx"
+import ScopeContent  from './Scope/ScopeContent.jsx'
 
 
 const OrganizationalContentPage = ({ selectedDocument }) => {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import OrganizationalChartOverview from "./OrganizationalChartOverview.jsx";
-import OrganizationalChartHistory from "./OrganizationalChartHistory.jsx";
+import SWOTOverview from "./SWOTOverview.jsx";
+import SWOTHistory from "./SWOTHistory.jsx";
 
 const DocumentaryContentPage = () => {
   // Left sidebar removed; state related to it has been removed
@@ -36,8 +36,8 @@ const DocumentaryContentPage = () => {
             </div>
           </div>
 
-          {activeTab === "overview" && <OrganizationalChartOverview />}
-          {activeTab === "history" && <OrganizationalChartHistory />}
+          {activeTab === "overview" && <SWOTOverview />}
+          {activeTab === "history" && <SWOTHistory />}
         </div>
       </div>
     </div>

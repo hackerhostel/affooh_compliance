@@ -80,7 +80,7 @@ const dummyData = [
   }
 ];
 
-const ContextHistory = () => {
+const PESTHistory = () => {
   const { addToast } = useToasts();
   const dispatch = useDispatch();
   const selectedUser = useSelector(clickedUser);
@@ -151,7 +151,7 @@ const ContextHistory = () => {
             </div>
           )}
           <span className="text-lg font-semibold text-center mt-5  mb-1">
-            Organizational <br></br> Context
+            Organizational <br></br> PEST
           </span>
 
           <hr className="w-full mt-6 border-t border-gray-200" />
@@ -439,4 +439,4 @@ const ContextHistory = () => {
   );
 }
 
-export default ContextHistory;
+export default PESTHistory;

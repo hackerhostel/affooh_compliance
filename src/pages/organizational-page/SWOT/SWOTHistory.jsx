@@ -80,7 +80,7 @@ const dummyData = [
   }
 ];
 
-const ContextHistory = () => {
+export default function DocumentHistory() {
   const { addToast } = useToasts();
   const dispatch = useDispatch();
   const selectedUser = useSelector(clickedUser);
@@ -438,5 +438,3 @@ const ContextHistory = () => {
     </div>
   );
 }
-
-export default ContextHistory;

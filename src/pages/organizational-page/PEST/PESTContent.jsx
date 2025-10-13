@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import OrganizationalChartOverview from "./OrganizationalChartOverview.jsx";
-import OrganizationalChartHistory from "./OrganizationalChartHistory.jsx";
+import PESTOverview from "./PESTOverview.jsx";
+import PESTtHistory from "./PESTHistory.jsx";
 
-const DocumentaryContentPage = () => {
+const PESTContentPage = () => {
   // Left sidebar removed; state related to it has been removed
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -36,12 +36,12 @@ const DocumentaryContentPage = () => {
             </div>
           </div>
 
-          {activeTab === "overview" && <OrganizationalChartOverview />}
-          {activeTab === "history" && <OrganizationalChartHistory />}
+          {activeTab === "overview" && <PESTOverview />}
+          {activeTab === "history" && <PESTtHistory />}
         </div>
       </div>
     </div>
   );
 };
 
-export default DocumentaryContentPage;
+export default PESTContentPage;
