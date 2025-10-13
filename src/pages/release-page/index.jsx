@@ -1,9 +1,9 @@
-import ReleaseListPage from "./ReleaseListPage.jsx";
-import ReleaseContentPage from "./ReleaseContentPage.jsx";
+import AssetManagementListPage from "./AssetManagementListPage.jsx";
+import AssetManagementContent from "./AssetManagementContent.jsx";
 import ReleaseCreate from "./ReleaseCreate.jsx";
 import {useState} from "react";
 import MainPageLayout from "../../layouts/MainPageLayout.jsx";
-import ReleaseEdit from "./ReleaseEdit.jsx";
+
 
 const ReleaseLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,13 +18,13 @@ const ReleaseLayout = () => {
 
   return (
       <MainPageLayout
-          title={"Releases"}
+          title={"Asset  Management"}
           onAction={onAddNew}
           subText={"Add New"}
-          leftColumn={<ReleaseListPage/>}
+          leftColumn={<AssetManagementListPage/>}
           rightColumn={
             <div className={"bg-dashboard-bgc"}>
-              <ReleaseContentPage />
+              <AssetManagementContent />
               <ReleaseCreate onClose={handleClose} isOpen={isOpen}/>
             </div>
           }

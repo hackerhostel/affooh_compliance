@@ -57,7 +57,7 @@ const statusOptions = [
     { label: 'Pending', value: 'Pending' },
 ];
 
-const DummyTable = () => {
+const RiskManagementTable = () => {
     const [formValues, setFormValues] = useState({
         control: '',
         assignee: '',
@@ -391,4 +391,4 @@ const DummyTable = () => {
     );
 };
 
-export default DummyTable;
+export default RiskManagementTable;

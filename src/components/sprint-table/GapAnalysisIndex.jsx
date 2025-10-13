@@ -52,7 +52,7 @@ const statusOptions = [
   { label: 'Pending', value: 'Pending' },
 ];
 
-const DummyTable = () => {
+const GapAnalysisTable = () => {
   const [formValues, setFormValues] = useState({
     control: '',
     assignee: '',
@@ -281,4 +281,4 @@ const DummyTable = () => {
   );
 };
 
-export default DummyTable;
+export default GapAnalysisTable;

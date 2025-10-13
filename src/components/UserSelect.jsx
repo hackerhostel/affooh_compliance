@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/solid/index.js";
 
-const UserSelect = ({ name, value, onChange, users, label = '' }) => {
+const UserSelect = ({ name, value, onChange, users, label = '', disabled = false, className = '' }) => {
     const [search, setSearch] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState({});
@@ -44,8 +44,8 @@ const UserSelect = ({ name, value, onChange, users, label = '' }) => {
         <div className="relative w-full" ref={ref}>
             <label className="block text-sm font-medium text-gray-500">{label}</label>
             <div
-                className="-mt-1 flex items-center space-x-2 bg-white border border-gray-300 rounded-lg p-2 cursor-pointer"
-                onClick={() => setIsOpen(!isOpen)}
+                className={`-mt-1 flex items-center space-x-2 ${className} ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+                onClick={() => !disabled && setIsOpen(!isOpen)}
             >
                 {selected?.id ? (
                     <div className={"flex gap-4 items-center"}>
