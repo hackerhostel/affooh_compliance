@@ -12,7 +12,7 @@ const OrganizationalContentPage = ({ selectedDocument }) => {
     if (!selectedDocument) {
       return (
         <div className="text-gray-600 text-center mt-10">
-          Please select a document to view its content.
+          <ContextContent />
         </div>
       );
     }
@@ -33,7 +33,7 @@ const OrganizationalContentPage = ({ selectedDocument }) => {
       default:
         return (
           <div className="text-gray-600 text-center mt-10">
-            No content available for this document.
+            <ContextContent />
           </div>
         );
     }
