@@ -4,7 +4,7 @@ import OrganizationChartContent from "./OrganizationChart/OrganizationChartConte
 import SWOTContent from "./SWOT/SWOTContent.jsx";
 import PESTContent from "./PEST/PESTContent.jsx";
 import StakeholderContextContent from "./Stakeholder-context/StakeholderContent.jsx"
-import ScopeContent  from './Scope/ScopeContent.jsx'
+import CommunicationRegisterContent  from './communication-register/CommunicationRegisterContent.jsx'
 
 
 const OrganizationalContentPage = ({ selectedDocument }) => {
@@ -28,8 +28,6 @@ const OrganizationalContentPage = ({ selectedDocument }) => {
         return <PESTContent />;
       case "Stakeholder Context":
         return <StakeholderContextContent />;
-      case "Scope":
-        return <ScopeContent />;
       case "Communication Register":
         return <CommunicationRegisterContent />;
       default:
