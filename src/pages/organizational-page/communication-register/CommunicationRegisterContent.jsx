@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import ScopeOverview from "./ScopeOverview.jsx";
-import ScopeHistory from "./ScopeHistory.jsx";
+import CommunicationRegisterOverview from "./CommunicationRegisterOverview.jsx";
+import CommunicationRegisterHistory from "./CommunicationRegisterHistory.jsx";
 
-const ScopeContentPage = () => {
+const CommunicationRegisterContentPage = () => {
   // Left sidebar removed; state related to it has been removed
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -36,12 +36,12 @@ const ScopeContentPage = () => {
             </div>
           </div>
 
-          {activeTab === "overview" && <ScopeOverview />}
-          {activeTab === "history" && <ScopeHistory />}
+          {activeTab === "overview" && <CommunicationRegisterOverview />}
+          {activeTab === "history" && <CommunicationRegisterHistory />}
         </div>
       </div>
     </div>
   );
 };
 
-export default ScopeContentPage;
+export default CommunicationRegisterContentPage;

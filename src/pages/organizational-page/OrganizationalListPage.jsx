@@ -13,8 +13,8 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
     { id: 3, name: "SWOT", classification: "Confidential" },
     { id: 4, name: "PEST", classification: "Restricted" },
     { id: 5, name: "Stakeholder Context", classification: "Restricted" },
-    { id: 6, name: "Scope", classification: "Restricted" },
-    { id: 7, name: "Communication Register", classification: "Restricted" },
+    { id: 6, name: "Communication Register", classification: "Restricted" },
+  
   ]);
 
   const [selectedDoc, setSelectedDoc] = useState(null);
