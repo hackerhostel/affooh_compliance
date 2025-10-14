@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import CommunicationRegisterOverview from "./CommunicationRegisterOverview.jsx";
 import CommunicationRegisterHistory from "./CommunicationRegisterHistory.jsx";
 
-const ScopeContentPage = () => {
+const CommunicationRegisterContentPage = () => {
   // Left sidebar removed; state related to it has been removed
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -44,4 +44,4 @@ const ScopeContentPage = () => {
   );
 };
 
-export default ScopeContentPage;
+export default CommunicationRegisterContentPage;

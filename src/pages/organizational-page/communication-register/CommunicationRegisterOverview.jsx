@@ -12,7 +12,7 @@ import {
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 
-const ScopeOverview = () => {
+const CommunicationRegisterOverview = () => {
   // -------------------------------
   // INTERNAL COMMUNICATION SECTION
   // -------------------------------
@@ -540,4 +540,4 @@ const ScopeOverview = () => {
   );
 };
 
-export default ScopeOverview;
+export default CommunicationRegisterOverview;

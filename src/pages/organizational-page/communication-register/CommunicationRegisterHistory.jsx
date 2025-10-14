@@ -80,7 +80,7 @@ const dummyData = [
   }
 ];
 
-const ScopeHistory = () => {
+const CommunicationRegisterHistory = () => {
   const { addToast } = useToasts();
   const dispatch = useDispatch();
   const selectedUser = useSelector(clickedUser);
@@ -439,4 +439,4 @@ const ScopeHistory = () => {
   );
 }
 
-export default ScopeHistory;
+export default CommunicationRegisterHistory;
