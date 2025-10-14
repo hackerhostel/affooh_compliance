@@ -4,7 +4,7 @@ import OrganizationChartContent from "./OrganizationChart/OrganizationChartConte
 import SWOTContent from "./SWOT/SWOTContent.jsx";
 import PESTContent from "./PEST/PESTContent.jsx";
 import StakeholderContextContent from "./Stakeholder-context/StakeholderContent.jsx"
-import ScopeContent  from './Scope/ScopeContent.jsx'
+import CommunicationRegisterContent  from './communication-register/CommunicationRegisterContent.jsx'
 
 
 const OrganizationalContentPage = ({ selectedDocument }) => {
@@ -12,7 +12,7 @@ const OrganizationalContentPage = ({ selectedDocument }) => {
     if (!selectedDocument) {
       return (
         <div className="text-gray-600 text-center mt-10">
-          Please select a document to view its content.
+          <ContextContent />
         </div>
       );
     }
@@ -28,14 +28,12 @@ const OrganizationalContentPage = ({ selectedDocument }) => {
         return <PESTContent />;
       case "Stakeholder Context":
         return <StakeholderContextContent />;
-      case "Scope":
-        return <ScopeContent />;
       case "Communication Register":
         return <CommunicationRegisterContent />;
       default:
         return (
           <div className="text-gray-600 text-center mt-10">
-            No content available for this document.
+            <ContextContent />
           </div>
         );
     }
