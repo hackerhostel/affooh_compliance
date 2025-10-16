@@ -10,7 +10,8 @@ import {
   Squares2X2Icon,
   TableCellsIcon,
   UserIcon,
-  UsersIcon
+  UsersIcon,
+  UserPlusIcon
 } from '@heroicons/react/24/outline';
 import {Link, useHistory, useLocation} from 'react-router-dom';
 import AffoohLogo from '../../assets/affooh_logo.png';
@@ -89,6 +90,7 @@ function Sidebar() {
             <MenuItem link="/releases" Icon={DocumentTextIcon}/>
             <MenuItem link="/projects" Icon={Square3Stack3DIcon}/>
             <MenuItem link="/profile" Icon={UsersIcon}/>
+            <MenuItem link="/role" Icon={UserPlusIcon}/>
 
             <div className="flex flex-col items-center ">
               {!loading ? (
