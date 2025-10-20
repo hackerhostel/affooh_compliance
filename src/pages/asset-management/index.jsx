@@ -31,7 +31,6 @@ const AssetManagementLayout = () => {
         />
       }
       rightColumn={<AssetManagementContentPage selectedDocument={selectedDocument} />}
-      subText="Add New"
       onAction={onAddNew}
     />
   );
