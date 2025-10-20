@@ -1,5 +1,10 @@
 import React from "react";
 import HardwareAssetContentPage from "./Hardware-asset/HardwareAssetContent";
+import SoftwareAssetContentPage from "./Software-asset/SoftwareAssetContent";
+import DataAssetContentPage from "./Data-asset/DataAssetContent";
+import CloudAssetContentPage from "./Cloud-asset/CloudAssetContent";
+import DeviceMovedContentPage from "./Device-moved/DeviceMovedContent";
+import DeviceDisposedContentPage from "./Device-disposed/DeviceDisposedContent";
 
 
 const AssetManagementContentPage = ({ selectedDocument }) => {
@@ -15,16 +20,16 @@ const AssetManagementContentPage = ({ selectedDocument }) => {
     switch (selectedDocument.name) {
       case "Hardware Asset":
         return <HardwareAssetContentPage />;
-      case "RASCI":
-        return <RASCIContentPage />;
-      case "Skill Inventory":
-        return <SkillInventoryContentPage />;
-      case "Competency Matrix":
-        return <CompetencyMatrixContentPage />;
-      case "Stakeholder Context":
-        return <StakeholderContextContent />;
-      case "Communication Register":
-        return <CommunicationRegisterContent />;
+      case "Software Asset":
+        return <SoftwareAssetContentPage />;
+      case "Data Asset":
+        return <DataAssetContentPage />;
+      case "Cloud Asset":
+        return <CloudAssetContentPage />;
+      case "Device Moved":
+        return <DeviceMovedContentPage />;
+      case "Device Disposed":
+        return <DeviceDisposedContentPage />;
       default:
         return (
           <div className="text-gray-600 text-center mt-10">

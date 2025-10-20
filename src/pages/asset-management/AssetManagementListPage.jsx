@@ -13,7 +13,7 @@ const AssetManagementPage = ({ onDocumentSelect }) => {
     { id: 3, name: "Data Asset", classification: "Restricted" },
     { id: 4, name: "Cloud Asset", classification: "Restricted" },
     { id: 5, name: "Device Moved", classification: "Restricted" },
-    { id: 6, name: "Device Restricted", classification: "Restricted" },
+    { id: 6, name: "Device Disposed", classification: "Restricted" },
     
   
   ]);
