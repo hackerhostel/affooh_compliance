@@ -86,7 +86,7 @@ const CompetencyMatrixOverview = () => {
             ) : (
               competencyRows.map((row, index) => (
                 <tr key={row.id} className="border-b border-gray-200">
-                  <td className="py-4 px-2">{index + 1}</td>
+                  <td className="py-5 px-2">{index + 1}</td>
                   <td className="py-4 px-2">{row.employee}</td>
                   <td className="py-4 px-2">{row.communication}</td>
                   <td className="py-4 px-2">{row.technical}</td>
