@@ -87,7 +87,7 @@ function Sidebar() {
             <MenuItem link="/sprints" Icon={CalendarIcon}/>
             <MenuItem link="/organizational" Icon={FolderIcon}/>
             <MenuItem link="/test-plans" Icon={TableCellsIcon}/>
-            <MenuItem link="/releases" Icon={DocumentTextIcon}/>
+            <MenuItem link="/assetManagement" Icon={DocumentTextIcon}/>
             <MenuItem link="/projects" Icon={Square3Stack3DIcon}/>
             <MenuItem link="/profile" Icon={UsersIcon}/>
             <MenuItem link="/role" Icon={UserPlusIcon}/>
