@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import MainPageLayout from "../../layouts/MainPageLayout.jsx";
-import OrganizationalListPage from "./OrganizationalListPage.jsx";
-import OrganizationalContentPage from "./OrganizationalContentPage.jsx";
+import ProcessListPage from "./ProcessListPage.jsx";
+import ProcessContentPage from "./ProcessContentPage.jsx";
 
-const OrganizationalLayout = () => {
+const ProcessFrameWorkLayout = () => {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -22,18 +22,18 @@ const OrganizationalLayout = () => {
 
   return (
     <MainPageLayout
-      title="Organizational Context"
+      title="Process framework"
       leftColumn={
-        <OrganizationalListPage
+        <ProcessListPage
           selectedFolderId={selectedFolderId}
           onSelect={setSelectedFolderId}
           onDocumentSelect={handleDocumentSelect}
         />
       }
-      rightColumn={<OrganizationalContentPage selectedDocument={selectedDocument} />}
+      rightColumn={<ProcessContentPage selectedDocument={selectedDocument} />}
       onAction={onAddNew}
     />
   );
 };
 
-export default OrganizationalLayout;
+export default ProcessFrameWorkLayout;

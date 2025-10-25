@@ -22,7 +22,7 @@ const RoleLayout = () => {
 
   return (
     <MainPageLayout
-      title="Folders"
+      title="Roles and Responsibilities"
       leftColumn={
         <RoleListPage
           selectedFolderId={selectedFolderId}
@@ -31,7 +31,6 @@ const RoleLayout = () => {
         />
       }
       rightColumn={<RoleContentPage selectedDocument={selectedDocument} />}
-      subText="Add New"
       onAction={onAddNew}
     />
   );
