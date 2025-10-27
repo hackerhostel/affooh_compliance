@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import MainPageLayout from "../../layouts/MainPageLayout.jsx";
-import OrganizationalListPage from "./OrganizationalListPage.jsx";
-import OrganizationalContentPage from "./OrganizationalContentPage.jsx";
+import TrainingPlansListPage from "./TrainingPlansListPage.jsx";
+import TrainingPlansContentPage from "./TrainingPlansContent.jsx";
 
-const OrganizationalLayout = () => {
+const TrainingPlansLayout = () => {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -22,18 +22,18 @@ const OrganizationalLayout = () => {
 
   return (
     <MainPageLayout
-      title="Organizational Context"
+      title="Training Plans"
       leftColumn={
-        <OrganizationalListPage
+        <TrainingPlansListPage
           selectedFolderId={selectedFolderId}
           onSelect={setSelectedFolderId}
           onDocumentSelect={handleDocumentSelect}
         />
       }
-      rightColumn={<OrganizationalContentPage selectedDocument={selectedDocument} />}
+      rightColumn={<TrainingPlansContentPage selectedDocument={selectedDocument} />}
       onAction={onAddNew}
     />
   );
 };
 
-export default OrganizationalLayout;
+export default TrainingPlansLayout;
