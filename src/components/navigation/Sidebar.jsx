@@ -11,7 +11,12 @@ import {
   TableCellsIcon,
   UserIcon,
   UsersIcon,
-  UserPlusIcon
+  UserPlusIcon,
+  WrenchScrewdriverIcon,
+  ArrowUpCircleIcon,
+  Bars2Icon,
+  AcademicCapIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import {Link, useHistory, useLocation} from 'react-router-dom';
 import AffoohLogo from '../../assets/affooh_logo.png';
@@ -84,14 +89,19 @@ function Sidebar() {
           {/* Menu items section */}
           <div className="flex-grow flex flex-col items-center py-5 space-y-6">
             <MenuItem link="/dashboard" Icon={Squares2X2Icon}/>
-            <MenuItem link="/sprints" Icon={CalendarIcon}/>
             <MenuItem link="/organizational" Icon={FolderIcon}/>
-            <MenuItem link="/test-plans" Icon={TableCellsIcon}/>
+            <MenuItem link="/role" Icon={UserPlusIcon}/>
             <MenuItem link="/assetManagement" Icon={DocumentTextIcon}/>
+            <MenuItem link="/processFramework" Icon={WrenchScrewdriverIcon}/>
+            <MenuItem link="/reviewAndAudits" Icon={ArrowUpCircleIcon}/>
+            <MenuItem link="/objectives" Icon={Bars2Icon}/>
+            <MenuItem link="/training" Icon={AcademicCapIcon}/>
+            <MenuItem link="/operations" Icon={ArrowPathIcon}/>
+            <MenuItem link="/sprints" Icon={CalendarIcon}/>   
+            <MenuItem link="/test-plans" Icon={TableCellsIcon}/> 
             <MenuItem link="/projects" Icon={Square3Stack3DIcon}/>
             <MenuItem link="/profile" Icon={UsersIcon}/>
-            <MenuItem link="/role" Icon={UserPlusIcon}/>
-
+            
             <div className="flex flex-col items-center ">
               {!loading ? (
                   <Menu as="div" className="relative inline-block text-left z-10">

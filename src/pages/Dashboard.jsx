@@ -17,6 +17,11 @@ import SettingLayout from "./setting-page/index.jsx";
 import OrganizationalLayout from "./organizational-page/index.jsx";
 import RoleLayout from "./role-page/index.jsx";
 import AssetManagementLayout from "./asset-management/index.jsx";
+import ProcessFrameWorkLayout from "./process-framework/index.jsx";
+import ReviewAndAuditsLayout from "./ReviewsAndAudits/index.jsx";
+import ObjectivesAndKPIsLayout from "./Objectives-KPIs/index.jsx";
+import TrainingPlansLayout from "./Training-plans/index.jsx";
+import OperationLayout from "./Operation-management/index.jsx";
 import {doGetProjectBreakdown, selectSelectedProject} from "../state/slice/projectSlice.js";
 import {isNotEmptyObj} from "../utils/commonUtils.js";
 import EditTaskPage from "../pages/sprint-page/editTask/index.jsx"
@@ -78,6 +83,26 @@ const Dashboard = () => {
 
             <Route path="/assetManagement">
               <AssetManagementLayout/>
+            </Route>
+
+             <Route path="/processFramework">
+              <ProcessFrameWorkLayout/>
+            </Route>
+
+            <Route path="/reviewAndAudits">
+              <ReviewAndAuditsLayout/>
+            </Route>
+
+            <Route path="/objectives">
+              <ObjectivesAndKPIsLayout/>
+            </Route>
+
+            <Route path="/training">
+              <TrainingPlansLayout/>
+            </Route>
+
+            <Route path="/operations">
+              <OperationLayout/>
             </Route>
 
             <Route path="/settings">

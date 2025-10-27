@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import MainPageLayout from "../../layouts/MainPageLayout.jsx";
-import OrganizationalListPage from "./OrganizationalListPage.jsx";
-import OrganizationalContentPage from "./OrganizationalContentPage.jsx";
+import OperationListPage from "./OperationListPage.jsx";
+import OperationContentPage from "./OperationContent.jsx";
 
-const OrganizationalLayout = () => {
+const OperationLayout = () => {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -22,18 +22,18 @@ const OrganizationalLayout = () => {
 
   return (
     <MainPageLayout
-      title="Organizational Context"
+      title="Roles and Responsibilities"
       leftColumn={
-        <OrganizationalListPage
+        <OperationListPage
           selectedFolderId={selectedFolderId}
           onSelect={setSelectedFolderId}
           onDocumentSelect={handleDocumentSelect}
         />
       }
-      rightColumn={<OrganizationalContentPage selectedDocument={selectedDocument} />}
+      rightColumn={<OperationContentPage selectedDocument={selectedDocument} />}
       onAction={onAddNew}
     />
   );
 };
 
-export default OrganizationalLayout;
+export default OperationLayout;
