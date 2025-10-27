@@ -13,7 +13,10 @@ import {
   UsersIcon,
   UserPlusIcon,
   WrenchScrewdriverIcon,
-  ArrowUpCircleIcon
+  ArrowUpCircleIcon,
+  Bars2Icon,
+  AcademicCapIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import {Link, useHistory, useLocation} from 'react-router-dom';
 import AffoohLogo from '../../assets/affooh_logo.png';
@@ -91,6 +94,9 @@ function Sidebar() {
             <MenuItem link="/assetManagement" Icon={DocumentTextIcon}/>
             <MenuItem link="/processFramework" Icon={WrenchScrewdriverIcon}/>
             <MenuItem link="/reviewAndAudits" Icon={ArrowUpCircleIcon}/>
+            <MenuItem link="/objectives" Icon={Bars2Icon}/>
+            <MenuItem link="/training" Icon={AcademicCapIcon}/>
+            <MenuItem link="/operations" Icon={ArrowPathIcon}/>
             <MenuItem link="/sprints" Icon={CalendarIcon}/>   
             <MenuItem link="/test-plans" Icon={TableCellsIcon}/> 
             <MenuItem link="/projects" Icon={Square3Stack3DIcon}/>
