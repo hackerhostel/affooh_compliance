@@ -80,7 +80,7 @@ const dummyData = [
   }
 ];
 
-const RIskManagementHistory = () => {
+const SupplierHistory = () => {
   const { addToast } = useToasts();
   const dispatch = useDispatch();
   const selectedUser = useSelector(clickedUser);
@@ -151,7 +151,7 @@ const RIskManagementHistory = () => {
             </div>
           )}
           <span className="text-lg font-semibold text-center mt-5  mb-1">
-            Risk <br/> Management
+            Supplier <br/> Management
           </span>
 
           <hr className="w-full mt-6 border-t border-gray-200" />
@@ -439,4 +439,4 @@ const RIskManagementHistory = () => {
   );
 }
 
-export default RIskManagementHistory;
+export default SupplierHistory;

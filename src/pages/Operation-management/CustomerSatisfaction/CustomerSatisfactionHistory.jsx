@@ -80,7 +80,7 @@ const dummyData = [
   }
 ];
 
-const RIskManagementHistory = () => {
+const CustomerSatisfactionHistory = () => {
   const { addToast } = useToasts();
   const dispatch = useDispatch();
   const selectedUser = useSelector(clickedUser);
@@ -439,4 +439,4 @@ const RIskManagementHistory = () => {
   );
 }
 
-export default RIskManagementHistory;
+export default CustomerSatisfactionHistory;

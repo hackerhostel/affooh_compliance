@@ -1,5 +1,9 @@
 import React from "react";
 import RiskManagementContentPage from "./RiskManagement/RiskManagementContent";
+import IncidentManagementContentPage from "./IncidentManagement/IncidentManagementContent";
+import CustomerSatisfactionContentPage from "./CustomerSatisfaction/CustomerSatisfactionContent";
+import SupplierContentPage from "./SupplierManagement/SupplierContent";
+import ServiceProviderContentPage from "./Service-Provider/ServiceProviderContent";
 
 
 const RoleContentPage = ({ selectedDocument }) => {
@@ -15,20 +19,20 @@ const RoleContentPage = ({ selectedDocument }) => {
     switch (selectedDocument.name) {
       case "RIsk Management":
         return <RiskManagementContentPage />;
-      case "RASCI":
-        return <RASCIContentPage />;
-      case "Skill Inventory":
-        return <SkillInventoryContentPage />;
-      case "Competency Matrix":
-        return <CompetencyMatrixContentPage />;
-      case "Stakeholder Context":
-        return <StakeholderContextContent />;
+      case "Incident Management":
+        return <IncidentManagementContentPage />;
+      case "Customer Satisfaction":
+        return <CustomerSatisfactionContentPage />;
+      case "Supplier Management":
+        return <SupplierContentPage />;
+      case "Service Provider Management":
+        return <ServiceProviderContentPage />;
       case "Communication Register":
         return <CommunicationRegisterContent />;
       default:
         return (
           <div className="text-gray-600 text-center mt-10">
-            <ContextContent />
+            <RiskManagementContentPage />
           </div>
         );
     }

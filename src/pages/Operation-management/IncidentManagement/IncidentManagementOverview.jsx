@@ -46,7 +46,7 @@ const initialData = [
     },
 ];
 
-const RiskManagementOverview = () => {
+const IncidentManagementOverview = () => {
     const [filterValues, setFilterValues] = useState({
         control: "",
         assignee: "",
@@ -68,7 +68,7 @@ const RiskManagementOverview = () => {
     return (
         <div>
             <div className=" items-center justify-between flex px-4">
-                <div><span className="text-xl font-semibold">Risk Management</span></div>
+                <div><span className="text-xl font-semibold">Incident Management</span></div>
                 <div className="flex justify-end items-center mt-4 space-x-2">
                     <button className="bg-primary-pink px-8 py-3 rounded-md text-white">Archived</button>
                     <button className="bg-primary-pink px-8 py-3 rounded-md text-white">Approved</button>
@@ -374,4 +374,4 @@ const RiskManagementOverview = () => {
     );
 };
 
-export default RiskManagementOverview;
+export default IncidentManagementOverview;
