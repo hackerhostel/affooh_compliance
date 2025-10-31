@@ -1,18 +1,27 @@
 import React, { useState } from "react";
-import { TrashIcon } from "@heroicons/react/24/outline";
-import FormSelect from '../../../components/FormSelect.jsx';
+import { PlusCircleIcon } from "@heroicons/react/24/outline";
+import FormSelect from "../../../components/FormSelect.jsx";
+import CreateNewHardwareAsset from "./CreateNewHardwareAsset.jsx";
+import CreateNewHardwareAssetFurniture from "./CreateNewHardwareAssetFurniture.jsx";
 
 const HardwareAssetOverview = () => {
-  // Dummy hardware asset data
-   const [formValues, setFormValues] = useState({
-        type: '',
-        owner: '',
-        classification: '',
-        development: '',
-        assigned: '',
-    });
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState(""); // for tracking which form to open
 
-  const [assetRows, setAssetRows] = useState([
+  const [formValues, setFormValues] = useState({
+    type: "",
+    owner: "",
+    classification: "",
+    development: "",
+    assigned: "",
+  });
+
+  const typeOptions = [
+    { label: "Type 1", value: "type1" },
+    { label: "Furniture", value: "furniture" },
+  ];
+
+  const [assetRows] = useState([
     {
       id: 1,
       assetName: "Dell Latitude 5520",
@@ -22,16 +31,8 @@ const HardwareAssetOverview = () => {
       category: "Computers",
       classification: "Hardware",
       department: "Engineering",
-      owner: {
-        firstName: "Alice",
-        lastName: "Johnson",
-        avatar: "",
-      },
-      assignee: {
-        firstName: "Bob",
-        lastName: "Smith",
-        avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-      },
+      owner: { firstName: "Alice", lastName: "Johnson", avatar: "" },
+      assignee: { firstName: "Bob", lastName: "Smith", avatar: "https://randomuser.me/api/portraits/men/1.jpg" },
     },
     {
       id: 2,
@@ -42,11 +43,7 @@ const HardwareAssetOverview = () => {
       category: "Office Equipment",
       classification: "Peripheral",
       department: "Administration",
-      owner: {
-        firstName: "Carol",
-        lastName: "Lee",
-        avatar: "https://randomuser.me/api/portraits/women/2.jpg",
-      },
+      owner: { firstName: "Carol", lastName: "Lee", avatar: "https://randomuser.me/api/portraits/women/2.jpg" },
       assignee: null,
     },
     {
@@ -58,29 +55,13 @@ const HardwareAssetOverview = () => {
       category: "Computers",
       classification: "Hardware",
       department: "Design",
-      owner: {
-        firstName: "David",
-        lastName: "Brown",
-        avatar: "",
-      },
-      assignee: {
-        firstName: "Evelyn",
-        lastName: "White",
-        avatar: "https://randomuser.me/api/portraits/women/3.jpg",
-      },
+      owner: { firstName: "David", lastName: "Brown", avatar: "" },
+      assignee: { firstName: "Evelyn", lastName: "White", avatar: "https://randomuser.me/api/portraits/women/3.jpg" },
     },
   ]);
 
-  // Delete handler
-  const handleDeleteRow = (id) => {
-    setAssetRows((prev) => prev.filter((row) => row.id !== id));
-  };
-
-  // Render user (owner or assignee)
   const renderUserCell = (user) => {
-    if (!user)
-      return <span className="text-gray-400 italic">No user</span>;
-
+    if (!user) return <span className="text-gray-400 italic">No user</span>;
     return (
       <div className="flex items-center space-x-2">
         {user.avatar ? (
@@ -95,83 +76,104 @@ const HardwareAssetOverview = () => {
             {user.lastName?.[0]}
           </div>
         )}
-        <span>{user.firstName} {user.lastName}</span>
+        <span>
+          {user.firstName} {user.lastName}
+        </span>
       </div>
     );
   };
 
+  const onAddNew = () => {
+    if (formValues.type === "type1" || formValues.type === "furniture") {
+      setSelectedType(formValues.type);
+      setIsOpen(true);
+    } else {
+      alert("Please select a type before adding a new asset.");
+    }
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setSelectedType("");
+  };
+
   return (
-    <div className="mt-6">
-        {/* Top Buttons */}
-            <div className='flex justify-end items-center mt-4 space-x-2'>
-                <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Archived</button>
-                <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Approved</button>
-                <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
-            </div>
-      <div className="flex items-center justify-between gap-5">
-        <span className="text-lg font-semibold">Hardware Asset </span>
+    <div className="relative mt-6">
+      {/* Top Buttons */}
+      <div className="flex justify-end items-center mt-4 space-x-2">
+        <button className="bg-primary-pink px-8 py-3 rounded-md text-white">Archived</button>
+        <button className="bg-primary-pink px-8 py-3 rounded-md text-white">Approved</button>
+        <button className="bg-primary-pink px-8 py-3 rounded-md text-white">Save</button>
       </div>
 
-      <div className='flex items-center justify-between'>
-                    <div className='flex space-x-4 '>
-                        <div className='w-28'>
-                            <FormSelect
-                                name="type"
-                                options={[]}
-                                placeholder="Type"
-                                showLabel={false}
-                                formValues={formValues}
-                                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
-                            />
-                        </div>
-                        <div className='w-28'>
-                            <FormSelect
-                                name="owner"
-                                placeholder="Owner"
-                                showLabel={false}
-                                options={[]}
-                                formValues={formValues}
-                                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
-                            />
-                        </div>
+      {/* Header */}
+      <div className="flex items-center gap-5 mt-4">
+        <span className="text-lg font-semibold">Hardware Asset</span>
+        <div className="flex items-center gap-1">
+          <PlusCircleIcon onClick={onAddNew} className="w-6 h-6 text-pink-500 cursor-pointer" />
+          <button className="text-text-color" onClick={onAddNew}>
+            Add New
+          </button>
+        </div>
+      </div>
 
-                        <div className='w-36'>
-                            <FormSelect
-                                name="classification"
-                                placeholder="Classification"
-                                showLabel={false}
-                                options={[]}
-                                formValues={formValues}
-                                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
-                            />
-                        </div>
+      {/* Filter Section */}
+      <div className="flex items-center justify-between mt-4">
+        <div className="flex space-x-4">
+          <div className="w-28">
+            <FormSelect
+              name="type"
+              options={typeOptions}
+              placeholder="Type"
+              showLabel={false}
+              formValues={formValues}
+              onChange={(e) => setFormValues({ ...formValues, type: e.target.value })}
+            />
+          </div>
+          <div className="w-28">
+            <FormSelect
+              name="owner"
+              placeholder="Owner"
+              showLabel={false}
+              options={[]}
+              formValues={formValues}
+              onChange={(e) => setFormValues({ ...formValues, owner: e.target.value })}
+            />
+          </div>
+          <div className="w-36">
+            <FormSelect
+              name="classification"
+              placeholder="Classification"
+              showLabel={false}
+              options={[]}
+              formValues={formValues}
+              onChange={(e) => setFormValues({ ...formValues, classification: e.target.value })}
+            />
+          </div>
+          <div className="w-28">
+            <FormSelect
+              name="development"
+              placeholder="Development"
+              showLabel={false}
+              options={[]}
+              formValues={formValues}
+              onChange={(e) => setFormValues({ ...formValues, development: e.target.value })}
+            />
+          </div>
+          <div className="w-28">
+            <FormSelect
+              name="assigned"
+              placeholder="Assigned"
+              showLabel={false}
+              options={[]}
+              formValues={formValues}
+              onChange={(e) => setFormValues({ ...formValues, assigned: e.target.value })}
+            />
+          </div>
+        </div>
+      </div>
 
-                        <div className='w-28'>
-                            <FormSelect
-                                name="development"
-                                placeholder="Development"
-                                showLabel={false}
-                                options={[]}
-                                formValues={formValues}
-                                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
-                            />
-                        </div>
-
-                        <div className='w-28'>
-                            <FormSelect
-                                name="assigned"
-                                placeholder="Assigned"
-                                showLabel={false}
-                                options={[]}
-                                formValues={formValues}
-                                onChange={(e) => setFormValues({ ...formValues, version: e.target.value })}
-                            />
-                        </div>
-                    </div>
-
-                  
-                </div>
-
+      {/* Table */}
       <div className="bg-white rounded p-3 mt-3 shadow-sm">
         <table className="table-auto w-full border-collapse">
           <thead>
@@ -186,7 +188,6 @@ const HardwareAssetOverview = () => {
               <th className="py-4 px-4">Department</th>
               <th className="py-4 px-4">Owner</th>
               <th className="py-4 px-4">Assignee</th>
-              {/* <th className="py-4 px-2">Action</th> */}
             </tr>
           </thead>
           <tbody>
@@ -209,18 +210,16 @@ const HardwareAssetOverview = () => {
                   <td className="py-4 px-2">{row.department}</td>
                   <td className="py-4 px-2">{renderUserCell(row.owner)}</td>
                   <td className="py-4 px-2">{renderUserCell(row.assignee)}</td>
-                  {/* <td className="py-4 px-2">
-                    <TrashIcon
-                      onClick={() => handleDeleteRow(row.id)}
-                      className="w-5 h-5 text-gray-600 cursor-pointer hover:text-red-500 transition"
-                    />
-                  </td> */}
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+
+      {/* Conditionally render the popup */}
+      {selectedType === "type1" && <CreateNewHardwareAsset onClose={handleClose} isOpen={isOpen} />}
+      {selectedType === "furniture" && <CreateNewHardwareAssetFurniture onClose={handleClose} isOpen={isOpen} />}
     </div>
   );
 };

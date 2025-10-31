@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import FormSelect from "../../../components/FormSelect.jsx";
+import CreateNewSoftwareAsset from "./CreateNewSoftwareAsset.jsx";
 
 const SoftwareAssetOverview = () => {
+
+  const [isOpen, setIsOpen] = useState(false);
   // Dummy filter form state
   const [formValues, setFormValues] = useState({
     type: "",
@@ -51,6 +54,16 @@ const SoftwareAssetOverview = () => {
     setAssetRows((prev) => prev.filter((row) => row.id !== id));
   };
 
+  
+  
+    const onAddNew = () => {
+      setIsOpen(true);
+    };
+  
+    const handleClose = () => {
+      setIsOpen(false);
+    };
+
   // Render user cell
   const renderUserCell = (user) => {
     if (!user)
@@ -84,8 +97,14 @@ const SoftwareAssetOverview = () => {
                 <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
             </div>
 
-      <div className="flex items-center justify-between gap-5 mt-4">
+      <div className="flex items-center gap-5 mt-4">
         <span className="text-lg font-semibold">Software Asset</span>
+         <div className="flex items-center gap-1">
+          <PlusCircleIcon onClick={onAddNew} className="w-6 h-6 text-pink-500 cursor-pointer" />
+          <button className="text-text-color" onClick={onAddNew}>
+            Add New
+          </button>
+        </div>
       </div>
 
       {/* Filter Section */}
@@ -166,6 +185,7 @@ const SoftwareAssetOverview = () => {
           </tbody>
         </table>
       </div>
+      <CreateNewSoftwareAsset isOpen={isOpen} onClose={handleClose} />
     </div>
   );
 };

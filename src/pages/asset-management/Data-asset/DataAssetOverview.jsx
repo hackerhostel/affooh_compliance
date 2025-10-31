@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import FormSelect from "../../../components/FormSelect.jsx";
+import CreateNewDataAsset from "./CreateNewDataAsset.jsx";
 
 const DataAssetOverview = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   // Dummy filter form state
   const [formValues, setFormValues] = useState({
     type: "",
@@ -60,6 +63,16 @@ const DataAssetOverview = () => {
     },
   ]);
 
+  
+  
+    const onAddNew = () => {
+      setIsOpen(true);
+    };
+  
+    const handleClose = () => {
+      setIsOpen(false);
+    };
+
   // Delete handler (currently not used)
   const handleDeleteRow = (id) => {
     setAssetRows((prev) => prev.filter((row) => row.id !== id));
@@ -106,8 +119,14 @@ const DataAssetOverview = () => {
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-5 mt-4">
+      <div className="flex items-center gap-5 mt-4">
         <span className="text-lg font-semibold">Data Asset</span>
+         <div className="flex items-center gap-1">
+          <PlusCircleIcon onClick={onAddNew} className="w-6 h-6 text-pink-500 cursor-pointer" />
+          <button className="text-text-color" onClick={onAddNew}>
+            Add New
+          </button>
+        </div>
       </div>
 
       {/* Filter Section */}
@@ -182,6 +201,7 @@ const DataAssetOverview = () => {
           </tbody>
         </table>
       </div>
+      <CreateNewDataAsset isOpen={isOpen} onClose={handleClose} />
     </div>
   );
 };

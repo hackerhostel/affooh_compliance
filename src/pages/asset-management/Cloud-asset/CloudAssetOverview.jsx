@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import FormSelect from "../../../components/FormSelect.jsx";
+import  CreateNewCloudAsset from "./CreateNewCloudAsset.jsx";
 
 const CloudAssetOverview = () => {
+  const [isOpen, setIsOpen] = useState(false);
   // Dummy filter form state
   const [formValues, setFormValues] = useState({
     vendor: "",
@@ -63,6 +65,16 @@ const CloudAssetOverview = () => {
     setAssetRows((prev) => prev.filter((row) => row.id !== id));
   };
 
+   
+
+  const onAddNew = () => {
+    setIsOpen(true)
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  }
+
   // Render owner cell (same as approvedBy cell)
   const renderUserCell = (user) => {
     if (!user)
@@ -104,8 +116,14 @@ const CloudAssetOverview = () => {
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-5 mt-4">
+      <div className="flex items-center gap-5 mt-4">
         <span className="text-lg font-semibold">Cloud Asset</span>
+         <div className="flex items-center gap-1">
+          <PlusCircleIcon onClick={onAddNew} className="w-6 h-6 text-pink-500 cursor-pointer" />
+          <button className="text-text-color" onClick={onAddNew}>
+            Add New
+          </button>
+        </div>
       </div>
 
       {/* Filter Section */}
@@ -179,6 +197,7 @@ const CloudAssetOverview = () => {
           </tbody>
         </table>
       </div>
+      <CreateNewCloudAsset isOpen={isOpen} onClose={handleClose} />
     </div>
   );
 };
