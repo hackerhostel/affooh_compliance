@@ -142,7 +142,7 @@ const CloudAssetUpdate = ({ onBack }) => {
                     </div>
 
                     <div className='flex-col w-full'>
-                        <label>Classification</label>
+                        <label>Classifications</label>
                         <FormSelect
                             name="classification"
                             formValues={formValues}
@@ -168,7 +168,7 @@ const CloudAssetUpdate = ({ onBack }) => {
                     </div>
 
                     <div className='flex-col w-1/3'>
-                        <label>Backup Location</label>
+                        <label>Backup Location ...</label>
                         <FormInput
                             type="text"
                             name="backupLocation"
