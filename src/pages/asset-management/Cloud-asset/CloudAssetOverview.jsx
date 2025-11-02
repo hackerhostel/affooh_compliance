@@ -1,8 +1,19 @@
 import React, { useState } from "react";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import {
+  PlusCircleIcon,
+  TrashIcon,
+  EllipsisVerticalIcon,
+  XMarkIcon,
+  PencilIcon,
+} from "@heroicons/react/24/outline"
 import FormSelect from "../../../components/FormSelect.jsx";
+import  CreateNewCloudAsset from "./CreateNewCloudAsset.jsx";
+import CloudAssetUpdate from "./CloudAssetUpdate.jsx"; 
 
 const CloudAssetOverview = () => {
+   const [isOpen, setIsOpen] = useState(false);
+    const [openActionRowId, setOpenActionRowId] = useState(null);
+    const [editAsset, setEditAsset] = useState(null);
   // Dummy filter form state
   const [formValues, setFormValues] = useState({
     vendor: "",
@@ -59,9 +70,40 @@ const CloudAssetOverview = () => {
     },
   ]);
 
+  const toggleActionMenu = (id) => {
+    setOpenActionRowId(openActionRowId === id ? null : id);
+  };
+
   const handleDeleteRow = (id) => {
     setAssetRows((prev) => prev.filter((row) => row.id !== id));
   };
+
+  const handleStartEdit = (id) => {
+    const asset = assetRows.find((row) => row.id === id);
+    if (asset) {
+      setEditAsset(asset); // ✅ triggers edit mode
+      setOpenActionRowId(null);
+    }
+  };
+
+   
+
+  const onAddNew = () => {
+    setIsOpen(true)
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  }
+
+   if (editAsset) {
+      return (
+        <CloudAssetUpdate
+          asset={editAsset}
+          onBack={handleClose} 
+        />
+      );
+    }
 
   // Render owner cell (same as approvedBy cell)
   const renderUserCell = (user) => {
@@ -104,8 +146,14 @@ const CloudAssetOverview = () => {
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-5 mt-4">
+      <div className="flex items-center gap-5 mt-4">
         <span className="text-lg font-semibold">Cloud Asset</span>
+         <div className="flex items-center gap-1">
+          <PlusCircleIcon onClick={onAddNew} className="w-6 h-6 text-pink-500 cursor-pointer" />
+          <button className="text-text-color" onClick={onAddNew}>
+            Add New
+          </button>
+        </div>
       </div>
 
       {/* Filter Section */}
@@ -141,7 +189,7 @@ const CloudAssetOverview = () => {
               <th className="py-4 px-4">Backup Location</th>
               <th className="py-4 px-4">Classification</th>
               <th className="py-4 px-4">Owner</th>
-              {/* <th className="py-3 px-4 text-center">Action</th> */}
+              <th className="py-3 px-4 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -167,18 +215,44 @@ const CloudAssetOverview = () => {
                     {row.classification}
                   </td>
                   <td className="py-4 px-4">{renderUserCell(row.owner)}</td>
-                  {/* <td className="py-4 px-4 text-center">
-                    <TrashIcon
-                      onClick={() => handleDeleteRow(row.id)}
-                      className="w-5 h-5 text-gray-600 cursor-pointer hover:text-red-500 transition"
-                    />
-                  </td> */}
+                  <td className="py-3 px-2">
+                    {openActionRowId !== row.id ? (
+                      <div
+                        className="cursor-pointer inline-flex"
+                        onClick={() => toggleActionMenu(row.id)}
+                      >
+                        <EllipsisVerticalIcon className="w-5 h-5 text-secondary-grey" />
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => handleStartEdit(row.id)}
+                        >
+                          <PencilIcon className="w-5 h-5 text-text-color" />
+                        </div>
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => handleDeleteRow(row.id)}
+                        >
+                          <TrashIcon className="w-5 h-5 text-text-color" />
+                        </div>
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => setOpenActionRowId(null)}
+                        >
+                          <XMarkIcon className="w-5 h-5 text-text-color" />
+                        </div>
+                      </div>
+                    )}
+                  </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+      <CreateNewCloudAsset isOpen={isOpen} onClose={handleClose} />
     </div>
   );
 };
