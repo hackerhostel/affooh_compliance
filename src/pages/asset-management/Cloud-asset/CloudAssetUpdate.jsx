@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import FormInput from '../../../components/FormInput';
 import FormSelect from '../../../components/FormSelect';
-import FormTextArea from '../../../components/FormTextArea';
-import UserTable from './UserTable';
 
-const FurnitureUpdate = ({ onBack }) => {
+
+const CloudAssetUpdate = ({ onBack }) => {
     const [activeTab, setActiveTab] = useState("configuration");
 
     const [formValues, setFormValues] = useState({
@@ -18,11 +17,29 @@ const FurnitureUpdate = ({ onBack }) => {
         qty: '',
         area: '',
         remarks: '',
+        vendor: '',
+        downloadSource: '',
+        patch: '',
+        license: '',
+        approvedBy: '',
+        approvedDate: '',
+        approvalStatus: false,
+        dueDate: '',
     });
 
     const types = [
         { label: "Furniture", value: "furniture" },
         { label: "Device", value: "device" },
+    ];
+
+    const patch = [
+        { label: "Yes", value: "yes" },
+        { label: "No", value: "no" },
+    ];
+
+    const license = [
+        { label: "Yes", value: "yes" },
+        { label: "No", value: "no" },
     ];
 
     const area = [
@@ -58,7 +75,7 @@ const FurnitureUpdate = ({ onBack }) => {
             <div className="mb-4 justify-between flex">
                 <div>
                     <span className="text-black font-semibold mt-4 block">
-                        Hardware Asset / Furniture
+                        Cloud Asset
                     </span>
                     <div className="flex-col mt-2 text-text-color space-x-10 text-sm">
                         <span>Create Date: 2024/10/04</span>
@@ -87,7 +104,7 @@ const FurnitureUpdate = ({ onBack }) => {
                         />
                     </div>
                     <div className='flex-col w-1/4'>
-                        <label>Code</label>
+                        <label>Version</label>
                         <FormInput
                             type="text"
                             name="code"
@@ -101,7 +118,7 @@ const FurnitureUpdate = ({ onBack }) => {
 
                 <div className='flex gap-4 mt-4 '>
                     <div className='flex-col w-full'>
-                        <label>Type</label>
+                        <label>Asset type</label>
                         <FormSelect
                             name="type"
                             formValues={formValues}
@@ -137,64 +154,61 @@ const FurnitureUpdate = ({ onBack }) => {
                     </div>
                 </div>
 
-                <div className='mt-4'>
-                    <label>Serial Key</label>
-                    <FormInput
-                        type="text"
-                        name="serialKey"
-                        formValues={formValues}
-                        onChange={({ target: { name, value } }) =>
-                            handleFormChange(name, value)
-                        }
-                    />
+                <div className='flex gap-4 mt-4 '>
+                    <div className='flex-col w-1/3'>
+                        <label>Backup Availability</label>
+                        <FormSelect
+                            name="backupAvailability"
+                            formValues={formValues}
+                            options={types}
+                            onChange={({ target: { name, value } }) =>
+                                handleFormChange(name, value)
+                            }
+                        />
+                    </div>
+
+                    <div className='flex-col w-1/3'>
+                        <label>Backup Location</label>
+                        <FormInput
+                            type="text"
+                            name="backupLocation"
+                            formValues={formValues}
+                            onChange={({ target: { name, value } }) =>
+                                handleFormChange(name, value)
+                            }
+                        />
+                    </div>
+
+                    <div className='flex-col w-1/3'>
+                        <label>Used for Personal data processing?</label>
+                        <FormSelect
+                            name="personalInformation"
+                            formValues={formValues}
+                            options={types}
+                            onChange={({ target: { name, value } }) =>
+                                handleFormChange(name, value)
+                            }
+                        />
+                    </div>
                 </div>
 
                 <div className='mt-4 flex gap-5'>
-                  <div className='flex-col w-1/4'>
-                        <label>QTY</label>
-                        <FormInput
-                            type="text"
-                            name="qty"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-
-                  <div className='flex-col w-full'>
-                        <label>Area</label>
+                    <div className='flex-col w-full '>
+                        <label>Vendor</label>
                         <FormSelect
-                            name="area"
+                            name="vendor"
                             formValues={formValues}
-                            options={area}
+                            options={patch}
                             onChange={({ target: { name, value } }) =>
                                 handleFormChange(name, value)
                             }
                         />
-                    </div>
+                    </div>    
                 </div>
 
-                <div className='mt-4'>
-                         <div className='flex-col w-full '>
-                        <label>Remarks</label>
-                        <FormTextArea
-                        type="text"
-                            name="remarks"
-                            className="h-24 w-full"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>   
-
-                </div>
-
-
-            </div>  
+            </div>
         </div>
     );
 };
 
-export default FurnitureUpdate;
+export default CloudAssetUpdate;

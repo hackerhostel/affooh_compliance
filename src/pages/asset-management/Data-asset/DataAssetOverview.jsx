@@ -1,12 +1,20 @@
 import React, { useState } from "react";
-import { TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
+import {
+  PlusCircleIcon,
+  TrashIcon,
+  EllipsisVerticalIcon,
+  XMarkIcon,
+  PencilIcon,
+} from "@heroicons/react/24/outline";
 import FormSelect from "../../../components/FormSelect.jsx";
 import CreateNewDataAsset from "./CreateNewDataAsset.jsx";
+import DataAssetUpdate from "./DataAssetUpdate.jsx"; // ✅ make sure to import it
 
 const DataAssetOverview = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [openActionRowId, setOpenActionRowId] = useState(null);
+  const [editAsset, setEditAsset] = useState(null);
 
-  // Dummy filter form state
   const [formValues, setFormValues] = useState({
     type: "",
     owner: "",
@@ -15,7 +23,6 @@ const DataAssetOverview = () => {
     assigned: "",
   });
 
-  // ✅ Classification color handler
   const getColorClass = (classification) => {
     switch (classification) {
       case "Public":
@@ -29,7 +36,6 @@ const DataAssetOverview = () => {
     }
   };
 
-  // ✅ Updated sample data to match the table headers
   const [assetRows, setAssetRows] = useState([
     {
       id: 1,
@@ -63,22 +69,31 @@ const DataAssetOverview = () => {
     },
   ]);
 
-  
-  
-    const onAddNew = () => {
-      setIsOpen(true);
-    };
-  
-    const handleClose = () => {
-      setIsOpen(false);
-    };
+  const toggleActionMenu = (id) => {
+    setOpenActionRowId(openActionRowId === id ? null : id);
+  };
 
-  // Delete handler (currently not used)
+  const onAddNew = () => {
+    setIsOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setEditAsset(null); // ✅ reset when closing edit
+  };
+
+  const handleStartEdit = (id) => {
+    const asset = assetRows.find((row) => row.id === id);
+    if (asset) {
+      setEditAsset(asset); // ✅ triggers edit mode
+      setOpenActionRowId(null);
+    }
+  };
+
   const handleDeleteRow = (id) => {
     setAssetRows((prev) => prev.filter((row) => row.id !== id));
   };
 
-  // Render user cell
   const renderUserCell = (user) => {
     if (!user)
       return <span className="text-gray-400 italic">No user</span>;
@@ -104,6 +119,16 @@ const DataAssetOverview = () => {
     );
   };
 
+
+  if (editAsset) {
+    return (
+      <DataAssetUpdate
+        asset={editAsset}
+        onBack={handleClose} 
+      />
+    );
+  }
+
   return (
     <div className="mt-6">
       {/* Top Buttons */}
@@ -121,8 +146,11 @@ const DataAssetOverview = () => {
 
       <div className="flex items-center gap-5 mt-4">
         <span className="text-lg font-semibold">Data Asset</span>
-         <div className="flex items-center gap-1">
-          <PlusCircleIcon onClick={onAddNew} className="w-6 h-6 text-pink-500 cursor-pointer" />
+        <div className="flex items-center gap-1">
+          <PlusCircleIcon
+            onClick={onAddNew}
+            className="w-6 h-6 text-pink-500 cursor-pointer"
+          />
           <button className="text-text-color" onClick={onAddNew}>
             Add New
           </button>
@@ -131,23 +159,23 @@ const DataAssetOverview = () => {
 
       {/* Filter Section */}
       <div className="flex items-center mt-4 justify-between">
-             <div className="flex space-x-4">
-               {["classification", "owner"].map((field) => (
-                 <div className="w-28" key={field}>
-                   <FormSelect
-                     name={field}
-                     placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                     showLabel={false}
-                     options={[]}
-                     formValues={formValues}
-                     onChange={(e) =>
-                       setFormValues({ ...formValues, [field]: e.target.value })
-                     }
-                   />
-                 </div>
-               ))}
-             </div>
-           </div>
+        <div className="flex space-x-4">
+          {["classification", "owner"].map((field) => (
+            <div className="w-28" key={field}>
+              <FormSelect
+                name={field}
+                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                showLabel={false}
+                options={[]}
+                formValues={formValues}
+                onChange={(e) =>
+                  setFormValues({ ...formValues, [field]: e.target.value })
+                }
+              />
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Table */}
       <div className="bg-white rounded p-3 mt-3 shadow-sm">
@@ -162,7 +190,7 @@ const DataAssetOverview = () => {
               <th className="py-4 px-4">Backup Location</th>
               <th className="py-4 px-4">Classification</th>
               <th className="py-4 px-4">Approved By</th>
-              {/* <th className="py-3 px-4 text-center">Action</th> */}
+              <th className="py-3 px-4 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -184,23 +212,49 @@ const DataAssetOverview = () => {
                   <td className="py-4 px-4">{row.containsPersonalInfo}</td>
                   <td className="py-4 px-4">{row.backupAvailability}</td>
                   <td className="py-4 px-4">{row.backupLocation}</td>
-                  {/* ✅ Classification with color */}
                   <td className={`py-4 px-4 ${getColorClass(row.classification)}`}>
                     {row.classification}
                   </td>
                   <td className="py-4 px-4">{renderUserCell(row.approvedBy)}</td>
-                  {/* <td className="py-4 px-4 text-center">
-                    <TrashIcon
-                      onClick={() => handleDeleteRow(row.id)}
-                      className="w-5 h-5 text-gray-600 cursor-pointer hover:text-red-500 transition"
-                    />
-                  </td> */}
+                  <td className="py-3 px-2">
+                    {openActionRowId !== row.id ? (
+                      <div
+                        className="cursor-pointer inline-flex"
+                        onClick={() => toggleActionMenu(row.id)}
+                      >
+                        <EllipsisVerticalIcon className="w-5 h-5 text-secondary-grey" />
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => handleStartEdit(row.id)}
+                        >
+                          <PencilIcon className="w-5 h-5 text-text-color" />
+                        </div>
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => handleDeleteRow(row.id)}
+                        >
+                          <TrashIcon className="w-5 h-5 text-text-color" />
+                        </div>
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => setOpenActionRowId(null)}
+                        >
+                          <XMarkIcon className="w-5 h-5 text-text-color" />
+                        </div>
+                      </div>
+                    )}
+                  </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+
+      {/* Create New Popup */}
       <CreateNewDataAsset isOpen={isOpen} onClose={handleClose} />
     </div>
   );

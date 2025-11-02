@@ -3,9 +3,9 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import FormInput from '../../../components/FormInput';
 import FormSelect from '../../../components/FormSelect';
 import FormTextArea from '../../../components/FormTextArea';
-import UserTable from './UserTable';
+import ToggleButton from '../../../components/ToggleButton';
 
-const FurnitureUpdate = ({ onBack }) => {
+const SoftwareAssetUpdate = ({ onBack }) => {
     const [activeTab, setActiveTab] = useState("configuration");
 
     const [formValues, setFormValues] = useState({
@@ -18,11 +18,29 @@ const FurnitureUpdate = ({ onBack }) => {
         qty: '',
         area: '',
         remarks: '',
+        vendor: '',
+        downloadSource: '',
+        patch: '',
+        license: '',
+        approvedBy: '',
+        approvedDate: '',
+        approvalStatus: false,
+        dueDate: '',
     });
 
     const types = [
         { label: "Furniture", value: "furniture" },
         { label: "Device", value: "device" },
+    ];
+
+    const patch = [
+        { label: "Yes", value: "yes" },
+        { label: "No", value: "no" },
+    ];
+
+    const license = [
+        { label: "Yes", value: "yes" },
+        { label: "No", value: "no" },
     ];
 
     const area = [
@@ -101,7 +119,7 @@ const FurnitureUpdate = ({ onBack }) => {
 
                 <div className='flex gap-4 mt-4 '>
                     <div className='flex-col w-full'>
-                        <label>Type</label>
+                        <label>Team</label>
                         <FormSelect
                             name="type"
                             formValues={formValues}
@@ -137,35 +155,62 @@ const FurnitureUpdate = ({ onBack }) => {
                     </div>
                 </div>
 
-                <div className='mt-4'>
-                    <label>Serial Key</label>
-                    <FormInput
-                        type="text"
-                        name="serialKey"
-                        formValues={formValues}
-                        onChange={({ target: { name, value } }) =>
-                            handleFormChange(name, value)
-                        }
-                    />
-                </div>
-
-                <div className='mt-4 flex gap-5'>
-                  <div className='flex-col w-1/4'>
-                        <label>QTY</label>
+                <div className='mt-4 flex gap-4'>
+                    <div className='w-1/2'>
+                        <label>Vendor</label>
                         <FormInput
                             type="text"
-                            name="qty"
+                            name="Vendor"
                             formValues={formValues}
                             onChange={({ target: { name, value } }) =>
                                 handleFormChange(name, value)
                             }
                         />
                     </div>
+                    <div className='w-1/2'>
+                        <label>Download Source</label>
+                        <FormInput
+                            type="text"
+                            name="downloadSource"
+                            formValues={formValues}
+                            onChange={({ target: { name, value } }) =>
+                                handleFormChange(name, value)
+                            }
+                        />
+                    </div>
+                </div>
 
-                  <div className='flex-col w-full'>
-                        <label>Area</label>
+
+
+                <div className='mt-4 flex gap-5'>
+                    <div className='flex-col w-1/4 '>
+                        <label>Latest Version/Patch</label>
                         <FormSelect
-                            name="area"
+                            name="patch"
+                            formValues={formValues}
+                            options={patch}
+                            onChange={({ target: { name, value } }) =>
+                                handleFormChange(name, value)
+                            }
+                        />
+                    </div>
+
+                    <div className='flex-col w-1/4'>
+                        <label>License</label>
+                        <FormSelect
+                            name="license"
+                            formValues={formValues}
+                            options={license}
+                            onChange={({ target: { name, value } }) =>
+                                handleFormChange(name, value)
+                            }
+                        />
+                    </div>
+
+                    <div className='flex-col w-1/4'>
+                        <label>Approved By</label>
+                        <FormSelect
+                            name="approvedBy"
                             formValues={formValues}
                             options={area}
                             onChange={({ target: { name, value } }) =>
@@ -173,28 +218,48 @@ const FurnitureUpdate = ({ onBack }) => {
                             }
                         />
                     </div>
-                </div>
 
-                <div className='mt-4'>
-                         <div className='flex-col w-full '>
-                        <label>Remarks</label>
-                        <FormTextArea
-                        type="text"
-                            name="remarks"
-                            className="h-24 w-full"
+                    <div className='flex-col w-1/4'>
+                        <label>Approved Date</label>
+                        <FormInput
+                            type="date"
+                            name="approvedDate"
                             formValues={formValues}
                             onChange={({ target: { name, value } }) =>
                                 handleFormChange(name, value)
                             }
                         />
-                    </div>   
-
+                    </div>
                 </div>
 
+                <div className='flex mt-4 gap-5'>
+                    <div className='flex-col'>
+                        <label htmlFor="">Team Approved</label>
+                        <div className='mt-4'>
+                            <ToggleButton
+                                name="approvalStatus"
+                                isOn={formValues.approvalStatus}
+                                onToggle={(value) => handleFormChange("approvalStatus", value)}
+                            />
+                        </div>
 
-            </div>  
+                    </div>
+
+                    <div className='flex-col w-1/4'>
+                        <label>Due Date</label>
+                        <FormInput
+                            type="date"
+                            name="dueDate"
+                            formValues={formValues}
+                            onChange={({ target: { name, value } }) =>
+                                handleFormChange(name, value)
+                            }
+                        />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
 
-export default FurnitureUpdate;
+export default SoftwareAssetUpdate;

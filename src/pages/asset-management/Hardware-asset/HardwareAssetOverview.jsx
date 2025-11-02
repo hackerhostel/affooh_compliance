@@ -14,9 +14,9 @@ import FurnitureUpdate from "./FurnitureUpdate.jsx";
 
 const HardwareAssetOverview = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState(""); 
-  const [openActionRowId, setOpenActionRowId] = useState(null); 
-  const [editAsset, setEditAsset] = useState(null); 
+  const [selectedType, setSelectedType] = useState("");
+  const [openActionRowId, setOpenActionRowId] = useState(null);
+  const [editAsset, setEditAsset] = useState(null);
 
   const [formValues, setFormValues] = useState({
     type: "",
@@ -130,10 +130,11 @@ const HardwareAssetOverview = () => {
     const asset = assetRows.find((row) => row.id === id);
     if (asset) {
       setEditAsset(asset);
-      setSelectedType(asset.type);
+      setSelectedType(asset.type); // ensures correct update form is shown
       setIsOpen(true);
     }
   };
+
 
   return (
     <div className="relative mt-6">
@@ -293,18 +294,23 @@ const HardwareAssetOverview = () => {
       )}
 
       {/* ✅ Popups / Update Forms */}
-      {isOpen && selectedType === "device" && !editAsset && (
+      {/* ✅ Popups / Update Forms */}
+      {isOpen && !editAsset && selectedType === "device" && (
         <CreateNewHardwareAsset onClose={handleClose} isOpen={isOpen} />
       )}
-      {isOpen && selectedType === "furniture" && !editAsset && (
+
+      {isOpen && !editAsset && selectedType === "furniture" && (
         <CreateNewHardwareAssetFurniture onClose={handleClose} isOpen={isOpen} />
       )}
-      {isOpen && selectedType === "device" && editAsset && (
+
+      {isOpen && editAsset && selectedType === "device" && (
         <DeviceUpdate onBack={handleClose} asset={editAsset} />
       )}
-      {isOpen && selectedType === "furniture" && editAsset && (
+
+      {isOpen && editAsset && selectedType === "furniture" && (
         <FurnitureUpdate onBack={handleClose} asset={editAsset} />
       )}
+
     </div>
   );
 };
