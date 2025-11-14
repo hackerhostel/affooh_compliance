@@ -3,15 +3,15 @@ import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import { useToasts } from "react-toast-notifications";
 
-const ReviewAndAuditsListPage = ({ onDocumentSelect }) => {
+const ReviewAndAuditsListPage = ({ onDocumentSelect, onUpdateDocument }) => {
   const { addToast } = useToasts();
 
-  // Dummy document list
+  // Dummy document list - ensure unique ids
   const [documents, setDocuments] = useState([
     { id: 1, name: "ISO 27001 (2025)", classification: "Public" },
     { id: 2, name: "ISO 9001 (2025)", classification: "Confidential" },
     { id: 3, name: "General Process", classification: "Restricted" },
-    { id: 3, name: "Non Conformance", classification: "Restricted" },
+    { id: 4, name: "Non Conformance", classification: "Restricted" },
   ]);
 
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -32,11 +32,13 @@ const ReviewAndAuditsListPage = ({ onDocumentSelect }) => {
   };
 
   const toggleMenuOpen = (index, event) => {
+    // Prevent the list item click
     event.stopPropagation();
     setOpenMenu(openMenu === index ? null : index);
   };
 
-  const handleDeleteClick = (doc) => {
+  const handleDeleteClick = (doc, e) => {
+    e.stopPropagation();
     setSelectedDoc(doc);
     setIsDialogOpen(true);
     setOpenMenu(null);
@@ -54,6 +56,13 @@ const ReviewAndAuditsListPage = ({ onDocumentSelect }) => {
     if (onDocumentSelect) {
       onDocumentSelect(doc);
     }
+  };
+
+  const handleUpdateClick = (doc, e) => {
+    e.stopPropagation();
+    setOpenMenu(null);
+    // defensive call in case prop not provided
+    if (onUpdateDocument) onUpdateDocument(doc);
   };
 
   return (
@@ -75,18 +84,25 @@ const ReviewAndAuditsListPage = ({ onDocumentSelect }) => {
             </div>
 
             {/* Three-dot menu */}
-            <div className="relative">
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
               <EllipsisVerticalIcon
                 onClick={(e) => toggleMenuOpen(index, e)}
                 className="w-5 h-5 text-gray-600 cursor-pointer"
               />
               {openMenu === index && (
-                <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-md shadow-md w-28 z-10">
+                <div className="flex absolute right-0 top-6 bg-white border border-gray-200 rounded-md shadow-md w-28 z-10">
                   <button
-                    onClick={() => handleDeleteClick(doc)}
+                    onClick={(e) => handleDeleteClick(doc, e)}
                     className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                   >
                     Delete
+                  </button>
+
+                  <button
+                    onClick={(e) => handleUpdateClick(doc, e)}
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Update
                   </button>
                 </div>
               )}
@@ -100,9 +116,7 @@ const ReviewAndAuditsListPage = ({ onDocumentSelect }) => {
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        message={
-          selectedDoc ? `Do you want to delete "${selectedDoc.name}"?` : ""
-        }
+        message={selectedDoc ? `Do you want to delete "${selectedDoc.name}"?` : ""}
       />
     </div>
   );

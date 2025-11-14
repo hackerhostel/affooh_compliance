@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import FormTextArea from "../../../components/FormTextArea.jsx";
 import FormSelect from "../../../components/FormSelect.jsx";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
+import NonConformanceUpdate from "./NonConformanceUpdate.jsx";
+
 
 const complianceOptions = [
   { label: "Compliant", value: "Compliant" },
@@ -57,7 +57,7 @@ const dummyRows = [
   },
 ];
 
-const NonConformanceOverview = () => {
+const NonConformanceOverview = ({onRowClick}) => {
   const [filterValues, setFilterValues] = useState({
     control: "",
     assignee: "",
@@ -206,7 +206,7 @@ const NonConformanceOverview = () => {
 
       {/* Table */}
       <div className="px-4 mt-5 h-[600px] rounded-md bg-white">
-        <table className="w-full border-collapse bg-white mb-10">
+          <table className="w-full border-collapse bg-white mb-10">
           <thead className="text-left">
             <tr>
               <th className="px-4 py-6">#</th>
@@ -224,7 +224,11 @@ const NonConformanceOverview = () => {
             {rows.map((row) => {
               const user = row.owner;
               return (
-                <tr key={row.id} className="border-t">
+                <tr
+                  key={row.id}
+                  className="border-t hover:bg-gray-100 cursor-pointer"
+                  onClick={() => onRowClick(row)} 
+                >
                   <td className="px-4 py-3">{row.id}</td>
                   <td className="px-4 py-3 w-[200px]">{row.nonConformance}</td>
                   <td className="px-4 py-3">{row.source}</td>
@@ -235,19 +239,11 @@ const NonConformanceOverview = () => {
                   <td className="px-4 py-3 text-center">{row.status}</td>
                   <td className="px-4 py-3 ">
                     {user ? (
-                      <div className="flex items-center justify-left space-x-2">
-                        {user.avatar ? (
-                          <img
-                            src={user.avatar}
-                            alt={`${user.firstName} ${user.lastName}`}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold">
-                            {user.firstName?.[0]}
-                            {user.lastName?.[0]}
-                          </div>
-                        )}
+                      <div className="flex items-center space-x-2">
+                        <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold">
+                          {user.firstName?.[0]}
+                          {user.lastName?.[0]}
+                        </div>
                         <span>
                           {user.firstName} {user.lastName}
                         </span>

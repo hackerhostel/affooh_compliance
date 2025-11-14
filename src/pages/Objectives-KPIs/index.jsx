@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import MainPageLayout from "../../layouts/MainPageLayout.jsx";
 import ObjectivesAndKPIsListPage from "./ObjectivesAndKPIsListPage.jsx";
 import ObjectivesAndKPIsContentPage from "./ObjectivesAndKPIsContent.jsx";
+import CreateNewObjective from "./CreateNewObjective.jsx";
 
 const ObjectivesAndKPIsLayout = () => {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
@@ -21,8 +22,11 @@ const ObjectivesAndKPIsLayout = () => {
   };
 
   return (
+
+    <>
     <MainPageLayout
       title="Objectives And KPIs"
+      subText="Add new"
       leftColumn={
         <ObjectivesAndKPIsListPage
           selectedFolderId={selectedFolderId}
@@ -33,6 +37,9 @@ const ObjectivesAndKPIsLayout = () => {
       rightColumn={<ObjectivesAndKPIsContentPage selectedDocument={selectedDocument} />}
       onAction={onAddNew}
     />
+    <CreateNewObjective isOpen={isOpen} onClose={handleClose} />
+    </>
+    
   );
 };
 
