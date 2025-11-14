@@ -1,10 +1,19 @@
 import React, { useState } from "react";
 import ObjectivesAndKPIsHistory from "./ObjectivesAndKPIsHistory";
 import ObjectivesAndKPIsOverview from "./ObjectivesAndKPIsOverview";
-
+import ObjectivesAndKPIsUpdate from "./ObjectivesAndKpiUpdate";
 const ObjectivesAndKPIsContentPage = () => {
   // Left sidebar removed; state related to it has been removed
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectedRow, setSelectedRow] = useState(null);
+
+  const handleRowClick = (row) => {
+    setSelectedRow(row); 
+  };
+
+  const handleBack = () => {
+    setSelectedRow(null); 
+  };
 
   return (
     <div className=" bg-dashboard-bgc min-h-screen">
@@ -36,7 +45,13 @@ const ObjectivesAndKPIsContentPage = () => {
             </div>
           </div>
 
-          {activeTab === "overview" && <ObjectivesAndKPIsOverview />}
+          {activeTab === "overview" && !selectedRow && (
+            <ObjectivesAndKPIsOverview onRowClick={handleRowClick} />
+          )}
+
+          {activeTab === "overview" && selectedRow && (
+            <ObjectivesAndKPIsUpdate row={selectedRow} onBack={handleBack} />
+          )}
           {activeTab === "history" && <ObjectivesAndKPIsHistory />}
         </div>
       </div> 

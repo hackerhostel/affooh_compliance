@@ -22,7 +22,7 @@ const OperationLayout = () => {
 
   return (
     <MainPageLayout
-      title="Roles and Responsibilities"
+      title="Operation Management"
       leftColumn={
         <OperationListPage
           selectedFolderId={selectedFolderId}
