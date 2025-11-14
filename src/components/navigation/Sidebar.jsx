@@ -86,7 +86,7 @@ function Sidebar() {
         </div>
 
         <div className="flex flex-col h-full justify-between">
-          {/* Menu items section */}
+          {/* Menu items  */}
           <div className="flex-grow flex flex-col items-center py-5 space-y-6">
             <MenuItem link="/dashboard" Icon={Squares2X2Icon}/>
             <MenuItem link="/organizational" Icon={FolderIcon}/>
