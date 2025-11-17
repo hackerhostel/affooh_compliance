@@ -11,7 +11,7 @@ import {
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 
-const SupplierOverview = () => {
+const SupplierProviderList = () => {
   // Helper to format date as "12-Feb"
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
@@ -336,4 +336,4 @@ const SupplierOverview = () => {
   );
 };
 
-export default SupplierOverview;
+export default SupplierProviderList;

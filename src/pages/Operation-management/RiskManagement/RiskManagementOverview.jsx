@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import FormTextArea from "../../../components/FormTextArea.jsx";
 import FormSelect from "../../../components/FormSelect.jsx";
 import RiskLevelCell from "../../../components/RiskCell.jsx";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
+import { EllipsisVerticalIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import FormInput from "../../../components/FormInput.jsx";
 
 const complianceOptions = [
@@ -68,7 +68,19 @@ const RiskManagementOverview = () => {
     return (
         <div>
             <div className=" items-center justify-between flex px-4">
-                <div><span className="text-xl font-semibold">Risk Management</span></div>
+                <div className="flex gap-4">
+                    <span className="text-xl font-semibold">Risk Management</span>
+                     <div className="flex items-center gap-1">
+                          <PlusCircleIcon
+                           
+                            className="w-6 h-6 text-pink-500 cursor-pointer"
+                          />
+                          <button className="text-text-color" >
+                            Add New
+                          </button>
+                        </div>
+                    </div>
+                       
                 <div className="flex justify-end items-center mt-4 space-x-2">
                     <button className="bg-primary-pink px-8 py-3 rounded-md text-white">Archived</button>
                     <button className="bg-primary-pink px-8 py-3 rounded-md text-white">Approved</button>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ServiceProviderHistory from "./ServiceProviderHistory";
-import ServiceProviderOverview from "./ServiceProviderOverview";
+import ServiceProviderList from "./ServiceProviderList";
+import ServiceProviderCriteria from "./ServiceProviderCriteria";
 
 const ServiceProviderContentPage = () => {
   // Left sidebar removed; state related to it has been removed
@@ -33,10 +34,32 @@ const ServiceProviderContentPage = () => {
               >
                 History
               </button>
+              <button
+                onClick={() => setActiveTab("Approved List")}
+                className={`px-6 py-2 rounded-2xl ${
+                  activeTab === "Approved List"
+                    ? "bg-black text-white"
+                    : "bg-gray-200 text-black hover:bg-gray-300"
+                }`}
+              >
+                Approved List
+              </button>
+              <button
+                onClick={() => setActiveTab("Criteria")}
+                className={`px-6 py-2 rounded-2xl ${
+                  activeTab === "Criteria"
+                    ? "bg-black text-white"
+                    : "bg-gray-200 text-black hover:bg-gray-300"
+                }`}
+              >
+                Criteria
+              </button>
             </div>
           </div>
 
           {activeTab === "overview" && <ServiceProviderOverview />}
+          {activeTab === "Approved List" && <ServiceProviderList />}
+          {activeTab === "Criteria" && <ServiceProviderCriteria />}
           {activeTab === "history" && <ServiceProviderHistory />}
         </div>
       </div> 
