@@ -57,6 +57,11 @@ const SkillInventoryOverview = () => {
 
   return (
     <div className="mt-6">
+      <div className=" flex justify-end">
+            <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
+          Approved
+        </button>
+        </div>
       <div className="flex items-center gap-5">
         <span className="text-lg font-semibold">Skill Inventory</span>
       </div>

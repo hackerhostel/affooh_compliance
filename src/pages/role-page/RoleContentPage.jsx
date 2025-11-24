@@ -3,6 +3,7 @@ import SteeringCommitteeContentPage from "./SteeringCommittee/SteeringCommitteeC
 import RASCIContentPage from "./RASCI/RASCIContent";
 import SkillInventoryContentPage from "./SkillInventory/SkillInventoryContent";
 import CompetencyMatrixContentPage from "./CompetencyMatrix/CompetencyMatrixContent";
+import UserAccessMatrixContentPage from "./User-access-matrix/UserAccessMatrixContent";
 
 
 const RoleContentPage = ({ selectedDocument }) => {
@@ -28,10 +29,12 @@ const RoleContentPage = ({ selectedDocument }) => {
         return <StakeholderContextContent />;
       case "Communication Register":
         return <CommunicationRegisterContent />;
+         case "User Access Matrix":
+        return <UserAccessMatrixContentPage />;
       default:
         return (
           <div className="text-gray-600 text-center mt-10">
-            <ContextContent />
+            <SteeringCommitteeContentPage />
           </div>
         );
     }
