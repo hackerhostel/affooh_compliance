@@ -22,7 +22,7 @@ const OrganizationalLayout = () => {
 
   return (
     <MainPageLayout
-      title="Organizational Context"
+      title={selectedDocument?.name || "Organizational Context"}
       leftColumn={
         <OrganizationalListPage
           selectedFolderId={selectedFolderId}

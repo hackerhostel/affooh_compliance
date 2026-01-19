@@ -1,62 +1,112 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FormTextArea from "../../../components/FormTextArea.jsx";
 import FormInput from '../../../components/FormInput.jsx';
 import FormSelect from '../../../components/FormSelect.jsx';
 import { PencilIcon, EllipsisVerticalIcon, CheckBadgeIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
-import { getSelectOptions } from "../../../utils/commonUtils.js";
+import { getUserSelectOptions } from "../../../utils/commonUtils.js";
+import { useSelector } from "react-redux";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
+import useFetchOrganizationalContext from "../../../hooks/custom-hooks/compliance/useFetchOrganizationalContext.jsx";
+import useFetchFunctions from "../../../hooks/custom-hooks/compliance/useFetchFunctions.jsx";
+import useFetchLaws from "../../../hooks/custom-hooks/compliance/useFetchLaws.jsx";
+import {
+    createFunction,
+    createLaw,
+    createOrganizationalContext,
+    deleteFunction,
+    deleteLaw,
+    updateFunction,
+    updateLaw,
+    updateOrganizationalContext
+} from "../../../utils/complianceApi.js";
+import { useToasts } from "react-toast-notifications";
+import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
 
 const ContextOverview = () => {
-    // Initial purpose text
-    const initialText = `This document defines the purpose of LifeServ's Quality Management System (QMS) in accordance with the requirements of ISO 9001:2015. It aims to establish a clear understanding of what the QMS covers, ensuring that all relevant activities and processes are managed to consistently meet customer and applicable statutory and regulatory requirements, and to enhance customer satisfaction through the effective application of the system, including processes for improvement.`;
+    const { addToast } = useToasts();
+    const selectedProject = useSelector(selectSelectedProject);
+    const projectUserList = useSelector(selectProjectUserList);
+    const projectId = selectedProject?.id;
+    const [contextId, setContextId] = useState(null);
+
+    const {
+        data: contextData,
+        refetch: refetchContext
+    } = useFetchOrganizationalContext(projectId);
+    const { data: functionsData, refetch: refetchFunctions } = useFetchFunctions(projectId);
+    const { data: lawsData, refetch: refetchLaws } = useFetchLaws(projectId);
 
     const [formValues, setFormValues] = useState({
-        purpose: initialText,
-        name: "",
+        purpose: "",
+        companyName: "",
+        companyAddress: "",
         contactInformation: "",
-        address: "",
     });
 
     const [isEditing, setIsEditing] = useState(false);
 
     // Functions table state
-    const [functionsRows, setFunctionsRows] = useState([
-        { id: 1, department: 'Quality', description: 'Manage QMS and audits', hod: 'Alice Johnson' },
-        { id: 2, department: 'Operations', description: 'Oversee daily operations', hod: 'Bob Smith' },
-        { id: 3, department: 'HR', description: 'Handle recruitment and training', hod: 'Carol Lee' },
-    ]);
+    const [functionsRows, setFunctionsRows] = useState([]);
     const [showNewFunctionRow, setShowNewFunctionRow] = useState(false);
-    const [newFunctionRow, setNewFunctionRow] = useState({ department: '', description: '', hod: '' });
+    const [newFunctionRow, setNewFunctionRow] = useState({ department: '', description: '', hodId: '' });
     const [editingRowId, setEditingRowId] = useState(null);
     const [openActionRowId, setOpenActionRowId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
 
     // Applicable Laws and Regulations state
-    const [lawsRows, setLawsRows] = useState([
-        { id: 101, law: 'ISO 9001:2015', jurisdiction: 'International' },
-        { id: 102, law: 'OSHA Act', jurisdiction: 'United States' },
-        { id: 103, law: 'GDPR', jurisdiction: 'European Union' },
-    ]);
+    const [lawsRows, setLawsRows] = useState([]);
     const [showNewLawRow, setShowNewLawRow] = useState(false);
     const [newLawRow, setNewLawRow] = useState({ law: '', jurisdiction: '' });
     const [editingLawRowId, setEditingLawRowId] = useState(null);
     const [openLawActionRowId, setOpenLawActionRowId] = useState(null);
     const [lawsCurrentPage, setLawsCurrentPage] = useState(1);
 
-    // Simple options for Department and HOD selects
-    const departmentOptions = getSelectOptions([
-        { id: 'Quality', name: 'Quality' },
-        { id: 'Operations', name: 'Operations' },
-        { id: 'Sales', name: 'Sales' },
-        { id: 'HR', name: 'HR' },
-    ]);
+    // Delete confirmation state
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState(null);
 
-    const hodOptions = getSelectOptions([
-        { id: 'Alice Johnson', name: 'Alice Johnson' },
-        { id: 'Bob Smith', name: 'Bob Smith' },
-        { id: 'Carol Lee', name: 'Carol Lee' },
-    ]);
+    const hodOptions = getUserSelectOptions(projectUserList || []);
+    const getUserNameById = (id) => {
+        const user = projectUserList?.find((item) => Number(item.id) === Number(id));
+        return user ? `${user.firstName} ${user.lastName}` : "";
+    };
 
-    const resetNewFunctionRow = () => setNewFunctionRow({ department: '', description: '', hod: '' });
+    useEffect(() => {
+        if (contextData?.id) {
+            setContextId(contextData.id);
+            setFormValues({
+                purpose: contextData.purpose || "",
+                companyName: contextData.companyName || "",
+                companyAddress: contextData.companyAddress || "",
+                contactInformation: contextData.contactInformation || "",
+            });
+        }
+    }, [contextData]);
+
+    useEffect(() => {
+        const mapped = (functionsData || []).map((row) => ({
+            ...row,
+            hodId: row?.hod?.id ? String(row.hod.id) : "",
+            hodName: row?.hod?.name || getUserNameById(row?.hod?.id),
+        }));
+        setFunctionsRows(mapped);
+    }, [functionsData, projectUserList]);
+
+    useEffect(() => {
+        const mapped = (lawsData || []).map((row) => ({
+            id: row.id,
+            law: row.lawName,
+            jurisdiction: row.jurisdiction,
+            description: row.description,
+            referenceNumber: row.referenceNumber,
+            effectiveDate: row.effectiveDate,
+            displayOrder: row.displayOrder,
+        }));
+        setLawsRows(mapped);
+    }, [lawsData]);
+
+    const resetNewFunctionRow = () => setNewFunctionRow({ department: '', description: '', hodId: '' });
 
     const handleNewFunctionChange = ({ target: { name, value } }) => {
         setNewFunctionRow(prev => ({ ...prev, [name]: value }));
@@ -72,23 +122,37 @@ const ContextOverview = () => {
         resetNewFunctionRow();
     };
 
-    const handleSaveNew = () => {
-        if (!newFunctionRow.department || !newFunctionRow.description || !newFunctionRow.hod) {
-            return; // Basic guard; UI already shows inputs
+    const handleSaveNew = async () => {
+        if (!projectId) {
+            addToast("Project not found", { appearance: "error" });
+            return;
         }
-        const newRow = {
-            id: Date.now(),
-            ...newFunctionRow,
-        };
-        setFunctionsRows(prev => [...prev, newRow]);
-        setShowNewFunctionRow(false);
-        resetNewFunctionRow();
+        if (!newFunctionRow.department || !newFunctionRow.description) {
+            addToast("Please fill in all required fields", { appearance: "error" });
+            return;
+        }
+        try {
+            await createFunction({
+                projectID: projectId,
+                contextID: contextId,
+                department: newFunctionRow.department,
+                description: newFunctionRow.description,
+                hod: newFunctionRow.hodId ? Number(newFunctionRow.hodId) : null,
+                displayOrder: functionsRows.length + 1,
+            });
+            setShowNewFunctionRow(false);
+            resetNewFunctionRow();
+            refetchFunctions();
+            addToast("Function created successfully", { appearance: "success" });
+        } catch (error) {
+            addToast("Failed to create function", { appearance: "error" });
+        }
     };
 
-    const handleDeleteRow = (id) => {
-        setFunctionsRows(prev => prev.filter(r => r.id !== id));
-        if (editingRowId === id) setEditingRowId(null);
-        if (openActionRowId === id) setOpenActionRowId(null);
+    const handleDeleteRow = (row) => {
+        setItemToDelete({ ...row, type: "function" });
+        setIsDeleteDialogOpen(true);
+        setOpenActionRowId(null);
     };
 
     const handleStartEdit = (id) => {
@@ -101,10 +165,33 @@ const ContextOverview = () => {
     };
 
     const handleEditChange = (id, { target: { name, value } }) => {
-        setFunctionsRows(prev => prev.map(r => r.id === id ? { ...r, [name]: value } : r));
+        setFunctionsRows(prev => prev.map(r => r.id === id ? {
+            ...r,
+            [name]: value,
+            hodName: name === "hodId" ? getUserNameById(value) : r.hodName
+        } : r));
     };
 
-    const handleDoneEdit = () => {
+    const handleDoneEdit = async () => {
+        const row = functionsRows.find((item) => item.id === editingRowId);
+        if (row) {
+            if (!row.department || !row.description) {
+                addToast("Please fill in all required fields", { appearance: "error" });
+                return;
+            }
+            try {
+                await updateFunction(row.id, {
+                    department: row.department,
+                    description: row.description,
+                    hod: row.hodId ? Number(row.hodId) : null,
+                    displayOrder: row.displayOrder || 0,
+                });
+                refetchFunctions();
+                addToast("Function updated successfully", { appearance: "success" });
+            } catch (error) {
+                addToast("Failed to update function", { appearance: "error" });
+            }
+        }
         setEditingRowId(null);
     };
 
@@ -141,18 +228,36 @@ const ContextOverview = () => {
         setNewLawRow({ law: '', jurisdiction: '' });
     };
 
-    const handleSaveNewLaw = () => {
-        if (!newLawRow.law || !newLawRow.jurisdiction) return;
-        const newRow = { id: Date.now(), ...newLawRow };
-        setLawsRows(prev => [...prev, newRow]);
-        setShowNewLawRow(false);
-        setNewLawRow({ law: '', jurisdiction: '' });
+    const handleSaveNewLaw = async () => {
+        if (!projectId) {
+            addToast("Project not found", { appearance: "error" });
+            return;
+        }
+        if (!newLawRow.law || !newLawRow.jurisdiction) {
+            addToast("Please fill in all required fields", { appearance: "error" });
+            return;
+        }
+        try {
+            await createLaw({
+                projectID: projectId,
+                contextID: contextId,
+                lawName: newLawRow.law,
+                jurisdiction: newLawRow.jurisdiction,
+                displayOrder: lawsRows.length + 1,
+            });
+            setShowNewLawRow(false);
+            setNewLawRow({ law: '', jurisdiction: '' });
+            refetchLaws();
+            addToast("Law created successfully", { appearance: "success" });
+        } catch (error) {
+            addToast("Failed to create law", { appearance: "error" });
+        }
     };
 
-    const handleDeleteLawRow = (id) => {
-        setLawsRows(prev => prev.filter(r => r.id !== id));
-        if (editingLawRowId === id) setEditingLawRowId(null);
-        if (openLawActionRowId === id) setOpenLawActionRowId(null);
+    const handleDeleteLawRow = (row) => {
+        setItemToDelete({ ...row, type: "law" });
+        setIsDeleteDialogOpen(true);
+        setOpenLawActionRowId(null);
     };
 
     const handleStartEditLaw = (id) => {
@@ -168,7 +273,28 @@ const ContextOverview = () => {
         setLawsRows(prev => prev.map(r => r.id === id ? { ...r, [name]: value } : r));
     };
 
-    const handleDoneEditLaw = () => {
+    const handleDoneEditLaw = async () => {
+        const row = lawsRows.find((item) => item.id === editingLawRowId);
+        if (row) {
+            if (!row.law || !row.jurisdiction) {
+                addToast("Please fill in all required fields", { appearance: "error" });
+                return;
+            }
+            try {
+                await updateLaw(row.id, {
+                    lawName: row.law,
+                    jurisdiction: row.jurisdiction,
+                    description: row.description,
+                    referenceNumber: row.referenceNumber,
+                    effectiveDate: row.effectiveDate,
+                    displayOrder: row.displayOrder || 0,
+                });
+                refetchLaws();
+                addToast("Law updated successfully", { appearance: "success" });
+            } catch (error) {
+                addToast("Failed to update law", { appearance: "error" });
+            }
+        }
         setEditingLawRowId(null);
     };
 
@@ -191,11 +317,85 @@ const ContextOverview = () => {
     };
 
     // General handler for all form inputs
-    const handleChange = (name, value) => {
-        setFormValues(prev => ({
-            ...prev,
-            [name]: value
-        }));
+    const handleChange = (eventOrName, value) => {
+        // Handle both event object and direct name/value
+        let fieldName, fieldValue;
+        
+        if (typeof eventOrName === 'string') {
+            // Direct name/value call
+            fieldName = eventOrName;
+            fieldValue = value;
+        } else if (eventOrName?.target) {
+            // Event object
+            fieldName = eventOrName.target.name;
+            fieldValue = eventOrName.target.value;
+        }
+        
+        if (fieldName) {
+            setFormValues(prev => ({
+                ...prev,
+                [fieldName]: fieldValue
+            }));
+        }
+    };
+
+    const handleSaveContext = async () => {
+        if (!projectId) {
+            addToast("Project not found", { appearance: "error" });
+            return;
+        }
+
+        if (!formValues.purpose || !formValues.companyName) {
+            addToast("Please fill in all required fields", { appearance: "error" });
+            return;
+        }
+
+        const payload = {
+            projectID: projectId,
+            documentType: "Context",
+            purpose: formValues.purpose,
+            companyName: formValues.companyName,
+            companyAddress: formValues.companyAddress,
+            contactInformation: formValues.contactInformation,
+        };
+
+        try {
+            if (contextId) {
+                await updateOrganizationalContext(contextId, payload);
+                addToast("Context updated successfully", { appearance: "success" });
+            } else {
+                const created = await createOrganizationalContext(payload);
+                setContextId(created?.id || null);
+                addToast("Context saved successfully", { appearance: "success" });
+            }
+            refetchContext();
+        } catch (error) {
+            addToast("Failed to save context", { appearance: "error" });
+        }
+    };
+
+    // Unified delete confirmation handler
+    const handleConfirmDelete = async () => {
+        if (!itemToDelete) return;
+        try {
+            if (itemToDelete.type === "function") {
+                await deleteFunction(itemToDelete.id);
+                refetchFunctions();
+                if (editingRowId === itemToDelete.id) setEditingRowId(null);
+                if (openActionRowId === itemToDelete.id) setOpenActionRowId(null);
+                addToast("Function deleted successfully", { appearance: "success" });
+            } else if (itemToDelete.type === "law") {
+                await deleteLaw(itemToDelete.id);
+                refetchLaws();
+                if (editingLawRowId === itemToDelete.id) setEditingLawRowId(null);
+                if (openLawActionRowId === itemToDelete.id) setOpenLawActionRowId(null);
+                addToast("Law deleted successfully", { appearance: "success" });
+            }
+        } catch (error) {
+            addToast(`Failed to delete ${itemToDelete.type}`, { appearance: "error" });
+        }
+        setIsDeleteDialogOpen(false);
+        setItemToDelete(null);
     };
 
     return (
@@ -204,7 +404,7 @@ const ContextOverview = () => {
             <div className='flex justify-end items-center mt-4 space-x-2'>
                 <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Archived</button>
                 <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Approved</button>
-                <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
+                <button className='bg-primary-pink px-8 py-3 rounded-md text-white' onClick={handleSaveContext}>Save</button>
             </div>
 
             {/* overview */}
@@ -215,10 +415,11 @@ const ContextOverview = () => {
                         <FormTextArea
                             name="purpose"
                             formValues={formValues}
-                            onChange={(name, value) => handleChange(name, value)}
+                            onChange={handleChange}
                             showLabel={false}
                             className="w-full"
                             rows={5}
+                            placeholder="Enter organization purpose and context..."
                         />
                     </div>
                 </div>
@@ -245,7 +446,7 @@ const ContextOverview = () => {
                         <label htmlFor="">Company Address</label>
                         <FormInput
                             type="text"
-                            name="address"
+                            name="companyAddress"
                             formValues={formValues}
                             onChange={({ target: { name, value } }) => handleChange(name, value)}
                             className="w-96 p-2 border rounded-md mt-2 ml-2 bg-slate-100"
@@ -277,22 +478,22 @@ const ContextOverview = () => {
                 <button className='text-text-color' onClick={handleAddNewClick}>Add New</button>
                 </div>
                 </div>
-                <div className='bg-white rounded p-3 mt-2'>
-                    <table className='table-auto w-full border-collapse'>
+                <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
+                    <table className='table-fixed w-full border-collapse'>
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                                <th className='py-3 px-2 w-10'>#</th>
-                                <th className='py-3 px-2'>Department</th>
-                                <th className='py-3 px-2'>Description</th>
-                                <th className='py-3 px-2'>HOD</th>
-                                <th className='py-3 px-2'>Action</th>
+                                <th className='py-3 px-2' style={{width: '5%'}}>#</th>
+                                <th className='py-3 px-2' style={{width: '20%'}}>Department</th>
+                                <th className='py-3 px-2' style={{width: '50%'}}>Description</th>
+                                <th className='py-3 px-2' style={{width: '20%'}}>HOD</th>
+                                <th className='py-3 px-2' style={{width: '5%'}}>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {showNewFunctionRow && (
-                                <tr className='border-b border-gray-200'>
+                                <tr className='text-left border-b border-gray-200'>
                                     <td className='py-3 px-2'>-</td>
-                                    <td className='py-3 px-2 w-48'>
+                                    <td className='py-3 px-2'>
                                         <FormInput
                                             type="text"
                                             name="department"
@@ -308,10 +509,10 @@ const ContextOverview = () => {
                                             onChange={handleNewFunctionChange}
                                         />
                                     </td>
-                                    <td className='py-3 px-2 w-48'>
+                                    <td className='py-3 px-2'>
                                         <FormSelect
-                                            name="hod"
-                                            formValues={{ hod: newFunctionRow.hod }}
+                                            name="hodId"
+                                            formValues={{ hodId: newFunctionRow.hodId }}
                                             options={hodOptions}
                                             onChange={handleNewFunctionChange}
                                         />
@@ -336,13 +537,13 @@ const ContextOverview = () => {
                             {pagedRows.map((row, index) => {
                                 const isRowEditing = editingRowId === row.id;
                                 return (
-                                    <tr className='border-b border-gray-200' key={row.id}>
+                                    <tr className='text-left border-b border-gray-200' key={row.id}>
                                         <td className='py-3 px-2'>{indexOfFirst + index + 1}</td>
                                         {!isRowEditing ? (
                                             <>
                                                 <td className='py-3 px-2'>{row.department || '-'}</td>
                                                 <td className='py-3 px-2'>{row.description || '-'}</td>
-                                                <td className='py-3 px-2'>{row.hod || '-'}</td>
+                                                <td className='py-3 px-2'>{row.hodName || '-'}</td>
                                                 <td className='py-3 px-2'>
                                                     <div className='flex items-center gap-3'>
                                                         {openActionRowId !== row.id ? (
@@ -354,7 +555,7 @@ const ContextOverview = () => {
                                                                 <div className='cursor-pointer' onClick={() => handleStartEdit(row.id)}>
                                                                     <PencilIcon className={'w-5 h-5 text-text-color'} />
                                                                 </div>
-                                                                <div className='cursor-pointer' onClick={() => handleDeleteRow(row.id)}>
+                                                                <div className='cursor-pointer' onClick={() => handleDeleteRow(row)}>
                                                                     <TrashIcon className={'w-5 h-5 text-text-color'} />
                                                                 </div>
                                                                 <div className='cursor-pointer' onClick={() => setOpenActionRowId(null)}>
@@ -367,7 +568,7 @@ const ContextOverview = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <td className='py-3 px-2 w-48'>
+                                                <td className='py-3 px-2'>
                                                     <FormInput
                                                         type="text"
                                                         name="department"
@@ -383,10 +584,10 @@ const ContextOverview = () => {
                                                         onChange={(e) => handleEditChange(row.id, e)}
                                                     />
                                                 </td>
-                                                <td className='py-3 px-2 w-48'>
+                                                <td className='py-3 px-2'>
                                                     <FormSelect
-                                                        name="hod"
-                                                        formValues={{ hod: row.hod }}
+                                                        name="hodId"
+                                                        formValues={{ hodId: row.hodId }}
                                                         options={hodOptions}
                                                         onChange={(e) => handleEditChange(row.id, e)}
                                                     />
@@ -439,19 +640,19 @@ const ContextOverview = () => {
                         <button className='text-text-color' onClick={handleAddNewLawClick}>Add New</button>
                     </div>
                 </div>
-                <div className='bg-white rounded p-3 mt-2'>
-                    <table className='table-auto w-full border-collapse'>
+                <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
+                    <table className='table-fixed w-full border-collapse'>
                         <thead>
                         <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2 w-10'>#</th>
-                            <th className='py-3 px-2'>Law</th>
-                            <th className='py-3 px-2'>Jurisdiction</th>
-                            <th className='py-3 px-2'>Action</th>
+                            <th className='py-3 px-2' style={{width: '5%'}}>#</th>
+                            <th className='py-3 px-2' style={{width: '30%'}}>Law</th>
+                            <th className='py-3 px-2' style={{width: '60%'}}>Jurisdiction</th>
+                            <th className='py-3 px-2' style={{width: '5%'}}>Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         {showNewLawRow && (
-                            <tr className='border-b border-gray-200'>
+                            <tr className='text-left border-b border-gray-200'>
                                 <td className='py-3 px-2'>-</td>
                                 <td className='py-3 px-2'>
                                     <FormInput
@@ -489,7 +690,7 @@ const ContextOverview = () => {
                         {pagedLawsRows.map((row, index) => {
                             const isRowEditing = editingLawRowId === row.id;
                             return (
-                                <tr className='border-b border-gray-200' key={row.id}>
+                                <tr className='text-left border-b border-gray-200' key={row.id}>
                                     <td className='py-3 px-2'>{lawsIndexOfFirst + index + 1}</td>
                                     {!isRowEditing ? (
                                         <>
@@ -506,7 +707,7 @@ const ContextOverview = () => {
                                                             <div className='cursor-pointer' onClick={() => handleStartEditLaw(row.id)}>
                                                                 <PencilIcon className={'w-5 h-5 text-text-color'} />
                                                             </div>
-                                                            <div className='cursor-pointer' onClick={() => handleDeleteLawRow(row.id)}>
+                                                            <div className='cursor-pointer' onClick={() => handleDeleteLawRow(row)}>
                                                                 <TrashIcon className={'w-5 h-5 text-text-color'} />
                                                             </div>
                                                             <div className='cursor-pointer' onClick={() => setOpenLawActionRowId(null)}>
@@ -573,6 +774,18 @@ const ContextOverview = () => {
                     )}
                 </div>
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmationDialog
+                isOpen={isDeleteDialogOpen}
+                onClose={() => setIsDeleteDialogOpen(false)}
+                onConfirm={handleConfirmDelete}
+                message={
+                    itemToDelete
+                        ? `Do you want to delete "${itemToDelete.type === "function" ? itemToDelete.department : itemToDelete.law}"?`
+                        : ""
+                }
+            />
         </div>
     );
 };

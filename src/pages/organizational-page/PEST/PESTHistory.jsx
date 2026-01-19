@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon
@@ -8,9 +8,13 @@ import FormInput from "../../../components/FormInput.jsx";
 import FormSelect from "../../../components/FormSelect.jsx";
 import UserSelect from "../../../components/UserSelect.jsx";
 import { useToasts } from "react-toast-notifications";
-import { useDispatch, useSelector } from "react-redux";
-import { clickedUser } from "../../../state/slice/projectUsersSlice.js";
+import { useSelector } from "react-redux";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
 import { getSelectOptions } from "../../../utils/commonUtils.js";
+import useFetchOrganizationalContext from "../../../hooks/custom-hooks/compliance/useFetchOrganizationalContext.jsx";
+import useFetchRevisionHistory from "../../../hooks/custom-hooks/compliance/useFetchRevisionHistory.jsx";
+import useFetchApprovals from "../../../hooks/custom-hooks/compliance/useFetchApprovals.jsx";
 import DataGrid, {
   Column,
   ColumnChooser,
@@ -21,74 +25,20 @@ import DataGrid, {
   Sorting
 } from "devextreme-react/data-grid";
 
-// Dummy Data
-const dummyData = [
-  {
-    name: "Project Alpha",
-    revisionDate: "2025-01-15",
-    version: "1.0.0",
-    summary: "Initial release with core functionalities.",
-    responsibility: {
-      firstName: "John",
-      lastName: "Doe",
-      avatar: ""
-    }
-  },
-  {
-    name: "Project Beta",
-    revisionDate: "2025-02-10",
-    version: "1.1.0",
-    summary: "Added user authentication and profile features.",
-    responsibility: {
-      firstName: "John",
-      lastName: "Doe",
-      avatar: ""
-    }
-  },
-  {
-    name: "Project Gamma",
-    revisionDate: "2025-03-05",
-    version: "1.2.0",
-    summary: "Improved dashboard UI and fixed bug in reports.",
-    responsibility: {
-      firstName: "John",
-      lastName: "Doe",
-      avatar: ""
-    }
-  },
-  {
-    name: "Project Delta",
-    revisionDate: "2025-04-12",
-    version: "2.0.0",
-    summary: "Major update with API integration.",
-    responsibility: {
-      firstName: "John",
-      lastName: "Doe",
-      avatar: ""
-    }
-  },
-  {
-    name: "Project Omega",
-    revisionDate: "2025-05-20",
-    version: "2.1.0",
-    summary: "Security patches and performance optimization.",
-    responsibility: {
-      firstName: "John",
-      lastName: "Doe",
-      avatar: ""
-    }
-  }
-];
-
 const PESTHistory = () => {
   const { addToast } = useToasts();
-  const dispatch = useDispatch();
-  const selectedUser = useSelector(clickedUser);
+  const selectedProject = useSelector(selectSelectedProject);
+  const projectUserList = useSelector(selectProjectUserList);
+  const projectId = selectedProject?.id;
+
+  const { data: contextData } = useFetchOrganizationalContext(projectId, 'PEST');
+  const { data: revisionHistory } = useFetchRevisionHistory(projectId, 'PEST');
+  const { data: approvals } = useFetchApprovals(projectId, 'PEST');
 
   const [formValues, setFormValues] = useState({
-    documentID: "DOC-001",
-    version: "1.0",
-    effectiveDate: "2025-10-07",
+    documentID: "",
+    version: "",
+    effectiveDate: "",
     classification: "",
     preparedBy: "",
     approvedBy: "",
@@ -100,23 +50,52 @@ const PESTHistory = () => {
   const tasksPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Dummy options and users for sidebar
-  const roles = ["Internal", "Confidential", "Public"];
-  const dummyUsers = [
-    { id: 1, name: "John Doe" },
-    { id: 2, name: "Jane Smith" },
-    { id: 3, name: "Alice Johnson" },
+  const roles = [
+    { value: "Public", label: "Public" },
+    { value: "Confidential", label: "Confidential" },
+    { value: "Restricted", label: "Restricted" }
   ];
+
+  useEffect(() => {
+    if (contextData?.id) {
+      setFormValues({
+        documentID: contextData.documentID || "",
+        version: contextData.version || "",
+        effectiveDate: contextData.effectiveDate || "",
+        classification: contextData.classification || "",
+        preparedBy: contextData.preparedBy?.id || "",
+        approvedBy: contextData.approvedBy?.id || "",
+        owner: contextData.owner?.id || "",
+      });
+    }
+  }, [contextData]);
 
   const toggleEditable = () => setIsEditable((prev) => !prev);
   const handleUserChange = (field, userId) => {
     setFormValues({ ...formValues, [field]: userId });
   };
 
-  const totalPages = Math.ceil(dummyData.length / tasksPerPage);
+  const revisionRows = useMemo(() => {
+    return (revisionHistory || []).map((item) => ({
+      name: contextData?.documentType || "PEST",
+      revisionDate: item.revisionDate,
+      version: item.version,
+      summary: item.summaryOfChanges,
+    }));
+  }, [revisionHistory, contextData]);
+
+  const approvalRows = useMemo(() => {
+    return (approvals || []).map((item) => ({
+      name: item.approver?.name || "Unknown",
+      position: item.approver?.position || "",
+      approvalDate: item.approvalDate,
+    }));
+  }, [approvals]);
+
+  const totalPages = Math.ceil(revisionRows.length / tasksPerPage) || 1;
   const indexOfLastItem = currentPage * tasksPerPage;
   const indexOfFirstItem = indexOfLastItem - tasksPerPage;
-  const currentPageData = dummyData.slice(indexOfFirstItem, indexOfLastItem);
+  const currentPageData = revisionRows.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePreviousPage = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
@@ -138,16 +117,16 @@ const PESTHistory = () => {
         </div>
 
         <div className="flex flex-col items-center">
-          {selectedUser?.avatar ? (
+          {false ? (
             <img
-              src={selectedUser.avatar}
-              alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
+              src={""}
+              alt="User"
               className="w-10 h-10 rounded-full object-cover"
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold">
-              {selectedUser?.firstName?.[0] || "Q"}
-              {selectedUser?.lastName?.[0] || "M"}
+              {"P"}
+              {"E"}
             </div>
           )}
           <span className="text-lg font-semibold text-center mt-5  mb-1">
@@ -221,7 +200,7 @@ const PESTHistory = () => {
               name="classification"
               label="Classification"
               formValues={formValues}
-              options={getSelectOptions(roles)}
+              options={roles}
               placeholder="Select Classification"
               onChange={(e) =>
                 setFormValues({ ...formValues, classification: e.target.value })
@@ -241,8 +220,8 @@ const PESTHistory = () => {
               name="preparedBy"
               label="Prepared By"
               value={formValues.preparedBy}
-              onChange={(value) => handleUserChange("preparedBy", value)}
-              users={dummyUsers}
+              onChange={({ target: { value } }) => handleUserChange("preparedBy", value)}
+              users={projectUserList || []}
               className={`w-full p-2 border rounded-md ${
                 isEditable
                   ? "bg-white text-secondary-grey border-border-color"
@@ -255,8 +234,8 @@ const PESTHistory = () => {
               name="approvedBy"
               label="Approved By"
               value={formValues.approvedBy}
-              onChange={(value) => handleUserChange("approvedBy", value)}
-              users={dummyUsers}
+              onChange={({ target: { value } }) => handleUserChange("approvedBy", value)}
+              users={projectUserList || []}
               className={`w-full p-2 border rounded-md ${
                 isEditable
                   ? "bg-white text-secondary-grey border-border-color"
@@ -269,8 +248,8 @@ const PESTHistory = () => {
               name="owner"
               label="Owner"
               value={formValues.owner}
-              onChange={(value) => handleUserChange("owner", value)}
-              users={dummyUsers}
+              onChange={({ target: { value } }) => handleUserChange("owner", value)}
+              users={projectUserList || []}
               className={`w-full p-2 border rounded-md ${
                 isEditable
                   ? "bg-white text-secondary-grey border-border-color"
@@ -312,7 +291,7 @@ const PESTHistory = () => {
             <Column dataField="name" caption="Name" width={150} />
             <Column dataField="revisionDate" caption="Revision Date" width={120} />
             <Column dataField="version" caption="Version" width={120} />
-            <Column dataField="summary" caption="Summary of Changes" width={200} />
+            <Column dataField="summary" caption="Summary of Changes" width={220} />
           </DataGrid>
 
           {/* Pagination */}
@@ -357,7 +336,7 @@ const PESTHistory = () => {
 
       <div className="bg-white">
         <DataGrid
-          dataSource={currentPageData}
+          dataSource={approvalRows}
           width="100%"
           className="rounded-lg overflow-hidden dummy-grid-table mb-10"
           showRowLines={true}
@@ -370,39 +349,9 @@ const PESTHistory = () => {
           <Scrolling columnRenderingMode="virtual" />
           <Sorting mode="multiple" />
 
-          <Column
-            dataField="responsibility"
-            caption="Name"
-            cellRender={({ data }) => {
-              const user = data?.responsibility;
-
-              if (!user)
-                return <span className="text-gray-400 italic">No user</span>;
-
-              return (
-                <div className="flex items-center space-x-2">
-                  {user.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt={`${user.firstName} ${user.lastName}`}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold">
-                      {user.firstName?.[0]}
-                      {user.lastName?.[0]}
-                    </div>
-                  )}
-                  <span>
-                    {user.firstName} {user.lastName}
-                  </span>
-                </div>
-              );
-            }}
-          />
-
-          <Column dataField="version" caption="Position" width={120} />
-          <Column dataField="revisionDate" caption="Date" />
+          <Column dataField="name" caption="Name" width={200} />
+          <Column dataField="position" caption="Position" width={180} />
+          <Column dataField="approvalDate" caption="Date" width={140} />
         </DataGrid>
 
         {/* Pagination */}

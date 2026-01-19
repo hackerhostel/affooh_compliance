@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
+import EditOrganizationalContextDialog from "../../components/EditOrganizationalContextDialog.jsx";
 import { useToasts } from "react-toast-notifications";
+import { updateOrganizationalContext } from "../../utils/complianceApi.js";
 
 const OrganizationalListPage = ({ onDocumentSelect }) => {
   const { addToast } = useToasts();
@@ -17,8 +18,15 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
   
   ]);
 
+  // Auto-select first document on mount
+  useEffect(() => {
+    if (documents.length > 0 && onDocumentSelect) {
+      onDocumentSelect(documents[0]);
+    }
+  }, []);
+
   const [selectedDoc, setSelectedDoc] = useState(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
 
   const getColorClass = (classification) => {
@@ -39,18 +47,36 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
     setOpenMenu(openMenu === index ? null : index);
   };
 
-  const handleDeleteClick = (doc) => {
+  const handleEditClick = (doc) => {
     setSelectedDoc(doc);
-    setIsDialogOpen(true);
+    setIsEditDialogOpen(true);
     setOpenMenu(null);
   };
 
-  const handleConfirmDelete = () => {
-    if (selectedDoc) {
-      setDocuments((prev) => prev.filter((d) => d.id !== selectedDoc.id));
-      addToast("Document deleted successfully!", { appearance: "success" });
+  const handleConfirmEdit = async (updatedData) => {
+    try {
+      if (selectedDoc) {
+        // Update local state
+        setDocuments((prev) =>
+          prev.map((d) =>
+            d.id === selectedDoc.id
+              ? { ...d, ...updatedData }
+              : d
+          )
+        );
+        
+        // Call API if document has an ID from backend
+        if (selectedDoc.contextId) {
+          await updateOrganizationalContext(selectedDoc.contextId, updatedData);
+        }
+        
+        addToast("Document updated successfully!", { appearance: "success" });
+      }
+    } catch (error) {
+      addToast("Failed to update document", { appearance: "error" });
+      console.error("Update error:", error);
     }
-    setIsDialogOpen(false);
+    setIsEditDialogOpen(false);
   };
 
   const handleDocumentClick = (doc) => {
@@ -86,10 +112,10 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
               {openMenu === index && (
                 <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-md shadow-md w-28 z-10">
                   <button
-                    onClick={() => handleDeleteClick(doc)}
+                    onClick={() => handleEditClick(doc)}
                     className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                   >
-                    Delete
+                    Edit
                   </button>
                 </div>
               )}
@@ -98,14 +124,12 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
         ))
       )}
 
-      {/* Confirmation Dialog */}
-      <ConfirmationDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        onConfirm={handleConfirmDelete}
-        message={
-          selectedDoc ? `Do you want to delete "${selectedDoc.name}"?` : ""
-        }
+      {/* Edit Dialog */}
+      <EditOrganizationalContextDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onConfirm={handleConfirmEdit}
+        document={selectedDoc}
       />
     </div>
   );

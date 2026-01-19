@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FormInput from "../../../components/FormInput.jsx";
 import FormTextArea from "../../../components/FormTextArea.jsx";
+import FormSelect from "../../../components/FormSelect.jsx";
 import {
   EllipsisVerticalIcon,
   PencilIcon,
@@ -11,39 +12,37 @@ import {
   TrashIcon,
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
+import { useSelector } from "react-redux";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import useFetchCommunications from "../../../hooks/custom-hooks/compliance/useFetchCommunications.jsx";
+import {
+  createCommunication,
+  deleteCommunication,
+  updateCommunication,
+} from "../../../utils/complianceApi.js";
+import { useToasts } from "react-toast-notifications";
+import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
 
 const CommunicationRegisterOverview = () => {
   // -------------------------------
   // INTERNAL COMMUNICATION SECTION
   // -------------------------------
-  const [internalRows, setInternalRows] = useState([
-    {
-      id: 1,
-      media: "Email",
-      communication: "Project updates",
-      method: "Weekly summary email",
-      frequency: "Weekly",
-      responsibility: "Project Manager",
-      targetTeam: "All Employees",
-    },
-    {
-      id: 2,
-      media: "Meeting",
-      communication: "Operational reviews",
-      method: "Team meetings",
-      frequency: "Monthly",
-      responsibility: "Operations Head",
-      targetTeam: "Operations Team",
-    },
-  ]);
+  const { addToast } = useToasts();
+  const selectedProject = useSelector(selectSelectedProject);
+  const projectId = selectedProject?.id;
+  const { data: communications, refetch } = useFetchCommunications(projectId);
+
+  const [internalRows, setInternalRows] = useState([]);
   const [showNewInternalRow, setShowNewInternalRow] = useState(false);
   const [newInternalRow, setNewInternalRow] = useState({
-    media: "",
-    communication: "",
+    subject: "",
+    description: "",
     method: "",
     frequency: "",
-    responsibility: "",
-    targetTeam: "",
+    sender: "",
+    recipient: "",
+    communicationDate: "",
+    status: "Planned",
   });
   const [editingInternalRowId, setEditingInternalRowId] = useState(null);
   const [internalCurrentPage, setInternalCurrentPage] = useState(1);
@@ -53,34 +52,36 @@ const CommunicationRegisterOverview = () => {
   // -------------------------------
   // EXTERNAL COMMUNICATION SECTION
   // -------------------------------
-  const [externalRows, setExternalRows] = useState([
-    {
-      id: 1,
-      withWhom: "Customers",
-      communication: "Product availability and updates",
-      how: "Email / Newsletter",
-      who: "Sales Department",
-      when: "Monthly",
-    },
-    {
-      id: 2,
-      withWhom: "Suppliers",
-      communication: "Material requirements",
-      how: "Supplier portal / phone call",
-      who: "Procurement Team",
-      when: "As required",
-    },
-  ]);
+  const [externalRows, setExternalRows] = useState([]);
   const [showNewExternalRow, setShowNewExternalRow] = useState(false);
   const [newExternalRow, setNewExternalRow] = useState({
-    withWhom: "",
-    communication: "",
-    how: "",
-    who: "",
-    when: "",
+    subject: "",
+    description: "",
+    method: "",
+    frequency: "",
+    sender: "",
+    recipient: "",
+    communicationDate: "",
+    status: "Planned",
   });
   const [editingExternalRowId, setEditingExternalRowId] = useState(null);
   const [externalCurrentPage, setExternalCurrentPage] = useState(1);
+
+  // Delete confirmation states
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const statusOptions = [
+    { value: "Planned", label: "Planned" },
+    { value: "Completed", label: "Completed" },
+    { value: "Cancelled", label: "Cancelled" },
+  ];
+
+  useEffect(() => {
+    const rows = communications || [];
+    setInternalRows(rows.filter((row) => row.communicationType === "Internal"));
+    setExternalRows(rows.filter((row) => row.communicationType === "External"));
+  }, [communications]);
 
   // Pagination setup
   const rowsPerPage = 5;
@@ -89,12 +90,14 @@ const CommunicationRegisterOverview = () => {
   const handleAddNewInternalClick = () => {
     setShowNewInternalRow(true);
     setNewInternalRow({
-      media: "",
-      communication: "",
+      subject: "",
+      description: "",
       method: "",
       frequency: "",
-      responsibility: "",
-      targetTeam: "",
+      sender: "",
+      recipient: "",
+      communicationDate: "",
+      status: "Planned",
     });
   };
 
@@ -102,20 +105,41 @@ const CommunicationRegisterOverview = () => {
     setNewInternalRow((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveNewInternal = () => {
-    if (
-      !newInternalRow.media ||
-      !newInternalRow.communication ||
-      !newInternalRow.method
-    )
+  const handleSaveNewInternal = async () => {
+    if (!projectId) {
+      addToast("Project not found", { appearance: "error" });
       return;
-    const newRow = { id: Date.now(), ...newInternalRow };
-    setInternalRows((prev) => [...prev, newRow]);
-    setShowNewInternalRow(false);
+    }
+    if (!newInternalRow.subject || !newInternalRow.method) {
+      addToast("Please fill in all required fields", { appearance: "error" });
+      return;
+    }
+    try {
+      await createCommunication({
+        projectID: projectId,
+        communicationType: "Internal",
+        subject: newInternalRow.subject,
+        description: newInternalRow.description,
+        sender: newInternalRow.sender,
+        recipient: newInternalRow.recipient,
+        communicationDate:
+          newInternalRow.communicationDate || new Date().toISOString().slice(0, 10),
+        frequency: newInternalRow.frequency,
+        method: newInternalRow.method,
+        status: newInternalRow.status,
+      });
+      setShowNewInternalRow(false);
+      refetch();
+      addToast("Internal communication created successfully", { appearance: "success" });
+    } catch (error) {
+      addToast("Failed to create internal communication", { appearance: "error" });
+    }
   };
 
-  const handleDeleteInternalRow = (id) => {
-    setInternalRows((prev) => prev.filter((r) => r.id !== id));
+  const handleDeleteInternalRow = (row) => {
+    setItemToDelete(row);
+    setIsDeleteDialogOpen(true);
+    setOpenActionRowId(null);
   };
 
   const handleStartEditInternal = (id) => setEditingInternalRowId(id);
@@ -124,10 +148,35 @@ const CommunicationRegisterOverview = () => {
       prev.map((r) => (r.id === id ? { ...r, [name]: value } : r))
     );
   };
-  const handleDoneEditInternal = () => setEditingInternalRowId(null);
+  const handleDoneEditInternal = async () => {
+    const row = internalRows.find((item) => item.id === editingInternalRowId);
+    if (row) {
+      if (!row.subject || !row.method) {
+        addToast("Please fill in all required fields", { appearance: "error" });
+        return;
+      }
+      try {
+        await updateCommunication(row.id, {
+          subject: row.subject,
+          description: row.description,
+          sender: row.sender,
+          recipient: row.recipient,
+          communicationDate: row.communicationDate,
+          frequency: row.frequency,
+          method: row.method,
+          status: row.status,
+        });
+        refetch();
+        addToast("Internal communication updated successfully", { appearance: "success" });
+      } catch (error) {
+        addToast("Failed to update internal communication", { appearance: "error" });
+      }
+    }
+    setEditingInternalRowId(null);
+  };
 
   // INTERNAL PAGINATION
-  const internalTotalPages = Math.ceil(internalRows.length / rowsPerPage);
+  const internalTotalPages = Math.ceil(internalRows.length / rowsPerPage) || 1;
   const internalPagedRows = internalRows.slice(
     (internalCurrentPage - 1) * rowsPerPage,
     internalCurrentPage * rowsPerPage
@@ -141,11 +190,14 @@ const CommunicationRegisterOverview = () => {
   const handleAddNewExternalClick = () => {
     setShowNewExternalRow(true);
     setNewExternalRow({
-      withWhom: "",
-      communication: "",
-      how: "",
-      who: "",
-      when: "",
+      subject: "",
+      description: "",
+      method: "",
+      frequency: "",
+      sender: "",
+      recipient: "",
+      communicationDate: "",
+      status: "Planned",
     });
   };
 
@@ -153,15 +205,41 @@ const CommunicationRegisterOverview = () => {
     setNewExternalRow((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveNewExternal = () => {
-    if (!newExternalRow.withWhom || !newExternalRow.communication) return;
-    const newRow = { id: Date.now(), ...newExternalRow };
-    setExternalRows((prev) => [...prev, newRow]);
-    setShowNewExternalRow(false);
+  const handleSaveNewExternal = async () => {
+    if (!projectId) {
+      addToast("Project not found", { appearance: "error" });
+      return;
+    }
+    if (!newExternalRow.subject || !newExternalRow.method) {
+      addToast("Please fill in all required fields", { appearance: "error" });
+      return;
+    }
+    try {
+      await createCommunication({
+        projectID: projectId,
+        communicationType: "External",
+        subject: newExternalRow.subject,
+        description: newExternalRow.description,
+        sender: newExternalRow.sender,
+        recipient: newExternalRow.recipient,
+        communicationDate:
+          newExternalRow.communicationDate || new Date().toISOString().slice(0, 10),
+        frequency: newExternalRow.frequency,
+        method: newExternalRow.method,
+        status: newExternalRow.status,
+      });
+      setShowNewExternalRow(false);
+      refetch();
+      addToast("External communication created successfully", { appearance: "success" });
+    } catch (error) {
+      addToast("Failed to create external communication", { appearance: "error" });
+    }
   };
 
-  const handleDeleteExternalRow = (id) => {
-    setExternalRows((prev) => prev.filter((r) => r.id !== id));
+  const handleDeleteExternalRow = (row) => {
+    setItemToDelete(row);
+    setIsDeleteDialogOpen(true);
+    setOpenActionRowId(null);
   };
 
   const handleStartEditExternal = (id) => setEditingExternalRowId(id);
@@ -170,10 +248,35 @@ const CommunicationRegisterOverview = () => {
       prev.map((r) => (r.id === id ? { ...r, [name]: value } : r))
     );
   };
-  const handleDoneEditExternal = () => setEditingExternalRowId(null);
+  const handleDoneEditExternal = async () => {
+    const row = externalRows.find((item) => item.id === editingExternalRowId);
+    if (row) {
+      if (!row.subject || !row.method) {
+        addToast("Please fill in all required fields", { appearance: "error" });
+        return;
+      }
+      try {
+        await updateCommunication(row.id, {
+          subject: row.subject,
+          description: row.description,
+          sender: row.sender,
+          recipient: row.recipient,
+          communicationDate: row.communicationDate,
+          frequency: row.frequency,
+          method: row.method,
+          status: row.status,
+        });
+        refetch();
+        addToast("External communication updated successfully", { appearance: "success" });
+      } catch (error) {
+        addToast("Failed to update external communication", { appearance: "error" });
+      }
+    }
+    setEditingExternalRowId(null);
+  };
 
   // EXTERNAL PAGINATION
-  const externalTotalPages = Math.ceil(externalRows.length / rowsPerPage);
+  const externalTotalPages = Math.ceil(externalRows.length / rowsPerPage) || 1;
   const externalPagedRows = externalRows.slice(
     (externalCurrentPage - 1) * rowsPerPage,
     externalCurrentPage * rowsPerPage
@@ -187,13 +290,24 @@ const CommunicationRegisterOverview = () => {
     setOpenActionRowId((prevId) => (prevId === rowId ? null : rowId));
   };
 
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      await deleteCommunication(itemToDelete.id);
+      refetch();
+      addToast("Communication deleted successfully", { appearance: "success" });
+    } catch (error) {
+      addToast("Failed to delete communication", { appearance: "error" });
+    }
+    setIsDeleteDialogOpen(false);
+    setItemToDelete(null);
+  };
+
   const handleSave = () => {
-    onSave();
     setOpenActionMenu(false);
   };
 
   const handleCancel = () => {
-    onCancel();
     setOpenActionMenu(false);
   };
 
@@ -217,33 +331,84 @@ const CommunicationRegisterOverview = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded p-3 mt-2">
-          <table className="table-auto w-full border-collapse">
+        <div className="bg-white rounded p-3 mt-2 overflow-x-auto">
+          <table className="table-fixed w-full border-collapse min-w-max">
             <thead>
               <tr className="text-left text-secondary-grey border-b border-gray-200">
-                <th className="py-3 px-2 w-10">#</th>
-                <th className="py-3 px-2">Communication Media</th>
-                <th className="py-3 px-2">What is Communicated</th>
-                <th className="py-3 px-2">Method</th>
-                <th className="py-3 px-2">Frequency</th>
-                <th className="py-3 px-2">Responsibility</th>
-                <th className="py-3 px-2">Target Team</th>
-                <th className="py-3 px-2">Actions</th>
+                <th className="py-3 px-2" style={{width: '50px'}}>#</th>
+                <th className="py-3 px-2" style={{width: '150px'}}>Subject</th>
+                <th className="py-3 px-2">Description</th>
+                <th className="py-3 px-2" style={{width: '100px'}}>Method</th>
+                <th className="py-3 px-2" style={{width: '100px'}}>Frequency</th>
+                <th className="py-3 px-2" style={{width: '120px'}}>Sender</th>
+                <th className="py-3 px-2" style={{width: '120px'}}>Recipient</th>
+                <th className="py-3 px-2" style={{width: '120px'}}>Date</th>
+                <th className="py-3 px-2" style={{width: '100px'}}>Status</th>
+                <th className="py-3 px-2" style={{width: '80px'}}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {showNewInternalRow && (
                 <tr className="border-b border-gray-200">
                   <td className="py-3 px-2">-</td>
-                  {Object.keys(newInternalRow).map((key) => (
-                    <td key={key} className="py-3 px-2">
-                      <FormInput
-                        name={key}
-                        formValues={{ [key]: newInternalRow[key] }}
-                        onChange={handleInternalChange}
-                      />
-                    </td>
-                  ))}
+                  <td className="py-3 px-2">
+                    <FormInput
+                      name="subject"
+                      formValues={{ subject: newInternalRow.subject }}
+                      onChange={handleInternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormTextArea
+                      name="description"
+                      formValues={{ description: newInternalRow.description }}
+                      onChange={handleInternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormInput
+                      name="method"
+                      formValues={{ method: newInternalRow.method }}
+                      onChange={handleInternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormInput
+                      name="frequency"
+                      formValues={{ frequency: newInternalRow.frequency }}
+                      onChange={handleInternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormInput
+                      name="sender"
+                      formValues={{ sender: newInternalRow.sender }}
+                      onChange={handleInternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormInput
+                      name="recipient"
+                      formValues={{ recipient: newInternalRow.recipient }}
+                      onChange={handleInternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormInput
+                      type="date"
+                      name="communicationDate"
+                      formValues={{ communicationDate: newInternalRow.communicationDate }}
+                      onChange={handleInternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormSelect
+                      name="status"
+                      formValues={{ status: newInternalRow.status }}
+                      options={statusOptions}
+                      onChange={handleInternalChange}
+                    />
+                  </td>
                   <td className="py-3 px-2 flex gap-3">
                     <CheckBadgeIcon
                       className="w-5 h-5 text-pink-700 cursor-pointer"
@@ -266,12 +431,14 @@ const CommunicationRegisterOverview = () => {
                     </td>
                     {!isEditing ? (
                       <>
-                        <td className="py-3 px-2">{row.media}</td>
-                        <td className="py-3 px-2">{row.communication}</td>
+                        <td className="py-3 px-2">{row.subject}</td>
+                        <td className="py-3 px-2">{row.description}</td>
                         <td className="py-3 px-2">{row.method}</td>
                         <td className="py-3 px-2">{row.frequency}</td>
-                        <td className="py-3 px-2">{row.responsibility}</td>
-                        <td className="py-3 px-2">{row.targetTeam}</td>
+                        <td className="py-3 px-2">{row.sender}</td>
+                        <td className="py-3 px-2">{row.recipient}</td>
+                        <td className="py-3 px-2">{row.communicationDate ? row.communicationDate.split('T')[0] : '-'}</td>
+                        <td className="py-3 px-2">{row.status}</td>
                         <td className="py-3 px-2">
                           <div className="flex items-center gap-3">
                             {openActionRowId !== row.id ? (
@@ -291,7 +458,7 @@ const CommunicationRegisterOverview = () => {
                                 </div>
                                 <div
                                   className="cursor-pointer"
-                                  onClick={() => handleDeleteInternalRow(row.id)}
+                                  onClick={() => handleDeleteInternalRow(row)}
                                 >
                                   <TrashIcon className="w-5 h-5 text-text-color" />
                                 </div>
@@ -308,19 +475,64 @@ const CommunicationRegisterOverview = () => {
                       </>
                     ) : (
                       <>
-                        {Object.keys(row)
-                          .filter((key) => key !== "id")
-                          .map((key) => (
-                            <td key={key} className="py-3 px-2">
-                              <FormInput
-                                name={key}
-                                formValues={{ [key]: row[key] }}
-                                onChange={(e) =>
-                                  handleEditInternalChange(row.id, e)
-                                }
-                              />
-                            </td>
-                          ))}
+                        <td className="py-3 px-2">
+                          <FormInput
+                            name="subject"
+                            formValues={{ subject: row.subject }}
+                            onChange={(e) => handleEditInternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormTextArea
+                            name="description"
+                            formValues={{ description: row.description }}
+                            onChange={(e) => handleEditInternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormInput
+                            name="method"
+                            formValues={{ method: row.method }}
+                            onChange={(e) => handleEditInternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormInput
+                            name="frequency"
+                            formValues={{ frequency: row.frequency }}
+                            onChange={(e) => handleEditInternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormInput
+                            name="sender"
+                            formValues={{ sender: row.sender }}
+                            onChange={(e) => handleEditInternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormInput
+                            name="recipient"
+                            formValues={{ recipient: row.recipient }}
+                            onChange={(e) => handleEditInternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormInput
+                            type="date"
+                            name="communicationDate"
+                            formValues={{ communicationDate: row.communicationDate }}
+                            onChange={(e) => handleEditInternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormSelect
+                            name="status"
+                            formValues={{ status: row.status }}
+                            options={statusOptions}
+                            onChange={(e) => handleEditInternalChange(row.id, e)}
+                          />
+                        </td>
                         <td className="py-3 px-2 flex gap-3">
                           <CheckBadgeIcon
                             className="w-5 h-5 text-pink-700 cursor-pointer"
@@ -387,32 +599,84 @@ const CommunicationRegisterOverview = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded p-3 mt-2">
-          <table className="table-auto w-full border-collapse">
+        <div className="bg-white rounded p-3 mt-2 overflow-x-auto">
+          <table className="table-fixed w-full border-collapse min-w-max">
             <thead>
               <tr className="text-left text-secondary-grey border-b border-gray-200">
-                <th className="py-3 px-2 w-10">#</th>
-                <th className="py-3 px-2">With Whom</th>
-                <th className="py-3 px-2">What is Communicated</th>
-                <th className="py-3 px-2">How</th>
-                <th className="py-3 px-2">Who</th>
-                <th className="py-3 px-2">When</th>
-                <th className="py-3 px-2">Actions</th>
+                <th className="py-3 px-2" style={{width: '50px'}}>#</th>
+                <th className="py-3 px-2" style={{width: '150px'}}>Subject</th>
+                <th className="py-3 px-2">Description</th>
+                <th className="py-3 px-2" style={{width: '100px'}}>Method</th>
+                <th className="py-3 px-2" style={{width: '100px'}}>Frequency</th>
+                <th className="py-3 px-2" style={{width: '120px'}}>Sender</th>
+                <th className="py-3 px-2" style={{width: '120px'}}>Recipient</th>
+                <th className="py-3 px-2" style={{width: '120px'}}>Date</th>
+                <th className="py-3 px-2" style={{width: '100px'}}>Status</th>
+                <th className="py-3 px-2" style={{width: '80px'}}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {showNewExternalRow && (
                 <tr className="border-b border-gray-200">
                   <td className="py-3 px-2">-</td>
-                  {Object.keys(newExternalRow).map((key) => (
-                    <td key={key} className="py-3 px-2">
-                      <FormInput
-                        name={key}
-                        formValues={{ [key]: newExternalRow[key] }}
-                        onChange={handleExternalChange}
-                      />
-                    </td>
-                  ))}
+                  <td className="py-3 px-2">
+                    <FormInput
+                      name="subject"
+                      formValues={{ subject: newExternalRow.subject }}
+                      onChange={handleExternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormTextArea
+                      name="description"
+                      formValues={{ description: newExternalRow.description }}
+                      onChange={handleExternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormInput
+                      name="method"
+                      formValues={{ method: newExternalRow.method }}
+                      onChange={handleExternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormInput
+                      name="frequency"
+                      formValues={{ frequency: newExternalRow.frequency }}
+                      onChange={handleExternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormInput
+                      name="sender"
+                      formValues={{ sender: newExternalRow.sender }}
+                      onChange={handleExternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormInput
+                      name="recipient"
+                      formValues={{ recipient: newExternalRow.recipient }}
+                      onChange={handleExternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormInput
+                      type="date"
+                      name="communicationDate"
+                      formValues={{ communicationDate: newExternalRow.communicationDate }}
+                      onChange={handleExternalChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <FormSelect
+                      name="status"
+                      formValues={{ status: newExternalRow.status }}
+                      options={statusOptions}
+                      onChange={handleExternalChange}
+                    />
+                  </td>
                   <td className="py-3 px-2 flex gap-3">
                     <CheckBadgeIcon
                       className="w-5 h-5 text-pink-700 cursor-pointer"
@@ -435,11 +699,14 @@ const CommunicationRegisterOverview = () => {
                     </td>
                     {!isEditing ? (
                       <>
-                        <td className="py-3 px-2">{row.withWhom}</td>
-                        <td className="py-3 px-2">{row.communication}</td>
-                        <td className="py-3 px-2">{row.how}</td>
-                        <td className="py-3 px-2">{row.who}</td>
-                        <td className="py-3 px-2">{row.when}</td>
+                        <td className="py-3 px-2">{row.subject}</td>
+                        <td className="py-3 px-2">{row.description}</td>
+                        <td className="py-3 px-2">{row.method}</td>
+                        <td className="py-3 px-2">{row.frequency}</td>
+                        <td className="py-3 px-2">{row.sender}</td>
+                        <td className="py-3 px-2">{row.recipient}</td>
+                        <td className="py-3 px-2">{row.communicationDate ? row.communicationDate.split('T')[0] : '-'}</td>
+                        <td className="py-3 px-2">{row.status}</td>
                         <td className="py-3 px-2">
                           <div className="flex items-center gap-3">
                             {openActionRowId !== row.id ? (
@@ -453,13 +720,13 @@ const CommunicationRegisterOverview = () => {
                               <>
                                 <div
                                   className="cursor-pointer"
-                                  onClick={() => handleStartEditInternal(row.id)}
+                                  onClick={() => handleStartEditExternal(row.id)}
                                 >
                                   <PencilIcon className="w-5 h-5 text-text-color" />
                                 </div>
                                 <div
                                   className="cursor-pointer"
-                                  onClick={() => handleDeleteInternalRow(row.id)}
+                                  onClick={() => handleDeleteExternalRow(row)}
                                 >
                                   <TrashIcon className="w-5 h-5 text-text-color" />
                                 </div>
@@ -476,19 +743,64 @@ const CommunicationRegisterOverview = () => {
                       </>
                     ) : (
                       <>
-                        {Object.keys(row)
-                          .filter((key) => key !== "id")
-                          .map((key) => (
-                            <td key={key} className="py-3 px-2">
-                              <FormInput
-                                name={key}
-                                formValues={{ [key]: row[key] }}
-                                onChange={(e) =>
-                                  handleEditExternalChange(row.id, e)
-                                }
-                              />
-                            </td>
-                          ))}
+                        <td className="py-3 px-2">
+                          <FormInput
+                            name="subject"
+                            formValues={{ subject: row.subject }}
+                            onChange={(e) => handleEditExternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormTextArea
+                            name="description"
+                            formValues={{ description: row.description }}
+                            onChange={(e) => handleEditExternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormInput
+                            name="method"
+                            formValues={{ method: row.method }}
+                            onChange={(e) => handleEditExternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormInput
+                            name="frequency"
+                            formValues={{ frequency: row.frequency }}
+                            onChange={(e) => handleEditExternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormInput
+                            name="sender"
+                            formValues={{ sender: row.sender }}
+                            onChange={(e) => handleEditExternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormInput
+                            name="recipient"
+                            formValues={{ recipient: row.recipient }}
+                            onChange={(e) => handleEditExternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormInput
+                            type="date"
+                            name="communicationDate"
+                            formValues={{ communicationDate: row.communicationDate }}
+                            onChange={(e) => handleEditExternalChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <FormSelect
+                            name="status"
+                            formValues={{ status: row.status }}
+                            options={statusOptions}
+                            onChange={(e) => handleEditExternalChange(row.id, e)}
+                          />
+                        </td>
                         <td className="py-3 px-2 flex gap-3">
                           <CheckBadgeIcon
                             className="w-5 h-5 text-pink-700 cursor-pointer"
@@ -536,6 +848,18 @@ const CommunicationRegisterOverview = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+        message={
+          itemToDelete
+            ? `Do you want to delete "${itemToDelete.subject}"?`
+            : ""
+        }
+      />
     </div>
   );
 };
