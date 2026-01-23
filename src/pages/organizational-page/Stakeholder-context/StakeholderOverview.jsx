@@ -1,52 +1,156 @@
-import React, { useState } from 'react';
-import FormTextArea from "../../../components/FormTextArea.jsx";
+import React, { useEffect, useState } from 'react';
 import FormInput from '../../../components/FormInput.jsx';
+import FormSelect from "../../../components/FormSelect.jsx";
 import { PencilIcon, EllipsisVerticalIcon, CheckBadgeIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { getSelectOptions } from "../../../utils/commonUtils.js";
+import { useSelector } from "react-redux";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import useFetchStakeholders from "../../../hooks/custom-hooks/compliance/useFetchStakeholders.jsx";
+import { createStakeholder, deleteStakeholder as deleteStakeholderApi, updateStakeholder } from "../../../utils/complianceApi.js";
+import { useToasts } from "react-toast-notifications";
+import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
 
 
 const StakeholderOverview = () => {
-    // Initial purpose text
-    const initialText = `This document defines the purpose of LifeServ's Quality Management System (QMS) in accordance with the requirements of ISO 9001:2015. It aims to establish a clear understanding of what the QMS covers, ensuring that all relevant activities and processes are managed to consistently meet customer and applicable statutory and regulatory requirements, and to enhance customer satisfaction through the effective application of the system, including processes for improvement.`;
-
-    const [formValues, setFormValues] = useState({
-        purpose: initialText,
-        name: "",
-        contactInformation: "",
-        address: "",
-    });
-
-    const [isEditing, setIsEditing] = useState(false);
+    const { addToast } = useToasts();
+    const selectedProject = useSelector(selectSelectedProject);
+    const projectId = selectedProject?.id;
+    const { data: stakeholderData, refetch } = useFetchStakeholders(projectId);
 
     // Stakeholder Context section state
-    const [stakeholderRows, setStakeholderRows] = useState([
-        { id: 1, party: 'Customers', needs: 'High quality products', expectations: 'On-time delivery', risks: 'Dissatisfaction' },
-        { id: 2, party: 'Suppliers', needs: 'Clear specs', expectations: 'Prompt payments', risks: 'Supply delays' },
-        { id: 3, party: 'Regulators', needs: 'Compliance', expectations: 'Accurate reporting', risks: 'Fines' },
-    ]);
+    const [stakeholderRows, setStakeholderRows] = useState([]);
     const [showNewStakeholderRow, setShowNewStakeholderRow] = useState(false);
-    const [newStakeholderRow, setNewStakeholderRow] = useState({ party: '', needs: '', expectations: '', risks: '' });
+    const [newStakeholderRow, setNewStakeholderRow] = useState({
+        stakeholderName: '',
+        stakeholderType: 'Internal',
+        organization: '',
+        position: '',
+        contactInformation: '',
+        influence: 'Medium',
+        interest: 'Medium',
+    });
     const [editingStakeholderId, setEditingStakeholderId] = useState(null);
     const [openStakeholderActionId, setOpenStakeholderActionId] = useState(null);
     const [stakeholderPage, setStakeholderPage] = useState(1);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [stakeholderToDelete, setStakeholderToDelete] = useState(null);
+    useEffect(() => {
+        setStakeholderRows(stakeholderData || []);
+    }, [stakeholderData]);
+
+    const stakeholderTypeOptions = getSelectOptions([
+        { id: "Internal", name: "Internal" },
+        { id: "External", name: "External" },
+    ]);
+    const levelOptions = getSelectOptions([
+        { id: "High", name: "High" },
+        { id: "Medium", name: "Medium" },
+        { id: "Low", name: "Low" },
+    ]);
 
   
 
 
     // Stakeholder handlers
-    const addStakeholder = () => { setShowNewStakeholderRow(true); setNewStakeholderRow({ party: '', needs: '', expectations: '', risks: '' }); };
-    const cancelNewStakeholder = () => { setShowNewStakeholderRow(false); setNewStakeholderRow({ party: '', needs: '', expectations: '', risks: '' }); };
-    const changeNewStakeholder = ({ target: { name, value } }) => setNewStakeholderRow(prev => ({ ...prev, [name]: value }));
-    const saveNewStakeholder = () => {
-        if (!newStakeholderRow.party || !newStakeholderRow.needs || !newStakeholderRow.expectations || !newStakeholderRow.risks) return;
-        setStakeholderRows(prev => [...prev, { id: Date.now(), ...newStakeholderRow }]);
-        setShowNewStakeholderRow(false);
-        setNewStakeholderRow({ party: '', needs: '', expectations: '', risks: '' });
+    const addStakeholder = () => {
+        setShowNewStakeholderRow(true);
+        setNewStakeholderRow({
+            stakeholderName: '',
+            stakeholderType: 'Internal',
+            organization: '',
+            position: '',
+            contactInformation: '',
+            influence: 'Medium',
+            interest: 'Medium',
+        });
     };
-    const deleteStakeholder = (id) => { setStakeholderRows(prev => prev.filter(r => r.id !== id)); if (editingStakeholderId === id) setEditingStakeholderId(null); if (openStakeholderActionId === id) setOpenStakeholderActionId(null); };
+    const cancelNewStakeholder = () => {
+        setShowNewStakeholderRow(false);
+        setNewStakeholderRow({
+            stakeholderName: '',
+            stakeholderType: 'Internal',
+            organization: '',
+            position: '',
+            contactInformation: '',
+            influence: 'Medium',
+            interest: 'Medium',
+        });
+    };
+    const changeNewStakeholder = ({ target: { name, value } }) => setNewStakeholderRow(prev => ({ ...prev, [name]: value }));
+    const saveNewStakeholder = async () => {
+        if (!projectId) {
+            addToast("Project not found", { appearance: "error" });
+            return;
+        }
+        if (!newStakeholderRow.stakeholderName) {
+            addToast("Please fill in all required fields", { appearance: "error" });
+            return;
+        }
+        try {
+            await createStakeholder({
+                projectID: projectId,
+                stakeholderName: newStakeholderRow.stakeholderName,
+                stakeholderType: newStakeholderRow.stakeholderType,
+                organization: newStakeholderRow.organization,
+                position: newStakeholderRow.position,
+                contactInformation: newStakeholderRow.contactInformation,
+                influence: newStakeholderRow.influence,
+                interest: newStakeholderRow.interest,
+            });
+            setShowNewStakeholderRow(false);
+            cancelNewStakeholder();
+            refetch();
+            addToast("Stakeholder created successfully", { appearance: "success" });
+        } catch (error) {
+            addToast("Failed to create stakeholder", { appearance: "error" });
+        }
+    };
+    const handleDeleteClick = (stakeholder) => {
+        setStakeholderToDelete(stakeholder);
+        setIsDeleteDialogOpen(true);
+        setOpenStakeholderActionId(null);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!stakeholderToDelete) return;
+        try {
+            await deleteStakeholderApi(stakeholderToDelete.id);
+            refetch();
+            if (editingStakeholderId === stakeholderToDelete.id) setEditingStakeholderId(null);
+            addToast("Stakeholder deleted successfully", { appearance: "success" });
+        } catch (error) {
+            addToast("Failed to delete stakeholder", { appearance: "error" });
+        }
+        setIsDeleteDialogOpen(false);
+        setStakeholderToDelete(null);
+    };
     const startEditStakeholder = (id) => { setEditingStakeholderId(id); setOpenStakeholderActionId(null); };
     const closeEditStakeholder = () => setEditingStakeholderId(null);
-    const doneEditStakeholder = () => setEditingStakeholderId(null);
+    const doneEditStakeholder = async () => {
+        const row = stakeholderRows.find((item) => item.id === editingStakeholderId);
+        if (row) {
+            if (!row.stakeholderName) {
+                addToast("Please fill in all required fields", { appearance: "error" });
+                return;
+            }
+            try {
+                await updateStakeholder(row.id, {
+                    stakeholderName: row.stakeholderName,
+                    stakeholderType: row.stakeholderType,
+                    organization: row.organization,
+                    position: row.position,
+                    contactInformation: row.contactInformation,
+                    influence: row.influence,
+                    interest: row.interest,
+                });
+                refetch();
+                addToast("Stakeholder updated successfully", { appearance: "success" });
+            } catch (error) {
+                addToast("Failed to update stakeholder", { appearance: "error" });
+            }
+        }
+        setEditingStakeholderId(null);
+    };
     const changeEditStakeholder = (id, { target: { name, value } }) => setStakeholderRows(prev => prev.map(r => r.id === id ? { ...r, [name]: value } : r));
     const toggleStakeholderActions = (id) => setOpenStakeholderActionId(prev => prev === id ? null : id);
     const stakeholderRowsPerPage = 5;
@@ -61,14 +165,6 @@ const StakeholderOverview = () => {
 
 
    
-
-    // General handler for all form inputs
-    const handleChange = (name, value) => {
-        setFormValues(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
 
     return (
         <div>
@@ -90,26 +186,46 @@ const StakeholderOverview = () => {
                         <button className='text-text-color' onClick={addStakeholder}>Add New</button>
                     </div>
                 </div>
-                <div className='bg-white rounded p-3 mt-2'>
-                    <table className='table-auto w-full border-collapse'>
+                <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
+                    <table className='table-fixed w-full border-collapse min-w-max'>
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                                <th className='py-3 px-2 w-10'>#</th>
-                                <th className='py-3 px-2'>Interested Party</th>
-                                <th className='py-3 px-2'>Need(s)</th>
-                                <th className='py-3 px-2'>Expectation(s)</th>
-                                <th className='py-3 px-2'>Risk(s)</th>
-                                <th className='py-3 px-2'>Action</th>
+                                <th className='py-3 px-2' style={{width: '50px'}}>#</th>
+                                <th className='py-3 px-2' style={{width: '150px'}}>Stakeholder</th>
+                                <th className='py-3 px-2' style={{width: '100px'}}>Type</th>
+                                <th className='py-3 px-2' style={{width: '150px'}}>Organization</th>
+                                <th className='py-3 px-2' style={{width: '130px'}}>Position</th>
+                                <th className='py-3 px-2' style={{width: '150px'}}>Contact</th>
+                                <th className='py-3 px-2' style={{width: '100px'}}>Influence</th>
+                                <th className='py-3 px-2' style={{width: '100px'}}>Interest</th>
+                                <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {showNewStakeholderRow && (
                                 <tr className='border-b border-gray-200'>
                                     <td className='py-3 px-2'>-</td>
-                                    <td className='py-3 px-2 w-48'><FormTextArea type="text" name="party" formValues={{ party: newStakeholderRow.party }} onChange={changeNewStakeholder} /></td>
-                                    <td className='py-3 px-2'><FormTextArea type="text" name="needs" formValues={{ needs: newStakeholderRow.needs }} onChange={changeNewStakeholder} /></td>
-                                    <td className='py-3 px-2'><FormTextArea type="text" name="expectations" formValues={{ expectations: newStakeholderRow.expectations }} onChange={changeNewStakeholder} /></td>
-                                    <td className='py-3 px-2'><FormTextArea type="text" name="risks" formValues={{ risks: newStakeholderRow.risks }} onChange={changeNewStakeholder} /></td>
+                                    <td className='py-3 px-2'>
+                                        <FormInput type="text" name="stakeholderName" formValues={{ stakeholderName: newStakeholderRow.stakeholderName }} onChange={changeNewStakeholder} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormSelect name="stakeholderType" formValues={{ stakeholderType: newStakeholderRow.stakeholderType }} options={stakeholderTypeOptions} onChange={changeNewStakeholder} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormInput type="text" name="organization" formValues={{ organization: newStakeholderRow.organization }} onChange={changeNewStakeholder} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormInput type="text" name="position" formValues={{ position: newStakeholderRow.position }} onChange={changeNewStakeholder} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormInput type="text" name="contactInformation" formValues={{ contactInformation: newStakeholderRow.contactInformation }} onChange={changeNewStakeholder} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormSelect name="influence" formValues={{ influence: newStakeholderRow.influence }} options={levelOptions} onChange={changeNewStakeholder} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormSelect name="interest" formValues={{ interest: newStakeholderRow.interest }} options={levelOptions} onChange={changeNewStakeholder} />
+                                    </td>
                                     <td className='py-3 px-2'>
                                         <div className='flex gap-3 items-center'>
                                             <div className={'cursor-pointer'} onClick={saveNewStakeholder}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
@@ -119,7 +235,7 @@ const StakeholderOverview = () => {
                                 </tr>
                             )}
                             {stakeholderRows.length === 0 && !showNewStakeholderRow && (
-                                <tr><td className='py-3 px-2 text-text-color text-center' colSpan={6}>No Stakeholders Available</td></tr>
+                                <tr><td className='py-3 px-2 text-text-color text-center' colSpan={8}>No Stakeholders Available</td></tr>
                             )}
                             {pagedStakeholders.map((row, index) => {
                                 const isEditing = editingStakeholderId === row.id;
@@ -128,10 +244,13 @@ const StakeholderOverview = () => {
                                         <td className='py-3 px-2'>{stakeholderIndexOfFirst + index + 1}</td>
                                         {!isEditing ? (
                                             <>
-                                                <td className='py-3 px-2'>{row.party || '-'}</td>
-                                                <td className='py-3 px-2'>{row.needs || '-'}</td>
-                                                <td className='py-3 px-2'>{row.expectations || '-'}</td>
-                                                <td className='py-3 px-2'>{row.risks || '-'}</td>
+                                                <td className='py-3 px-2'>{row.stakeholderName || '-'}</td>
+                                                <td className='py-3 px-2'>{row.stakeholderType || '-'}</td>
+                                                <td className='py-3 px-2'>{row.organization || '-'}</td>
+                                                <td className='py-3 px-2'>{row.position || '-'}</td>
+                                                <td className='py-3 px-2'>{row.contactInformation || '-'}</td>
+                                                <td className='py-3 px-2'>{row.influence || '-'}</td>
+                                                <td className='py-3 px-2'>{row.interest || '-'}</td>
                                                 <td className='py-3 px-2'>
                                                     <div className='flex items-center gap-3'>
                                                         {openStakeholderActionId !== row.id ? (
@@ -141,7 +260,7 @@ const StakeholderOverview = () => {
                                                         ) : (
                                                             <>
                                                                 <div className='cursor-pointer' onClick={() => startEditStakeholder(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                                <div className='cursor-pointer' onClick={() => deleteStakeholder(row.id)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                                <div className='cursor-pointer' onClick={() => handleDeleteClick(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
                                                                 <div className='cursor-pointer' onClick={() => toggleStakeholderActions(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
                                                             </>
                                                         )}
@@ -150,10 +269,27 @@ const StakeholderOverview = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <td className='py-3 px-2 w-48'><FormTextArea type="text" name="party" formValues={{ party: row.party }} onChange={(e) => changeEditStakeholder(row.id, e)} /></td>
-                                                <td className='py-3 px-2'><FormTextArea type="text" name="needs" formValues={{ needs: row.needs }} onChange={(e) => changeEditStakeholder(row.id, e)} /></td>
-                                                <td className='py-3 px-2'><FormTextArea type="text" name="expectations" formValues={{ expectations: row.expectations }} onChange={(e) => changeEditStakeholder(row.id, e)} /></td>
-                                                <td className='py-3 px-2'><FormTextArea type="text" name="risks" formValues={{ risks: row.risks }} onChange={(e) => changeEditStakeholder(row.id, e)} /></td>
+                                                <td className='py-3 px-2'>
+                                                    <FormInput type="text" name="stakeholderName" formValues={{ stakeholderName: row.stakeholderName }} onChange={(e) => changeEditStakeholder(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormSelect name="stakeholderType" formValues={{ stakeholderType: row.stakeholderType }} options={stakeholderTypeOptions} onChange={(e) => changeEditStakeholder(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormInput type="text" name="organization" formValues={{ organization: row.organization }} onChange={(e) => changeEditStakeholder(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormInput type="text" name="position" formValues={{ position: row.position }} onChange={(e) => changeEditStakeholder(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormInput type="text" name="contactInformation" formValues={{ contactInformation: row.contactInformation }} onChange={(e) => changeEditStakeholder(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormSelect name="influence" formValues={{ influence: row.influence }} options={levelOptions} onChange={(e) => changeEditStakeholder(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormSelect name="interest" formValues={{ interest: row.interest }} options={levelOptions} onChange={(e) => changeEditStakeholder(row.id, e)} />
+                                                </td>
                                                 <td className='py-3 px-2'>
                                                     <div className={'flex gap-3 items-center'}>
                                                         <div className={'cursor-pointer'} onClick={doneEditStakeholder}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
@@ -181,7 +317,17 @@ const StakeholderOverview = () => {
                 </div>
             </div>
 
-            
+            {/* Delete Confirmation Dialog */}
+            <ConfirmationDialog
+                isOpen={isDeleteDialogOpen}
+                onClose={() => setIsDeleteDialogOpen(false)}
+                onConfirm={handleConfirmDelete}
+                message={
+                    stakeholderToDelete
+                        ? `Do you want to delete "${stakeholderToDelete.stakeholderName}"?`
+                        : ""
+                }
+            />
         </div>
     );
 };

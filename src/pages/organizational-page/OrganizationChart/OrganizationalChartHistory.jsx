@@ -101,7 +101,11 @@ export default function DocumentHistory() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Dummy options and users for sidebar
-  const roles = ["Internal", "Confidential", "Public"];
+  const roles = [
+    { value: "Internal", label: "Internal" },
+    { value: "Confidential", label: "Confidential" },
+    { value: "Public", label: "Public" }
+  ];
   const dummyUsers = [
     { id: 1, name: "John Doe" },
     { id: 2, name: "Jane Smith" },
@@ -221,7 +225,7 @@ export default function DocumentHistory() {
               name="classification"
               label="Classification"
               formValues={formValues}
-              options={getSelectOptions(roles)}
+              options={roles}
               placeholder="Select Classification"
               onChange={(e) =>
                 setFormValues({ ...formValues, classification: e.target.value })

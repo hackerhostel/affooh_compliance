@@ -1,30 +1,25 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FormTextArea from "../../../components/FormTextArea.jsx";
 import FormInput from '../../../components/FormInput.jsx';
 import FormSelect from '../../../components/FormSelect.jsx';
 import WYSIWYGInput from "../../../components/WYSIWYGInput.jsx";
 import { PencilIcon, EllipsisVerticalIcon, CheckBadgeIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
-import { getSelectOptions } from "../../../utils/commonUtils.js";
+import { useSelector } from "react-redux";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import useFetchPest from "../../../hooks/custom-hooks/compliance/useFetchPest.jsx";
+import { createPest, deletePest, updatePest } from "../../../utils/complianceApi.js";
+import { useToasts } from "react-toast-notifications";
+import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
 
 const PESTOverview = () => {
-    // Initial purpose text
-    const initialText = `This document defines the purpose of LifeServ's Quality Management System (QMS) in accordance with the requirements of ISO 9001:2015. It aims to establish a clear understanding of what the QMS covers, ensuring that all relevant activities and processes are managed to consistently meet customer and applicable statutory and regulatory requirements, and to enhance customer satisfaction through the effective application of the system, including processes for improvement.`;
-
-    const [formValues, setFormValues] = useState({
-        purpose: initialText,
-        name: "",
-        contactInformation: "",
-        address: "",
-    });
-
-    const [isEditing, setIsEditing] = useState(false);
+    const { addToast } = useToasts();
+    const selectedProject = useSelector(selectSelectedProject);
+    const projectId = selectedProject?.id;
+    const { data: pestRows, refetch } = useFetchPest(projectId);
 
     // PEST sections - Political, Economic, Social, Technological
     // Political
-    const [politicalRows, setPoliticalRows] = useState([
-        { id: 1, title: 'Regulatory Changes', description: 'New government policies affecting industry' },
-        { id: 2, title: 'Trade Tariffs', description: 'Increased tariffs on imported components' },
-    ]);
+    const [politicalRows, setPoliticalRows] = useState([]);
     const [showNewPolitical, setShowNewPolitical] = useState(false);
     const [newPoliticalRow, setNewPoliticalRow] = useState({ title: '', description: '' });
     const [editingPoliticalId, setEditingPoliticalId] = useState(null);
@@ -32,10 +27,7 @@ const PESTOverview = () => {
     const [politicalPage, setPoliticalPage] = useState(1);
 
     // Economic
-    const [economicRows, setEconomicRows] = useState([
-        { id: 11, title: 'Inflation', description: 'Rising costs impacting margins' },
-        { id: 12, title: 'Exchange Rates', description: 'Currency volatility affecting imports' },
-    ]);
+    const [economicRows, setEconomicRows] = useState([]);
     const [showNewEconomic, setShowNewEconomic] = useState(false);
     const [newEconomicRow, setNewEconomicRow] = useState({ title: '', description: '' });
     const [editingEconomicId, setEditingEconomicId] = useState(null);
@@ -43,10 +35,7 @@ const PESTOverview = () => {
     const [economicPage, setEconomicPage] = useState(1);
 
     // Social
-    const [socialRows, setSocialRows] = useState([
-        { id: 21, title: 'Demographic Shift', description: 'Aging population increasing service demand' },
-        { id: 22, title: 'Lifestyle Changes', description: 'Preference for eco-friendly products' },
-    ]);
+    const [socialRows, setSocialRows] = useState([]);
     const [showNewSocial, setShowNewSocial] = useState(false);
     const [newSocialRow, setNewSocialRow] = useState({ title: '', description: '' });
     const [editingSocialId, setEditingSocialId] = useState(null);
@@ -54,29 +43,24 @@ const PESTOverview = () => {
     const [socialPage, setSocialPage] = useState(1);
 
     // Technological
-    const [techRows, setTechRows] = useState([
-        { id: 31, title: 'Automation', description: 'Adoption of AI to streamline operations' },
-        { id: 32, title: 'Cybersecurity', description: 'Increasing need for robust security' },
-    ]);
+    const [techRows, setTechRows] = useState([]);
     const [showNewTech, setShowNewTech] = useState(false);
     const [newTechRow, setNewTechRow] = useState({ title: '', description: '' });
     const [editingTechId, setEditingTechId] = useState(null);
     const [openTechActionId, setOpenTechActionId] = useState(null);
     const [techPage, setTechPage] = useState(1);
 
-    // Simple options for Department and HOD selects
-    const departmentOptions = getSelectOptions([
-        { id: 'Quality', name: 'Quality' },
-        { id: 'Operations', name: 'Operations' },
-        { id: 'Sales', name: 'Sales' },
-        { id: 'HR', name: 'HR' },
-    ]);
+    // Delete confirmation state
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState(null);
 
-    const hodOptions = getSelectOptions([
-        { id: 'Alice Johnson', name: 'Alice Johnson' },
-        { id: 'Bob Smith', name: 'Bob Smith' },
-        { id: 'Carol Lee', name: 'Carol Lee' },
-    ]);
+    useEffect(() => {
+        const rows = pestRows || [];
+        setPoliticalRows(rows.filter((row) => row.category === "Political"));
+        setEconomicRows(rows.filter((row) => row.category === "Economic"));
+        setSocialRows(rows.filter((row) => row.category === "Social"));
+        setTechRows(rows.filter((row) => row.category === "Technological"));
+    }, [pestRows]);
 
     // Shared helpers
     const pageSize = 5;
@@ -85,13 +69,62 @@ const PESTOverview = () => {
     const addPolitical = () => { setShowNewPolitical(true); setNewPoliticalRow({ title: '', description: '' }); };
     const cancelPolitical = () => { setShowNewPolitical(false); setNewPoliticalRow({ title: '', description: '' }); };
     const changeNewPolitical = ({ target: { name, value } }) => setNewPoliticalRow(prev => ({ ...prev, [name]: value }));
-    const savePolitical = () => { if (!newPoliticalRow.title || !newPoliticalRow.description) return; setPoliticalRows(prev => [...prev, { id: Date.now(), ...newPoliticalRow }]); setShowNewPolitical(false); setNewPoliticalRow({ title: '', description: '' }); };
+    const savePolitical = async () => {
+        if (!projectId) {
+            addToast("Project not found", { appearance: "error" });
+            return;
+        }
+        if (!newPoliticalRow.title || !newPoliticalRow.description) {
+            addToast("Please fill in all required fields", { appearance: "error" });
+            return;
+        }
+        try {
+            await createPest({
+                projectID: projectId,
+                category: "Political",
+                title: newPoliticalRow.title,
+                description: newPoliticalRow.description,
+                displayOrder: politicalRows.length + 1,
+            });
+            setShowNewPolitical(false);
+            setNewPoliticalRow({ title: '', description: '' });
+            refetch();
+            addToast("Political item created successfully", { appearance: "success" });
+        } catch (error) {
+            addToast("Failed to create political item", { appearance: "error" });
+        }
+    };
     const togglePolitical = (id) => setOpenPoliticalActionId(prev => prev === id ? null : id);
     const startEditPolitical = (id) => { setEditingPoliticalId(id); setOpenPoliticalActionId(null); };
     const changeEditPolitical = (id, { target: { name, value } }) => setPoliticalRows(prev => prev.map(r => r.id === id ? { ...r, [name]: value } : r));
-    const doneEditPolitical = () => setEditingPoliticalId(null);
+    const doneEditPolitical = async () => {
+        const row = politicalRows.find((item) => item.id === editingPoliticalId);
+        if (row) {
+            if (!row.title || !row.description) {
+                addToast("Please fill in all required fields", { appearance: "error" });
+                return;
+            }
+            try {
+                await updatePest(row.id, {
+                    category: "Political",
+                    title: row.title,
+                    description: row.description,
+                    displayOrder: row.displayOrder || 0,
+                });
+                refetch();
+                addToast("Political item updated successfully", { appearance: "success" });
+            } catch (error) {
+                addToast("Failed to update political item", { appearance: "error" });
+            }
+        }
+        setEditingPoliticalId(null);
+    };
     const closeEditPolitical = () => setEditingPoliticalId(null);
-    const deletePolitical = (id) => { setPoliticalRows(prev => prev.filter(r => r.id !== id)); if (editingPoliticalId === id) setEditingPoliticalId(null); if (openPoliticalActionId === id) setOpenPoliticalActionId(null); };
+    const deletePoliticalHandler = (row) => {
+        setItemToDelete({ ...row, category: "Political" });
+        setIsDeleteDialogOpen(true);
+        setOpenPoliticalActionId(null);
+    };
     const politicalTotalPages = politicalRows.length ? Math.ceil(politicalRows.length / pageSize) : 1;
     const politicalIndexOfLast = politicalPage * pageSize; const politicalIndexOfFirst = politicalIndexOfLast - pageSize; const pagedPolitical = politicalRows.slice(politicalIndexOfFirst, politicalIndexOfLast);
     const nextPolitical = () => { if (politicalPage < politicalTotalPages) setPoliticalPage(politicalPage + 1); };
@@ -101,13 +134,62 @@ const PESTOverview = () => {
     const addEconomic = () => { setShowNewEconomic(true); setNewEconomicRow({ title: '', description: '' }); };
     const cancelEconomic = () => { setShowNewEconomic(false); setNewEconomicRow({ title: '', description: '' }); };
     const changeNewEconomic = ({ target: { name, value } }) => setNewEconomicRow(prev => ({ ...prev, [name]: value }));
-    const saveEconomic = () => { if (!newEconomicRow.title || !newEconomicRow.description) return; setEconomicRows(prev => [...prev, { id: Date.now(), ...newEconomicRow }]); setShowNewEconomic(false); setNewEconomicRow({ title: '', description: '' }); };
+    const saveEconomic = async () => {
+        if (!projectId) {
+            addToast("Project not found", { appearance: "error" });
+            return;
+        }
+        if (!newEconomicRow.title || !newEconomicRow.description) {
+            addToast("Please fill in all required fields", { appearance: "error" });
+            return;
+        }
+        try {
+            await createPest({
+                projectID: projectId,
+                category: "Economic",
+                title: newEconomicRow.title,
+                description: newEconomicRow.description,
+                displayOrder: economicRows.length + 1,
+            });
+            setShowNewEconomic(false);
+            setNewEconomicRow({ title: '', description: '' });
+            refetch();
+            addToast("Economic item created successfully", { appearance: "success" });
+        } catch (error) {
+            addToast("Failed to create economic item", { appearance: "error" });
+        }
+    };
     const toggleEconomic = (id) => setOpenEconomicActionId(prev => prev === id ? null : id);
     const startEditEconomic = (id) => { setEditingEconomicId(id); setOpenEconomicActionId(null); };
     const changeEditEconomic = (id, { target: { name, value } }) => setEconomicRows(prev => prev.map(r => r.id === id ? { ...r, [name]: value } : r));
-    const doneEditEconomic = () => setEditingEconomicId(null);
+    const doneEditEconomic = async () => {
+        const row = economicRows.find((item) => item.id === editingEconomicId);
+        if (row) {
+            if (!row.title || !row.description) {
+                addToast("Please fill in all required fields", { appearance: "error" });
+                return;
+            }
+            try {
+                await updatePest(row.id, {
+                    category: "Economic",
+                    title: row.title,
+                    description: row.description,
+                    displayOrder: row.displayOrder || 0,
+                });
+                refetch();
+                addToast("Economic item updated successfully", { appearance: "success" });
+            } catch (error) {
+                addToast("Failed to update economic item", { appearance: "error" });
+            }
+        }
+        setEditingEconomicId(null);
+    };
     const closeEditEconomic = () => setEditingEconomicId(null);
-    const deleteEconomic = (id) => { setEconomicRows(prev => prev.filter(r => r.id !== id)); if (editingEconomicId === id) setEditingEconomicId(null); if (openEconomicActionId === id) setOpenEconomicActionId(null); };
+    const deleteEconomicHandler = (row) => {
+        setItemToDelete({ ...row, category: "Economic" });
+        setIsDeleteDialogOpen(true);
+        setOpenEconomicActionId(null);
+    };
     const economicTotalPages = economicRows.length ? Math.ceil(economicRows.length / pageSize) : 1;
     const economicIndexOfLast = economicPage * pageSize; const economicIndexOfFirst = economicIndexOfLast - pageSize; const pagedEconomic = economicRows.slice(economicIndexOfFirst, economicIndexOfLast);
     const nextEconomic = () => { if (economicPage < economicTotalPages) setEconomicPage(economicPage + 1); };
@@ -117,13 +199,62 @@ const PESTOverview = () => {
     const addSocial = () => { setShowNewSocial(true); setNewSocialRow({ title: '', description: '' }); };
     const cancelSocial = () => { setShowNewSocial(false); setNewSocialRow({ title: '', description: '' }); };
     const changeNewSocial = ({ target: { name, value } }) => setNewSocialRow(prev => ({ ...prev, [name]: value }));
-    const saveSocial = () => { if (!newSocialRow.title || !newSocialRow.description) return; setSocialRows(prev => [...prev, { id: Date.now(), ...newSocialRow }]); setShowNewSocial(false); setNewSocialRow({ title: '', description: '' }); };
+    const saveSocial = async () => {
+        if (!projectId) {
+            addToast("Project not found", { appearance: "error" });
+            return;
+        }
+        if (!newSocialRow.title || !newSocialRow.description) {
+            addToast("Please fill in all required fields", { appearance: "error" });
+            return;
+        }
+        try {
+            await createPest({
+                projectID: projectId,
+                category: "Social",
+                title: newSocialRow.title,
+                description: newSocialRow.description,
+                displayOrder: socialRows.length + 1,
+            });
+            setShowNewSocial(false);
+            setNewSocialRow({ title: '', description: '' });
+            refetch();
+            addToast("Social item created successfully", { appearance: "success" });
+        } catch (error) {
+            addToast("Failed to create social item", { appearance: "error" });
+        }
+    };
     const toggleSocial = (id) => setOpenSocialActionId(prev => prev === id ? null : id);
     const startEditSocial = (id) => { setEditingSocialId(id); setOpenSocialActionId(null); };
     const changeEditSocial = (id, { target: { name, value } }) => setSocialRows(prev => prev.map(r => r.id === id ? { ...r, [name]: value } : r));
-    const doneEditSocial = () => setEditingSocialId(null);
+    const doneEditSocial = async () => {
+        const row = socialRows.find((item) => item.id === editingSocialId);
+        if (row) {
+            if (!row.title || !row.description) {
+                addToast("Please fill in all required fields", { appearance: "error" });
+                return;
+            }
+            try {
+                await updatePest(row.id, {
+                    category: "Social",
+                    title: row.title,
+                    description: row.description,
+                    displayOrder: row.displayOrder || 0,
+                });
+                refetch();
+                addToast("Social item updated successfully", { appearance: "success" });
+            } catch (error) {
+                addToast("Failed to update social item", { appearance: "error" });
+            }
+        }
+        setEditingSocialId(null);
+    };
     const closeEditSocial = () => setEditingSocialId(null);
-    const deleteSocial = (id) => { setSocialRows(prev => prev.filter(r => r.id !== id)); if (editingSocialId === id) setEditingSocialId(null); if (openSocialActionId === id) setOpenSocialActionId(null); };
+    const deleteSocialHandler = (row) => {
+        setItemToDelete({ ...row, category: "Social" });
+        setIsDeleteDialogOpen(true);
+        setOpenSocialActionId(null);
+    };
     const socialTotalPages = socialRows.length ? Math.ceil(socialRows.length / pageSize) : 1;
     const socialIndexOfLast = socialPage * pageSize; const socialIndexOfFirst = socialIndexOfLast - pageSize; const pagedSocial = socialRows.slice(socialIndexOfFirst, socialIndexOfLast);
     const nextSocial = () => { if (socialPage < socialTotalPages) setSocialPage(socialPage + 1); };
@@ -133,24 +264,93 @@ const PESTOverview = () => {
     const addTech = () => { setShowNewTech(true); setNewTechRow({ title: '', description: '' }); };
     const cancelTech = () => { setShowNewTech(false); setNewTechRow({ title: '', description: '' }); };
     const changeNewTech = ({ target: { name, value } }) => setNewTechRow(prev => ({ ...prev, [name]: value }));
-    const saveTech = () => { if (!newTechRow.title || !newTechRow.description) return; setTechRows(prev => [...prev, { id: Date.now(), ...newTechRow }]); setShowNewTech(false); setNewTechRow({ title: '', description: '' }); };
+    const saveTech = async () => {
+        if (!projectId) {
+            addToast("Project not found", { appearance: "error" });
+            return;
+        }
+        if (!newTechRow.title || !newTechRow.description) {
+            addToast("Please fill in all required fields", { appearance: "error" });
+            return;
+        }
+        try {
+            await createPest({
+                projectID: projectId,
+                category: "Technological",
+                title: newTechRow.title,
+                description: newTechRow.description,
+                displayOrder: techRows.length + 1,
+            });
+            setShowNewTech(false);
+            setNewTechRow({ title: '', description: '' });
+            refetch();
+            addToast("Technological item created successfully", { appearance: "success" });
+        } catch (error) {
+            addToast("Failed to create technological item", { appearance: "error" });
+        }
+    };
     const toggleTech = (id) => setOpenTechActionId(prev => prev === id ? null : id);
     const startEditTech = (id) => { setEditingTechId(id); setOpenTechActionId(null); };
     const changeEditTech = (id, { target: { name, value } }) => setTechRows(prev => prev.map(r => r.id === id ? { ...r, [name]: value } : r));
-    const doneEditTech = () => setEditingTechId(null);
+    const doneEditTech = async () => {
+        const row = techRows.find((item) => item.id === editingTechId);
+        if (row) {
+            if (!row.title || !row.description) {
+                addToast("Please fill in all required fields", { appearance: "error" });
+                return;
+            }
+            try {
+                await updatePest(row.id, {
+                    category: "Technological",
+                    title: row.title,
+                    description: row.description,
+                    displayOrder: row.displayOrder || 0,
+                });
+                refetch();
+                addToast("Technological item updated successfully", { appearance: "success" });
+            } catch (error) {
+                addToast("Failed to update technological item", { appearance: "error" });
+            }
+        }
+        setEditingTechId(null);
+    };
     const closeEditTech = () => setEditingTechId(null);
-    const deleteTech = (id) => { setTechRows(prev => prev.filter(r => r.id !== id)); if (editingTechId === id) setEditingTechId(null); if (openTechActionId === id) setOpenTechActionId(null); };
+    const deleteTechHandler = (row) => {
+        setItemToDelete({ ...row, category: "Technological" });
+        setIsDeleteDialogOpen(true);
+        setOpenTechActionId(null);
+    };
     const techTotalPages = techRows.length ? Math.ceil(techRows.length / pageSize) : 1;
     const techIndexOfLast = techPage * pageSize; const techIndexOfFirst = techIndexOfLast - pageSize; const pagedTech = techRows.slice(techIndexOfFirst, techIndexOfLast);
     const nextTech = () => { if (techPage < techTotalPages) setTechPage(techPage + 1); };
     const prevTech = () => { if (techPage > 1) setTechPage(techPage - 1); };
 
-    // General handler for all form inputs
-    const handleChange = (name, value) => {
-        setFormValues(prev => ({
-            ...prev,
-            [name]: value
-        }));
+    // Unified delete confirmation handler
+    const handleConfirmDelete = async () => {
+        if (!itemToDelete) return;
+        try {
+            await deletePest(itemToDelete.id);
+            refetch();
+            // Clear editing and action states based on category
+            if (itemToDelete.category === "Political") {
+                if (editingPoliticalId === itemToDelete.id) setEditingPoliticalId(null);
+                if (openPoliticalActionId === itemToDelete.id) setOpenPoliticalActionId(null);
+            } else if (itemToDelete.category === "Economic") {
+                if (editingEconomicId === itemToDelete.id) setEditingEconomicId(null);
+                if (openEconomicActionId === itemToDelete.id) setOpenEconomicActionId(null);
+            } else if (itemToDelete.category === "Social") {
+                if (editingSocialId === itemToDelete.id) setEditingSocialId(null);
+                if (openSocialActionId === itemToDelete.id) setOpenSocialActionId(null);
+            } else if (itemToDelete.category === "Technological") {
+                if (editingTechId === itemToDelete.id) setEditingTechId(null);
+                if (openTechActionId === itemToDelete.id) setOpenTechActionId(null);
+            }
+            addToast(`${itemToDelete.category} item deleted successfully`, { appearance: "success" });
+        } catch (error) {
+            addToast(`Failed to delete ${itemToDelete.category.toLowerCase()} item`, { appearance: "error" });
+        }
+        setIsDeleteDialogOpen(false);
+        setItemToDelete(null);
     };
 
     return (
@@ -174,21 +374,21 @@ const PESTOverview = () => {
                         <button className='text-text-color' onClick={addPolitical}>Add New</button>
                     </div>
                 </div>
-                <div className='bg-white rounded p-3 mt-2'>
-                    <table className='table-auto w-full border-collapse'>
+                <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
+                    <table className='table-fixed w-full border-collapse'>
                         <thead>
                         <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2 w-10'>#</th>
-                            <th className='py-3 px-2'>Title</th>
+                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
+                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
                             <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2'>Action</th>
+                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         {showNewPolitical && (
                             <tr className='border-b border-gray-200'>
                                 <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2 w-48'><FormInput type="text" name="title" formValues={{ title: newPoliticalRow.title }} onChange={changeNewPolitical} /></td>
+                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newPoliticalRow.title }} onChange={changeNewPolitical} /></td>
                                 <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newPoliticalRow.description }} onChange={changeNewPolitical} /></td>
                                 <td className='py-3 px-2'>
                                     <div className='flex gap-3 items-center'>
@@ -217,7 +417,7 @@ const PESTOverview = () => {
                                                     ) : (
                                                         <>
                                                             <div className='cursor-pointer' onClick={() => startEditPolitical(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => deletePolitical(row.id)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                            <div className='cursor-pointer' onClick={() => deletePoliticalHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
                                                             <div className='cursor-pointer' onClick={() => togglePolitical(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
                                                         </>
                                                     )}
@@ -226,7 +426,7 @@ const PESTOverview = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <td className='py-3 px-2 w-48'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditPolitical(row.id, e)} /></td>
+                                            <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditPolitical(row.id, e)} /></td>
                                             <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditPolitical(row.id, e)} /></td>
                                             <td className='py-3 px-2'>
                                                 <div className={'flex gap-3 items-center'}>
@@ -260,21 +460,21 @@ const PESTOverview = () => {
                         <button className='text-text-color' onClick={addEconomic}>Add New</button>
                     </div>
                 </div>
-                <div className='bg-white rounded p-3 mt-2'>
-                    <table className='table-auto w-full border-collapse'>
+                <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
+                    <table className='table-fixed w-full border-collapse'>
                         <thead>
                         <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2 w-10'>#</th>
-                            <th className='py-3 px-2'>Title</th>
+                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
+                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
                             <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2'>Action</th>
+                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         {showNewEconomic && (
                             <tr className='border-b border-gray-200'>
                                 <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2 w-48'><FormInput type="text" name="title" formValues={{ title: newEconomicRow.title }} onChange={changeNewEconomic} /></td>
+                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newEconomicRow.title }} onChange={changeNewEconomic} /></td>
                                 <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newEconomicRow.description }} onChange={changeNewEconomic} /></td>
                                 <td className='py-3 px-2'>
                                     <div className='flex gap-3 items-center'>
@@ -303,7 +503,7 @@ const PESTOverview = () => {
                                                     ) : (
                                                         <>
                                                             <div className='cursor-pointer' onClick={() => startEditEconomic(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => deleteEconomic(row.id)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                            <div className='cursor-pointer' onClick={() => deleteEconomicHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
                                                             <div className='cursor-pointer' onClick={() => toggleEconomic(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
                                                         </>
                                                     )}
@@ -312,7 +512,7 @@ const PESTOverview = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <td className='py-3 px-2 w-48'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditEconomic(row.id, e)} /></td>
+                                            <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditEconomic(row.id, e)} /></td>
                                             <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditEconomic(row.id, e)} /></td>
                                             <td className='py-3 px-2'>
                                                 <div className={'flex gap-3 items-center'}>
@@ -346,21 +546,21 @@ const PESTOverview = () => {
                         <button className='text-text-color' onClick={addSocial}>Add New</button>
                     </div>
                 </div>
-                <div className='bg-white rounded p-3 mt-2'>
-                    <table className='table-auto w-full border-collapse'>
+                <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
+                    <table className='table-fixed w-full border-collapse'>
                         <thead>
                         <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2 w-10'>#</th>
-                            <th className='py-3 px-2'>Title</th>
+                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
+                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
                             <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2'>Action</th>
+                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         {showNewSocial && (
                             <tr className='border-b border-gray-200'>
                                 <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2 w-48'><FormInput type="text" name="title" formValues={{ title: newSocialRow.title }} onChange={changeNewSocial} /></td>
+                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newSocialRow.title }} onChange={changeNewSocial} /></td>
                                 <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newSocialRow.description }} onChange={changeNewSocial} /></td>
                                 <td className='py-3 px-2'>
                                     <div className='flex gap-3 items-center'>
@@ -389,7 +589,7 @@ const PESTOverview = () => {
                                                     ) : (
                                                         <>
                                                             <div className='cursor-pointer' onClick={() => startEditSocial(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => deleteSocial(row.id)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                            <div className='cursor-pointer' onClick={() => deleteSocialHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
                                                             <div className='cursor-pointer' onClick={() => toggleSocial(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
                                                         </>
                                                     )}
@@ -398,7 +598,7 @@ const PESTOverview = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <td className='py-3 px-2 w-48'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditSocial(row.id, e)} /></td>
+                                            <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditSocial(row.id, e)} /></td>
                                             <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditSocial(row.id, e)} /></td>
                                             <td className='py-3 px-2'>
                                                 <div className={'flex gap-3 items-center'}>
@@ -432,21 +632,21 @@ const PESTOverview = () => {
                         <button className='text-text-color' onClick={addTech}>Add New</button>
                     </div>
                 </div>
-                <div className='bg-white rounded p-3 mt-2'>
-                    <table className='table-auto w-full border-collapse'>
+                <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
+                    <table className='table-fixed w-full border-collapse'>
                         <thead>
                         <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2 w-10'>#</th>
-                            <th className='py-3 px-2'>Title</th>
+                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
+                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
                             <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2'>Action</th>
+                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         {showNewTech && (
                             <tr className='border-b border-gray-200'>
                                 <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2 w-48'><FormInput type="text" name="title" formValues={{ title: newTechRow.title }} onChange={changeNewTech} /></td>
+                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newTechRow.title }} onChange={changeNewTech} /></td>
                                 <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newTechRow.description }} onChange={changeNewTech} /></td>
                                 <td className='py-3 px-2'>
                                     <div className='flex gap-3 items-center'>
@@ -475,7 +675,7 @@ const PESTOverview = () => {
                                                     ) : (
                                                         <>
                                                             <div className='cursor-pointer' onClick={() => startEditTech(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => deleteTech(row.id)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                            <div className='cursor-pointer' onClick={() => deleteTechHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
                                                             <div className='cursor-pointer' onClick={() => toggleTech(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
                                                         </>
                                                     )}
@@ -484,7 +684,7 @@ const PESTOverview = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <td className='py-3 px-2 w-48'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditTech(row.id, e)} /></td>
+                                            <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditTech(row.id, e)} /></td>
                                             <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditTech(row.id, e)} /></td>
                                             <td className='py-3 px-2'>
                                                 <div className={'flex gap-3 items-center'}>
@@ -508,6 +708,18 @@ const PESTOverview = () => {
                     )}
                 </div>
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmationDialog
+                isOpen={isDeleteDialogOpen}
+                onClose={() => setIsDeleteDialogOpen(false)}
+                onConfirm={handleConfirmDelete}
+                message={
+                    itemToDelete
+                        ? `Do you want to delete "${itemToDelete.title}"?`
+                        : ""
+                }
+            />
         </div>
     );
 };
