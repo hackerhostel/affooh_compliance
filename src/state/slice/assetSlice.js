@@ -1,0 +1,409 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+
+const initialState = {
+  assets: [],
+  selectedAsset: null,
+  deviceConfig: null,
+  assignmentHistory: [],
+  masterData: {},
+  loading: false,
+  error: null,
+  isAssetsLoading: false,
+  isAssetsError: false,
+  isAssetDetailLoading: false,
+  isAssetDetailError: false,
+  isCreateAssetLoading: false,
+  isCreateAssetError: false,
+  isUpdateAssetLoading: false,
+  isUpdateAssetError: false,
+  isDeleteAssetLoading: false,
+  isDeleteAssetError: false,
+  isMasterDataLoading: false,
+  isMasterDataError: false,
+  isDeviceConfigLoading: false,
+  isDeviceConfigError: false,
+  isAssignmentHistoryLoading: false,
+  isAssignmentHistoryError: false,
+};
+
+// Async Thunks
+export const doGetAssets = createAsyncThunk(
+  "asset/getAssets",
+  async ({ projectID, filters }, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/hardware/project/${projectID}`, {
+        params: filters,
+      });
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch assets"
+      );
+    }
+  }
+);
+
+export const doGetAssetDetail = createAsyncThunk(
+  "asset/getAssetDetail",
+  async (assetID, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/hardware/detail/${assetID}`);
+      return response.data.body.asset;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch asset detail"
+      );
+    }
+  }
+);
+
+export const doCreateAsset = createAsyncThunk(
+  "asset/createAsset",
+  async (assetData, thunkAPI) => {
+    try {
+      const response = await axios.post("/assets/hardware", assetData);
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to create asset"
+      );
+    }
+  }
+);
+
+export const doUpdateAsset = createAsyncThunk(
+  "asset/updateAsset",
+  async ({ assetID, assetData }, thunkAPI) => {
+    try {
+      const response = await axios.put(
+        `/assets/hardware/${assetID}`,
+        assetData
+      );
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to update asset"
+      );
+    }
+  }
+);
+
+export const doDeleteAsset = createAsyncThunk(
+  "asset/deleteAsset",
+  async (assetID, thunkAPI) => {
+    try {
+      await axios.delete(`/assets/hardware/${assetID}`);
+      return assetID;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to delete asset"
+      );
+    }
+  }
+);
+
+export const doGetMasterData = createAsyncThunk(
+  "asset/getMasterData",
+  async (projectID, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/master-data/${projectID}`);
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch master data"
+      );
+    }
+  }
+);
+
+export const doGetDeviceConfig = createAsyncThunk(
+  "asset/getDeviceConfig",
+  async (assetID, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/device-config/${assetID}`);
+      return response.data.body.config;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch device config"
+      );
+    }
+  }
+);
+
+export const doUpdateDeviceConfig = createAsyncThunk(
+  "asset/updateDeviceConfig",
+  async ({ assetID, configData }, thunkAPI) => {
+    try {
+      const response = await axios.post(
+        `/assets/device-config/${assetID}`,
+        configData
+      );
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to update device config"
+      );
+    }
+  }
+);
+
+export const doGetAssignmentHistory = createAsyncThunk(
+  "asset/getAssignmentHistory",
+  async (assetID, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/assignments/asset/${assetID}`);
+      return response.data.body.assignments;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch assignment history"
+      );
+    }
+  }
+);
+
+export const doAssignUser = createAsyncThunk(
+  "asset/assignUser",
+  async (assignmentData, thunkAPI) => {
+    try {
+      const response = await axios.post("/assets/assignments", assignmentData);
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to assign user"
+      );
+    }
+  }
+);
+
+export const doReturnAsset = createAsyncThunk(
+  "asset/returnAsset",
+  async ({ assignmentID, returnData }, thunkAPI) => {
+    try {
+      const response = await axios.put(
+        `/assets/assignments/${assignmentID}/return`,
+        returnData
+      );
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to return asset"
+      );
+    }
+  }
+);
+
+export const doUpdateAssignment = createAsyncThunk(
+  "asset/updateAssignment",
+  async ({ assignmentID, assignmentData }, thunkAPI) => {
+    try {
+      const response = await axios.put(
+        `/assets/assignments/${assignmentID}`,
+        assignmentData
+      );
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to update assignment"
+      );
+    }
+  }
+);
+
+// Slice
+const assetSlice = createSlice({
+  name: "asset",
+  initialState,
+  reducers: {
+    setSelectedAsset: (state, action) => {
+      state.selectedAsset = action.payload;
+    },
+    clearAssets: (state) => {
+      state.assets = [];
+    },
+    clearSelectedAsset: (state) => {
+      state.selectedAsset = null;
+    },
+    clearDeviceConfig: (state) => {
+      state.deviceConfig = null;
+    },
+    clearAssignmentHistory: (state) => {
+      state.assignmentHistory = [];
+    },
+    clearError: (state) => {
+      state.error = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Get Assets
+      .addCase(doGetAssets.pending, (state) => {
+        state.isAssetsLoading = true;
+        state.isAssetsError = false;
+        state.error = null;
+      })
+      .addCase(doGetAssets.fulfilled, (state, action) => {
+        state.isAssetsLoading = false;
+        state.assets = action.payload.assets || [];
+      })
+      .addCase(doGetAssets.rejected, (state, action) => {
+        state.isAssetsLoading = false;
+        state.isAssetsError = true;
+        state.error = action.payload;
+      })
+      // Get Asset Detail
+      .addCase(doGetAssetDetail.pending, (state) => {
+        state.isAssetDetailLoading = true;
+        state.isAssetDetailError = false;
+        state.error = null;
+      })
+      .addCase(doGetAssetDetail.fulfilled, (state, action) => {
+        state.isAssetDetailLoading = false;
+        state.selectedAsset = action.payload;
+      })
+      .addCase(doGetAssetDetail.rejected, (state, action) => {
+        state.isAssetDetailLoading = false;
+        state.isAssetDetailError = true;
+        state.error = action.payload;
+      })
+      // Create Asset
+      .addCase(doCreateAsset.pending, (state) => {
+        state.isCreateAssetLoading = true;
+        state.isCreateAssetError = false;
+        state.error = null;
+      })
+      .addCase(doCreateAsset.fulfilled, (state, action) => {
+        state.isCreateAssetLoading = false;
+      })
+      .addCase(doCreateAsset.rejected, (state, action) => {
+        state.isCreateAssetLoading = false;
+        state.isCreateAssetError = true;
+        state.error = action.payload;
+      })
+      // Update Asset
+      .addCase(doUpdateAsset.pending, (state) => {
+        state.isUpdateAssetLoading = true;
+        state.isUpdateAssetError = false;
+        state.error = null;
+      })
+      .addCase(doUpdateAsset.fulfilled, (state, action) => {
+        state.isUpdateAssetLoading = false;
+      })
+      .addCase(doUpdateAsset.rejected, (state, action) => {
+        state.isUpdateAssetLoading = false;
+        state.isUpdateAssetError = true;
+        state.error = action.payload;
+      })
+      // Delete Asset
+      .addCase(doDeleteAsset.pending, (state) => {
+        state.isDeleteAssetLoading = true;
+        state.isDeleteAssetError = false;
+        state.error = null;
+      })
+      .addCase(doDeleteAsset.fulfilled, (state, action) => {
+        state.isDeleteAssetLoading = false;
+        state.assets = state.assets.filter(
+          (asset) => asset.id !== action.payload
+        );
+      })
+      .addCase(doDeleteAsset.rejected, (state, action) => {
+        state.isDeleteAssetLoading = false;
+        state.isDeleteAssetError = true;
+        state.error = action.payload;
+      })
+      // Get Master Data
+      .addCase(doGetMasterData.pending, (state) => {
+        state.isMasterDataLoading = true;
+        state.isMasterDataError = false;
+        state.error = null;
+      })
+      .addCase(doGetMasterData.fulfilled, (state, action) => {
+        state.isMasterDataLoading = false;
+        state.masterData = action.payload;
+      })
+      .addCase(doGetMasterData.rejected, (state, action) => {
+        state.isMasterDataLoading = false;
+        state.isMasterDataError = true;
+        state.error = action.payload;
+      })
+      // Get Device Config
+      .addCase(doGetDeviceConfig.pending, (state) => {
+        state.isDeviceConfigLoading = true;
+        state.error = null;
+      })
+      .addCase(doGetDeviceConfig.fulfilled, (state, action) => {
+        state.isDeviceConfigLoading = false;
+        state.deviceConfig = action.payload;
+      })
+      .addCase(doGetDeviceConfig.rejected, (state, action) => {
+        state.isDeviceConfigLoading = false;
+        state.error = action.payload;
+      })
+      // Update Device Config
+      .addCase(doUpdateDeviceConfig.pending, (state) => {
+        state.isDeviceConfigLoading = true;
+        state.error = null;
+      })
+      .addCase(doUpdateDeviceConfig.fulfilled, (state) => {
+        state.isDeviceConfigLoading = false;
+      })
+      .addCase(doUpdateDeviceConfig.rejected, (state, action) => {
+        state.isDeviceConfigLoading = false;
+        state.error = action.payload;
+      })
+      // Get Assignment History
+      .addCase(doGetAssignmentHistory.pending, (state) => {
+        state.isAssignmentHistoryLoading = true;
+        state.error = null;
+      })
+      .addCase(doGetAssignmentHistory.fulfilled, (state, action) => {
+        state.isAssignmentHistoryLoading = false;
+        state.assignmentHistory = action.payload;
+      })
+      .addCase(doGetAssignmentHistory.rejected, (state, action) => {
+        state.isAssignmentHistoryLoading = false;
+        state.error = action.payload;
+      })
+      // Assign User
+      .addCase(doAssignUser.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(doAssignUser.fulfilled, (state) => {
+        // Assignment history will be refreshed
+      })
+      .addCase(doAssignUser.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      // Return Asset
+      .addCase(doReturnAsset.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(doReturnAsset.fulfilled, (state) => {
+        // Assignment history will be refreshed
+      })
+      .addCase(doReturnAsset.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      // Update Assignment
+      .addCase(doUpdateAssignment.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(doUpdateAssignment.fulfilled, (state) => {
+        // Assignment history will be refreshed
+      })
+      .addCase(doUpdateAssignment.rejected, (state, action) => {
+        state.error = action.payload;
+      });
+  },
+});
+
+export const {
+  setSelectedAsset,
+  clearAssets,
+  clearSelectedAsset,
+  clearDeviceConfig,
+  clearAssignmentHistory,
+  clearError,
+} = assetSlice.actions;
+
+export default assetSlice.reducer;
