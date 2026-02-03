@@ -1,253 +1,413 @@
-import React, { useState } from 'react';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import FormInput from '../../../components/FormInput';
-import FormSelect from '../../../components/FormSelect';
-import ToggleButton from '../../../components/ToggleButton';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import FormInput from "../../../components/FormInput";
+import FormSelect from "../../../components/FormSelect";
+import FormTextArea from "../../../components/FormTextArea";
+import {
+  doGetDataAssetDetail,
+  doGetDataMasterData,
+  doUpdateDataAsset,
+  doGetDataAssets,
+} from "../../../state/slice/assetSlice";
+import {
+  doGetProjectUsers,
+  selectProjectUserList,
+} from "../../../state/slice/projectUsersSlice";
+import { useToasts } from "react-toast-notifications";
+import { selectSelectedProject } from "../../../state/slice/projectSlice";
 
-const DataAssetUpdate = ({ onBack }) => {
-    const [activeTab, setActiveTab] = useState("configuration");
+const DataAssetUpdate = ({ asset, onBack }) => {
+  const dispatch = useDispatch();
+  const { addToast } = useToasts();
+  const selectedProject = useSelector(selectSelectedProject);
 
-    const [formValues, setFormValues] = useState({
-        name: '',
-        code: '',
-        type: '',
-        assetOwner: '',
-        classification: '',
-        serialKey: '',
-        qty: '',
-        area: '',
-        remarks: '',
-        vendor: '',
-        downloadSource: '',
-        patch: '',
-        license: '',
-        approvedBy: '',
-        approvedDate: '',
-        approvalStatus: false,
-        dueDate: '',
-    });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const types = [
-        { label: "Furniture", value: "furniture" },
-        { label: "Device", value: "device" },
-    ];
+  // Redux state
+  const assetDetail = useSelector((state) => state.asset.selectedDataAsset);
+  const dataAssetMasterData = useSelector(
+    (state) => state.asset.dataAssetMasterData || {}
+  );
+  const projectUsers = useSelector(selectProjectUserList) || [];
+  const isDataAssetDetailLoading = useSelector(
+    (state) => state.asset.isDataAssetDetailLoading
+  );
 
-    const patch = [
-        { label: "Yes", value: "yes" },
-        { label: "No", value: "no" },
-    ];
+  const [formValues, setFormValues] = useState({
+    dataAssetName: "",
+    description: "",
+    source: "",
+    hasBackup: "",
+    backupLocation: "",
+    backupFrequency: "",
+    containsPersonalInfo: "",
+    personalInfoDetails: "",
+    dataClassification: "",
+    dataOwnerID: "",
+    accessRestrictions: "",
+    internalRecipients: [],
+  });
 
-    const license = [
-        { label: "Yes", value: "yes" },
-        { label: "No", value: "no" },
-    ];
+  // Fetch asset detail and master data when component mounts
+  useEffect(() => {
+    if (asset?.id) {
+      dispatch(doGetDataAssetDetail(asset.id));
+      if (asset.projectID || selectedProject?.id) {
+        const projectID = asset.projectID || selectedProject.id;
+        dispatch(doGetDataMasterData(projectID));
+        dispatch(doGetProjectUsers(projectID));
+      }
+    }
+  }, [asset?.id, asset?.projectID, selectedProject?.id, dispatch]);
 
-    const area = [
-        { label: "area1", value: "area1" },
-        { label: "area2", value: "area2" },
-    ];
+  // Populate form when asset detail is loaded
+  useEffect(() => {
+    if (assetDetail && assetDetail.id === asset?.id) {
+      setFormValues({
+        dataAssetName: assetDetail.dataAssetName || "",
+        description: assetDetail.description || "",
+        source: assetDetail.source || "",
+        hasBackup: assetDetail.hasBackup ? "true" : "false",
+        backupLocation: assetDetail.backupLocation || "",
+        backupFrequency: assetDetail.backupFrequency || "",
+        containsPersonalInfo: assetDetail.containsPersonalInfo
+          ? "true"
+          : "false",
+        personalInfoDetails: assetDetail.personalInfoDetails || "",
+        dataClassification: assetDetail.dataClassification || "Internal",
+        dataOwnerID: assetDetail.dataOwnerID?.toString() || "",
+        accessRestrictions: assetDetail.accessRestrictions || "",
+        internalRecipients:
+          assetDetail.recipients
+            ?.filter((r) => r.recipientType === "Internal")
+            .map((r) => r.userID.toString()) || [],
+      });
+    }
+  }, [assetDetail, asset?.id]);
 
-    const assetOwners = [
-        { label: "John Doe", value: "john_doe" },
-        { label: "Sarah Johnson", value: "sarah_johnson" },
-        { label: "Michael Smith", value: "michael_smith" },
-    ];
+  // Prepare options from master data
+  const sourceOptions =
+    dataAssetMasterData.sources?.map((source) => ({
+      label: source.label,
+      value: source.value,
+    })) || [];
 
-    const classifications = [
-        { label: "Confidential", value: "confidential" },
-        { label: "Internal Use", value: "internal_use" },
-        { label: "Public", value: "public" },
-    ];
+  const backupOptions =
+    dataAssetMasterData.backupOptions?.map((option) => ({
+      label: option.label,
+      value: option.value.toString(),
+    })) || [];
 
-    const operationSystems = [
-        { label: "Windows", value: "windows" },
-        { label: "Mac", value: "mac" },
-        { label: "Linux", value: "linux" },
-    ];
+  const personalInfoOptions =
+    dataAssetMasterData.personalInfoOptions?.map((option) => ({
+      label: option.label,
+      value: option.value.toString(),
+    })) || [];
 
-    const handleFormChange = (name, value) => {
-        setFormValues({ ...formValues, [name]: value });
-    };
+  const dataClassificationOptions =
+    dataAssetMasterData.dataClassifications?.map((classification) => ({
+      label: classification.label,
+      value: classification.value,
+    })) || [];
 
+  const dataOwnerOptions = projectUsers.map((user) => ({
+    label: `${user.firstName} ${user.lastName}`,
+    value: user.id.toString(),
+  }));
+
+  const recipientOptions = projectUsers.map((user) => ({
+    label: `${user.firstName} ${user.lastName}`,
+    value: user.id.toString(),
+  }));
+
+  const handleFormChange = (name, value) => {
+    setFormValues({ ...formValues, [name]: value });
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const updateData = {
+        dataAssetName: formValues.dataAssetName.trim(),
+        description: formValues.description || undefined,
+        source: formValues.source || undefined,
+        hasBackup: formValues.hasBackup === "true",
+        backupLocation: formValues.backupLocation || undefined,
+        backupFrequency: formValues.backupFrequency || undefined,
+        containsPersonalInfo: formValues.containsPersonalInfo === "true",
+        personalInfoDetails: formValues.personalInfoDetails || undefined,
+        dataClassification: formValues.dataClassification || undefined,
+        dataOwnerID: formValues.dataOwnerID
+          ? Number(formValues.dataOwnerID)
+          : undefined,
+        accessRestrictions: formValues.accessRestrictions || undefined,
+        internalRecipients:
+          formValues.internalRecipients && formValues.internalRecipients.length > 0
+            ? formValues.internalRecipients.map((id) => Number(id))
+            : undefined,
+      };
+
+      await dispatch(
+        doUpdateDataAsset({ assetID: asset.id, assetData: updateData })
+      ).unwrap();
+      addToast("Data asset updated successfully!", {
+        appearance: "success",
+      });
+
+      // Refresh the assets list
+      const projectID = asset.projectID || selectedProject?.id;
+      if (projectID) {
+        dispatch(doGetDataAssets({ projectID, filters: {} }));
+      }
+
+      setIsSubmitting(false);
+      onBack();
+    } catch (error) {
+      addToast(
+        error?.error || error?.message || "Failed to update data asset",
+        { appearance: "error" }
+      );
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isDataAssetDetailLoading) {
     return (
-        <div className="w-full text-left p-4">
-            {/* Header Section */}
-            <div className="mb-4 justify-between flex">
-                <div>
-                    <span className="text-black font-semibold mt-4 block">
-                        Data Asset
-                    </span>
-                    <div className="flex-col mt-2 text-text-color space-x-10 text-sm">
-                        <span>Create Date: 2024/10/04</span>
-                        <span>Created By: Nilanga Pathirana</span>
-                    </div>
-                </div>
-                <div>
-                    <button className="btn-primary h-10 rounded-md w-36" type="button">
-                        Update
-                    </button>
-                </div>
-            </div>
-
-            {/* Basic Info Section */}
-            <div className='bg-white rounded-lg p-4'>
-                <div className='flex gap-4 mt-6'>
-                    <div className='flex-col w-3/4'>
-                        <label>Name</label>
-                        <FormInput
-                            type="text"
-                            name="name"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-                    <div className='flex-col w-1/4'>
-                        <label>Code</label>
-                        <FormInput
-                            type="text"
-                            name="code"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-                </div>
-
-                <div className='flex gap-4 mt-4 '>
-                    <div className='flex-col w-full'>
-                        <label>Source</label>
-                        <FormSelect
-                            name="type"
-                            formValues={formValues}
-                            options={types}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-
-                    <div className='flex-col w-full'>
-                        <label>Asset Owner</label>
-                        <FormSelect
-                            name="assetOwner"
-                            formValues={formValues}
-                            options={assetOwners}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-
-                    <div className='flex-col w-full'>
-                        <label>Classification</label>
-                        <FormSelect
-                            name="classification"
-                            formValues={formValues}
-                            options={classifications}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-                </div>
-
-                <div className='flex gap-4 mt-4 '>
-                    <div className='flex-col w-1/4'>
-                        <label>Backup Availability</label>
-                        <FormSelect
-                            name="backupAvailability"
-                            formValues={formValues}
-                            options={types}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-
-                    <div className='flex-col w-2/4'>
-                        <label>Backup Location</label>
-                        <FormInput
-                            type="text"
-                            name="backupLocation"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-
-                    <div className='flex-col w-1/4'>
-                        <label>Contains personal information</label>
-                        <FormSelect
-                            name="personalInformation"
-                            formValues={formValues}
-                            options={types}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-                </div>
-
-
-
-                <div className='mt-4 flex gap-5'>
-                    <div className='flex-col w-2/4 '>
-                        <label>Method of sharing with Internal Parties</label>
-                        <FormSelect
-                            name="internalParties"
-                            formValues={formValues}
-                            options={patch}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-
-                    <div className='flex-col w-2/4'>
-                        <label>Method of sharing with External Parties</label>
-                        <FormInput
-                            type="text"
-                            name="externalParties"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-                </div>
-
-                <div className='flex mt-4 gap-5'>
-                    <div className='flex-col w-2/4'>
-                        <label>External Recipients</label>
-                        <FormInput
-                            type="text"
-                            name="externalRecipients"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-
-                    <div className='flex-col w-2/4'>
-                        <label>External Recipients</label>
-                        <FormInput
-                            type="text"
-                            name="externalRecipients"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) =>
-                                handleFormChange(name, value)
-                            }
-                        />
-                    </div>
-                </div>
-            </div>
+      <div className="w-full text-left p-4">
+        <div className="text-center text-gray-500 py-8">
+          Loading asset details...
         </div>
+      </div>
     );
+  }
+
+  return (
+    <div className="w-full text-left p-4">
+      {/* Header Section */}
+      <div className="mb-4 justify-between flex">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <ArrowLeftIcon
+              className="w-5 h-5 text-text-color cursor-pointer"
+              onClick={onBack}
+            />
+            <span className="text-black font-semibold mt-4 block">
+              Data Asset
+            </span>
+          </div>
+          <div className="flex-col mt-2 text-text-color space-x-10 text-sm">
+            {assetDetail && (
+              <>
+                <span>
+                  Create Date:{" "}
+                  {new Date(assetDetail.createdAt).toLocaleDateString()}
+                </span>
+                {assetDetail.createdByEmail && (
+                  <span>Created By: {assetDetail.createdByEmail}</span>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+        <div>
+          <button
+            className="btn-primary h-10 rounded-md w-36"
+            type="button"
+            onClick={handleUpdate}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Updating..." : "Update"}
+          </button>
+        </div>
+      </div>
+
+      {/* Basic Info Section */}
+      <div className="bg-white rounded-lg p-4">
+        <form onSubmit={handleUpdate}>
+          {/* Data Asset Name & Source */}
+          <div className="flex gap-4 mt-6">
+            <div className="flex-col w-3/4">
+              <label>
+                Data Asset Name <span className="text-red-500">*</span>
+              </label>
+              <FormInput
+                type="text"
+                name="dataAssetName"
+                formValues={formValues}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+                required
+              />
+            </div>
+            <div className="flex-col w-1/4">
+              <label>
+                Source <span className="text-red-500">*</span>
+              </label>
+              <FormSelect
+                name="source"
+                formValues={formValues}
+                options={sourceOptions}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+                required
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="flex-col mt-4">
+            <label>Description</label>
+            <FormTextArea
+              name="description"
+              formValues={formValues}
+              onChange={({ target: { name, value } }) =>
+                handleFormChange(name, value)
+              }
+              rows={3}
+            />
+          </div>
+
+          {/* Backup Availability, Location & Frequency */}
+          <div className="flex gap-4 mt-4">
+            <div className="flex-col w-1/4">
+              <label>Backup Availability</label>
+              <FormSelect
+                name="hasBackup"
+                formValues={formValues}
+                options={backupOptions}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+              />
+            </div>
+            <div className="flex-col w-2/4">
+              <label>Backup Location</label>
+              <FormInput
+                type="text"
+                name="backupLocation"
+                formValues={formValues}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+              />
+            </div>
+            <div className="flex-col w-1/4">
+              <label>Backup Frequency</label>
+              <FormInput
+                type="text"
+                name="backupFrequency"
+                formValues={formValues}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+                placeholder="e.g., Daily at 2 AM"
+              />
+            </div>
+          </div>
+
+          {/* Contains Personal Information & Details */}
+          <div className="flex gap-4 mt-4">
+            <div className="flex-col w-1/2">
+              <label>Contains Personal Information</label>
+              <FormSelect
+                name="containsPersonalInfo"
+                formValues={formValues}
+                options={personalInfoOptions}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+              />
+            </div>
+            <div className="flex-col w-1/2">
+              <label>Personal Info Details</label>
+              <FormTextArea
+                name="personalInfoDetails"
+                formValues={formValues}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+                rows={2}
+                placeholder="Describe what personal information is stored"
+              />
+            </div>
+          </div>
+
+          {/* Data Classification & Data Owner */}
+          <div className="flex gap-4 mt-4">
+            <div className="flex-col w-1/2">
+              <label>Data Classification</label>
+              <FormSelect
+                name="dataClassification"
+                formValues={formValues}
+                options={dataClassificationOptions}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+              />
+            </div>
+            <div className="flex-col w-1/2">
+              <label>Data Owner</label>
+              <FormSelect
+                name="dataOwnerID"
+                formValues={formValues}
+                options={dataOwnerOptions}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+              />
+            </div>
+          </div>
+
+          {/* Access Restrictions */}
+          <div className="flex-col mt-4">
+            <label>Access Restrictions</label>
+            <FormTextArea
+              name="accessRestrictions"
+              formValues={formValues}
+              onChange={({ target: { name, value } }) =>
+                handleFormChange(name, value)
+              }
+              rows={2}
+              placeholder="Describe any access restrictions"
+            />
+          </div>
+
+          {/* Internal Recipients - Multi-select */}
+          <div className="flex-col mt-4">
+            <label>Internal Recipients</label>
+            <select
+              name="internalRecipients"
+              multiple
+              value={formValues.internalRecipients || []}
+              onChange={(e) => {
+                const selectedOptions = Array.from(
+                  e.target.selectedOptions,
+                  (option) => option.value
+                );
+                handleFormChange("internalRecipients", selectedOptions);
+              }}
+              className="w-full p-3 rounded-lg shadow-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer h-32"
+            >
+              {recipientOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Hold Ctrl/Cmd to select multiple recipients. Currently selected:{" "}
+              {formValues.internalRecipients?.length || 0}
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default DataAssetUpdate;

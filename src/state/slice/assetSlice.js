@@ -25,6 +25,22 @@ const initialState = {
   isDeviceConfigError: false,
   isAssignmentHistoryLoading: false,
   isAssignmentHistoryError: false,
+  // Data Asset state
+  dataAssets: [],
+  selectedDataAsset: null,
+  dataAssetMasterData: {},
+  isDataAssetsLoading: false,
+  isDataAssetsError: false,
+  isDataAssetDetailLoading: false,
+  isDataAssetDetailError: false,
+  isCreateDataAssetLoading: false,
+  isCreateDataAssetError: false,
+  isUpdateDataAssetLoading: false,
+  isUpdateDataAssetError: false,
+  isDeleteDataAssetLoading: false,
+  isDeleteDataAssetError: false,
+  isDataMasterDataLoading: false,
+  isDataMasterDataError: false,
 };
 
 // Async Thunks
@@ -210,6 +226,138 @@ export const doUpdateAssignment = createAsyncThunk(
   }
 );
 
+// Data Asset Async Thunks
+export const doGetDataAssets = createAsyncThunk(
+  "asset/getDataAssets",
+  async ({ projectID, filters }, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/data/project/${projectID}`, {
+        params: filters,
+      });
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch data assets"
+      );
+    }
+  }
+);
+
+export const doGetDataAssetDetail = createAsyncThunk(
+  "asset/getDataAssetDetail",
+  async (assetID, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/data/detail/${assetID}`);
+      return response.data.body.asset;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch data asset detail"
+      );
+    }
+  }
+);
+
+export const doCreateDataAsset = createAsyncThunk(
+  "asset/createDataAsset",
+  async (assetData, thunkAPI) => {
+    try {
+      const response = await axios.post("/assets/data", assetData);
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to create data asset"
+      );
+    }
+  }
+);
+
+export const doUpdateDataAsset = createAsyncThunk(
+  "asset/updateDataAsset",
+  async ({ assetID, assetData }, thunkAPI) => {
+    try {
+      const response = await axios.put(`/assets/data/${assetID}`, assetData);
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to update data asset"
+      );
+    }
+  }
+);
+
+export const doDeleteDataAsset = createAsyncThunk(
+  "asset/deleteDataAsset",
+  async (assetID, thunkAPI) => {
+    try {
+      await axios.delete(`/assets/data/${assetID}`);
+      return assetID;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to delete data asset"
+      );
+    }
+  }
+);
+
+export const doGetDataMasterData = createAsyncThunk(
+  "asset/getDataMasterData",
+  async (projectID, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/data/master-data/${projectID}`);
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch data master data"
+      );
+    }
+  }
+);
+
+export const doGetRecipients = createAsyncThunk(
+  "asset/getRecipients",
+  async (assetID, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/data/${assetID}/recipients`);
+      return response.data.body.recipients;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch recipients"
+      );
+    }
+  }
+);
+
+export const doAddRecipients = createAsyncThunk(
+  "asset/addRecipients",
+  async ({ assetID, recipientData }, thunkAPI) => {
+    try {
+      const response = await axios.post(
+        `/assets/data/${assetID}/recipients`,
+        recipientData
+      );
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to add recipients"
+      );
+    }
+  }
+);
+
+export const doRemoveRecipient = createAsyncThunk(
+  "asset/removeRecipient",
+  async ({ assetID, userID }, thunkAPI) => {
+    try {
+      await axios.delete(`/assets/data/${assetID}/recipients/${userID}`);
+      return { assetID, userID };
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to remove recipient"
+      );
+    }
+  }
+);
+
 // Slice
 const assetSlice = createSlice({
   name: "asset",
@@ -232,6 +380,16 @@ const assetSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    // Data Asset reducers
+    setSelectedDataAsset: (state, action) => {
+      state.selectedDataAsset = action.payload;
+    },
+    clearDataAssets: (state) => {
+      state.dataAssets = [];
+    },
+    clearSelectedDataAsset: (state) => {
+      state.selectedDataAsset = null;
     },
   },
   extraReducers: (builder) => {
@@ -393,6 +551,96 @@ const assetSlice = createSlice({
       })
       .addCase(doUpdateAssignment.rejected, (state, action) => {
         state.error = action.payload;
+      })
+      // Get Data Assets
+      .addCase(doGetDataAssets.pending, (state) => {
+        state.isDataAssetsLoading = true;
+        state.isDataAssetsError = false;
+        state.error = null;
+      })
+      .addCase(doGetDataAssets.fulfilled, (state, action) => {
+        state.isDataAssetsLoading = false;
+        state.dataAssets = action.payload.assets || [];
+      })
+      .addCase(doGetDataAssets.rejected, (state, action) => {
+        state.isDataAssetsLoading = false;
+        state.isDataAssetsError = true;
+        state.error = action.payload;
+      })
+      // Get Data Asset Detail
+      .addCase(doGetDataAssetDetail.pending, (state) => {
+        state.isDataAssetDetailLoading = true;
+        state.isDataAssetDetailError = false;
+        state.error = null;
+      })
+      .addCase(doGetDataAssetDetail.fulfilled, (state, action) => {
+        state.isDataAssetDetailLoading = false;
+        state.selectedDataAsset = action.payload;
+      })
+      .addCase(doGetDataAssetDetail.rejected, (state, action) => {
+        state.isDataAssetDetailLoading = false;
+        state.isDataAssetDetailError = true;
+        state.error = action.payload;
+      })
+      // Create Data Asset
+      .addCase(doCreateDataAsset.pending, (state) => {
+        state.isCreateDataAssetLoading = true;
+        state.isCreateDataAssetError = false;
+        state.error = null;
+      })
+      .addCase(doCreateDataAsset.fulfilled, (state) => {
+        state.isCreateDataAssetLoading = false;
+      })
+      .addCase(doCreateDataAsset.rejected, (state, action) => {
+        state.isCreateDataAssetLoading = false;
+        state.isCreateDataAssetError = true;
+        state.error = action.payload;
+      })
+      // Update Data Asset
+      .addCase(doUpdateDataAsset.pending, (state) => {
+        state.isUpdateDataAssetLoading = true;
+        state.isUpdateDataAssetError = false;
+        state.error = null;
+      })
+      .addCase(doUpdateDataAsset.fulfilled, (state) => {
+        state.isUpdateDataAssetLoading = false;
+      })
+      .addCase(doUpdateDataAsset.rejected, (state, action) => {
+        state.isUpdateDataAssetLoading = false;
+        state.isUpdateDataAssetError = true;
+        state.error = action.payload;
+      })
+      // Delete Data Asset
+      .addCase(doDeleteDataAsset.pending, (state) => {
+        state.isDeleteDataAssetLoading = true;
+        state.isDeleteDataAssetError = false;
+        state.error = null;
+      })
+      .addCase(doDeleteDataAsset.fulfilled, (state, action) => {
+        state.isDeleteDataAssetLoading = false;
+        state.dataAssets = state.dataAssets.filter(
+          (asset) => asset.id !== action.payload
+        );
+      })
+      .addCase(doDeleteDataAsset.rejected, (state, action) => {
+        state.isDeleteDataAssetLoading = false;
+        state.isDeleteDataAssetError = true;
+        state.error = action.payload;
+      })
+      // Get Data Master Data
+      .addCase(doGetDataMasterData.pending, (state) => {
+        state.isDataMasterDataLoading = true;
+        state.isDataMasterDataError = false;
+        state.error = null;
+      })
+      .addCase(doGetDataMasterData.fulfilled, (state, action) => {
+        state.isDataMasterDataLoading = false;
+        state.dataAssetMasterData = action.payload;
+      })
+      .addCase(doGetDataMasterData.rejected, (state, action) => {
+        state.isDataMasterDataLoading = false;
+        state.isDataMasterDataError = true;
+        state.error = action.payload;
       });
   },
 });
@@ -404,6 +652,9 @@ export const {
   clearDeviceConfig,
   clearAssignmentHistory,
   clearError,
+  setSelectedDataAsset,
+  clearDataAssets,
+  clearSelectedDataAsset,
 } = assetSlice.actions;
 
 export default assetSlice.reducer;
