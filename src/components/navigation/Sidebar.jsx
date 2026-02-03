@@ -1,23 +1,24 @@
-import { Menu, Transition } from '@headlessui/react';
-import { CogIcon, BellIcon, FolderIcon } from '@heroicons/react/24/outline';
-
-import {signOut} from 'aws-amplify/auth';
+import {Menu, Transition} from '@headlessui/react';
 import {
+  AcademicCapIcon,
+  ArrowPathIcon,
   ArrowRightStartOnRectangleIcon,
-  CalendarIcon,
-  DocumentTextIcon,
-  Square3Stack3DIcon,
-  Squares2X2Icon,
-  TableCellsIcon,
-  UserIcon,
-  UsersIcon,
-  UserPlusIcon,
-  WrenchScrewdriverIcon,
   ArrowUpCircleIcon,
   Bars2Icon,
-  AcademicCapIcon,
-  ArrowPathIcon
+  BellIcon,
+  CalendarIcon,
+  CogIcon,
+  DocumentTextIcon,
+  FolderIcon,
+  Square3Stack3DIcon,
+  Squares2X2Icon,
+  UserIcon,
+  UserPlusIcon,
+  UsersIcon,
+  WrenchScrewdriverIcon
 } from '@heroicons/react/24/outline';
+
+import {signOut} from 'aws-amplify/auth';
 import {Link, useHistory, useLocation} from 'react-router-dom';
 import AffoohLogo from '../../assets/affooh_logo.png';
 import {useSelector} from 'react-redux';
@@ -35,8 +36,9 @@ function Sidebar() {
   const handleSignOut = async () => {
     setLoading(true);
     try {
-      await signOut({ global: true });
-      window.location.reload();
+      await signOut({global: true});
+    } catch (err) {
+      console.error("Logout failed", err);
     } finally {
       setLoading(false);
     }
@@ -131,7 +133,7 @@ function Sidebar() {
                         leaveTo="transform opacity-0 scale-95"
                     >
                       <Menu.Items
-                          className="absolute -top-16 right-[-17rem] mt-2 w-64 bg-white divide-y divide-gray-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                          className="absolute -top-36 right-[-17rem] mt-2 w-64 bg-white divide-y divide-gray-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div className="flex items-center gap-3 px-4 py-3">
                           {userDetails.avatar ? (
                               <img

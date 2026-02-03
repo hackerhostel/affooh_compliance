@@ -25,22 +25,22 @@ const initialState = {
   isDeviceConfigError: false,
   isAssignmentHistoryLoading: false,
   isAssignmentHistoryError: false,
-  // Software Assets
-  softwareAssets: [],
-  selectedSoftwareAsset: null,
-  softwareMasterData: {},
-  isSoftwareAssetsLoading: false,
-  isSoftwareAssetsError: false,
-  isSoftwareAssetDetailLoading: false,
-  isSoftwareAssetDetailError: false,
-  isCreateSoftwareAssetLoading: false,
-  isCreateSoftwareAssetError: false,
-  isUpdateSoftwareAssetLoading: false,
-  isUpdateSoftwareAssetError: false,
-  isDeleteSoftwareAssetLoading: false,
-  isDeleteSoftwareAssetError: false,
-  isSoftwareMasterDataLoading: false,
-  isSoftwareMasterDataError: false,
+  // Data Asset state
+  dataAssets: [],
+  selectedDataAsset: null,
+  dataAssetMasterData: {},
+  isDataAssetsLoading: false,
+  isDataAssetsError: false,
+  isDataAssetDetailLoading: false,
+  isDataAssetDetailError: false,
+  isCreateDataAssetLoading: false,
+  isCreateDataAssetError: false,
+  isUpdateDataAssetLoading: false,
+  isUpdateDataAssetError: false,
+  isDeleteDataAssetLoading: false,
+  isDeleteDataAssetError: false,
+  isDataMasterDataLoading: false,
+  isDataMasterDataError: false,
 };
 
 // Async Thunks
@@ -226,91 +226,133 @@ export const doUpdateAssignment = createAsyncThunk(
   }
 );
 
-// Software Asset Async Thunks
-export const doGetSoftwareAssets = createAsyncThunk(
-  "asset/getSoftwareAssets",
+// Data Asset Async Thunks
+export const doGetDataAssets = createAsyncThunk(
+  "asset/getDataAssets",
   async ({ projectID, filters }, thunkAPI) => {
     try {
-      const response = await axios.get(`/assets/software/project/${projectID}`, {
+      const response = await axios.get(`/assets/data/project/${projectID}`, {
         params: filters,
       });
       return response.data.body;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || "Failed to fetch software assets"
+        error.response?.data || "Failed to fetch data assets"
       );
     }
   }
 );
 
-export const doGetSoftwareAssetDetail = createAsyncThunk(
-  "asset/getSoftwareAssetDetail",
+export const doGetDataAssetDetail = createAsyncThunk(
+  "asset/getDataAssetDetail",
   async (assetID, thunkAPI) => {
     try {
-      const response = await axios.get(`/assets/software/detail/${assetID}`);
+      const response = await axios.get(`/assets/data/detail/${assetID}`);
       return response.data.body.asset;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || "Failed to fetch software asset detail"
+        error.response?.data || "Failed to fetch data asset detail"
       );
     }
   }
 );
 
-export const doCreateSoftwareAsset = createAsyncThunk(
-  "asset/createSoftwareAsset",
+export const doCreateDataAsset = createAsyncThunk(
+  "asset/createDataAsset",
   async (assetData, thunkAPI) => {
     try {
-      const response = await axios.post("/assets/software", assetData);
+      const response = await axios.post("/assets/data", assetData);
       return response.data.body;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || "Failed to create software asset"
+        error.response?.data || "Failed to create data asset"
       );
     }
   }
 );
 
-export const doUpdateSoftwareAsset = createAsyncThunk(
-  "asset/updateSoftwareAsset",
+export const doUpdateDataAsset = createAsyncThunk(
+  "asset/updateDataAsset",
   async ({ assetID, assetData }, thunkAPI) => {
     try {
-      const response = await axios.put(
-        `/assets/software/${assetID}`,
-        assetData
-      );
+      const response = await axios.put(`/assets/data/${assetID}`, assetData);
       return response.data.body;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || "Failed to update software asset"
+        error.response?.data || "Failed to update data asset"
       );
     }
   }
 );
 
-export const doDeleteSoftwareAsset = createAsyncThunk(
-  "asset/deleteSoftwareAsset",
+export const doDeleteDataAsset = createAsyncThunk(
+  "asset/deleteDataAsset",
   async (assetID, thunkAPI) => {
     try {
-      await axios.delete(`/assets/software/${assetID}`);
+      await axios.delete(`/assets/data/${assetID}`);
       return assetID;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || "Failed to delete software asset"
+        error.response?.data || "Failed to delete data asset"
       );
     }
   }
 );
 
-export const doGetSoftwareMasterData = createAsyncThunk(
-  "asset/getSoftwareMasterData",
+export const doGetDataMasterData = createAsyncThunk(
+  "asset/getDataMasterData",
   async (projectID, thunkAPI) => {
     try {
-      const response = await axios.get(`/assets/software/master-data/${projectID}`);
+      const response = await axios.get(`/assets/data/master-data/${projectID}`);
       return response.data.body;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || "Failed to fetch software master data"
+        error.response?.data || "Failed to fetch data master data"
+      );
+    }
+  }
+);
+
+export const doGetRecipients = createAsyncThunk(
+  "asset/getRecipients",
+  async (assetID, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/data/${assetID}/recipients`);
+      return response.data.body.recipients;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch recipients"
+      );
+    }
+  }
+);
+
+export const doAddRecipients = createAsyncThunk(
+  "asset/addRecipients",
+  async ({ assetID, recipientData }, thunkAPI) => {
+    try {
+      const response = await axios.post(
+        `/assets/data/${assetID}/recipients`,
+        recipientData
+      );
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to add recipients"
+      );
+    }
+  }
+);
+
+export const doRemoveRecipient = createAsyncThunk(
+  "asset/removeRecipient",
+  async ({ assetID, userID }, thunkAPI) => {
+    try {
+      await axios.delete(`/assets/data/${assetID}/recipients/${userID}`);
+      return { assetID, userID };
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to remove recipient"
       );
     }
   }
@@ -339,15 +381,15 @@ const assetSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    // Software Asset Reducers
-    setSelectedSoftwareAsset: (state, action) => {
-      state.selectedSoftwareAsset = action.payload;
+    // Data Asset reducers
+    setSelectedDataAsset: (state, action) => {
+      state.selectedDataAsset = action.payload;
     },
-    clearSoftwareAssets: (state) => {
-      state.softwareAssets = [];
+    clearDataAssets: (state) => {
+      state.dataAssets = [];
     },
-    clearSelectedSoftwareAsset: (state) => {
-      state.selectedSoftwareAsset = null;
+    clearSelectedDataAsset: (state) => {
+      state.selectedDataAsset = null;
     },
   },
   extraReducers: (builder) => {
@@ -510,94 +552,94 @@ const assetSlice = createSlice({
       .addCase(doUpdateAssignment.rejected, (state, action) => {
         state.error = action.payload;
       })
-      // Get Software Assets
-      .addCase(doGetSoftwareAssets.pending, (state) => {
-        state.isSoftwareAssetsLoading = true;
-        state.isSoftwareAssetsError = false;
+      // Get Data Assets
+      .addCase(doGetDataAssets.pending, (state) => {
+        state.isDataAssetsLoading = true;
+        state.isDataAssetsError = false;
         state.error = null;
       })
-      .addCase(doGetSoftwareAssets.fulfilled, (state, action) => {
-        state.isSoftwareAssetsLoading = false;
-        state.softwareAssets = action.payload.assets || [];
+      .addCase(doGetDataAssets.fulfilled, (state, action) => {
+        state.isDataAssetsLoading = false;
+        state.dataAssets = action.payload.assets || [];
       })
-      .addCase(doGetSoftwareAssets.rejected, (state, action) => {
-        state.isSoftwareAssetsLoading = false;
-        state.isSoftwareAssetsError = true;
+      .addCase(doGetDataAssets.rejected, (state, action) => {
+        state.isDataAssetsLoading = false;
+        state.isDataAssetsError = true;
         state.error = action.payload;
       })
-      // Get Software Asset Detail
-      .addCase(doGetSoftwareAssetDetail.pending, (state) => {
-        state.isSoftwareAssetDetailLoading = true;
-        state.isSoftwareAssetDetailError = false;
+      // Get Data Asset Detail
+      .addCase(doGetDataAssetDetail.pending, (state) => {
+        state.isDataAssetDetailLoading = true;
+        state.isDataAssetDetailError = false;
         state.error = null;
       })
-      .addCase(doGetSoftwareAssetDetail.fulfilled, (state, action) => {
-        state.isSoftwareAssetDetailLoading = false;
-        state.selectedSoftwareAsset = action.payload;
+      .addCase(doGetDataAssetDetail.fulfilled, (state, action) => {
+        state.isDataAssetDetailLoading = false;
+        state.selectedDataAsset = action.payload;
       })
-      .addCase(doGetSoftwareAssetDetail.rejected, (state, action) => {
-        state.isSoftwareAssetDetailLoading = false;
-        state.isSoftwareAssetDetailError = true;
+      .addCase(doGetDataAssetDetail.rejected, (state, action) => {
+        state.isDataAssetDetailLoading = false;
+        state.isDataAssetDetailError = true;
         state.error = action.payload;
       })
-      // Create Software Asset
-      .addCase(doCreateSoftwareAsset.pending, (state) => {
-        state.isCreateSoftwareAssetLoading = true;
-        state.isCreateSoftwareAssetError = false;
+      // Create Data Asset
+      .addCase(doCreateDataAsset.pending, (state) => {
+        state.isCreateDataAssetLoading = true;
+        state.isCreateDataAssetError = false;
         state.error = null;
       })
-      .addCase(doCreateSoftwareAsset.fulfilled, (state, action) => {
-        state.isCreateSoftwareAssetLoading = false;
+      .addCase(doCreateDataAsset.fulfilled, (state) => {
+        state.isCreateDataAssetLoading = false;
       })
-      .addCase(doCreateSoftwareAsset.rejected, (state, action) => {
-        state.isCreateSoftwareAssetLoading = false;
-        state.isCreateSoftwareAssetError = true;
+      .addCase(doCreateDataAsset.rejected, (state, action) => {
+        state.isCreateDataAssetLoading = false;
+        state.isCreateDataAssetError = true;
         state.error = action.payload;
       })
-      // Update Software Asset
-      .addCase(doUpdateSoftwareAsset.pending, (state) => {
-        state.isUpdateSoftwareAssetLoading = true;
-        state.isUpdateSoftwareAssetError = false;
+      // Update Data Asset
+      .addCase(doUpdateDataAsset.pending, (state) => {
+        state.isUpdateDataAssetLoading = true;
+        state.isUpdateDataAssetError = false;
         state.error = null;
       })
-      .addCase(doUpdateSoftwareAsset.fulfilled, (state, action) => {
-        state.isUpdateSoftwareAssetLoading = false;
+      .addCase(doUpdateDataAsset.fulfilled, (state) => {
+        state.isUpdateDataAssetLoading = false;
       })
-      .addCase(doUpdateSoftwareAsset.rejected, (state, action) => {
-        state.isUpdateSoftwareAssetLoading = false;
-        state.isUpdateSoftwareAssetError = true;
+      .addCase(doUpdateDataAsset.rejected, (state, action) => {
+        state.isUpdateDataAssetLoading = false;
+        state.isUpdateDataAssetError = true;
         state.error = action.payload;
       })
-      // Delete Software Asset
-      .addCase(doDeleteSoftwareAsset.pending, (state) => {
-        state.isDeleteSoftwareAssetLoading = true;
-        state.isDeleteSoftwareAssetError = false;
+      // Delete Data Asset
+      .addCase(doDeleteDataAsset.pending, (state) => {
+        state.isDeleteDataAssetLoading = true;
+        state.isDeleteDataAssetError = false;
         state.error = null;
       })
-      .addCase(doDeleteSoftwareAsset.fulfilled, (state, action) => {
-        state.isDeleteSoftwareAssetLoading = false;
-        state.softwareAssets = state.softwareAssets.filter(
+      .addCase(doDeleteDataAsset.fulfilled, (state, action) => {
+        state.isDeleteDataAssetLoading = false;
+        state.dataAssets = state.dataAssets.filter(
           (asset) => asset.id !== action.payload
         );
       })
-      .addCase(doDeleteSoftwareAsset.rejected, (state, action) => {
-        state.isDeleteSoftwareAssetLoading = false;
-        state.isDeleteSoftwareAssetError = true;
+      .addCase(doDeleteDataAsset.rejected, (state, action) => {
+        state.isDeleteDataAssetLoading = false;
+        state.isDeleteDataAssetError = true;
         state.error = action.payload;
       })
-      // Get Software Master Data
-      .addCase(doGetSoftwareMasterData.pending, (state) => {
-        state.isSoftwareMasterDataLoading = true;
-        state.isSoftwareMasterDataError = false;
+      // Get Data Master Data
+      .addCase(doGetDataMasterData.pending, (state) => {
+        state.isDataMasterDataLoading = true;
+        state.isDataMasterDataError = false;
         state.error = null;
       })
-      .addCase(doGetSoftwareMasterData.fulfilled, (state, action) => {
-        state.isSoftwareMasterDataLoading = false;
-        state.softwareMasterData = action.payload;
+      .addCase(doGetDataMasterData.fulfilled, (state, action) => {
+        state.isDataMasterDataLoading = false;
+        state.dataAssetMasterData = action.payload;
       })
-      .addCase(doGetSoftwareMasterData.rejected, (state, action) => {
-        state.isSoftwareMasterDataLoading = false;
-        state.isSoftwareMasterDataError = true;
+      .addCase(doGetDataMasterData.rejected, (state, action) => {
+        state.isDataMasterDataLoading = false;
+        state.isDataMasterDataError = true;
         state.error = action.payload;
       });
   },
@@ -610,9 +652,9 @@ export const {
   clearDeviceConfig,
   clearAssignmentHistory,
   clearError,
-  setSelectedSoftwareAsset,
-  clearSoftwareAssets,
-  clearSelectedSoftwareAsset,
+  setSelectedDataAsset,
+  clearDataAssets,
+  clearSelectedDataAsset,
 } = assetSlice.actions;
 
 export default assetSlice.reducer;
