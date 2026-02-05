@@ -5,7 +5,6 @@ import 'react-loading-skeleton/dist/skeleton.css';
 let instanceCounter = 0;
 
 const ToggleButton = ({label, onChange, checked, isOn, onToggle, name, id}) => {
-    // Support both old API (onChange, checked) and new API (isOn, onToggle)
     const isChecked = isOn !== undefined ? isOn : checked;
     const handleChange = (e) => {
         const value = e.target.checked;
@@ -16,7 +15,6 @@ const ToggleButton = ({label, onChange, checked, isOn, onToggle, name, id}) => {
         }
     };
     // Generate unique ID per component instance to avoid conflicts with form selects
-    // Always prefix with "toggle-" to differentiate from other form inputs
     const instanceIdRef = useRef(null);
     if (!instanceIdRef.current) {
         instanceCounter += 1;
