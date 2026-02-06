@@ -18,6 +18,7 @@ import taskTypeReducer from "./slice/taskTypeSlice.js";
 import assetReducer from "./slice/assetSlice.js";
 import cloudAssetReducer from "./slice/cloudAssetSlice.js";
 import deviceDisposalReducer from "./slice/deviceDisposalSlice.js";
+import deviceMovementReducer from "./slice/deviceMovementSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -40,5 +41,6 @@ export const store = configureStore({
     asset: assetReducer,
     cloudAsset: cloudAssetReducer,
     deviceDisposal: deviceDisposalReducer
+    deviceMovement: deviceMovementReducer
   }
 });

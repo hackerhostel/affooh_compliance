@@ -36,7 +36,7 @@ const initialState = {
   isCreateDataAssetLoading: false,
   isCreateDataAssetError: false,
   isUpdateDataAssetLoading: false,
-  isUpdateDataAssetError: false,
+  isUpdateAssetError: false,
   isDeleteDataAssetLoading: false,
   isDeleteDataAssetError: false,
   isDataMasterDataLoading: false,
@@ -424,6 +424,10 @@ export const doUpdateSoftwareAsset = createAsyncThunk(
   async ({ assetID, assetData }, thunkAPI) => {
     try {
       const response = await axios.put(`/assets/software/${assetID}`, assetData);
+      const response = await axios.put(
+        `/assets/software/${assetID}`,
+        assetData
+      );
       return response.data.body;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -493,6 +497,16 @@ const assetSlice = createSlice({
     },
     clearSelectedDataAsset: (state) => {
       state.selectedDataAsset = null;
+    },
+    // Software Asset reducers
+    setSelectedSoftwareAsset: (state, action) => {
+      state.selectedSoftwareAsset = action.payload;
+    },
+    clearSoftwareAssets: (state) => {
+      state.softwareAssets = [];
+    },
+    clearSelectedSoftwareAsset: (state) => {
+      state.selectedSoftwareAsset = null;
     },
   },
   extraReducers: (builder) => {
@@ -848,6 +862,9 @@ export const {
   setSelectedDataAsset,
   clearDataAssets,
   clearSelectedDataAsset,
+  setSelectedSoftwareAsset,
+  clearSoftwareAssets,
+  clearSelectedSoftwareAsset,
 } = assetSlice.actions;
 
 export default assetSlice.reducer;
