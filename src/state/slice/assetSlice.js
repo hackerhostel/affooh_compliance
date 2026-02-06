@@ -41,6 +41,22 @@ const initialState = {
   isDeleteDataAssetError: false,
   isDataMasterDataLoading: false,
   isDataMasterDataError: false,
+  // Software Asset state
+  softwareAssets: [],
+  selectedSoftwareAsset: null,
+  softwareMasterData: {},
+  isSoftwareAssetsLoading: false,
+  isSoftwareAssetsError: false,
+  isSoftwareAssetDetailLoading: false,
+  isSoftwareAssetDetailError: false,
+  isCreateSoftwareAssetLoading: false,
+  isCreateSoftwareAssetError: false,
+  isUpdateSoftwareAssetLoading: false,
+  isUpdateSoftwareAssetError: false,
+  isDeleteSoftwareAssetLoading: false,
+  isDeleteSoftwareAssetError: false,
+  isSoftwareMasterDataLoading: false,
+  isSoftwareMasterDataError: false,
 };
 
 // Async Thunks
@@ -358,6 +374,93 @@ export const doRemoveRecipient = createAsyncThunk(
   }
 );
 
+// Software Asset Async Thunks
+export const doGetSoftwareAssets = createAsyncThunk(
+  "asset/getSoftwareAssets",
+  async ({ projectID, filters }, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/software/project/${projectID}`, {
+        params: filters,
+      });
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch software assets"
+      );
+    }
+  }
+);
+
+export const doGetSoftwareAssetDetail = createAsyncThunk(
+  "asset/getSoftwareAssetDetail",
+  async (assetID, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/software/detail/${assetID}`);
+      return response.data.body.asset;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch software asset detail"
+      );
+    }
+  }
+);
+
+export const doCreateSoftwareAsset = createAsyncThunk(
+  "asset/createSoftwareAsset",
+  async (assetData, thunkAPI) => {
+    try {
+      const response = await axios.post("/assets/software", assetData);
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to create software asset"
+      );
+    }
+  }
+);
+
+export const doUpdateSoftwareAsset = createAsyncThunk(
+  "asset/updateSoftwareAsset",
+  async ({ assetID, assetData }, thunkAPI) => {
+    try {
+      const response = await axios.put(`/assets/software/${assetID}`, assetData);
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to update software asset"
+      );
+    }
+  }
+);
+
+export const doDeleteSoftwareAsset = createAsyncThunk(
+  "asset/deleteSoftwareAsset",
+  async (assetID, thunkAPI) => {
+    try {
+      await axios.delete(`/assets/software/${assetID}`);
+      return assetID;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to delete software asset"
+      );
+    }
+  }
+);
+
+export const doGetSoftwareMasterData = createAsyncThunk(
+  "asset/getSoftwareMasterData",
+  async (projectID, thunkAPI) => {
+    try {
+      const response = await axios.get(`/assets/software/master-data/${projectID}`);
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to fetch software master data"
+      );
+    }
+  }
+);
+
 // Slice
 const assetSlice = createSlice({
   name: "asset",
@@ -640,6 +743,96 @@ const assetSlice = createSlice({
       .addCase(doGetDataMasterData.rejected, (state, action) => {
         state.isDataMasterDataLoading = false;
         state.isDataMasterDataError = true;
+        state.error = action.payload;
+      })
+      // Get Software Assets
+      .addCase(doGetSoftwareAssets.pending, (state) => {
+        state.isSoftwareAssetsLoading = true;
+        state.isSoftwareAssetsError = false;
+        state.error = null;
+      })
+      .addCase(doGetSoftwareAssets.fulfilled, (state, action) => {
+        state.isSoftwareAssetsLoading = false;
+        state.softwareAssets = action.payload.assets || [];
+      })
+      .addCase(doGetSoftwareAssets.rejected, (state, action) => {
+        state.isSoftwareAssetsLoading = false;
+        state.isSoftwareAssetsError = true;
+        state.error = action.payload;
+      })
+      // Get Software Asset Detail
+      .addCase(doGetSoftwareAssetDetail.pending, (state) => {
+        state.isSoftwareAssetDetailLoading = true;
+        state.isSoftwareAssetDetailError = false;
+        state.error = null;
+      })
+      .addCase(doGetSoftwareAssetDetail.fulfilled, (state, action) => {
+        state.isSoftwareAssetDetailLoading = false;
+        state.selectedSoftwareAsset = action.payload;
+      })
+      .addCase(doGetSoftwareAssetDetail.rejected, (state, action) => {
+        state.isSoftwareAssetDetailLoading = false;
+        state.isSoftwareAssetDetailError = true;
+        state.error = action.payload;
+      })
+      // Create Software Asset
+      .addCase(doCreateSoftwareAsset.pending, (state) => {
+        state.isCreateSoftwareAssetLoading = true;
+        state.isCreateSoftwareAssetError = false;
+        state.error = null;
+      })
+      .addCase(doCreateSoftwareAsset.fulfilled, (state) => {
+        state.isCreateSoftwareAssetLoading = false;
+      })
+      .addCase(doCreateSoftwareAsset.rejected, (state, action) => {
+        state.isCreateSoftwareAssetLoading = false;
+        state.isCreateSoftwareAssetError = true;
+        state.error = action.payload;
+      })
+      // Update Software Asset
+      .addCase(doUpdateSoftwareAsset.pending, (state) => {
+        state.isUpdateSoftwareAssetLoading = true;
+        state.isUpdateSoftwareAssetError = false;
+        state.error = null;
+      })
+      .addCase(doUpdateSoftwareAsset.fulfilled, (state) => {
+        state.isUpdateSoftwareAssetLoading = false;
+      })
+      .addCase(doUpdateSoftwareAsset.rejected, (state, action) => {
+        state.isUpdateSoftwareAssetLoading = false;
+        state.isUpdateSoftwareAssetError = true;
+        state.error = action.payload;
+      })
+      // Delete Software Asset
+      .addCase(doDeleteSoftwareAsset.pending, (state) => {
+        state.isDeleteSoftwareAssetLoading = true;
+        state.isDeleteSoftwareAssetError = false;
+        state.error = null;
+      })
+      .addCase(doDeleteSoftwareAsset.fulfilled, (state, action) => {
+        state.isDeleteSoftwareAssetLoading = false;
+        state.softwareAssets = state.softwareAssets.filter(
+          (asset) => asset.id !== action.payload
+        );
+      })
+      .addCase(doDeleteSoftwareAsset.rejected, (state, action) => {
+        state.isDeleteSoftwareAssetLoading = false;
+        state.isDeleteSoftwareAssetError = true;
+        state.error = action.payload;
+      })
+      // Get Software Master Data
+      .addCase(doGetSoftwareMasterData.pending, (state) => {
+        state.isSoftwareMasterDataLoading = true;
+        state.isSoftwareMasterDataError = false;
+        state.error = null;
+      })
+      .addCase(doGetSoftwareMasterData.fulfilled, (state, action) => {
+        state.isSoftwareMasterDataLoading = false;
+        state.softwareMasterData = action.payload;
+      })
+      .addCase(doGetSoftwareMasterData.rejected, (state, action) => {
+        state.isSoftwareMasterDataLoading = false;
+        state.isSoftwareMasterDataError = true;
         state.error = action.payload;
       });
   },
