@@ -20,8 +20,11 @@ import {
   doDeleteDisposal,
   doApproveDisposal,
   doGetAvailableAssets,
-  doGetProjectUsers,
 } from "../../../state/slice/deviceDisposalSlice.js";
+import {
+  doGetProjectUsers,
+  selectProjectUserList,
+} from "../../../state/slice/projectUsersSlice.js";
 import { getSelectOptions } from "../../../utils/commonUtils.js";
 
 const DeviceDisposedOverview = () => {
@@ -35,9 +38,7 @@ const DeviceDisposedOverview = () => {
   const availableAssets = useSelector(
     (state) => state.deviceDisposal?.availableAssets || []
   );
-  const projectUsers = useSelector(
-    (state) => state.deviceDisposal?.projectUsers || []
-  );
+  const projectUsers = useSelector(selectProjectUserList) || [];
   const isDisposalsLoading = useSelector(
     (state) => state.deviceDisposal?.isDisposalsLoading || false
   );
@@ -83,11 +84,7 @@ const DeviceDisposedOverview = () => {
             projectID: projectId,
           })
         );
-        dispatch(
-          doGetProjectUsers({
-            projectID: projectId,
-          })
-        );
+        dispatch(doGetProjectUsers(projectId));
       }
     }
   }, [selectedProject?.id, dispatch]);
@@ -163,11 +160,7 @@ const DeviceDisposedOverview = () => {
             projectID: projectId,
           })
         );
-        dispatch(
-          doGetProjectUsers({
-            projectID: projectId,
-          })
-        );
+        dispatch(doGetProjectUsers(projectId));
       }
     }
   };
@@ -399,18 +392,18 @@ const DeviceDisposedOverview = () => {
 
   const assetOptions = availableAssets && availableAssets.length > 0
     ? getSelectOptions(
-        availableAssets.map((asset) => ({
-          id: asset.id,
-          name: asset.assetName,
-        }))
-      )
+      availableAssets.map((asset) => ({
+        id: asset.id,
+        name: asset.assetName,
+      }))
+    )
     : [];
 
   const userOptions = useMemo(() => {
     if (!projectUsers || projectUsers.length === 0) {
       return [];
     }
-    
+
     return getSelectOptions(
       projectUsers.map((user) => ({
         id: user.id,
@@ -706,11 +699,10 @@ const DeviceDisposedOverview = () => {
                   </td>
                   <td className="py-4 px-4">
                     <span
-                      className={`px-2 py-1 rounded ${
-                        row.status === "Approved"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
+                      className={`px-2 py-1 rounded ${row.status === "Approved"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
+                        }`}
                     >
                       {row.status}
                     </span>

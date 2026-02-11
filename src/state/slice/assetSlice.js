@@ -423,7 +423,6 @@ export const doUpdateSoftwareAsset = createAsyncThunk(
   "asset/updateSoftwareAsset",
   async ({ assetID, assetData }, thunkAPI) => {
     try {
-      const response = await axios.put(`/assets/software/${assetID}`, assetData);
       const response = await axios.put(
         `/assets/software/${assetID}`,
         assetData

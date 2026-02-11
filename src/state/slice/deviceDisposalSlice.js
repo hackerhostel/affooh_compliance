@@ -5,7 +5,6 @@ const initialState = {
   disposals: [],
   selectedDisposal: null,
   availableAssets: [],
-  projectUsers: [],
   loading: false,
   error: null,
   isDisposalsLoading: false,
@@ -21,7 +20,6 @@ const initialState = {
   isApproveDisposalLoading: false,
   isApproveDisposalError: false,
   isAvailableAssetsLoading: false,
-  isProjectUsersLoading: false,
 };
 
 export const doGetDisposals = createAsyncThunk(
@@ -130,48 +128,6 @@ export const doGetAvailableAssets = createAsyncThunk(
   }
 );
 
-export const doGetProjectUsers = createAsyncThunk(
-  "deviceDisposal/getProjectUsers",
-  async ({ projectID, searchTerm }, thunkAPI) => {
-    try {
-      const projectIdNum = Number(projectID);
-      if (!projectID || isNaN(projectIdNum) || projectIdNum <= 0) {
-        return thunkAPI.rejectWithValue({
-          error: "Invalid project ID",
-          message: `Project ID must be a valid positive number. Received: ${projectID}`,
-        });
-      }
-
-      const url = `/assets/disposals/users/${projectIdNum}`;
-      const params = {};
-      if (searchTerm) {
-        params.search = searchTerm;
-      }
-      
-      const response = await axios.get(url, {
-        params,
-      });
-
-      if (response.data?.body?.users) {
-        return response.data.body.users;
-      } else if (Array.isArray(response.data?.body)) {
-        return response.data.body;
-      } else if (Array.isArray(response.data)) {
-        return response.data;
-      } else {
-        return [];
-      }
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || {
-          error: "Failed to fetch project users",
-          message: error.message,
-        }
-      );
-    }
-  }
-);
-
 const deviceDisposalSlice = createSlice({
   name: "deviceDisposal",
   initialState,
@@ -184,9 +140,6 @@ const deviceDisposalSlice = createSlice({
     },
     clearAvailableAssets: (state) => {
       state.availableAssets = [];
-    },
-    clearProjectUsers: (state) => {
-      state.projectUsers = [];
     },
   },
   extraReducers: (builder) => {
@@ -283,20 +236,6 @@ const deviceDisposalSlice = createSlice({
       .addCase(doGetAvailableAssets.rejected, (state) => {
         state.isAvailableAssetsLoading = false;
         state.availableAssets = [];
-      })
-      .addCase(doGetProjectUsers.pending, (state) => {
-        state.isProjectUsersLoading = true;
-        state.error = null;
-      })
-      .addCase(doGetProjectUsers.fulfilled, (state, action) => {
-        state.isProjectUsersLoading = false;
-        state.projectUsers = action.payload || [];
-        state.error = null;
-      })
-      .addCase(doGetProjectUsers.rejected, (state, action) => {
-        state.isProjectUsersLoading = false;
-        state.projectUsers = [];
-        state.error = action.payload;
       });
   },
 });
@@ -305,7 +244,6 @@ export const {
   setSelectedDisposal,
   clearDisposals,
   clearAvailableAssets,
-  clearProjectUsers,
 } = deviceDisposalSlice.actions;
 
 export default deviceDisposalSlice.reducer;

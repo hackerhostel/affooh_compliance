@@ -40,7 +40,7 @@ export const store = configureStore({
     taskType: taskTypeReducer,
     asset: assetReducer,
     cloudAsset: cloudAssetReducer,
-    deviceDisposal: deviceDisposalReducer
+    deviceDisposal: deviceDisposalReducer,
     deviceMovement: deviceMovementReducer
   }
 });
