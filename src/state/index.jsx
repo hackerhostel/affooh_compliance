@@ -17,6 +17,7 @@ import screenReducer from "./slice/screenSlice.js";
 import taskTypeReducer from "./slice/taskTypeSlice.js";
 import assetReducer from "./slice/assetSlice.js";
 import cloudAssetReducer from "./slice/cloudAssetSlice.js";
+import deviceDisposalReducer from "./slice/deviceDisposalSlice.js";
 import deviceMovementReducer from "./slice/deviceMovementSlice.js";
 
 export const store = configureStore({
@@ -39,6 +40,7 @@ export const store = configureStore({
     taskType: taskTypeReducer,
     asset: assetReducer,
     cloudAsset: cloudAssetReducer,
+    deviceDisposal: deviceDisposalReducer,
     deviceMovement: deviceMovementReducer
   }
 });
