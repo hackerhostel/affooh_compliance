@@ -149,4 +149,27 @@ export const getSteeringCommitteeRoles = async (projectId, search = "") => {
     { params }
   );
   return response?.data?.body?.roles || [];
+export const fetchRasciByProject = async (projectId) => {
+  const response = await axios.get(`/compliance/rasci/project/${projectId}`);
+  return response?.data?.body || [];
+};
+
+export const fetchPositionsByProject = async (projectId) => {
+  const response = await axios.get(`/compliance/rasci/positions/${projectId}`);
+  return response?.data?.body || [];
+};
+
+export const createRasci = async (payload) => {
+  const response = await axios.post("/compliance/rasci", payload);
+  return response?.data?.body;
+};
+
+export const updateRasci = async (id, payload) => {
+  const response = await axios.put(`/compliance/rasci/${id}`, payload);
+  return response?.data?.body;
+};
+
+export const deleteRasci = async (id) => {
+  const response = await axios.delete(`/compliance/rasci/${id}`);
+  return response?.data?.body;
 };
