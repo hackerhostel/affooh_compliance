@@ -120,6 +120,35 @@ export const updateApproval = async (id, payload) => {
   return response?.data?.body;
 };
 
+// Steering Committee
+export const createSteeringCommittee = async (payload) => {
+  const response = await axios.post(
+    "/compliance/steering-committee",
+    payload
+  );
+  return response?.data?.body;
+};
+
+export const updateSteeringCommittee = async (id, payload) => {
+  const response = await axios.put(
+    `/compliance/steering-committee/${id}`,
+    payload
+  );
+  return response?.data?.body;
+};
+
+export const deleteSteeringCommittee = async (id) => {
+  const response = await axios.delete(`/compliance/steering-committee/${id}`);
+  return response?.data?.body;
+};
+
+export const getSteeringCommitteeRoles = async (projectId, search = "") => {
+  const params = search ? { search } : {};
+  const response = await axios.get(
+    `/compliance/steering-committee/roles/${projectId}`,
+    { params }
+  );
+  return response?.data?.body?.roles || [];
 export const fetchRasciByProject = async (projectId) => {
   const response = await axios.get(`/compliance/rasci/project/${projectId}`);
   return response?.data?.body || [];
