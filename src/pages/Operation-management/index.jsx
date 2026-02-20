@@ -5,7 +5,7 @@ import OperationContentPage from "./OperationContent.jsx";
 
 const OperationLayout = () => {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
-  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState({ id: 1, name: "Risk Management", classification: "Public" });
   const [isOpen, setIsOpen] = useState(false);
 
   const onAddNew = () => {
@@ -22,7 +22,7 @@ const OperationLayout = () => {
 
   return (
     <MainPageLayout
-      title="Roles and Responsibilities"
+      title="Operation Management"
       leftColumn={
         <OperationListPage
           selectedFolderId={selectedFolderId}

@@ -149,6 +149,8 @@ export const getSteeringCommitteeRoles = async (projectId, search = "") => {
     { params }
   );
   return response?.data?.body?.roles || [];
+};
+
 export const fetchRasciByProject = async (projectId) => {
   const response = await axios.get(`/compliance/rasci/project/${projectId}`);
   return response?.data?.body || [];
