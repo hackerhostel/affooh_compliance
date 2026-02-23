@@ -12,21 +12,22 @@ const OperationListPage = ({ onDocumentSelect }) => {
     { id: 2, name: "Incident Management", classification: "Confidential" },
     { id: 3, name: "Customer Satisfaction", classification: "Restricted" },
     { id: 4, name: "Supplier Management", classification: "Restricted" },
-    { id: 5, name: "Service Provider Management", classification: "Restricted" },  
+    { id: 5, name: "Service Provider Management", classification: "Restricted" },
   ]);
 
-  const [selectedDoc, setSelectedDoc] = useState(null);
+  const [selectedDocId, setSelectedDocId] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
+  const [selectedDocForDelete, setSelectedDocForDelete] = useState(null);
 
   const getColorClass = (classification) => {
     switch (classification) {
       case "Public":
-        return "text-green-600";
+        return "text-green-500";
       case "Confidential":
         return "text-yellow-500";
       case "Restricted":
-        return "text-red-600";
+        return "text-red-500";
       default:
         return "text-gray-500";
     }
@@ -38,20 +39,21 @@ const OperationListPage = ({ onDocumentSelect }) => {
   };
 
   const handleDeleteClick = (doc) => {
-    setSelectedDoc(doc);
+    setSelectedDocForDelete(doc);
     setIsDialogOpen(true);
     setOpenMenu(null);
   };
 
   const handleConfirmDelete = () => {
-    if (selectedDoc) {
-      setDocuments((prev) => prev.filter((d) => d.id !== selectedDoc.id));
+    if (selectedDocForDelete) {
+      setDocuments((prev) => prev.filter((d) => d.id !== selectedDocForDelete.id));
       addToast("Document deleted successfully!", { appearance: "success" });
     }
     setIsDialogOpen(false);
   };
 
   const handleDocumentClick = (doc) => {
+    setSelectedDocId(doc.id);
     if (onDocumentSelect) {
       onDocumentSelect(doc);
     }
@@ -62,38 +64,44 @@ const OperationListPage = ({ onDocumentSelect }) => {
       {documents.length === 0 ? (
         <div className="text-center text-gray-600">No documents found</div>
       ) : (
-        documents.map((doc, index) => (
-          <div
-            key={doc.id}
-            onClick={() => handleDocumentClick(doc)}
-            className="relative flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer border-gray-200"
-          >
-            <div className="flex flex-col">
-              <div className="font-medium text-gray-900">{doc.name}</div>
-              <div className={`text-sm font-semibold ${getColorClass(doc.classification)}`}>
-                {doc.classification}
+        documents.map((doc, index) => {
+          const isSelected = selectedDocId === doc.id;
+          return (
+            <div
+              key={doc.id}
+              onClick={() => handleDocumentClick(doc)}
+              className={`relative flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer transition-all duration-200 ${isSelected
+                  ? "border-primary-pink bg-pink-50/10"
+                  : "border-gray-200"
+                }`}
+            >
+              <div className="flex flex-col">
+                <div className="font-medium text-gray-900">{doc.name}</div>
+                <div className={`text-sm font-semibold ${getColorClass(doc.classification)}`}>
+                  {doc.classification}
+                </div>
+              </div>
+
+              {/* Three-dot menu */}
+              <div className="relative">
+                <EllipsisVerticalIcon
+                  onClick={(e) => toggleMenuOpen(index, e)}
+                  className="w-5 h-5 text-gray-600 cursor-pointer"
+                />
+                {openMenu === index && (
+                  <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-md shadow-md w-28 z-10">
+                    <button
+                      onClick={() => handleDeleteClick(doc)}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-
-            {/* Three-dot menu */}
-            <div className="relative">
-              <EllipsisVerticalIcon
-                onClick={(e) => toggleMenuOpen(index, e)}
-                className="w-5 h-5 text-gray-600 cursor-pointer"
-              />
-              {openMenu === index && (
-                <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-md shadow-md w-28 z-10">
-                  <button
-                    onClick={() => handleDeleteClick(doc)}
-                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        ))
+          );
+        })
       )}
 
       {/* Confirmation Dialog */}
@@ -102,7 +110,7 @@ const OperationListPage = ({ onDocumentSelect }) => {
         onClose={() => setIsDialogOpen(false)}
         onConfirm={handleConfirmDelete}
         message={
-          selectedDoc ? `Do you want to delete "${selectedDoc.name}"?` : ""
+          selectedDocForDelete ? `Do you want to delete "${selectedDocForDelete.name}"?` : ""
         }
       />
     </div>

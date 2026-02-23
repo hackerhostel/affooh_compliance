@@ -36,7 +36,7 @@ function FormSelect({
               disabled={disabled}
               id={name}
               name={name}
-              value={name.split('.').reduce((a, b) => a?.[b], formValues) ?? ''}
+              value={name?.split('.').reduce((a, b) => a?.[b], formValues) ?? ''}
               className={classNames(
                 'w-full p-3 rounded-lg shadow-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white cursor-pointer',
                 {
@@ -53,9 +53,9 @@ function FormSelect({
               onFocus={onFocus}
               {...rest}
               style={{
-                WebkitAppearance: 'none', 
-                MozAppearance: 'none', 
-                appearance: 'none', 
+                WebkitAppearance: 'none',
+                MozAppearance: 'none',
+                appearance: 'none',
               }}
             >
               <option value="" disabled>
