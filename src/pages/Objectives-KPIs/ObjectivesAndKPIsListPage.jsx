@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import { useToasts } from "react-toast-notifications";
+import {
+  getObjectiveCollections,
+  deleteObjectiveCollection,
+} from "../../utils/objectiveApi.js";
 
-const ObjectivesAndKPIsListPage = ({ onDocumentSelect }) => {
+const ObjectivesAndKPIsListPage = ({ onDocumentSelect, refreshTrigger, selectedDocument }) => {
   const { addToast } = useToasts();
-
-  // Dummy document list
-  const [documents, setDocuments] = useState([
-    { id: 1, name: "2024", classification: "Public" },
-    { id: 2, name: "2025", classification: "Public" },
-  ]);
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -40,10 +40,34 @@ const ObjectivesAndKPIsListPage = ({ onDocumentSelect }) => {
     setOpenMenu(null);
   };
 
-  const handleConfirmDelete = () => {
+  const fetchCollections = async () => {
+    try {
+      setLoading(true);
+      const data = await getObjectiveCollections();
+      setDocuments(data);
+      if (data.length > 0 && onDocumentSelect && !selectedDocument) {
+        onDocumentSelect(data[0]);
+      }
+    } catch (error) {
+      addToast("Failed to fetch collections", { appearance: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCollections();
+  }, [refreshTrigger]);
+
+  const handleConfirmDelete = async () => {
     if (selectedDoc) {
-      setDocuments((prev) => prev.filter((d) => d.id !== selectedDoc.id));
-      addToast("Document deleted successfully!", { appearance: "success" });
+      try {
+        await deleteObjectiveCollection(selectedDoc.keyId || selectedDoc.id);
+        setDocuments((prev) => prev.filter((d) => d.id !== selectedDoc.id));
+        addToast("Document deleted successfully!", { appearance: "success" });
+      } catch (error) {
+        addToast("Failed to delete document", { appearance: "error" });
+      }
     }
     setIsDialogOpen(false);
   };
@@ -56,19 +80,24 @@ const ObjectivesAndKPIsListPage = ({ onDocumentSelect }) => {
 
   return (
     <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-5 pr-3 mt-6">
-      {documents.length === 0 ? (
+      {loading ? (
+        <div className="text-center text-gray-600">Loading...</div>
+      ) : documents.length === 0 ? (
         <div className="text-center text-gray-600">No documents found</div>
       ) : (
         documents.map((doc, index) => (
           <div
             key={doc.id}
             onClick={() => handleDocumentClick(doc)}
-            className="relative flex justify-between items-center p-3 border rounded-md w-64 gap-2 hover:bg-gray-100 cursor-pointer border-gray-200"
+            className={`relative flex justify-between items-center p-3 border rounded-md w-64 gap-2 hover:bg-gray-100 cursor-pointer ${selectedDocument?.id === doc.id
+                ? "bg-blue-50 border-blue-500 shadow-sm"
+                : "border-gray-200"
+              }`}
           >
             <div className="flex flex-col">
               <div className="font-medium text-gray-900">{doc.name}</div>
-              <div className={`text-sm font-semibold ${getColorClass(doc.classification)}`}>
-                {doc.classification}
+              <div className={`text-sm font-semibold ${getColorClass(doc.classificationName || doc.classification)}`}>
+                {doc.classificationName || doc.classification}
               </div>
             </div>
 

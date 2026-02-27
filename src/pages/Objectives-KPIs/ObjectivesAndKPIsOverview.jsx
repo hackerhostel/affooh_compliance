@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
+import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import {
   PencilIcon,
   EllipsisVerticalIcon,
@@ -10,70 +11,78 @@ import {
   ChevronRightIcon,
   TrashIcon,
   PlusCircleIcon,
+  EyeIcon,
 } from "@heroicons/react/24/outline";
 import { getSelectOptions } from "../../utils/commonUtils.js";
+import { useToasts } from "react-toast-notifications";
+import {
+  getObjectives,
+  createObjective,
+  updateObjective,
+  deleteObjective,
+} from "../../utils/objectiveApi.js";
 
-const ObjectivesAndKPIsOverview = () => {
-  // Dummy select options
+const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
+  const { addToast } = useToasts();
+  const [loading, setLoading] = useState(false);
+  // Dummy select options with integer IDs
   const departmentOptions = getSelectOptions([
-    { id: "HR", name: "HR" },
-    { id: "Finance", name: "Finance" },
-    { id: "Operations", name: "Operations" },
-    { id: "IT", name: "IT" },
+    { id: 1, name: "HR" },
+    { id: 2, name: "Finance" },
+    { id: 3, name: "Operations" },
+    { id: 4, name: "IT" },
   ]);
 
   const typeOptions = getSelectOptions([
-    { id: "Strategic", name: "Strategic" },
-    { id: "Operational", name: "Operational" },
-    { id: "Compliance", name: "Compliance" },
+    { id: 1, name: "Strategic" },
+    { id: 2, name: "Operational" },
+    { id: 3, name: "Compliance" },
   ]);
 
   const frequencyOptions = getSelectOptions([
-    { id: "Monthly", name: "Monthly" },
-    { id: "Quarterly", name: "Quarterly" },
-    { id: "Annually", name: "Annually" },
+    { id: 1, name: "Monthly" },
+    { id: 2, name: "Quarterly" },
+    { id: 3, name: "Annually" },
   ]);
 
-  // Dummy data
-  const [kpiRows, setKpiRows] = useState([
-    {
-      id: 1,
-      department: "HR",
-      type: "Strategic",
-      objective: "Improve employee retention",
-      kpi: "Employee turnover rate below 10%",
-      initialStatus: "15%",
-      target: "10%",
-      monitoringFrequency: "Quarterly",
-      howToMeasure: "Monthly HR reports and exit interviews",
-    },
-    {
-      id: 2,
-      department: "Finance",
-      type: "Operational",
-      objective: "Optimize budget utilization",
-      kpi: "Reduce unused budget funds by 5%",
-      initialStatus: "8%",
-      target: "3%",
-      monitoringFrequency: "Monthly",
-      howToMeasure: "Monthly financial reports",
-    },
-  ]);
+  const [kpiRows, setKpiRows] = useState([]);
+
+  const fetchObjectives = async () => {
+    if (!selectedDocument) {
+      setKpiRows([]);
+      return;
+    }
+    setLoading(true);
+    try {
+      const data = await getObjectives(selectedDocument.keyId || selectedDocument.id);
+      setKpiRows(data);
+    } catch (err) {
+      addToast("Failed to fetch objectives", { appearance: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchObjectives();
+  }, [selectedDocument]);
 
   const [showNewRow, setShowNewRow] = useState(false);
   const [newRow, setNewRow] = useState({
-    department: "",
-    type: "",
-    objective: "",
+    departmentID: "",
+    typeID: "",
+    objectiveText: "",
     kpi: "",
     initialStatus: "",
     target: "",
-    monitoringFrequency: "",
+    frequencyID: "",
     howToMeasure: "",
   });
   const [editingRowId, setEditingRowId] = useState(null);
   const [openActionRowId, setOpenActionRowId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [rowToDeleteId, setRowToDeleteId] = useState(null);
 
   const rowsPerPage = 5;
   const totalPages = Math.ceil(kpiRows.length / rowsPerPage);
@@ -85,13 +94,13 @@ const ObjectivesAndKPIsOverview = () => {
   const handleAddNewClick = () => {
     setShowNewRow(true);
     setNewRow({
-      department: "",
-      type: "",
-      objective: "",
+      departmentID: "",
+      typeID: "",
+      objectiveText: "",
       kpi: "",
       initialStatus: "",
       target: "",
-      monitoringFrequency: "",
+      frequencyID: "",
       howToMeasure: "",
     });
   };
@@ -100,7 +109,7 @@ const ObjectivesAndKPIsOverview = () => {
     setNewRow((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveNew = () => {
+  const handleSaveNew = async () => {
     if (
       !newRow.department ||
       !newRow.type ||
@@ -110,22 +119,34 @@ const ObjectivesAndKPIsOverview = () => {
       !newRow.target ||
       !newRow.monitoringFrequency ||
       !newRow.howToMeasure
-    )
+    ) {
+      addToast("Please fill all fields", { appearance: "warning" });
       return;
+    }
 
-    const newEntry = { id: Date.now(), ...newRow };
-    setKpiRows((prev) => [...prev, newEntry]);
-    setShowNewRow(false);
-    setNewRow({
-      department: "",
-      type: "",
-      objective: "",
-      kpi: "",
-      initialStatus: "",
-      target: "",
-      monitoringFrequency: "",
-      howToMeasure: "",
-    });
+    if (!selectedDocument) {
+      addToast("Please select a collection first", { appearance: "warning" });
+      return;
+    }
+
+    try {
+      await createObjective({
+        collectionID: selectedDocument.keyId || selectedDocument.id,
+        departmentID: parseInt(newRow.departmentID),
+        typeID: parseInt(newRow.typeID),
+        objectiveText: newRow.objectiveText,
+        kpi: newRow.kpi,
+        initialStatus: newRow.initialStatus,
+        target: newRow.target,
+        frequencyID: parseInt(newRow.frequencyID),
+        howToMeasure: newRow.howToMeasure,
+      });
+      addToast("Objective created", { appearance: "success" });
+      setShowNewRow(false);
+      fetchObjectives();
+    } catch (err) {
+      addToast("Failed to create objective", { appearance: "error" });
+    }
   };
 
   const handleCancelNew = () => setShowNewRow(false);
@@ -141,9 +162,54 @@ const ObjectivesAndKPIsOverview = () => {
     );
   };
 
-  const handleDoneEdit = () => setEditingRowId(null);
+  const handleDoneEdit = async (row) => {
+    if (!editingRowId) return;
+
+    try {
+      // Find the row to update
+      const updatedRow = kpiRows.find((r) => r.id === editingRowId);
+      if (updatedRow) {
+        await updateObjective(editingRowId, {
+          departmentID: parseInt(updatedRow.departmentID),
+          typeID: parseInt(updatedRow.typeID),
+          objectiveText: updatedRow.objectiveText,
+          kpi: updatedRow.kpi,
+          initialStatus: updatedRow.initialStatus,
+          target: updatedRow.target,
+          frequencyID: parseInt(updatedRow.frequencyID),
+          howToMeasure: updatedRow.howToMeasure,
+        });
+        addToast("Objective updated", { appearance: "success" });
+        fetchObjectives();
+      }
+    } catch (err) {
+      addToast("Failed to update objective", { appearance: "error" });
+    } finally {
+      setEditingRowId(null);
+    }
+  };
+
   const handleCloseEdit = () => setEditingRowId(null);
-  const handleDeleteRow = (id) => setKpiRows((prev) => prev.filter((r) => r.id !== id));
+
+  const handleDeleteRow = (id) => {
+    setRowToDeleteId(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!rowToDeleteId) return;
+    try {
+      await deleteObjective(rowToDeleteId);
+      addToast("Objective deleted", { appearance: "success" });
+      fetchObjectives();
+    } catch (err) {
+      addToast("Failed to delete objective", { appearance: "error" });
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setRowToDeleteId(null);
+    }
+  };
+
   const toggleActionMenu = (id) => setOpenActionRowId((prev) => (prev === id ? null : id));
 
   const handleNextPage = () => {
@@ -156,7 +222,7 @@ const ObjectivesAndKPIsOverview = () => {
 
   return (
     <div className="p-4">
-         <div className="flex justify-end items-center mt-4 space-x-2">
+      <div className="flex justify-end items-center mt-4 space-x-2">
         <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
           Archived
         </button>
@@ -203,13 +269,13 @@ const ObjectivesAndKPIsOverview = () => {
 
                   {!isEditing ? (
                     <>
-                      <td className="py-3 px-2">{row.department}</td>
-                      <td className="py-3 px-2">{row.type}</td>
-                      <td className="py-3 px-2">{row.objective}</td>
+                      <td className="py-3 px-2">{row.departmentName || row.department}</td>
+                      <td className="py-3 px-2">{row.typeName || row.type}</td>
+                      <td className="py-3 px-2">{row.objectiveText || row.objective}</td>
                       <td className="py-3 px-2">{row.kpi}</td>
                       <td className="py-3 px-2">{row.initialStatus}</td>
                       <td className="py-3 px-2">{row.target}</td>
-                      <td className="py-3 px-2">{row.monitoringFrequency}</td>
+                      <td className="py-3 px-2">{row.frequencyName || row.monitoringFrequency}</td>
                       <td className="py-3 px-2">{row.howToMeasure}</td>
                       <td className="py-3 px-2">
                         {openActionRowId !== row.id ? (
@@ -222,13 +288,16 @@ const ObjectivesAndKPIsOverview = () => {
                         ) : (
                           <div className="flex items-center gap-3">
                             <div className="cursor-pointer" onClick={() => handleStartEdit(row.id)}>
-                              <PencilIcon className="w-5 h-5 text-text-color" />
+                              <PencilIcon className="w-5 h-5 text-text-color" title="Edit" />
+                            </div>
+                            <div className="cursor-pointer" onClick={() => onView(row.id)}>
+                              <EyeIcon className="w-5 h-5 text-text-color" title="View KPI Tracking" />
                             </div>
                             <div className="cursor-pointer" onClick={() => handleDeleteRow(row.id)}>
-                              <TrashIcon className="w-5 h-5 text-text-color" />
+                              <TrashIcon className="w-5 h-5 text-text-color" title="Delete" />
                             </div>
                             <div className="cursor-pointer" onClick={() => setOpenActionRowId(null)}>
-                              <XMarkIcon className="w-5 h-5 text-text-color" />
+                              <XMarkIcon className="w-5 h-5 text-text-color" title="Close" />
                             </div>
                           </div>
                         )}
@@ -238,22 +307,22 @@ const ObjectivesAndKPIsOverview = () => {
                     <>
                       <td className="py-3 px-2 w-40">
                         <FormSelect
-                          name="department"
-                          formValues={{ department: row.department }}
+                          name="departmentID"
+                          formValues={row}
                           options={departmentOptions}
                           onChange={(e) => handleEditChange(row.id, e)}
                         />
                       </td>
                       <td className="py-3 px-2 w-40">
                         <FormSelect
-                          name="type"
-                          formValues={{ type: row.type }}
+                          name="typeID"
+                          formValues={row}
                           options={typeOptions}
                           onChange={(e) => handleEditChange(row.id, e)}
                         />
                       </td>
                       <td className="py-3 px-2">
-                        <FormTextArea name="objective" formValues={{ objective: row.objective }} onChange={(e) => handleEditChange(row.id, e)} />
+                        <FormTextArea name="objectiveText" formValues={{ objectiveText: row.objectiveText || row.objective }} onChange={(e) => handleEditChange(row.id, e)} />
                       </td>
                       <td className="py-3 px-2">
                         <FormTextArea name="kpi" formValues={{ kpi: row.kpi }} onChange={(e) => handleEditChange(row.id, e)} />
@@ -266,8 +335,8 @@ const ObjectivesAndKPIsOverview = () => {
                       </td>
                       <td className="py-3 px-2 w-40">
                         <FormSelect
-                          name="monitoringFrequency"
-                          formValues={{ monitoringFrequency: row.monitoringFrequency }}
+                          name="frequencyID"
+                          formValues={row}
                           options={frequencyOptions}
                           onChange={(e) => handleEditChange(row.id, e)}
                         />
@@ -277,7 +346,7 @@ const ObjectivesAndKPIsOverview = () => {
                       </td>
                       <td className="py-3 px-2">
                         <div className="flex gap-3 items-center">
-                          <div className="cursor-pointer" onClick={handleDoneEdit}>
+                          <div className="cursor-pointer" onClick={() => handleDoneEdit(row)}>
                             <CheckBadgeIcon className="w-5 h-5 text-text-color" />
                           </div>
                           <div className="cursor-pointer" onClick={handleCloseEdit}>
@@ -297,36 +366,36 @@ const ObjectivesAndKPIsOverview = () => {
                 <td className="py-3 px-2">-</td>
                 <td className="py-3 px-2 w-40">
                   <FormSelect
-                    name="department"
-                    formValues={{ department: newRow.department }}
+                    name="departmentID"
+                    formValues={newRow}
                     options={departmentOptions}
                     onChange={handleNewChange}
                   />
                 </td>
                 <td className="py-3 px-2 w-40">
                   <FormSelect
-                    name="type"
-                    formValues={{ type: newRow.type }}
+                    name="typeID"
+                    formValues={newRow}
                     options={typeOptions}
                     onChange={handleNewChange}
                   />
                 </td>
                 <td className="py-3 px-2">
-                  <FormTextArea name="objective" formValues={{ objective: newRow.objective }} onChange={handleNewChange} />
+                  <FormTextArea name="objectiveText" formValues={newRow} onChange={handleNewChange} />
                 </td>
                 <td className="py-3 px-2">
-                  <FormTextArea name="kpi" formValues={{ kpi: newRow.kpi }} onChange={handleNewChange} />
+                  <FormTextArea name="kpi" formValues={newRow} onChange={handleNewChange} />
                 </td>
                 <td className="py-3 px-2">
-                  <FormTextArea name="initialStatus" formValues={{ initialStatus: newRow.initialStatus }} onChange={handleNewChange} />
+                  <FormTextArea name="initialStatus" formValues={newRow} onChange={handleNewChange} />
                 </td>
                 <td className="py-3 px-2">
-                  <FormTextArea name="target" formValues={{ target: newRow.target }} onChange={handleNewChange} />
+                  <FormTextArea name="target" formValues={newRow} onChange={handleNewChange} />
                 </td>
                 <td className="py-3 px-2 w-40">
                   <FormSelect
-                    name="monitoringFrequency"
-                    formValues={{ monitoringFrequency: newRow.monitoringFrequency }}
+                    name="frequencyID"
+                    formValues={newRow}
                     options={frequencyOptions}
                     onChange={handleNewChange}
                   />
@@ -355,7 +424,7 @@ const ObjectivesAndKPIsOverview = () => {
               </tr>
             )}
 
-            
+
           </tbody>
         </table>
 
@@ -363,9 +432,8 @@ const ObjectivesAndKPIsOverview = () => {
           <div className="w-full flex gap-5 items-center justify-end mt-4">
             <button
               onClick={handlePreviousPage}
-              className={`p-2 rounded-full bg-gray-200 ${
-                currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
-              }`}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
+                }`}
               disabled={currentPage === 1}
             >
               <ChevronLeftIcon className="w-4 h-4 text-secondary-grey" />
@@ -375,9 +443,8 @@ const ObjectivesAndKPIsOverview = () => {
             </span>
             <button
               onClick={handleNextPage}
-              className={`p-2 rounded-full bg-gray-200 ${
-                currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
-              }`}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
+                }`}
               disabled={currentPage === totalPages}
             >
               <ChevronRightIcon className="w-4 h-4 text-secondary-grey" />
@@ -385,6 +452,13 @@ const ObjectivesAndKPIsOverview = () => {
           </div>
         )}
       </div>
+
+      <ConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+        message="Are you sure you want to delete this objective? This action cannot be undone."
+      />
     </div>
   );
 };
