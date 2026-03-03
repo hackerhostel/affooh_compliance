@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import FormSelect from "../../../components/FormSelect.jsx";
 import {
     EllipsisVerticalIcon,
-    PencilSquareIcon,
+    PencilIcon,
     TrashIcon,
     XMarkIcon,
     PlusIcon,
-    CheckIcon
+    CheckCircleIcon
 } from "@heroicons/react/24/outline";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -440,7 +440,7 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                                     <div className="col-span-1 flex items-center justify-end">
                                                         {openActionMenuIndex === idx ? (
                                                             <div className="flex gap-1 bg-gray-100/80 p-1 rounded-lg border border-gray-200 animate-in fade-in duration-200">
-                                                                <button onClick={(e) => { e.stopPropagation(); handleEditClick(row); }} className="p-1.5 hover:bg-white hover:text-blue-500 text-gray-400 rounded transition-all" title="Edit"><PencilSquareIcon className="w-4 h-4" /></button>
+                                                                <button onClick={(e) => { e.stopPropagation(); handleEditClick(row); }} className="p-1.5 hover:bg-white hover:text-blue-500 text-gray-400 rounded transition-all" title="Edit"><PencilIcon className="w-4 h-4" /></button>
                                                                 <button onClick={(e) => { e.stopPropagation(); handleDeleteRisk(row.id); }} className="p-1.5 hover:bg-white hover:text-red-500 text-gray-400 rounded transition-all" title="Delete"><TrashIcon className="w-4 h-4" /></button>
                                                                 <button onClick={(e) => { e.stopPropagation(); setOpenActionMenuIndex(null); }} className="p-1.5 hover:bg-white text-gray-400 rounded transition-all" title="Close"><XMarkIcon className="w-4 h-4" /></button>
                                                             </div>
@@ -522,10 +522,10 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                                                     {pendingRecommendedActionUpdates.has(row.id) && row.recommendedAction && row.recommendedAction.trim() !== "" && (
                                                                         <button
                                                                             onClick={() => handleUpdateField(row.id, 'recommendedAction', row.recommendedAction, true)}
-                                                                            className="absolute bottom-2 right-2 p-1.5 bg-green-500 hover:bg-green-600 text-white rounded transition-all shadow-sm hover:shadow-md"
+                                                                            className="absolute bottom-2 right-2 p-1.5 bg-primary-pink hover:bg-pink-600 text-white rounded transition-all shadow-sm hover:shadow-md"
                                                                             title="Update"
                                                                         >
-                                                                            <CheckIcon className="w-4 h-4" />
+                                                                            <CheckCircleIcon className="w-4 h-4" />
                                                                         </button>
                                                                     )}
                                                                 </div>

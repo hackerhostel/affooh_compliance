@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { XCircleIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { XCircleIcon, PencilIcon } from "@heroicons/react/24/outline";
 
 const EditOrganizationalContextDialog = ({
   isOpen,
@@ -49,7 +49,7 @@ const EditOrganizationalContextDialog = ({
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center">
-              <PencilSquareIcon className="w-6 h-6 text-pink-700" />
+              <PencilIcon className="w-6 h-6 text-pink-700" />
             </div>
             <h4 className="text-xl font-semibold text-gray-900">
               Edit Document

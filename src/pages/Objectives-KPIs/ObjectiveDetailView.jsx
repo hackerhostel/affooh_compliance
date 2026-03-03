@@ -3,7 +3,7 @@ import {
     ChevronLeftIcon,
     PlusCircleIcon,
     EllipsisVerticalIcon,
-    CheckBadgeIcon,
+    CheckCircleIcon,
     XMarkIcon,
     TrashIcon,
     PencilIcon,
@@ -351,8 +351,8 @@ const ObjectiveDetailView = ({ objectiveId, onBack }) => {
                                         </td>
                                         <td className="py-2 px-2 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <CheckBadgeIcon
-                                                    className="w-7 h-7 text-pink-600 cursor-pointer hover:text-pink-700 transition"
+                                                <CheckCircleIcon
+                                                    className="w-7 h-7 text-primary-pink cursor-pointer hover:text-pink-700 transition"
                                                     onClick={handleSaveEdit}
                                                 />
                                                 <XMarkIcon
@@ -470,8 +470,8 @@ const ObjectiveDetailView = ({ objectiveId, onBack }) => {
                                 </td>
                                 <td className="py-2 px-2">
                                     <div className="flex items-center gap-2">
-                                        <CheckBadgeIcon
-                                            className="w-7 h-7 text-pink-600 cursor-pointer hover:text-pink-700 transition"
+                                        <CheckCircleIcon
+                                            className="w-7 h-7 text-primary-pink cursor-pointer hover:text-pink-700 transition"
                                             onClick={handleAddKpi}
                                         />
                                         <XMarkIcon

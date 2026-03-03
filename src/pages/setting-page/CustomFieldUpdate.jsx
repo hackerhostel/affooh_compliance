@@ -6,11 +6,11 @@ import {
   TrashIcon,
   PlusCircleIcon,
   XMarkIcon,
-  PencilSquareIcon,
-  CheckBadgeIcon,
+  PencilIcon,
+  CheckCircleIcon,
   ArrowLongLeftIcon,
   EllipsisVerticalIcon
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 import { fetchCustomFields } from '../../state/slice/customFieldSlice';
 import FormInput from '../../components/FormInput';
@@ -244,7 +244,7 @@ const CustomFieldUpdate = ({ onClose }) => {
                     <td className="py-2 px-2 text-center">
                       <div className="flex justify-center gap-3 items-center">
                         <button onClick={handleSaveNewOption} disabled={!newOption.trim()}>
-                          <CheckBadgeIcon className="w-5 h-5 text-primary-pink" />
+                          <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                         </button>
                         <button onClick={handleCancelNew}>
                           <XMarkIcon className="w-5 h-5 text-gray-600" />
@@ -272,7 +272,7 @@ const CustomFieldUpdate = ({ onClose }) => {
                       {editingId === opt.id ? (
                         <div className="flex justify-end gap-3 items-center">
                           <button onClick={() => handleSaveEdit(opt.id)} disabled={!editingValue.trim()}>
-                            <CheckBadgeIcon className="w-5 h-5 text-primary-pink" />
+                            <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                           </button>
                           <button onClick={handleCancelEdit}>
                             <XMarkIcon className="w-5 h-5 text-gray-600" />
@@ -280,7 +280,7 @@ const CustomFieldUpdate = ({ onClose }) => {
                         </div>
                       ) : showActionsId === opt.id ? (
                         <div className="flex justify-end gap-3 items-center">
-                          <PencilSquareIcon
+                          <PencilIcon
                             className="w-5 h-5 text-text-color cursor-pointer"
                             onClick={() => handleEditOption(opt.id, opt.value)}
                           />

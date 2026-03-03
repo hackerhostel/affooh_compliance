@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   TrashIcon,
-  PencilSquareIcon,
+  PencilIcon,
   PlusCircleIcon,
   XMarkIcon,
   ChevronLeftIcon,
@@ -43,9 +43,9 @@ const TaskTypes = () => {
   const pageSize = 25;
   const totalPages = Math.ceil(taskTypes.length / pageSize);
 
- const paginatedTaskTypes = [...taskTypes]
-  .reverse()
-  .slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const paginatedTaskTypes = [...taskTypes]
+    .reverse()
+    .slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
 
   const handleEdit = (field) => {
@@ -175,7 +175,7 @@ const TaskTypes = () => {
               <div className="flex space-x-2">
                 {showActionsId === data.data.id ? (
                   <div className="flex items-center gap-3">
-                    <PencilSquareIcon
+                    <PencilIcon
                       className="w-5 h-5 text-text-color cursor-pointer"
                       onClick={() => handleEdit(data.data)}
                     />

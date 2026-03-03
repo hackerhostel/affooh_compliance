@@ -6,14 +6,12 @@ import useValidation from "../../utils/use-validation.jsx";
 import { ReleaseEditSchema } from "../../utils/validationSchemas.js";
 import { useToasts } from "react-toast-notifications";
 import {
-  CheckBadgeIcon,
+  CheckCircleIcon,
   FolderIcon,
   PencilIcon,
   PlusCircleIcon,
   XMarkIcon,
-  PencilSquareIcon,
   XCircleIcon
-
 } from "@heroicons/react/24/outline/index.js";
 import {
   doGetReleases,
@@ -143,7 +141,7 @@ const ReleaseEdit = ({ releaseId }) => {
       label: `${user.firstName} ${user.lastName}`
     }));
   };
-  
+
 
   const getReleaseTypes = async () => {
     await axios
@@ -346,39 +344,39 @@ const ReleaseEdit = ({ releaseId }) => {
         </td>
         <td className="px-4 py-2">
           {isEditing ? (
-          <FormSelect
-          name="assignee"
-          formValues={{ assignee }}
-          options={getProjectUsers()}
-          onChange={({ target: { name, value } }) => handleChanges(name, value)}
-        />
-        
+            <FormSelect
+              name="assignee"
+              formValues={{ assignee }}
+              options={getProjectUsers()}
+              onChange={({ target: { name, value } }) => handleChanges(name, value)}
+            />
+
           ) : (
             <span className="text-text-color">
-            {getProjectUsers().find(user => user.value === assignee)?.label || "Unassigned"}
-          </span>
+              {getProjectUsers().find(user => user.value === assignee)?.label || "Unassigned"}
+            </span>
           )}
         </td>
         <td className="px-4 py-2">
           <div className={"flex gap-5 items-center"}>
             {!isEditing ? (
               <div onClick={enableEdit} className={"cursor-pointer"}>
-                <PencilSquareIcon className={"w-5 h-5 text-text-color"} />
+                <PencilIcon className={"w-5 h-5 text-text-color"} />
               </div>
             ) : (
               <div className="flex space-x-2">
                 <div onClick={updateCheckListItemRow} className={"cursor-pointer"}>
-                  <CheckBadgeIcon className={"w-5 h-5 text-text-color"} />
+                  <CheckCircleIcon className={"w-5 h-5 text-primary-pink"} />
                 </div>
                 <div
-          onClick={() => {
-            setIsEditing(false);
-            setHasChange(false);
-          }}
-          className={"cursor-pointer"}
-        >
-          <XMarkIcon className={"w-6 h-6 text-text-color"} />
-        </div>
+                  onClick={() => {
+                    setIsEditing(false);
+                    setHasChange(false);
+                  }}
+                  className={"cursor-pointer"}
+                >
+                  <XMarkIcon className={"w-6 h-6 text-text-color"} />
+                </div>
               </div>
 
 
@@ -630,9 +628,9 @@ const ReleaseEdit = ({ releaseId }) => {
                                   onClick={handleCancelNewRow}
                                   className="w-5 h-5 text-gray-500 cursor-pointer"
                                 />
-                                <CheckBadgeIcon
+                                <CheckCircleIcon
                                   onClick={addChecklist}
-                                  className="w-5 h-5 text-pink-700 cursor-pointer"
+                                  className="w-5 h-5 text-primary-pink cursor-pointer"
                                 />
                               </div>
                             </td>

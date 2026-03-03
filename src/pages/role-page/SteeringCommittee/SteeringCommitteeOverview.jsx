@@ -5,7 +5,7 @@ import UserSelect from "../../../components/UserSelect.jsx";
 import {
   PencilIcon,
   EllipsisVerticalIcon,
-  CheckBadgeIcon,
+  CheckCircleIcon,
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -227,19 +227,19 @@ const SteeringCommitteeOverview = () => {
         <table className="table-auto w-full border-collapse">
           <thead>
             <tr className="text-left text-secondary-grey border-b border-gray-200">
-              <th className="py-3 px-2 w-10">#</th>
-              <th className="py-3 px-10">Name</th>
+              <th className="py-3 px-4 text-center w-10">#</th>
+              <th className="py-3 px-4">Name</th>
               <th className="py-3 px-4">Role</th>
-              <th className="py-3 px-10">Type</th>
-              <th className="py-3 px-5">Responsibility</th>
-              <th className="py-3 px-2">Action</th>
+              <th className="py-3 px-4">Type</th>
+              <th className="py-3 px-4">Responsibility</th>
+              <th className="py-3 px-4 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
             {showNewRow && (
               <tr className="border-b border-gray-200">
-                <td className="py-3 px-2">-</td>
-                <td className="py-3 px-2 w-40">
+                <td className="py-3 px-4 text-center">-</td>
+                <td className="py-3 px-4 w-40">
                   <UserSelect
                     name="userID"
                     value={newRow.userID}
@@ -247,7 +247,7 @@ const SteeringCommitteeOverview = () => {
                     users={projectUserList}
                   />
                 </td>
-                <td className="py-3 px-2 w-40">
+                <td className="py-3 px-4 w-40">
                   <FormSelect
                     name="role"
                     formValues={{ role: newRow.role }}
@@ -255,7 +255,7 @@ const SteeringCommitteeOverview = () => {
                     onChange={handleNewChange}
                   />
                 </td>
-                <td className="py-3 px-2 w-40">
+                <td className="py-3 px-4 w-40">
                   <FormSelect
                     name="type"
                     formValues={{ type: newRow.type }}
@@ -263,17 +263,17 @@ const SteeringCommitteeOverview = () => {
                     onChange={handleNewChange}
                   />
                 </td>
-                <td className="py-3 px-2">
+                <td className="py-3 px-4">
                   <FormTextArea
                     name="responsibilities"
                     formValues={{ responsibilities: newRow.responsibilities }}
                     onChange={handleNewChange}
                   />
                 </td>
-                <td className="py-3 px-2">
-                  <div className="flex gap-3 items-center">
+                <td className="py-3 px-4">
+                  <div className="flex gap-3 items-center justify-center">
                     <div className="cursor-pointer" onClick={handleSaveNew}>
-                      <CheckBadgeIcon className="w-5 h-5 text-pink-700" />
+                      <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                     </div>
                     <div className="cursor-pointer" onClick={handleCancelNew}>
                       <XMarkIcon className="w-5 h-5 text-text-color" />
@@ -295,28 +295,28 @@ const SteeringCommitteeOverview = () => {
               const isEditing = editingRowId === row.id;
               return (
                 <tr key={row.id} className="border-b border-gray-200">
-                  <td className="py-3 px-2">{indexOfFirst + index + 1}</td>
+                  <td className="py-3 px-4 text-center">{indexOfFirst + index + 1}</td>
 
                   {!isEditing ? (
                     <>
-                      <td className="py-3 px-2 text-left">
+                      <td className="py-3 px-4 text-left">
                         {getDisplayName(row)}
                       </td>
-                      <td className="py-3 px-2 text-left">{row.role || "-"}</td>
-                      <td className="py-3 px-2 text-left">{row.type || "-"}</td>
-                      <td className="py-3 px-2 text-left">
+                      <td className="py-3 px-4 text-left">{row.role || "-"}</td>
+                      <td className="py-3 px-4 text-left">{row.type || "-"}</td>
+                      <td className="py-3 px-4 text-left">
                         {row.responsibilities || "-"}
                       </td>
-                      <td className="py-3 px-2">
+                      <td className="py-3 px-4 text-center">
                         {openActionRowId !== row.id ? (
                           <div
-                            className="cursor-pointer inline-flex"
+                            className="cursor-pointer inline-flex justify-center"
                             onClick={() => toggleActionMenu(row.id)}
                           >
                             <EllipsisVerticalIcon className="w-5 h-5 text-secondary-grey" />
                           </div>
                         ) : (
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center gap-3">
                             <div
                               className="cursor-pointer"
                               onClick={() => handleStartEdit(row.id)}
@@ -341,7 +341,7 @@ const SteeringCommitteeOverview = () => {
                     </>
                   ) : (
                     <>
-                      <td className="py-3 px-2 w-40">
+                      <td className="py-3 px-4 w-40">
                         <UserSelect
                           name="userID"
                           value={row.userID}
@@ -349,7 +349,7 @@ const SteeringCommitteeOverview = () => {
                           users={projectUserList}
                         />
                       </td>
-                      <td className="py-3 px-2 w-40">
+                      <td className="py-3 px-4 w-40">
                         <FormSelect
                           name="role"
                           formValues={{ role: row.role }}
@@ -357,7 +357,7 @@ const SteeringCommitteeOverview = () => {
                           onChange={(e) => handleEditChange(row.id, e)}
                         />
                       </td>
-                      <td className="py-3 px-2 w-40">
+                      <td className="py-3 px-4 w-40">
                         <FormSelect
                           name="type"
                           formValues={{ type: row.type }}
@@ -365,7 +365,7 @@ const SteeringCommitteeOverview = () => {
                           onChange={(e) => handleEditChange(row.id, e)}
                         />
                       </td>
-                      <td className="py-3 px-2">
+                      <td className="py-3 px-4">
                         <FormTextArea
                           name="responsibilities"
                           formValues={{
@@ -374,13 +374,13 @@ const SteeringCommitteeOverview = () => {
                           onChange={(e) => handleEditChange(row.id, e)}
                         />
                       </td>
-                      <td className="py-3 px-2">
-                        <div className="flex gap-3 items-center">
+                      <td className="py-3 px-4">
+                        <div className="flex gap-3 items-center justify-center">
                           <div
                             className="cursor-pointer"
                             onClick={handleDoneEdit}
                           >
-                            <CheckBadgeIcon className="w-5 h-5 text-text-color" />
+                            <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                           </div>
                           <div
                             className="cursor-pointer"
@@ -402,11 +402,10 @@ const SteeringCommitteeOverview = () => {
           <div className="w-full flex gap-5 items-center justify-end mt-4">
             <button
               onClick={handlePreviousPage}
-              className={`p-2 rounded-full bg-gray-200 ${
-                currentPage === 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-300"
-              }`}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === 1
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
+                }`}
               disabled={currentPage === 1}
             >
               <ChevronLeftIcon className="w-4 h-4 text-secondary-grey" />
@@ -416,11 +415,10 @@ const SteeringCommitteeOverview = () => {
             </span>
             <button
               onClick={handleNextPage}
-              className={`p-2 rounded-full bg-gray-200 ${
-                currentPage === totalPages
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-300"
-              }`}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === totalPages
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
+                }`}
               disabled={currentPage === totalPages}
             >
               <ChevronRightIcon className="w-4 h-4 text-secondary-grey" />

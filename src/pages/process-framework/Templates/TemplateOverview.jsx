@@ -5,7 +5,7 @@ import FormSelect from '../../../components/FormSelect.jsx';
 import {
   PencilIcon,
   EllipsisVerticalIcon,
-  CheckBadgeIcon,
+  CheckCircleIcon,
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -30,32 +30,32 @@ const TemplateOverview = () => {
   ]);
 
   // Table data
-const [documentRows, setDocumentRows] = useState([
-  {
-    id: 1,
-    code: "DOC-001",
-    documentName: "Quality Policy",
-    version: "1.0",
-    classification: "Confidential",
-    owner: { firstName: "Alice", lastName: "Johnson" },
-  },
-  {
-    id: 2,
-    code: "DOC-002",
-    documentName: "Safety Procedures",
-    version: "2.1",
-    classification: "Internal",
-    owner: { firstName: "Bob", lastName: "Smith" },
-  },
-  {
-    id: 3,
-    code: "DOC-003",
-    documentName: "IT Usage Guidelines",
-    version: "3.0",
-    classification: "Public",
-    owner: { firstName: "Carol", lastName: "Lee" },
-  },
-]);
+  const [documentRows, setDocumentRows] = useState([
+    {
+      id: 1,
+      code: "DOC-001",
+      documentName: "Quality Policy",
+      version: "1.0",
+      classification: "Confidential",
+      owner: { firstName: "Alice", lastName: "Johnson" },
+    },
+    {
+      id: 2,
+      code: "DOC-002",
+      documentName: "Safety Procedures",
+      version: "2.1",
+      classification: "Internal",
+      owner: { firstName: "Bob", lastName: "Smith" },
+    },
+    {
+      id: 3,
+      code: "DOC-003",
+      documentName: "IT Usage Guidelines",
+      version: "3.0",
+      classification: "Public",
+      owner: { firstName: "Carol", lastName: "Lee" },
+    },
+  ]);
 
 
   const [showNewRow, setShowNewRow] = useState(false);
@@ -228,7 +228,7 @@ const [documentRows, setDocumentRows] = useState([
                 <td className="py-3 px-2 ">
                   <div className="flex gap-3 items-center justify-center">
                     <div className="cursor-pointer" onClick={handleSaveNew}>
-                      <CheckBadgeIcon className="w-5 h-5 text-pink-700" />
+                      <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                     </div>
                     <div className="cursor-pointer" onClick={handleCancelNew}>
                       <XMarkIcon className="w-5 h-5 text-text-color" />
@@ -257,12 +257,12 @@ const [documentRows, setDocumentRows] = useState([
                       <td className="py-3 px-2 text-center">{row.documentName}</td>
                       <td className="py-3 px-2 text-center">{row.version}</td>
                       <td
-                    className={`py-4 px-4 font-medium text-center ${getColorClass(
-                      row.classification
-                    )}`}
-                  >
-                    {row.classification}
-                  </td>
+                        className={`py-4 px-4 font-medium text-center ${getColorClass(
+                          row.classification
+                        )}`}
+                      >
+                        {row.classification}
+                      </td>
                       <td className="py-3 px-2 text-center">{renderUserCell(row.owner)}</td>
                       <td className="py-3 px-2 text-center">
                         {openActionRowId !== row.id ? (
@@ -304,7 +304,7 @@ const [documentRows, setDocumentRows] = useState([
                       <td className="py-3 px-2">
                         <div className="flex gap-3 items-center">
                           <div className="cursor-pointer" onClick={handleDoneEdit}>
-                            <CheckBadgeIcon className="w-5 h-5 text-text-color" />
+                            <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                           </div>
                           <div className="cursor-pointer" onClick={handleCloseEdit}>
                             <XMarkIcon className="w-5 h-5 text-text-color" />
@@ -323,9 +323,8 @@ const [documentRows, setDocumentRows] = useState([
           <div className="w-full flex gap-5 items-center justify-end mt-4">
             <button
               onClick={handlePreviousPage}
-              className={`p-2 rounded-full bg-gray-200 ${
-                currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
-              }`}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
+                }`}
               disabled={currentPage === 1}
             >
               <ChevronLeftIcon className="w-4 h-4 text-secondary-grey" />
@@ -335,9 +334,8 @@ const [documentRows, setDocumentRows] = useState([
             </span>
             <button
               onClick={handleNextPage}
-              className={`p-2 rounded-full bg-gray-200 ${
-                currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
-              }`}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
+                }`}
               disabled={currentPage === totalPages}
             >
               <ChevronRightIcon className="w-4 h-4 text-secondary-grey" />

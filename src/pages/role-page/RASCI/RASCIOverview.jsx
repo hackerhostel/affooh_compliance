@@ -4,7 +4,7 @@ import FormInput from "../../../components/FormInput.jsx";
 import {
   PencilIcon,
   EllipsisVerticalIcon,
-  CheckBadgeIcon,
+  CheckCircleIcon,
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -197,21 +197,21 @@ const RASCIOverview = () => {
         <table className="table-fixed w-full border-collapse min-w-max">
           <thead>
             <tr className="text-left text-secondary-grey border-b border-gray-200">
-              <th className="py-3 px-2 w-10">#</th>
+              <th className="py-3 px-4 w-10 text-center">#</th>
               <th className="py-3 px-4">Task/Activity</th>
               <th className="py-3 px-4">R</th>
               <th className="py-3 px-4">A</th>
               <th className="py-3 px-4">S</th>
               <th className="py-3 px-4">C</th>
               <th className="py-3 px-4">I</th>
-              <th className="py-3 px-2">Action</th>
+              <th className="py-3 px-4 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
             {showNewRow && (
               <tr className="border-b border-gray-200">
-                <td className="py-3 px-2">-</td>
-                <td className="py-3 px-2">
+                <td className="py-3 px-4 text-center">-</td>
+                <td className="py-3 px-4">
                   <FormInput
                     name="taskActivity"
                     formValues={{ taskActivity: newRow.taskActivity }}
@@ -220,7 +220,7 @@ const RASCIOverview = () => {
                   />
                 </td>
                 {["R", "A", "S", "C", "I"].map((field) => (
-                  <td key={field} className="py-3 px-2 w-40">
+                  <td key={field} className="py-3 px-4 w-40">
                     <FormSelect
                       name={field}
                       formValues={{ [field]: newRow[field] }}
@@ -230,11 +230,11 @@ const RASCIOverview = () => {
                     />
                   </td>
                 ))}
-                <td className="py-3 px-2">
-                  <div className="flex gap-3 items-center">
-                    <CheckBadgeIcon
+                <td className="py-3 px-4">
+                  <div className="flex gap-3 items-center justify-center">
+                    <CheckCircleIcon
                       onClick={handleSaveNew}
-                      className="w-5 h-5 text-pink-700 cursor-pointer"
+                      className="w-5 h-5 text-primary-pink cursor-pointer"
                     />
                     <XMarkIcon
                       onClick={handleCancelNew}
@@ -257,24 +257,26 @@ const RASCIOverview = () => {
               const isEditing = editingRowId === row.id;
               return (
                 <tr key={row.id} className="border-b border-gray-200">
-                  <td className="py-3 px-2">{indexOfFirst + index + 1}</td>
+                  <td className="py-3 px-4 text-center">{indexOfFirst + index + 1}</td>
 
                   {!isEditing ? (
                     <>
-                      <td className="py-3 px-2">{row.taskActivity || "-"}</td>
+                      <td className="py-3 px-4">{row.taskActivity || "-"}</td>
                       {["R", "A", "S", "C", "I"].map((key) => (
-                        <td key={key} className="py-3 px-2">
+                        <td key={key} className="py-3 px-4">
                           {row[key] || "-"}
                         </td>
                       ))}
-                      <td className="py-3 px-2">
+                      <td className="py-3 px-4 text-center">
                         {openActionRowId !== row.id ? (
-                          <EllipsisVerticalIcon
-                            onClick={() => toggleActionMenu(row.id)}
-                            className="w-5 h-5 text-secondary-grey cursor-pointer"
-                          />
+                          <div className="flex justify-center">
+                            <EllipsisVerticalIcon
+                              onClick={() => toggleActionMenu(row.id)}
+                              className="w-5 h-5 text-secondary-grey cursor-pointer"
+                            />
+                          </div>
                         ) : (
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center gap-3">
                             <PencilIcon
                               onClick={() => handleStartEdit(row.id)}
                               className="w-5 h-5 text-text-color cursor-pointer"
@@ -293,7 +295,7 @@ const RASCIOverview = () => {
                     </>
                   ) : (
                     <>
-                      <td className="py-3 px-2">
+                      <td className="py-3 px-4">
                         <FormInput
                           name="taskActivity"
                           formValues={{ taskActivity: row.taskActivity }}
@@ -302,7 +304,7 @@ const RASCIOverview = () => {
                         />
                       </td>
                       {["R", "A", "S", "C", "I"].map((field) => (
-                        <td key={field} className="py-3 px-2 w-40">
+                        <td key={field} className="py-3 px-4 w-40">
                           <FormSelect
                             name={field}
                             formValues={{ [field]: row[field] }}
@@ -312,11 +314,11 @@ const RASCIOverview = () => {
                           />
                         </td>
                       ))}
-                      <td className="py-3 px-2">
-                        <div className="flex gap-3 items-center">
-                          <CheckBadgeIcon
+                      <td className="py-3 px-4">
+                        <div className="flex gap-3 items-center justify-center">
+                          <CheckCircleIcon
                             onClick={handleDoneEdit}
-                            className="w-5 h-5 text-text-color cursor-pointer"
+                            className="w-5 h-5 text-primary-pink cursor-pointer"
                           />
                           <XMarkIcon
                             onClick={handleCloseEdit}
@@ -336,11 +338,10 @@ const RASCIOverview = () => {
           <div className="w-full flex gap-5 items-center justify-end mt-4">
             <button
               onClick={handlePreviousPage}
-              className={`p-2 rounded-full bg-gray-200 ${
-                currentPage === 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-300"
-              }`}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === 1
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
+                }`}
               disabled={currentPage === 1}
             >
               <ChevronLeftIcon className="w-4 h-4 text-secondary-grey" />
@@ -350,11 +351,10 @@ const RASCIOverview = () => {
             </span>
             <button
               onClick={handleNextPage}
-              className={`p-2 rounded-full bg-gray-200 ${
-                currentPage === totalPages
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-300"
-              }`}
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === totalPages
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
+                }`}
               disabled={currentPage === totalPages}
             >
               <ChevronRightIcon className="w-4 h-4 text-secondary-grey" />

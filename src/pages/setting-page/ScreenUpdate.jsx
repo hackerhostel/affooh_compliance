@@ -6,7 +6,7 @@ import {
   ArrowLongLeftIcon,
   PlusCircleIcon,
   TrashIcon,
-  CheckBadgeIcon,
+  CheckCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import FormInput from "../../components/FormInput";
@@ -103,10 +103,10 @@ const ScreenUpdate = ({ screen, onClose, onRefresh }) => {
           fields:
             index === 0
               ? fields.map((f) => ({
-                  id: f.id?.toString(),
-                  name: f.name,
-                  required: f.required || false,
-                }))
+                id: f.id?.toString(),
+                name: f.name,
+                required: f.required || false,
+              }))
               : tab.fields || [],
         }));
       }
@@ -123,7 +123,7 @@ const ScreenUpdate = ({ screen, onClose, onRefresh }) => {
       await axios.put(`/screens/${screen.id}`, payload);
 
       addToast("Screen updated successfully!", { appearance: "success" });
-      onClose?.(); 
+      onClose?.();
     } catch (error) {
       console.error("Error updating screen:", error);
 
@@ -300,10 +300,10 @@ const ScreenUpdate = ({ screen, onClose, onRefresh }) => {
                     <button
                       onClick={handleSaveNewField}
                       disabled={!newFieldName}
-                      className="mr-3 p-1 rounded-full hover:bg-green-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="mr-3 p-1 rounded-full hover:bg-pink-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Save field"
                     >
-                      <CheckBadgeIcon className="w-6 h-6 text-green-600" />
+                      <CheckCircleIcon className="w-6 h-6 text-primary-pink" />
                     </button>
                     <button
                       onClick={() => setAddingNew(false)}

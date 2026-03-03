@@ -3,7 +3,7 @@ import FormTextArea from "../../../components/FormTextArea.jsx";
 import FormInput from '../../../components/FormInput.jsx';
 import FormSelect from '../../../components/FormSelect.jsx';
 import WYSIWYGInput from "../../../components/WYSIWYGInput.jsx";
-import { PencilIcon, EllipsisVerticalIcon, CheckBadgeIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, EllipsisVerticalIcon, CheckCircleIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { useSelector } from "react-redux";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
 import useFetchPest from "../../../hooks/custom-hooks/compliance/useFetchPest.jsx";
@@ -362,7 +362,7 @@ const PESTOverview = () => {
                 <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
             </div>
 
-           
+
 
 
             {/* Political */}
@@ -377,68 +377,68 @@ const PESTOverview = () => {
                 <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
                     <table className='table-fixed w-full border-collapse'>
                         <thead>
-                        <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
-                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
-                            <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
-                        </tr>
+                            <tr className='text-left text-secondary-grey border-b border-gray-200'>
+                                <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2'>Description</th>
+                                <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {showNewPolitical && (
-                            <tr className='border-b border-gray-200'>
-                                <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newPoliticalRow.title }} onChange={changeNewPolitical} /></td>
-                                <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newPoliticalRow.description }} onChange={changeNewPolitical} /></td>
-                                <td className='py-3 px-2'>
-                                    <div className='flex gap-3 items-center'>
-                                        <div className={'cursor-pointer'} onClick={savePolitical}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
-                                        <div className={'cursor-pointer'} onClick={cancelPolitical}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {politicalRows.length === 0 && !showNewPolitical && (<tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Political Items</td></tr>)}
-                        {politicalRows.slice(politicalIndexOfFirst, politicalIndexOfLast).map((row, idx) => {
-                            const isEditing = editingPoliticalId === row.id;
-                            return (
-                                <tr className='border-b border-gray-200' key={row.id}>
-                                    <td className='py-3 px-2'>{politicalIndexOfFirst + idx + 1}</td>
-                                    {!isEditing ? (
-                                        <>
-                                            <td className='py-3 px-2'>{row.title || '-'}</td>
-                                            <td className='py-3 px-2'>{row.description || '-'}</td>
-                                            <td className='py-3 px-2'>
-                                                <div className='flex items-center gap-3'>
-                                                    {openPoliticalActionId !== row.id ? (
-                                                        <div className='cursor-pointer inline-flex' onClick={() => togglePolitical(row.id)}>
-                                                            <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <div className='cursor-pointer' onClick={() => startEditPolitical(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => deletePoliticalHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => togglePolitical(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditPolitical(row.id, e)} /></td>
-                                            <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditPolitical(row.id, e)} /></td>
-                                            <td className='py-3 px-2'>
-                                                <div className={'flex gap-3 items-center'}>
-                                                    <div className={'cursor-pointer'} onClick={doneEditPolitical}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                    <div className={'cursor-pointer'} onClick={closeEditPolitical}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                </div>
-                                            </td>
-                                        </>
-                                    )}
+                            {showNewPolitical && (
+                                <tr className='border-b border-gray-200'>
+                                    <td className='py-3 px-2'>-</td>
+                                    <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newPoliticalRow.title }} onChange={changeNewPolitical} /></td>
+                                    <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newPoliticalRow.description }} onChange={changeNewPolitical} /></td>
+                                    <td className='py-3 px-2'>
+                                        <div className='flex gap-3 items-center'>
+                                            <div className={'cursor-pointer'} onClick={savePolitical}><CheckCircleIcon className={'w-5 h-5 text-primary-pink'} /></div>
+                                            <div className={'cursor-pointer'} onClick={cancelPolitical}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                        </div>
+                                    </td>
                                 </tr>
-                            );
-                        })}
+                            )}
+                            {politicalRows.length === 0 && !showNewPolitical && (<tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Political Items</td></tr>)}
+                            {politicalRows.slice(politicalIndexOfFirst, politicalIndexOfLast).map((row, idx) => {
+                                const isEditing = editingPoliticalId === row.id;
+                                return (
+                                    <tr className='border-b border-gray-200' key={row.id}>
+                                        <td className='py-3 px-2'>{politicalIndexOfFirst + idx + 1}</td>
+                                        {!isEditing ? (
+                                            <>
+                                                <td className='py-3 px-2'>{row.title || '-'}</td>
+                                                <td className='py-3 px-2'>{row.description || '-'}</td>
+                                                <td className='py-3 px-2'>
+                                                    <div className='flex items-center gap-3'>
+                                                        {openPoliticalActionId !== row.id ? (
+                                                            <div className='cursor-pointer inline-flex' onClick={() => togglePolitical(row.id)}>
+                                                                <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className='cursor-pointer' onClick={() => startEditPolitical(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                                <div className='cursor-pointer' onClick={() => deletePoliticalHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                                <div className='cursor-pointer' onClick={() => togglePolitical(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditPolitical(row.id, e)} /></td>
+                                                <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditPolitical(row.id, e)} /></td>
+                                                <td className='py-3 px-2'>
+                                                    <div className={'flex gap-3 items-center'}>
+                                                        <div className={'cursor-pointer'} onClick={doneEditPolitical}><CheckCircleIcon className={'w-5 h-5 text-primary-pink'} /></div>
+                                                        <div className={'cursor-pointer'} onClick={closeEditPolitical}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                     {politicalRows.length > 0 && (
@@ -463,68 +463,68 @@ const PESTOverview = () => {
                 <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
                     <table className='table-fixed w-full border-collapse'>
                         <thead>
-                        <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
-                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
-                            <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
-                        </tr>
+                            <tr className='text-left text-secondary-grey border-b border-gray-200'>
+                                <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2'>Description</th>
+                                <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {showNewEconomic && (
-                            <tr className='border-b border-gray-200'>
-                                <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newEconomicRow.title }} onChange={changeNewEconomic} /></td>
-                                <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newEconomicRow.description }} onChange={changeNewEconomic} /></td>
-                                <td className='py-3 px-2'>
-                                    <div className='flex gap-3 items-center'>
-                                        <div className={'cursor-pointer'} onClick={saveEconomic}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
-                                        <div className={'cursor-pointer'} onClick={cancelEconomic}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {economicRows.length === 0 && !showNewEconomic && (<tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Economic Items</td></tr>)}
-                        {economicRows.slice(economicIndexOfFirst, economicIndexOfLast).map((row, idx) => {
-                            const isEditing = editingEconomicId === row.id;
-                            return (
-                                <tr className='border-b border-gray-200' key={row.id}>
-                                    <td className='py-3 px-2'>{economicIndexOfFirst + idx + 1}</td>
-                                    {!isEditing ? (
-                                        <>
-                                            <td className='py-3 px-2'>{row.title || '-'}</td>
-                                            <td className='py-3 px-2'>{row.description || '-'}</td>
-                                            <td className='py-3 px-2'>
-                                                <div className='flex items-center gap-3'>
-                                                    {openEconomicActionId !== row.id ? (
-                                                        <div className='cursor-pointer inline-flex' onClick={() => toggleEconomic(row.id)}>
-                                                            <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <div className='cursor-pointer' onClick={() => startEditEconomic(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => deleteEconomicHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => toggleEconomic(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditEconomic(row.id, e)} /></td>
-                                            <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditEconomic(row.id, e)} /></td>
-                                            <td className='py-3 px-2'>
-                                                <div className={'flex gap-3 items-center'}>
-                                                    <div className={'cursor-pointer'} onClick={doneEditEconomic}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                    <div className={'cursor-pointer'} onClick={closeEditEconomic}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                </div>
-                                            </td>
-                                        </>
-                                    )}
+                            {showNewEconomic && (
+                                <tr className='border-b border-gray-200'>
+                                    <td className='py-3 px-2'>-</td>
+                                    <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newEconomicRow.title }} onChange={changeNewEconomic} /></td>
+                                    <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newEconomicRow.description }} onChange={changeNewEconomic} /></td>
+                                    <td className='py-3 px-2'>
+                                        <div className='flex gap-3 items-center'>
+                                            <div className={'cursor-pointer'} onClick={saveEconomic}><CheckCircleIcon className={'w-5 h-5 text-primary-pink'} /></div>
+                                            <div className={'cursor-pointer'} onClick={cancelEconomic}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                        </div>
+                                    </td>
                                 </tr>
-                            );
-                        })}
+                            )}
+                            {economicRows.length === 0 && !showNewEconomic && (<tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Economic Items</td></tr>)}
+                            {economicRows.slice(economicIndexOfFirst, economicIndexOfLast).map((row, idx) => {
+                                const isEditing = editingEconomicId === row.id;
+                                return (
+                                    <tr className='border-b border-gray-200' key={row.id}>
+                                        <td className='py-3 px-2'>{economicIndexOfFirst + idx + 1}</td>
+                                        {!isEditing ? (
+                                            <>
+                                                <td className='py-3 px-2'>{row.title || '-'}</td>
+                                                <td className='py-3 px-2'>{row.description || '-'}</td>
+                                                <td className='py-3 px-2'>
+                                                    <div className='flex items-center gap-3'>
+                                                        {openEconomicActionId !== row.id ? (
+                                                            <div className='cursor-pointer inline-flex' onClick={() => toggleEconomic(row.id)}>
+                                                                <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className='cursor-pointer' onClick={() => startEditEconomic(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                                <div className='cursor-pointer' onClick={() => deleteEconomicHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                                <div className='cursor-pointer' onClick={() => toggleEconomic(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditEconomic(row.id, e)} /></td>
+                                                <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditEconomic(row.id, e)} /></td>
+                                                <td className='py-3 px-2'>
+                                                    <div className={'flex gap-3 items-center'}>
+                                                        <div className={'cursor-pointer'} onClick={doneEditEconomic}><CheckCircleIcon className={'w-5 h-5 text-primary-pink'} /></div>
+                                                        <div className={'cursor-pointer'} onClick={closeEditEconomic}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                     {economicRows.length > 0 && (
@@ -549,68 +549,68 @@ const PESTOverview = () => {
                 <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
                     <table className='table-fixed w-full border-collapse'>
                         <thead>
-                        <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
-                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
-                            <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
-                        </tr>
+                            <tr className='text-left text-secondary-grey border-b border-gray-200'>
+                                <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2'>Description</th>
+                                <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {showNewSocial && (
-                            <tr className='border-b border-gray-200'>
-                                <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newSocialRow.title }} onChange={changeNewSocial} /></td>
-                                <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newSocialRow.description }} onChange={changeNewSocial} /></td>
-                                <td className='py-3 px-2'>
-                                    <div className='flex gap-3 items-center'>
-                                        <div className={'cursor-pointer'} onClick={saveSocial}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
-                                        <div className={'cursor-pointer'} onClick={cancelSocial}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {socialRows.length === 0 && !showNewSocial && (<tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Social Items</td></tr>)}
-                        {socialRows.slice(socialIndexOfFirst, socialIndexOfLast).map((row, idx) => {
-                            const isEditing = editingSocialId === row.id;
-                            return (
-                                <tr className='border-b border-gray-200' key={row.id}>
-                                    <td className='py-3 px-2'>{socialIndexOfFirst + idx + 1}</td>
-                                    {!isEditing ? (
-                                        <>
-                                            <td className='py-3 px-2'>{row.title || '-'}</td>
-                                            <td className='py-3 px-2'>{row.description || '-'}</td>
-                                            <td className='py-3 px-2'>
-                                                <div className='flex items-center gap-3'>
-                                                    {openSocialActionId !== row.id ? (
-                                                        <div className='cursor-pointer inline-flex' onClick={() => toggleSocial(row.id)}>
-                                                            <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <div className='cursor-pointer' onClick={() => startEditSocial(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => deleteSocialHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => toggleSocial(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditSocial(row.id, e)} /></td>
-                                            <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditSocial(row.id, e)} /></td>
-                                            <td className='py-3 px-2'>
-                                                <div className={'flex gap-3 items-center'}>
-                                                    <div className={'cursor-pointer'} onClick={doneEditSocial}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                    <div className={'cursor-pointer'} onClick={closeEditSocial}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                </div>
-                                            </td>
-                                        </>
-                                    )}
+                            {showNewSocial && (
+                                <tr className='border-b border-gray-200'>
+                                    <td className='py-3 px-2'>-</td>
+                                    <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newSocialRow.title }} onChange={changeNewSocial} /></td>
+                                    <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newSocialRow.description }} onChange={changeNewSocial} /></td>
+                                    <td className='py-3 px-2'>
+                                        <div className='flex gap-3 items-center'>
+                                            <div className={'cursor-pointer'} onClick={saveSocial}><CheckCircleIcon className={'w-5 h-5 text-primary-pink'} /></div>
+                                            <div className={'cursor-pointer'} onClick={cancelSocial}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                        </div>
+                                    </td>
                                 </tr>
-                            );
-                        })}
+                            )}
+                            {socialRows.length === 0 && !showNewSocial && (<tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Social Items</td></tr>)}
+                            {socialRows.slice(socialIndexOfFirst, socialIndexOfLast).map((row, idx) => {
+                                const isEditing = editingSocialId === row.id;
+                                return (
+                                    <tr className='border-b border-gray-200' key={row.id}>
+                                        <td className='py-3 px-2'>{socialIndexOfFirst + idx + 1}</td>
+                                        {!isEditing ? (
+                                            <>
+                                                <td className='py-3 px-2'>{row.title || '-'}</td>
+                                                <td className='py-3 px-2'>{row.description || '-'}</td>
+                                                <td className='py-3 px-2'>
+                                                    <div className='flex items-center gap-3'>
+                                                        {openSocialActionId !== row.id ? (
+                                                            <div className='cursor-pointer inline-flex' onClick={() => toggleSocial(row.id)}>
+                                                                <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className='cursor-pointer' onClick={() => startEditSocial(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                                <div className='cursor-pointer' onClick={() => deleteSocialHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                                <div className='cursor-pointer' onClick={() => toggleSocial(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditSocial(row.id, e)} /></td>
+                                                <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditSocial(row.id, e)} /></td>
+                                                <td className='py-3 px-2'>
+                                                    <div className={'flex gap-3 items-center'}>
+                                                        <div className={'cursor-pointer'} onClick={doneEditSocial}><CheckCircleIcon className={'w-5 h-5 text-primary-pink'} /></div>
+                                                        <div className={'cursor-pointer'} onClick={closeEditSocial}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                     {socialRows.length > 0 && (
@@ -635,68 +635,68 @@ const PESTOverview = () => {
                 <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
                     <table className='table-fixed w-full border-collapse'>
                         <thead>
-                        <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
-                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
-                            <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
-                        </tr>
+                            <tr className='text-left text-secondary-grey border-b border-gray-200'>
+                                <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2'>Description</th>
+                                <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {showNewTech && (
-                            <tr className='border-b border-gray-200'>
-                                <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newTechRow.title }} onChange={changeNewTech} /></td>
-                                <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newTechRow.description }} onChange={changeNewTech} /></td>
-                                <td className='py-3 px-2'>
-                                    <div className='flex gap-3 items-center'>
-                                        <div className={'cursor-pointer'} onClick={saveTech}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
-                                        <div className={'cursor-pointer'} onClick={cancelTech}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {techRows.length === 0 && !showNewTech && (<tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Technological Items</td></tr>)}
-                        {techRows.slice(techIndexOfFirst, techIndexOfLast).map((row, idx) => {
-                            const isEditing = editingTechId === row.id;
-                            return (
-                                <tr className='border-b border-gray-200' key={row.id}>
-                                    <td className='py-3 px-2'>{techIndexOfFirst + idx + 1}</td>
-                                    {!isEditing ? (
-                                        <>
-                                            <td className='py-3 px-2'>{row.title || '-'}</td>
-                                            <td className='py-3 px-2'>{row.description || '-'}</td>
-                                            <td className='py-3 px-2'>
-                                                <div className='flex items-center gap-3'>
-                                                    {openTechActionId !== row.id ? (
-                                                        <div className='cursor-pointer inline-flex' onClick={() => toggleTech(row.id)}>
-                                                            <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <div className='cursor-pointer' onClick={() => startEditTech(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => deleteTechHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                            <div className='cursor-pointer' onClick={() => toggleTech(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditTech(row.id, e)} /></td>
-                                            <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditTech(row.id, e)} /></td>
-                                            <td className='py-3 px-2'>
-                                                <div className={'flex gap-3 items-center'}>
-                                                    <div className={'cursor-pointer'} onClick={doneEditTech}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                    <div className={'cursor-pointer'} onClick={closeEditTech}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
-                                                </div>
-                                            </td>
-                                        </>
-                                    )}
+                            {showNewTech && (
+                                <tr className='border-b border-gray-200'>
+                                    <td className='py-3 px-2'>-</td>
+                                    <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: newTechRow.title }} onChange={changeNewTech} /></td>
+                                    <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: newTechRow.description }} onChange={changeNewTech} /></td>
+                                    <td className='py-3 px-2'>
+                                        <div className='flex gap-3 items-center'>
+                                            <div className={'cursor-pointer'} onClick={saveTech}><CheckCircleIcon className={'w-5 h-5 text-primary-pink'} /></div>
+                                            <div className={'cursor-pointer'} onClick={cancelTech}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                        </div>
+                                    </td>
                                 </tr>
-                            );
-                        })}
+                            )}
+                            {techRows.length === 0 && !showNewTech && (<tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Technological Items</td></tr>)}
+                            {techRows.slice(techIndexOfFirst, techIndexOfLast).map((row, idx) => {
+                                const isEditing = editingTechId === row.id;
+                                return (
+                                    <tr className='border-b border-gray-200' key={row.id}>
+                                        <td className='py-3 px-2'>{techIndexOfFirst + idx + 1}</td>
+                                        {!isEditing ? (
+                                            <>
+                                                <td className='py-3 px-2'>{row.title || '-'}</td>
+                                                <td className='py-3 px-2'>{row.description || '-'}</td>
+                                                <td className='py-3 px-2'>
+                                                    <div className='flex items-center gap-3'>
+                                                        {openTechActionId !== row.id ? (
+                                                            <div className='cursor-pointer inline-flex' onClick={() => toggleTech(row.id)}>
+                                                                <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className='cursor-pointer' onClick={() => startEditTech(row.id)}><PencilIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                                <div className='cursor-pointer' onClick={() => deleteTechHandler(row)}><TrashIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                                <div className='cursor-pointer' onClick={() => toggleTech(row.id)}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className='py-3 px-2'><FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => changeEditTech(row.id, e)} /></td>
+                                                <td className='py-3 px-2'><FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => changeEditTech(row.id, e)} /></td>
+                                                <td className='py-3 px-2'>
+                                                    <div className={'flex gap-3 items-center'}>
+                                                        <div className={'cursor-pointer'} onClick={doneEditTech}><CheckCircleIcon className={'w-5 h-5 text-primary-pink'} /></div>
+                                                        <div className={'cursor-pointer'} onClick={closeEditTech}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                     {techRows.length > 0 && (

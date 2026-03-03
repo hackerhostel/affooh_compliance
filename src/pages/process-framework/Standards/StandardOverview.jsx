@@ -5,7 +5,7 @@ import FormSelect from '../../../components/FormSelect.jsx';
 import {
   PencilIcon,
   EllipsisVerticalIcon,
-  CheckBadgeIcon,
+  CheckCircleIcon,
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -228,7 +228,7 @@ const StandardOverview = () => {
                 <td className="py-3 px-2 ">
                   <div className="flex gap-3 items-center justify-center">
                     <div className="cursor-pointer" onClick={handleSaveNew}>
-                      <CheckBadgeIcon className="w-5 h-5 text-pink-700" />
+                      <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                     </div>
                     <div className="cursor-pointer" onClick={handleCancelNew}>
                       <XMarkIcon className="w-5 h-5 text-text-color" />
@@ -304,7 +304,7 @@ const StandardOverview = () => {
                       <td className="py-3 px-2">
                         <div className="flex gap-3 items-center">
                           <div className="cursor-pointer" onClick={handleDoneEdit}>
-                            <CheckBadgeIcon className="w-5 h-5 text-text-color" />
+                            <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                           </div>
                           <div className="cursor-pointer" onClick={handleCloseEdit}>
                             <XMarkIcon className="w-5 h-5 text-text-color" />

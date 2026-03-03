@@ -11,10 +11,9 @@ import {
 import {
   PencilIcon,
   PlusCircleIcon,
-  CheckBadgeIcon,
+  CheckCircleIcon,
   XCircleIcon,
   XMarkIcon,
-  PencilSquareIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline/index.js";
 import FormInput from "../../components/FormInput.jsx";
@@ -345,7 +344,7 @@ const ReleaseContentPage = () => {
       }
     }
     setIsDialogOpen(false);
-  };  const applyFilters = () => {
+  }; const applyFilters = () => {
     if (!releaseTasksData?.tasks) {
       setFilteredTaskList([]);
       return;
@@ -353,7 +352,7 @@ const ReleaseContentPage = () => {
 
     let filtered = Array.isArray(releaseTasksData.tasks) ? releaseTasksData.tasks.map((task, index) => {
       const transformedTask = transformTask(task);
-      
+
       return {
         ...transformedTask,
         key: `${(index + 1).toString().padStart(3, "0")}`,
@@ -535,7 +534,7 @@ const ReleaseContentPage = () => {
             {!isEditing ? (
               <>
                 <div onClick={enableEdit} className="cursor-pointer">
-                  <PencilSquareIcon className="w-5 h-5 text-text-color" />
+                  <PencilIcon className="w-5 h-5 text-text-color" />
                 </div>
                 <div onClick={() => onDelete(row)} className="cursor-pointer">
                   <TrashIcon className="w-5 h-5 text-red-500" />
@@ -547,7 +546,7 @@ const ReleaseContentPage = () => {
                   onClick={updateCheckListItemRow}
                   className="cursor-pointer"
                 >
-                  <CheckBadgeIcon className="w-5 h-5 text-text-color" />
+                  <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                 </div>
                 <div
                   onClick={() => {
@@ -619,11 +618,10 @@ const ReleaseContentPage = () => {
               <FormInput
                 type="text"
                 name="name"
-                className={`w-full p-2 border rounded-md ${
-                  isEditable
-                    ? "bg-white text-secondary-grey border-border-color"
-                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                }`}
+                className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
                 disabled={!isEditable}
                 formValues={formValues}
                 placeholder="Name"
@@ -636,11 +634,10 @@ const ReleaseContentPage = () => {
               />
               <FormTextArea
                 name="description"
-                className={`w-full p-2 border rounded-md ${
-                  isEditable
-                    ? "bg-white text-secondary-grey border-border-color"
-                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                }`}
+                className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
                 disabled={!isEditable}
                 showShadow={false}
                 formValues={formValues}
@@ -655,11 +652,10 @@ const ReleaseContentPage = () => {
                 isDate={true}
                 type="date"
                 name="releaseDate"
-                className={`w-full p-2 border rounded-md ${
-                  isEditable
-                    ? "bg-white text-secondary-grey border-border-color"
-                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                }`}
+                className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
                 disabled={!isEditable}
                 formValues={formValues}
                 placeholder="Release Date"
@@ -670,11 +666,10 @@ const ReleaseContentPage = () => {
               />
               <FormSelect
                 name="status"
-                className={`w-full p-2 border rounded-md ${
-                  isEditable
-                    ? "bg-white text-secondary-grey border-border-color"
-                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                }`}
+                className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
                 disabled={!isEditable}
                 placeholder="Status"
                 formValues={formValues}
@@ -689,11 +684,10 @@ const ReleaseContentPage = () => {
               <FormInput
                 type="text"
                 name="version"
-                className={`w-full p-2 border rounded-md ${
-                  isEditable
-                    ? "bg-white text-secondary-grey border-border-color"
-                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                }`}
+                className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
                 disabled={!isEditable}
                 formValues={formValues}
                 placeholder="Version"
@@ -707,11 +701,10 @@ const ReleaseContentPage = () => {
               <FormSelect
                 formValues={formValues}
                 name="type"
-                className={`w-full p-2 border rounded-md ${
-                  isEditable
-                    ? "bg-white text-secondary-grey border-border-color"
-                    : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
-                }`}
+                className={`w-full p-2 border rounded-md ${isEditable
+                  ? "bg-white text-secondary-grey border-border-color"
+                  : "bg-user-detail-box text-secondary-grey border-border-color cursor-not-allowed"
+                  }`}
                 disabled={!isEditable || releaseTypesLoading}
                 placeholder={releaseTypesLoading ? "Loading types..." : "Type"}
                 options={getSelectOptions(releaseTypes)}
@@ -737,21 +730,19 @@ const ReleaseContentPage = () => {
         <div className="flex-1 bg-white rounded-lg p-6">
           <div className="flex border-b mb-6">
             <button
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "overview"
-                  ? "border-b-2 border-primary-pink text-primary-pink"
-                  : "text-gray-500"
-              }`}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === "overview"
+                ? "border-b-2 border-primary-pink text-primary-pink"
+                : "text-gray-500"
+                }`}
               onClick={() => setActiveTab("overview")}
             >
               Overview
             </button>
             <button
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "checklist"
-                  ? "border-b-2 border-primary-pink text-primary-pink"
-                  : "text-gray-500"
-              }`}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === "checklist"
+                ? "border-b-2 border-primary-pink text-primary-pink"
+                : "text-gray-500"
+                }`}
               onClick={() => setActiveTab("checklist")}
             >
               Check List
@@ -775,15 +766,14 @@ const ReleaseContentPage = () => {
                   {Object.entries(taskCounts).map(([type, count]) => (
                     <div key={type} className="text-center">
                       <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold ${
-                          type === "all"
-                            ? "bg-pink-100 text-pink-500"
-                            : type === "tasks"
-                              ? "bg-green-100 text-green-500"
-                              : type === "bugs"
-                                ? "bg-red-100 text-red-500"
-                                : "bg-blue-100 text-blue-500"
-                        }`}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold ${type === "all"
+                          ? "bg-pink-100 text-pink-500"
+                          : type === "tasks"
+                            ? "bg-green-100 text-green-500"
+                            : type === "bugs"
+                              ? "bg-red-100 text-red-500"
+                              : "bg-blue-100 text-blue-500"
+                          }`}
                       >
                         {count}
                       </div>
@@ -900,7 +890,7 @@ const ReleaseContentPage = () => {
                           <th className="pb-3 w-1/12">Type</th>
                         </tr>
                       </thead>
-                      
+
                       <tbody className="text-sm">
                         {currentTasks.length > 0 ? (
                           currentTasks.map((task) => (
@@ -945,11 +935,10 @@ const ReleaseContentPage = () => {
                       <button
                         onClick={() => paginate(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
-                        className={`w-8 h-8 flex items-center justify-center rounded-md ${
-                          currentPage === 1
-                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
+                        className={`w-8 h-8 flex items-center justify-center rounded-md ${currentPage === 1
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
                       ></button>
                       {Array.from(
                         { length: Math.min(5, totalPages) },
@@ -963,11 +952,10 @@ const ReleaseContentPage = () => {
                               <button
                                 key={pageNum}
                                 onClick={() => paginate(pageNum)}
-                                className={`w-8 h-8 flex items-center justify-center rounded-md ${
-                                  currentPage === pageNum
-                                    ? "bg-primary-pink text-white"
-                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                }`}
+                                className={`w-8 h-8 flex items-center justify-center rounded-md ${currentPage === pageNum
+                                  ? "bg-primary-pink text-white"
+                                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                  }`}
                               >
                                 {pageNum.toString().padStart(2, "0")}
                               </button>
@@ -981,11 +969,10 @@ const ReleaseContentPage = () => {
                           paginate(Math.min(totalPages, currentPage + 1))
                         }
                         disabled={currentPage === totalPages}
-                        className={`w-8 h-8 flex items-center justify-center rounded-md ${
-                          currentPage === totalPages
-                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
+                        className={`w-8 h-8 flex items-center justify-center rounded-md ${currentPage === totalPages
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
                       ></button>
                     </div>
                   )}
@@ -1004,11 +991,10 @@ const ReleaseContentPage = () => {
                   <div className="flex gap-1 items-center">
                     <PlusCircleIcon
                       onClick={handleAddNewRow}
-                      className={`w-6 h-6 ${
-                        showNewRow
-                          ? "text-gray-300 cursor-not-allowed"
-                          : "text-pink-500 cursor-pointer"
-                      }`}
+                      className={`w-6 h-6 ${showNewRow
+                        ? "text-gray-300 cursor-not-allowed"
+                        : "text-pink-500 cursor-pointer"
+                        }`}
                     />
                     <span className="font-thin text-xs text-gray-600">
                       Add New
@@ -1070,9 +1056,9 @@ const ReleaseContentPage = () => {
                                   onClick={handleCancelNewRow}
                                   className="w-5 h-5 text-gray-500 cursor-pointer"
                                 />
-                                <CheckBadgeIcon
+                                <CheckCircleIcon
                                   onClick={addChecklist}
-                                  className="w-5 h-5 text-pink-700 cursor-pointer"
+                                  className="w-5 h-5 text-primary-pink cursor-pointer"
                                 />
                               </div>
                             </td>
