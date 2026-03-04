@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import GapAnalysisOverview from "./GapAnalysisOverview.jsx";
 import GapAnalysisHistory from "./GapAnalysisHistory.jsx";
 
-const GapAnalysisContentPage = () => {
-  // Left sidebar removed; state related to it has been removed
+const GapAnalysisContentPage = ({ selectedDocument }) => {
   const [activeTab, setActiveTab] = useState("overview");
+
+  if (!selectedDocument) return <div className="p-4">Please select a Review or Audit</div>;
 
   return (
     <div className=" bg-dashboard-bgc min-h-screen">
@@ -15,29 +16,27 @@ const GapAnalysisContentPage = () => {
             <div className="flex space-x-2">
               <button
                 onClick={() => setActiveTab("overview")}
-                className={`px-6 py-2 rounded-2xl ${
-                  activeTab === "overview"
+                className={`px-6 py-2 rounded-2xl ${activeTab === "overview"
                     ? "bg-black text-white"
                     : "bg-gray-200 text-black hover:bg-gray-300"
-                }`}
+                  }`}
               >
                 Overview
               </button>
               <button
                 onClick={() => setActiveTab("history")}
-                className={`px-6 py-2 rounded-2xl ${
-                  activeTab === "history"
+                className={`px-6 py-2 rounded-2xl ${activeTab === "history"
                     ? "bg-black text-white"
                     : "bg-gray-200 text-black hover:bg-gray-300"
-                }`}
+                  }`}
               >
                 History
               </button>
             </div>
           </div>
 
-          {activeTab === "overview" && <GapAnalysisOverview />}
-          {activeTab === "history" && <GapAnalysisHistory />}
+          {activeTab === "overview" && <GapAnalysisOverview selectedDocument={selectedDocument} />}
+          {activeTab === "history" && <GapAnalysisHistory selectedDocument={selectedDocument} />}
         </div>
       </div>
     </div>

@@ -8,14 +8,16 @@ const ReviewAndAuditsContentPage = ({ selectedDocument }) => {
     if (!selectedDocument) {
       return (
         <div className="text-gray-600 text-center mt-10">
-          <GapAnalysisContentPage />
+          <GapAnalysisContentPage selectedDocument={selectedDocument} />
         </div>
       );
     }
 
+    if (selectedDocument.type === "ISO 27001" || selectedDocument.type === "ISO 9001") {
+      return <GapAnalysisContentPage selectedDocument={selectedDocument} />;
+    }
+
     switch (selectedDocument.name) {
-      case "ISO 27001 (2025)":
-        return <GapAnalysisContentPage />;
       case "Non Conformance":
         return <NonConformanceContentPage />;
       case "Standards":
