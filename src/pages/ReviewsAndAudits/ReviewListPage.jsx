@@ -1,22 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import { useToasts } from "react-toast-notifications";
+import { reviewAuditApi } from "../../utils/reviewAuditApi";
+import { useSelector } from "react-redux";
 
-const ReviewAndAuditsListPage = ({ onDocumentSelect }) => {
+const ReviewAndAuditsListPage = ({ onDocumentSelect, refreshTrigger }) => {
   const { addToast } = useToasts();
+  const orgId = useSelector((state) => state.auth?.user?.organizationID) || 1;
 
-  // Dummy document list
-  const [documents, setDocuments] = useState([
-    { id: 1, name: "ISO 27001 (2025)", classification: "Public" },
-    { id: 2, name: "ISO 9001 (2025)", classification: "Confidential" },
-    { id: 3, name: "General Process", classification: "Restricted" },
-    { id: 3, name: "Non Conformance", classification: "Restricted" },
-  ]);
-
+  const [documents, setDocuments] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
+
+  useEffect(() => {
+    const fetchAudits = async () => {
+      try {
+        const response = await reviewAuditApi.getReviewAudits(orgId);
+        const docs = response.data?.body || [];
+        setDocuments(docs);
+        if (docs.length > 0 && !selectedDoc) {
+          const firstDoc = docs[0];
+          setSelectedDoc(firstDoc);
+          if (onDocumentSelect) {
+            onDocumentSelect(firstDoc);
+          }
+        }
+      } catch (err) {
+        addToast("Failed to fetch reviews / audits", { appearance: "error" });
+      }
+    };
+    fetchAudits();
+  }, [orgId, refreshTrigger]);
 
   const getColorClass = (classification) => {
     switch (classification) {
@@ -51,6 +67,7 @@ const ReviewAndAuditsListPage = ({ onDocumentSelect }) => {
   };
 
   const handleDocumentClick = (doc) => {
+    setSelectedDoc(doc);
     if (onDocumentSelect) {
       onDocumentSelect(doc);
     }
@@ -65,12 +82,13 @@ const ReviewAndAuditsListPage = ({ onDocumentSelect }) => {
           <div
             key={doc.id}
             onClick={() => handleDocumentClick(doc)}
-            className="relative flex justify-between items-center p-3 border rounded-md w-64 gap-2 hover:bg-gray-100 cursor-pointer border-gray-200"
+            className={`relative flex justify-between items-center p-3 border rounded-md w-64 gap-2 hover:bg-gray-100 cursor-pointer ${selectedDoc?.id === doc.id ? "border-primary-pink" : "border-gray-200"
+              }`}
           >
             <div className="flex flex-col">
               <div className="font-medium text-gray-900">{doc.name}</div>
-              <div className={`text-sm font-semibold ${getColorClass(doc.classification)}`}>
-                {doc.classification}
+              <div className={`text-sm font-semibold ${getColorClass(doc.category)}`}>
+                {doc.category || doc.type}
               </div>
             </div>
 

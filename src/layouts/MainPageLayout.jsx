@@ -21,14 +21,14 @@ const MainPageLayout = ({
     <div className="grid grid-cols-5 h-full relative">
       {isLeftColumnVisible && (
         <div className="col-span-1 relative">
-          <div className="pl-4 mt-5 mb-10 flex justify-between">
-            <span className="text-2xl mt-2 font-medium">{title}</span>
+          <div className="pl-4 mt-5 mb-10 flex items-center gap-6">
+            <span className="text-2xl font-medium">{title}</span>
             {subText && (
               <div
-                className={"flex gap-1 items-center mr-5"}
+                className="flex gap-1 items-center cursor-pointer"
                 onClick={onAction}
               >
-                <PlusCircleIcon className={"w-6 h-6 text-pink-500 cursor-pointer"} />
+                <PlusCircleIcon className="w-6 h-6 text-pink-500" />
                 <span className="font-thin text-xs text-gray-600">{subText}</span>
               </div>
             )}
