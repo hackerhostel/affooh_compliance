@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import FormInput from '../../../components/FormInput.jsx';
 import FormTextArea from '../../../components/FormTextArea.jsx'
-import { PencilIcon, EllipsisVerticalIcon, CheckBadgeIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, EllipsisVerticalIcon, CheckCircleIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { useSelector } from "react-redux";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
 import useFetchSwot from "../../../hooks/custom-hooks/compliance/useFetchSwot.jsx";
@@ -360,7 +360,7 @@ const SWOTOverview = () => {
                 <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
             </div>
 
-            
+
 
             {/* Strengths */}
             <div className='mt-6'>
@@ -374,92 +374,92 @@ const SWOTOverview = () => {
                 <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
                     <table className='table-fixed w-full border-collapse'>
                         <thead>
-                        <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
-                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
-                            <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
-                        </tr>
+                            <tr className='text-left text-secondary-grey border-b border-gray-200'>
+                                <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2'>Description</th>
+                                <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {showNewStrengthRow && (
-                            <tr className='border-b border-gray-200'>
-                                <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2'>
-                                    <FormInput type="text" name="title" formValues={{ title: newStrengthRow.title }} onChange={handleNewStrengthChange} />
-                                </td>
-                                <td className='py-3 px-2'>
-                                    <FormTextArea type="text" name="description" formValues={{ description: newStrengthRow.description }} onChange={handleNewStrengthChange} />
-                                </td>
-                                <td className='py-3 px-2'>
-                                    <div className='flex gap-3 items-center'>
-                                        <div className={'cursor-pointer'} onClick={handleSaveNewStrength}>
-                                            <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
+                            {showNewStrengthRow && (
+                                <tr className='border-b border-gray-200'>
+                                    <td className='py-3 px-2'>-</td>
+                                    <td className='py-3 px-2'>
+                                        <FormInput type="text" name="title" formValues={{ title: newStrengthRow.title }} onChange={handleNewStrengthChange} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormTextArea type="text" name="description" formValues={{ description: newStrengthRow.description }} onChange={handleNewStrengthChange} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <div className='flex gap-3 items-center'>
+                                            <div className={'cursor-pointer'} onClick={handleSaveNewStrength}>
+                                                <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
+                                            </div>
+                                            <div className={'cursor-pointer'} onClick={handleCancelNewStrength}>
+                                                <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                            </div>
                                         </div>
-                                        <div className={'cursor-pointer'} onClick={handleCancelNewStrength}>
-                                            <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {strengthsRows.length === 0 && !showNewStrengthRow && (
-                            <tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Strengths Available</td></tr>
-                        )}
-                        {pagedStrengths.map((row, index) => {
-                            const isEditing = editingStrengthId === row.id;
-                            return (
-                                <tr className='border-b border-gray-200' key={row.id}>
-                                    <td className='py-3 px-2'>{strengthsIndexOfFirst + index + 1}</td>
-                                    {!isEditing ? (
-                                        <>
-                                            <td className='py-3 px-2'>{row.title || '-'}</td>
-                                            <td className='py-3 px-2'>{row.description || '-'}</td>
-                                            <td className='py-3 px-2'>
-                                                <div className='flex items-center gap-3'>
-                                                    {openStrengthActionId !== row.id ? (
-                                                        <div className='cursor-pointer inline-flex' onClick={() => toggleStrengthActions(row.id)}>
-                                                            <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <div className='cursor-pointer' onClick={() => handleStartEditStrength(row.id)}>
-                                                                <PencilIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                            <div className='cursor-pointer' onClick={() => handleDeleteStrength(row)}>
-                                                                <TrashIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                            <div className='cursor-pointer' onClick={() => setOpenStrengthActionId(null)}>
-                                                                <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className='py-3 px-2'>
-                                                <FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => handleEditStrengthChange(row.id, e)} />
-                                            </td>
-                                            <td className='py-3 px-2'>
-                                                <FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => handleEditStrengthChange(row.id, e)} />
-                                            </td>
-                                            <td className='py-3 px-2'>
-                                                <div className={'flex gap-3 items-center'}>
-                                                    <div className={'cursor-pointer'} onClick={handleDoneEditStrength}>
-                                                        <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
-                                                    </div>
-                                                    <div className={'cursor-pointer'} onClick={handleCloseEditStrength}>
-                                                        <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </>
-                                    )}
+                                    </td>
                                 </tr>
-                            );
-                        })}
+                            )}
+                            {strengthsRows.length === 0 && !showNewStrengthRow && (
+                                <tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Strengths Available</td></tr>
+                            )}
+                            {pagedStrengths.map((row, index) => {
+                                const isEditing = editingStrengthId === row.id;
+                                return (
+                                    <tr className='border-b border-gray-200' key={row.id}>
+                                        <td className='py-3 px-2'>{strengthsIndexOfFirst + index + 1}</td>
+                                        {!isEditing ? (
+                                            <>
+                                                <td className='py-3 px-2'>{row.title || '-'}</td>
+                                                <td className='py-3 px-2'>{row.description || '-'}</td>
+                                                <td className='py-3 px-2'>
+                                                    <div className='flex items-center gap-3'>
+                                                        {openStrengthActionId !== row.id ? (
+                                                            <div className='cursor-pointer inline-flex' onClick={() => toggleStrengthActions(row.id)}>
+                                                                <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className='cursor-pointer' onClick={() => handleStartEditStrength(row.id)}>
+                                                                    <PencilIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                                <div className='cursor-pointer' onClick={() => handleDeleteStrength(row)}>
+                                                                    <TrashIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                                <div className='cursor-pointer' onClick={() => setOpenStrengthActionId(null)}>
+                                                                    <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className='py-3 px-2'>
+                                                    <FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => handleEditStrengthChange(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => handleEditStrengthChange(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <div className={'flex gap-3 items-center'}>
+                                                        <div className={'cursor-pointer'} onClick={handleDoneEditStrength}>
+                                                            <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
+                                                        </div>
+                                                        <div className={'cursor-pointer'} onClick={handleCloseEditStrength}>
+                                                            <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                     {strengthsRows.length > 0 && (
@@ -488,92 +488,92 @@ const SWOTOverview = () => {
                 <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
                     <table className='table-fixed w-full border-collapse'>
                         <thead>
-                        <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
-                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
-                            <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
-                        </tr>
+                            <tr className='text-left text-secondary-grey border-b border-gray-200'>
+                                <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2'>Description</th>
+                                <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {showNewWeaknessRow && (
-                            <tr className='border-b border-gray-200'>
-                                <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2'>
-                                    <FormInput type="text" name="title" formValues={{ title: newWeaknessRow.title }} onChange={handleNewWeaknessChange} />
-                                </td>
-                                <td className='py-3 px-2'>
-                                    <FormTextArea type="text" name="description" formValues={{ description: newWeaknessRow.description }} onChange={handleNewWeaknessChange} />
-                                </td>
-                                <td className='py-3 px-2'>
-                                    <div className='flex gap-3 items-center'>
-                                        <div className={'cursor-pointer'} onClick={handleSaveNewWeakness}>
-                                            <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
+                            {showNewWeaknessRow && (
+                                <tr className='border-b border-gray-200'>
+                                    <td className='py-3 px-2'>-</td>
+                                    <td className='py-3 px-2'>
+                                        <FormInput type="text" name="title" formValues={{ title: newWeaknessRow.title }} onChange={handleNewWeaknessChange} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormTextArea type="text" name="description" formValues={{ description: newWeaknessRow.description }} onChange={handleNewWeaknessChange} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <div className='flex gap-3 items-center'>
+                                            <div className={'cursor-pointer'} onClick={handleSaveNewWeakness}>
+                                                <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
+                                            </div>
+                                            <div className={'cursor-pointer'} onClick={handleCancelNewWeakness}>
+                                                <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                            </div>
                                         </div>
-                                        <div className={'cursor-pointer'} onClick={handleCancelNewWeakness}>
-                                            <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {weaknessesRows.length === 0 && !showNewWeaknessRow && (
-                            <tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Weaknesses Available</td></tr>
-                        )}
-                        {pagedWeaknesses.map((row, index) => {
-                            const isEditing = editingWeaknessId === row.id;
-                            return (
-                                <tr className='border-b border-gray-200' key={row.id}>
-                                    <td className='py-3 px-2'>{weaknessesIndexOfFirst + index + 1}</td>
-                                    {!isEditing ? (
-                                        <>
-                                            <td className='py-3 px-2'>{row.title || '-'}</td>
-                                            <td className='py-3 px-2'>{row.description || '-'}</td>
-                                            <td className='py-3 px-2'>
-                                                <div className='flex items-center gap-3'>
-                                                    {openWeaknessActionId !== row.id ? (
-                                                        <div className='cursor-pointer inline-flex' onClick={() => toggleWeaknessActions(row.id)}>
-                                                            <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <div className='cursor-pointer' onClick={() => handleStartEditWeakness(row.id)}>
-                                                                <PencilIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                            <div className='cursor-pointer' onClick={() => handleDeleteWeakness(row)}>
-                                                                <TrashIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                            <div className='cursor-pointer' onClick={() => setOpenWeaknessActionId(null)}>
-                                                                <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className='py-3 px-2'>
-                                                <FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => handleEditWeaknessChange(row.id, e)} />
-                                            </td>
-                                            <td className='py-3 px-2'>
-                                                <FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => handleEditWeaknessChange(row.id, e)} />
-                                            </td>
-                                            <td className='py-3 px-2'>
-                                                <div className={'flex gap-3 items-center'}>
-                                                    <div className={'cursor-pointer'} onClick={handleDoneEditWeakness}>
-                                                        <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
-                                                    </div>
-                                                    <div className={'cursor-pointer'} onClick={handleCloseEditWeakness}>
-                                                        <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </>
-                                    )}
+                                    </td>
                                 </tr>
-                            );
-                        })}
+                            )}
+                            {weaknessesRows.length === 0 && !showNewWeaknessRow && (
+                                <tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Weaknesses Available</td></tr>
+                            )}
+                            {pagedWeaknesses.map((row, index) => {
+                                const isEditing = editingWeaknessId === row.id;
+                                return (
+                                    <tr className='border-b border-gray-200' key={row.id}>
+                                        <td className='py-3 px-2'>{weaknessesIndexOfFirst + index + 1}</td>
+                                        {!isEditing ? (
+                                            <>
+                                                <td className='py-3 px-2'>{row.title || '-'}</td>
+                                                <td className='py-3 px-2'>{row.description || '-'}</td>
+                                                <td className='py-3 px-2'>
+                                                    <div className='flex items-center gap-3'>
+                                                        {openWeaknessActionId !== row.id ? (
+                                                            <div className='cursor-pointer inline-flex' onClick={() => toggleWeaknessActions(row.id)}>
+                                                                <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className='cursor-pointer' onClick={() => handleStartEditWeakness(row.id)}>
+                                                                    <PencilIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                                <div className='cursor-pointer' onClick={() => handleDeleteWeakness(row)}>
+                                                                    <TrashIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                                <div className='cursor-pointer' onClick={() => setOpenWeaknessActionId(null)}>
+                                                                    <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className='py-3 px-2'>
+                                                    <FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => handleEditWeaknessChange(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => handleEditWeaknessChange(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <div className={'flex gap-3 items-center'}>
+                                                        <div className={'cursor-pointer'} onClick={handleDoneEditWeakness}>
+                                                            <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
+                                                        </div>
+                                                        <div className={'cursor-pointer'} onClick={handleCloseEditWeakness}>
+                                                            <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                     {weaknessesRows.length > 0 && (
@@ -602,92 +602,92 @@ const SWOTOverview = () => {
                 <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
                     <table className='table-fixed w-full border-collapse'>
                         <thead>
-                        <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
-                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
-                            <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
-                        </tr>
+                            <tr className='text-left text-secondary-grey border-b border-gray-200'>
+                                <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2'>Description</th>
+                                <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {showNewOpportunityRow && (
-                            <tr className='border-b border-gray-200'>
-                                <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2'>
-                                    <FormInput type="text" name="title" formValues={{ title: newOpportunityRow.title }} onChange={handleNewOpportunityChange} />
-                                </td>
-                                <td className='py-3 px-2'>
-                                    <FormTextArea type="text" name="description" formValues={{ description: newOpportunityRow.description }} onChange={handleNewOpportunityChange} />
-                                </td>
-                                <td className='py-3 px-2'>
-                                    <div className='flex gap-3 items-center'>
-                                        <div className={'cursor-pointer'} onClick={handleSaveNewOpportunity}>
-                                            <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
+                            {showNewOpportunityRow && (
+                                <tr className='border-b border-gray-200'>
+                                    <td className='py-3 px-2'>-</td>
+                                    <td className='py-3 px-2'>
+                                        <FormInput type="text" name="title" formValues={{ title: newOpportunityRow.title }} onChange={handleNewOpportunityChange} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormTextArea type="text" name="description" formValues={{ description: newOpportunityRow.description }} onChange={handleNewOpportunityChange} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <div className='flex gap-3 items-center'>
+                                            <div className={'cursor-pointer'} onClick={handleSaveNewOpportunity}>
+                                                <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
+                                            </div>
+                                            <div className={'cursor-pointer'} onClick={handleCancelNewOpportunity}>
+                                                <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                            </div>
                                         </div>
-                                        <div className={'cursor-pointer'} onClick={handleCancelNewOpportunity}>
-                                            <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {opportunitiesRows.length === 0 && !showNewOpportunityRow && (
-                            <tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Opportunities Available</td></tr>
-                        )}
-                        {pagedOpportunities.map((row, index) => {
-                            const isEditing = editingOpportunityId === row.id;
-                            return (
-                                <tr className='border-b border-gray-200' key={row.id}>
-                                    <td className='py-3 px-2'>{opportunitiesIndexOfFirst + index + 1}</td>
-                                    {!isEditing ? (
-                                        <>
-                                            <td className='py-3 px-2'>{row.title || '-'}</td>
-                                            <td className='py-3 px-2'>{row.description || '-'}</td>
-                                            <td className='py-3 px-2'>
-                                                <div className='flex items-center gap-3'>
-                                                    {openOpportunityActionId !== row.id ? (
-                                                        <div className='cursor-pointer inline-flex' onClick={() => toggleOpportunityActions(row.id)}>
-                                                            <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <div className='cursor-pointer' onClick={() => handleStartEditOpportunity(row.id)}>
-                                                                <PencilIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                            <div className='cursor-pointer' onClick={() => handleDeleteOpportunity(row)}>
-                                                                <TrashIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                            <div className='cursor-pointer' onClick={() => setOpenOpportunityActionId(null)}>
-                                                                <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className='py-3 px-2'>
-                                                <FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => handleEditOpportunityChange(row.id, e)} />
-                                            </td>
-                                            <td className='py-3 px-2'>
-                                                <FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => handleEditOpportunityChange(row.id, e)} />
-                                            </td>
-                                            <td className='py-3 px-2'>
-                                                <div className={'flex gap-3 items-center'}>
-                                                    <div className={'cursor-pointer'} onClick={handleDoneEditOpportunity}>
-                                                        <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
-                                                    </div>
-                                                    <div className={'cursor-pointer'} onClick={handleCloseEditOpportunity}>
-                                                        <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </>
-                                    )}
+                                    </td>
                                 </tr>
-                            );
-                        })}
+                            )}
+                            {opportunitiesRows.length === 0 && !showNewOpportunityRow && (
+                                <tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Opportunities Available</td></tr>
+                            )}
+                            {pagedOpportunities.map((row, index) => {
+                                const isEditing = editingOpportunityId === row.id;
+                                return (
+                                    <tr className='border-b border-gray-200' key={row.id}>
+                                        <td className='py-3 px-2'>{opportunitiesIndexOfFirst + index + 1}</td>
+                                        {!isEditing ? (
+                                            <>
+                                                <td className='py-3 px-2'>{row.title || '-'}</td>
+                                                <td className='py-3 px-2'>{row.description || '-'}</td>
+                                                <td className='py-3 px-2'>
+                                                    <div className='flex items-center gap-3'>
+                                                        {openOpportunityActionId !== row.id ? (
+                                                            <div className='cursor-pointer inline-flex' onClick={() => toggleOpportunityActions(row.id)}>
+                                                                <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className='cursor-pointer' onClick={() => handleStartEditOpportunity(row.id)}>
+                                                                    <PencilIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                                <div className='cursor-pointer' onClick={() => handleDeleteOpportunity(row)}>
+                                                                    <TrashIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                                <div className='cursor-pointer' onClick={() => setOpenOpportunityActionId(null)}>
+                                                                    <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className='py-3 px-2'>
+                                                    <FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => handleEditOpportunityChange(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => handleEditOpportunityChange(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <div className={'flex gap-3 items-center'}>
+                                                        <div className={'cursor-pointer'} onClick={handleDoneEditOpportunity}>
+                                                            <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
+                                                        </div>
+                                                        <div className={'cursor-pointer'} onClick={handleCloseEditOpportunity}>
+                                                            <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                     {opportunitiesRows.length > 0 && (
@@ -716,92 +716,92 @@ const SWOTOverview = () => {
                 <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
                     <table className='table-fixed w-full border-collapse'>
                         <thead>
-                        <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2' style={{width: '50px'}}>#</th>
-                            <th className='py-3 px-2' style={{width: '200px'}}>Title</th>
-                            <th className='py-3 px-2'>Description</th>
-                            <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
-                        </tr>
+                            <tr className='text-left text-secondary-grey border-b border-gray-200'>
+                                <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2'>Description</th>
+                                <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {showNewThreatRow && (
-                            <tr className='border-b border-gray-200'>
-                                <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2'>
-                                    <FormInput type="text" name="title" formValues={{ title: newThreatRow.title }} onChange={handleNewThreatChange} />
-                                </td>
-                                <td className='py-3 px-2'>
-                                    <FormTextArea type="text" name="description" formValues={{ description: newThreatRow.description }} onChange={handleNewThreatChange} />
-                                </td>
-                                <td className='py-3 px-2'>
-                                    <div className='flex gap-3 items-center'>
-                                        <div className={'cursor-pointer'} onClick={handleSaveNewThreat}>
-                                            <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
+                            {showNewThreatRow && (
+                                <tr className='border-b border-gray-200'>
+                                    <td className='py-3 px-2'>-</td>
+                                    <td className='py-3 px-2'>
+                                        <FormInput type="text" name="title" formValues={{ title: newThreatRow.title }} onChange={handleNewThreatChange} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormTextArea type="text" name="description" formValues={{ description: newThreatRow.description }} onChange={handleNewThreatChange} />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <div className='flex gap-3 items-center'>
+                                            <div className={'cursor-pointer'} onClick={handleSaveNewThreat}>
+                                                <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
+                                            </div>
+                                            <div className={'cursor-pointer'} onClick={handleCancelNewThreat}>
+                                                <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                            </div>
                                         </div>
-                                        <div className={'cursor-pointer'} onClick={handleCancelNewThreat}>
-                                            <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {threatsRows.length === 0 && !showNewThreatRow && (
-                            <tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Threats Available</td></tr>
-                        )}
-                        {pagedThreats.map((row, index) => {
-                            const isEditing = editingThreatId === row.id;
-                            return (
-                                <tr className='border-b border-gray-200' key={row.id}>
-                                    <td className='py-3 px-2'>{threatsIndexOfFirst + index + 1}</td>
-                                    {!isEditing ? (
-                                        <>
-                                            <td className='py-3 px-2'>{row.title || '-'}</td>
-                                            <td className='py-3 px-2'>{row.description || '-'}</td>
-                                            <td className='py-3 px-2'>
-                                                <div className='flex items-center gap-3'>
-                                                    {openThreatActionId !== row.id ? (
-                                                        <div className='cursor-pointer inline-flex' onClick={() => toggleThreatActions(row.id)}>
-                                                            <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <div className='cursor-pointer' onClick={() => handleStartEditThreat(row.id)}>
-                                                                <PencilIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                            <div className='cursor-pointer' onClick={() => handleDeleteThreat(row)}>
-                                                                <TrashIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                            <div className='cursor-pointer' onClick={() => setOpenThreatActionId(null)}>
-                                                                <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className='py-3 px-2'>
-                                                <FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => handleEditThreatChange(row.id, e)} />
-                                            </td>
-                                            <td className='py-3 px-2'>
-                                                <FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => handleEditThreatChange(row.id, e)} />
-                                            </td>
-                                            <td className='py-3 px-2'>
-                                                <div className={'flex gap-3 items-center'}>
-                                                    <div className={'cursor-pointer'} onClick={handleDoneEditThreat}>
-                                                        <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
-                                                    </div>
-                                                    <div className={'cursor-pointer'} onClick={handleCloseEditThreat}>
-                                                        <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </>
-                                    )}
+                                    </td>
                                 </tr>
-                            );
-                        })}
+                            )}
+                            {threatsRows.length === 0 && !showNewThreatRow && (
+                                <tr><td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Threats Available</td></tr>
+                            )}
+                            {pagedThreats.map((row, index) => {
+                                const isEditing = editingThreatId === row.id;
+                                return (
+                                    <tr className='border-b border-gray-200' key={row.id}>
+                                        <td className='py-3 px-2'>{threatsIndexOfFirst + index + 1}</td>
+                                        {!isEditing ? (
+                                            <>
+                                                <td className='py-3 px-2'>{row.title || '-'}</td>
+                                                <td className='py-3 px-2'>{row.description || '-'}</td>
+                                                <td className='py-3 px-2'>
+                                                    <div className='flex items-center gap-3'>
+                                                        {openThreatActionId !== row.id ? (
+                                                            <div className='cursor-pointer inline-flex' onClick={() => toggleThreatActions(row.id)}>
+                                                                <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className='cursor-pointer' onClick={() => handleStartEditThreat(row.id)}>
+                                                                    <PencilIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                                <div className='cursor-pointer' onClick={() => handleDeleteThreat(row)}>
+                                                                    <TrashIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                                <div className='cursor-pointer' onClick={() => setOpenThreatActionId(null)}>
+                                                                    <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className='py-3 px-2'>
+                                                    <FormInput type="text" name="title" formValues={{ title: row.title }} onChange={(e) => handleEditThreatChange(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormTextArea type="text" name="description" formValues={{ description: row.description }} onChange={(e) => handleEditThreatChange(row.id, e)} />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <div className={'flex gap-3 items-center'}>
+                                                        <div className={'cursor-pointer'} onClick={handleDoneEditThreat}>
+                                                            <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
+                                                        </div>
+                                                        <div className={'cursor-pointer'} onClick={handleCloseEditThreat}>
+                                                            <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                     {threatsRows.length > 0 && (

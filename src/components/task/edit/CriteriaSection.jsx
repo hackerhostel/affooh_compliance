@@ -1,27 +1,27 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import {
-    CheckBadgeIcon,
+    CheckCircleIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
     TrashIcon,
     XMarkIcon
 } from "@heroicons/react/24/outline/index.js";
 import axios from "axios";
-import {useToasts} from "react-toast-notifications";
+import { useToasts } from "react-toast-notifications";
 import FormInput from "../../FormInput.jsx";
 import ToggleButton from "../../ToggleButton.jsx";
 
 const CriteriaSection = ({
-                             criterias,
-                             addingNew,
-                             selectedTab,
-                             setAddingNew,
-                             taskId,
-                             refetchTask,
-                         }) => {
-    const {addToast} = useToasts();
+    criterias,
+    addingNew,
+    selectedTab,
+    setAddingNew,
+    taskId,
+    refetchTask,
+}) => {
+    const { addToast } = useToasts();
 
-    const [newRow, setNewRow] = useState({description: '', status: 'Open'});
+    const [newRow, setNewRow] = useState({ description: '', status: 'Open' });
     const [showNewRow, setShowNewRow] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,11 +54,11 @@ const CriteriaSection = ({
 
     const onHideNew = () => {
         setAddingNew(false)
-        setNewRow({description: '', status: 'Open'})
+        setNewRow({ description: '', status: 'Open' })
     }
 
     const handleFormChange = (isBool, name, value) => {
-        setNewRow({...newRow, [name]: isBool ? value?.target?.checked ? 'Accepted' : 'Open' : value});
+        setNewRow({ ...newRow, [name]: isBool ? value?.target?.checked ? 'Accepted' : 'Open' : value });
     };
 
     const manageCriteria = async (action, payloadData) => {
@@ -74,21 +74,21 @@ const CriteriaSection = ({
             const response = await axios.put(`/tasks/${taskId}/accepted-criteria`, payload)
             const status = response?.status
             if (status === 200) {
-                addToast(`Acceptance criteria successfully ${action}d`, {appearance: 'success'});
+                addToast(`Acceptance criteria successfully ${action}d`, { appearance: 'success' });
                 refetchTask(true)
                 if (action === 'save') {
                     onHideNew()
                 }
             } else {
-                addToast(`Failed to ${action} acceptance criteria`, {appearance: 'error'});
+                addToast(`Failed to ${action} acceptance criteria`, { appearance: 'error' });
             }
         } catch (error) {
-            addToast(`Failed to ${action} acceptance criteria`, {appearance: 'error'});
+            addToast(`Failed to ${action} acceptance criteria`, { appearance: 'error' });
         }
         setIsSubmitting(false)
     };
 
-    const GenerateRow = ({criteria}) => {
+    const GenerateRow = ({ criteria }) => {
         const criteriaId = criteria?.acId
         const description = criteria?.description
         const [status, setSatus] = useState(criteria?.status);
@@ -97,7 +97,7 @@ const CriteriaSection = ({
             const check = e?.target?.checked ? "Accepted" : "Open";
             if (status !== check) {
                 setSatus(check);
-                manageCriteria('update', {acId: criteriaId, status: check});
+                manageCriteria('update', { acId: criteriaId, status: check });
             }
         };
 
@@ -107,13 +107,13 @@ const CriteriaSection = ({
                 <td className="py-5 px-4 flex gap-3 items-center text-text-color">
                     <div>
                         <ToggleButton onChange={e => updateCriteria(e)}
-                                      checked={status === "Accepted"} disabled={isSubmitting}/>
+                            checked={status === "Accepted"} disabled={isSubmitting} />
                     </div>
                 </td>
                 <td className="px-4 py-5">
                     <div className={"flex gap-5"}>
                         <div className="cursor-pointer" onClick={() => manageCriteria('remove', criteriaId)}>
-                            <TrashIcon className={"w-5 h-5 text-red-600 cursor-pointer"}/>
+                            <TrashIcon className={"w-5 h-5 text-red-600 cursor-pointer"} />
                         </div>
                     </div>
                 </td>
@@ -127,43 +127,43 @@ const CriteriaSection = ({
                 <>
                     <table className="table-auto w-full border-collapse">
                         <thead>
-                        <tr className="text-left text-secondary-grey border-b border-gray-200">
-                            <th className="py-5 px-4">Task Name</th>
-                            <th className="py-5 px-4"></th>
-                            <th className="py-5 px-4">Status</th>
-                            <th className="py-5 px-4">Action</th>
-                        </tr>
+                            <tr className="text-left text-secondary-grey border-b border-gray-200">
+                                <th className="py-5 px-4">Task Name</th>
+                                <th className="py-5 px-4"></th>
+                                <th className="py-5 px-4">Status</th>
+                                <th className="py-5 px-4">Action</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {showNewRow && (
-                            <tr className="border-b border-gray-200">
-                                <td className="px-4 py-5" colSpan="2">
-                                    <FormInput
-                                        type="text"
-                                        name="description"
-                                        formValues={{description: newRow.description}}
-                                        onChange={({target: {name, value}}) => handleFormChange(false, name, value)}
-                                    />
-                                </td>
-                                <td className="px-4 py-5 w-44">
-                                    <ToggleButton onChange={e => handleFormChange(true, 'status', e)}
-                                                  checked={newRow?.status === "Accepted"} disabled={isSubmitting}/>
-                                </td>
-                                <td className="px-4 py-5">
-                                    <div className={"flex gap-5"}>
-                                        <div className={"cursor-pointer"} onClick={() => (manageCriteria('save'))}>
-                                            <CheckBadgeIcon className={"w-6 h-6 text-pink-700"}/>
+                            {showNewRow && (
+                                <tr className="border-b border-gray-200">
+                                    <td className="px-4 py-5" colSpan="2">
+                                        <FormInput
+                                            type="text"
+                                            name="description"
+                                            formValues={{ description: newRow.description }}
+                                            onChange={({ target: { name, value } }) => handleFormChange(false, name, value)}
+                                        />
+                                    </td>
+                                    <td className="px-4 py-5 w-44">
+                                        <ToggleButton onChange={e => handleFormChange(true, 'status', e)}
+                                            checked={newRow?.status === "Accepted"} disabled={isSubmitting} />
+                                    </td>
+                                    <td className="px-4 py-5">
+                                        <div className={"flex gap-5"}>
+                                            <div className={"cursor-pointer"} onClick={() => (manageCriteria('save'))}>
+                                                <CheckCircleIcon className={"w-6 h-6 text-primary-pink"} />
+                                            </div>
+                                            <div className={"cursor-pointer"} onClick={onHideNew}>
+                                                <XMarkIcon className={"w-6 h-6 text-text-color"} />
+                                            </div>
                                         </div>
-                                        <div className={"cursor-pointer"} onClick={onHideNew}>
-                                            <XMarkIcon className={"w-6 h-6 text-text-color"}/>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {currentPageContent.map((criteria) => (
-                            <GenerateRow criteria={criteria} key={criteria?.acId}/>
-                        ))}
+                                    </td>
+                                </tr>
+                            )}
+                            {currentPageContent.map((criteria) => (
+                                <GenerateRow criteria={criteria} key={criteria?.acId} />
+                            ))}
                         </tbody>
                     </table>
                     {(criterias && criterias.length > 0) && (
@@ -173,7 +173,7 @@ const CriteriaSection = ({
                                 className={`p-2 rounded-full bg-gray-200 ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"}`}
                                 disabled={currentPage === 1}
                             >
-                                <ChevronLeftIcon className={"w-4 h-4 text-secondary-grey"}/>
+                                <ChevronLeftIcon className={"w-4 h-4 text-secondary-grey"} />
                             </button>
                             <span className="text-gray-500 text-center">Page {currentPage} of {totalPages}</span>
                             <button
@@ -181,7 +181,7 @@ const CriteriaSection = ({
                                 className={`p-2 rounded-full bg-gray-200 ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"}`}
                                 disabled={currentPage === totalPages}
                             >
-                                <ChevronRightIcon className={"w-4 h-4 text-secondary-grey"}/>
+                                <ChevronRightIcon className={"w-4 h-4 text-secondary-grey"} />
                             </button>
                         </div>
                     )}

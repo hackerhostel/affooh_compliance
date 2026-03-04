@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import FormInput from '../../../components/FormInput.jsx';
 import FormSelect from "../../../components/FormSelect.jsx";
-import { PencilIcon, EllipsisVerticalIcon, CheckBadgeIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, EllipsisVerticalIcon, CheckCircleIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { getSelectOptions } from "../../../utils/commonUtils.js";
 import { useSelector } from "react-redux";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
@@ -48,7 +48,7 @@ const StakeholderOverview = () => {
         { id: "Low", name: "Low" },
     ]);
 
-  
+
 
 
     // Stakeholder handlers
@@ -161,10 +161,10 @@ const StakeholderOverview = () => {
     const nextStakeholderPage = () => { if (stakeholderPage < stakeholderTotalPages) setStakeholderPage(stakeholderPage + 1); };
     const prevStakeholderPage = () => { if (stakeholderPage > 1) setStakeholderPage(stakeholderPage - 1); };
 
-  
 
 
-   
+
+
 
     return (
         <div>
@@ -190,15 +190,15 @@ const StakeholderOverview = () => {
                     <table className='table-fixed w-full border-collapse min-w-max'>
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                                <th className='py-3 px-2' style={{width: '50px'}}>#</th>
-                                <th className='py-3 px-2' style={{width: '150px'}}>Stakeholder</th>
-                                <th className='py-3 px-2' style={{width: '100px'}}>Type</th>
-                                <th className='py-3 px-2' style={{width: '150px'}}>Organization</th>
-                                <th className='py-3 px-2' style={{width: '130px'}}>Position</th>
-                                <th className='py-3 px-2' style={{width: '150px'}}>Contact</th>
-                                <th className='py-3 px-2' style={{width: '100px'}}>Influence</th>
-                                <th className='py-3 px-2' style={{width: '100px'}}>Interest</th>
-                                <th className='py-3 px-2' style={{width: '80px'}}>Action</th>
+                                <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '150px' }}>Stakeholder</th>
+                                <th className='py-3 px-2' style={{ width: '100px' }}>Type</th>
+                                <th className='py-3 px-2' style={{ width: '150px' }}>Organization</th>
+                                <th className='py-3 px-2' style={{ width: '130px' }}>Position</th>
+                                <th className='py-3 px-2' style={{ width: '150px' }}>Contact</th>
+                                <th className='py-3 px-2' style={{ width: '100px' }}>Influence</th>
+                                <th className='py-3 px-2' style={{ width: '100px' }}>Interest</th>
+                                <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -228,7 +228,7 @@ const StakeholderOverview = () => {
                                     </td>
                                     <td className='py-3 px-2'>
                                         <div className='flex gap-3 items-center'>
-                                            <div className={'cursor-pointer'} onClick={saveNewStakeholder}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
+                                            <div className={'cursor-pointer'} onClick={saveNewStakeholder}><CheckCircleIcon className={'w-5 h-5 text-primary-pink'} /></div>
                                             <div className={'cursor-pointer'} onClick={cancelNewStakeholder}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
                                         </div>
                                     </td>
@@ -292,7 +292,7 @@ const StakeholderOverview = () => {
                                                 </td>
                                                 <td className='py-3 px-2'>
                                                     <div className={'flex gap-3 items-center'}>
-                                                        <div className={'cursor-pointer'} onClick={doneEditStakeholder}><CheckBadgeIcon className={'w-5 h-5 text-text-color'} /></div>
+                                                        <div className={'cursor-pointer'} onClick={doneEditStakeholder}><CheckCircleIcon className={'w-5 h-5 text-primary-pink'} /></div>
                                                         <div className={'cursor-pointer'} onClick={closeEditStakeholder}><XMarkIcon className={'w-5 h-5 text-text-color'} /></div>
                                                     </div>
                                                 </td>

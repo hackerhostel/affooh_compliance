@@ -5,7 +5,7 @@ import FormSelect from "../../../components/FormSelect.jsx";
 import {
   EllipsisVerticalIcon,
   PencilIcon,
-  CheckBadgeIcon,
+  CheckCircleIcon,
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -335,16 +335,16 @@ const CommunicationRegisterOverview = () => {
           <table className="table-fixed w-full border-collapse min-w-max">
             <thead>
               <tr className="text-left text-secondary-grey border-b border-gray-200">
-                <th className="py-3 px-2" style={{width: '50px'}}>#</th>
-                <th className="py-3 px-2" style={{width: '150px'}}>Subject</th>
+                <th className="py-3 px-2" style={{ width: '50px' }}>#</th>
+                <th className="py-3 px-2" style={{ width: '150px' }}>Subject</th>
                 <th className="py-3 px-2">Description</th>
-                <th className="py-3 px-2" style={{width: '100px'}}>Method</th>
-                <th className="py-3 px-2" style={{width: '100px'}}>Frequency</th>
-                <th className="py-3 px-2" style={{width: '120px'}}>Sender</th>
-                <th className="py-3 px-2" style={{width: '120px'}}>Recipient</th>
-                <th className="py-3 px-2" style={{width: '120px'}}>Date</th>
-                <th className="py-3 px-2" style={{width: '100px'}}>Status</th>
-                <th className="py-3 px-2" style={{width: '80px'}}>Actions</th>
+                <th className="py-3 px-2" style={{ width: '100px' }}>Method</th>
+                <th className="py-3 px-2" style={{ width: '100px' }}>Frequency</th>
+                <th className="py-3 px-2" style={{ width: '120px' }}>Sender</th>
+                <th className="py-3 px-2" style={{ width: '120px' }}>Recipient</th>
+                <th className="py-3 px-2" style={{ width: '120px' }}>Date</th>
+                <th className="py-3 px-2" style={{ width: '100px' }}>Status</th>
+                <th className="py-3 px-2" style={{ width: '80px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -410,8 +410,8 @@ const CommunicationRegisterOverview = () => {
                     />
                   </td>
                   <td className="py-3 px-2 flex gap-3">
-                    <CheckBadgeIcon
-                      className="w-5 h-5 text-pink-700 cursor-pointer"
+                    <CheckCircleIcon
+                      className="w-5 h-5 text-primary-pink cursor-pointer"
                       onClick={handleSaveNewInternal}
                     />
                     <XMarkIcon
@@ -534,8 +534,8 @@ const CommunicationRegisterOverview = () => {
                           />
                         </td>
                         <td className="py-3 px-2 flex gap-3">
-                          <CheckBadgeIcon
-                            className="w-5 h-5 text-pink-700 cursor-pointer"
+                          <CheckCircleIcon
+                            className="w-5 h-5 text-primary-pink cursor-pointer"
                             onClick={handleDoneEditInternal}
                           />
                           <XMarkIcon
@@ -603,16 +603,16 @@ const CommunicationRegisterOverview = () => {
           <table className="table-fixed w-full border-collapse min-w-max">
             <thead>
               <tr className="text-left text-secondary-grey border-b border-gray-200">
-                <th className="py-3 px-2" style={{width: '50px'}}>#</th>
-                <th className="py-3 px-2" style={{width: '150px'}}>Subject</th>
+                <th className="py-3 px-2" style={{ width: '50px' }}>#</th>
+                <th className="py-3 px-2" style={{ width: '150px' }}>Subject</th>
                 <th className="py-3 px-2">Description</th>
-                <th className="py-3 px-2" style={{width: '100px'}}>Method</th>
-                <th className="py-3 px-2" style={{width: '100px'}}>Frequency</th>
-                <th className="py-3 px-2" style={{width: '120px'}}>Sender</th>
-                <th className="py-3 px-2" style={{width: '120px'}}>Recipient</th>
-                <th className="py-3 px-2" style={{width: '120px'}}>Date</th>
-                <th className="py-3 px-2" style={{width: '100px'}}>Status</th>
-                <th className="py-3 px-2" style={{width: '80px'}}>Actions</th>
+                <th className="py-3 px-2" style={{ width: '100px' }}>Method</th>
+                <th className="py-3 px-2" style={{ width: '100px' }}>Frequency</th>
+                <th className="py-3 px-2" style={{ width: '120px' }}>Sender</th>
+                <th className="py-3 px-2" style={{ width: '120px' }}>Recipient</th>
+                <th className="py-3 px-2" style={{ width: '120px' }}>Date</th>
+                <th className="py-3 px-2" style={{ width: '100px' }}>Status</th>
+                <th className="py-3 px-2" style={{ width: '80px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -678,8 +678,8 @@ const CommunicationRegisterOverview = () => {
                     />
                   </td>
                   <td className="py-3 px-2 flex gap-3">
-                    <CheckBadgeIcon
-                      className="w-5 h-5 text-pink-700 cursor-pointer"
+                    <CheckCircleIcon
+                      className="w-5 h-5 text-primary-pink cursor-pointer"
                       onClick={handleSaveNewExternal}
                     />
                     <XMarkIcon
@@ -802,8 +802,8 @@ const CommunicationRegisterOverview = () => {
                           />
                         </td>
                         <td className="py-3 px-2 flex gap-3">
-                          <CheckBadgeIcon
-                            className="w-5 h-5 text-pink-700 cursor-pointer"
+                          <CheckCircleIcon
+                            className="w-5 h-5 text-primary-pink cursor-pointer"
                             onClick={handleDoneEditExternal}
                           />
                           <XMarkIcon

@@ -4,10 +4,10 @@ import {
     PlusIcon,
     ArrowLeftIcon,
     EllipsisVerticalIcon,
-    PencilSquareIcon,
+    PencilIcon,
     TrashIcon,
     XMarkIcon,
-    CheckIcon
+    CheckCircleIcon
 } from "@heroicons/react/24/outline";
 import riskApi from "../../../utils/riskApi.js";
 import { useToasts } from "react-toast-notifications";
@@ -545,7 +545,7 @@ const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
                                             </td>
                                             <td className="px-6 py-6 text-center">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <button onClick={handleSaveReassessment} className="p-1 text-green-500 hover:bg-green-50 rounded shadow-sm"><CheckIcon className="w-5 h-5" /></button>
+                                                    <button onClick={handleSaveReassessment} className="p-1 text-primary-pink hover:bg-pink-50 rounded shadow-sm"><CheckCircleIcon className="w-5 h-5" /></button>
                                                     <button onClick={handleCancelReassessment} className="p-1 text-gray-400 hover:bg-gray-50 rounded shadow-sm"><XMarkIcon className="w-5 h-5" /></button>
                                                 </div>
                                             </td>
@@ -575,7 +575,7 @@ const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
                                                     className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded transition-all"
                                                     title="Edit"
                                                 >
-                                                    <PencilSquareIcon className="w-4 h-4" />
+                                                    <PencilIcon className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteReassessment(ra.id)}
@@ -636,10 +636,10 @@ const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
                                         <div className="flex items-center justify-center gap-2">
                                             <button
                                                 onClick={handleSaveReassessment}
-                                                className="p-1.5 text-white bg-green-500 hover:bg-green-600 rounded transition-all"
+                                                className="p-1.5 text-white bg-primary-pink hover:bg-pink-600 rounded transition-all"
                                                 title="Save"
                                             >
-                                                <CheckIcon className="w-4 h-4" />
+                                                <CheckCircleIcon className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={handleCancelReassessment}

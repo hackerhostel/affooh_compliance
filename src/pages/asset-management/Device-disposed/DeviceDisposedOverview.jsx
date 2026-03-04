@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useToasts } from "react-toast-notifications";
 import {
   PlusCircleIcon,
-  CheckBadgeIcon,
+  CheckCircleIcon,
   XMarkIcon,
   TrashIcon,
   PencilIcon,
@@ -567,9 +567,9 @@ const DeviceDisposedOverview = () => {
                 <td className="py-4 px-4">-</td>
                 <td className="py-4 px-4">
                   <div className="flex gap-3 items-center justify-center">
-                    <CheckBadgeIcon
+                    <CheckCircleIcon
                       onClick={handleSaveNew}
-                      className="w-5 h-5 text-pink-700 cursor-pointer"
+                      className="w-5 h-5 text-primary-pink cursor-pointer"
                     />
                     <XMarkIcon
                       onClick={handleCancelNew}
@@ -724,9 +724,9 @@ const DeviceDisposedOverview = () => {
                   <td className="py-3 px-2">
                     {isEditing ? (
                       <div className="flex items-center gap-3 justify-center">
-                        <CheckBadgeIcon
+                        <CheckCircleIcon
                           onClick={() => handleEditSave(row.id)}
-                          className="w-5 h-5 text-pink-700 cursor-pointer"
+                          className="w-5 h-5 text-primary-pink cursor-pointer"
                         />
                         <XMarkIcon
                           onClick={handleCancelEdit}

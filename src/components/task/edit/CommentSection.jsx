@@ -1,23 +1,23 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import {useToasts} from "react-toast-notifications";
+import { useToasts } from "react-toast-notifications";
 import useFetchComments from "../../../hooks/custom-hooks/task/useFetchComments.jsx";
-import {getRelativeDate} from "../../../utils/commonUtils.js";
-import {PencilSquareIcon, ReceiptRefundIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
+import { getRelativeDate } from "../../../utils/commonUtils.js";
+import { PencilIcon, ReceiptRefundIcon, TrashIcon } from "@heroicons/react/24/outline/index.js";
 import MentionInput from "../../MentionInput.jsx";
-import {useSelector} from "react-redux";
-import {selectProjectUserList} from "../../../state/slice/projectUsersSlice.js";
+import { useSelector } from "react-redux";
+import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
 import useFetchFlatTasks from "../../../hooks/custom-hooks/task/useFetchFlatTasks.jsx";
-import {selectSelectedProject} from "../../../state/slice/projectSlice.js";
-import {useHistory, useParams} from "react-router-dom";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import { useHistory, useParams } from "react-router-dom";
 
-const CommentSection = ({taskId, userDetails, initialComments, reFetchComments}) => {
-    const {addToast} = useToasts();
+const CommentSection = ({ taskId, userDetails, initialComments, reFetchComments }) => {
+    const { addToast } = useToasts();
     const history = useHistory();
     const projectUserList = useSelector(selectProjectUserList);
     const selectedProject = useSelector(selectSelectedProject);
 
-    const {data: tasksList} = useFetchFlatTasks(selectedProject?.id)
+    const { data: tasksList } = useFetchFlatTasks(selectedProject?.id)
 
     const [users, setUsers] = useState([]);
     const [tasks, setTasks] = useState([]);
@@ -31,25 +31,25 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
 
     useEffect(() => {
         if (projectUserList.length) {
-            setUsers(projectUserList.map(o => ({id: Number(o.id), display: `${o.firstName} ${o.lastName}`})))
+            setUsers(projectUserList.map(o => ({ id: Number(o.id), display: `${o.firstName} ${o.lastName}` })))
         }
     }, [projectUserList]);
 
     useEffect(() => {
         if (tasksList.length) {
-            setTasks(tasksList.map(o => ({id: Number(o?.id), display: o?.name})))
+            setTasks(tasksList.map(o => ({ id: Number(o?.id), display: o?.name })))
         }
     }, [tasksList]);
 
     useEffect(() => {
-       setComments(initialComments)
+        setComments(initialComments)
     }, [initialComments]);
 
     const handleAddComment = async (parentId = 0) => {
         setIsSubmitting(true)
         if (parentId === 0 ? newComment.trim() : replyingComment.trim()) {
             try {
-                const payload = parentId === 0 ? {comment: newComment} : {comment: replyingComment, parentID: parentId}
+                const payload = parentId === 0 ? { comment: newComment } : { comment: replyingComment, parentID: parentId }
                 const response = await axios.post(`/tasks/${taskId}/comments`, payload)
                 const created = response?.data?.body?.status
 
@@ -57,18 +57,18 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
                     setNewComment("");
                     setReplying("")
                     await reFetchComments()
-                    addToast('Comment Added', {appearance: 'success'});
+                    addToast('Comment Added', { appearance: 'success' });
                     setIsSubmitting(false)
                 } else {
-                    addToast('Failed to add the comment', {appearance: 'error'});
+                    addToast('Failed to add the comment', { appearance: 'error' });
                     setIsSubmitting(false)
                 }
             } catch (error) {
-                addToast('Failed to add the comment', {appearance: 'error'});
+                addToast('Failed to add the comment', { appearance: 'error' });
                 setIsSubmitting(false)
             }
         } else {
-            addToast('Comment is required', {appearance: 'warning'});
+            addToast('Comment is required', { appearance: 'warning' });
             setIsSubmitting(false)
         }
     };
@@ -78,28 +78,28 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
         if (editedComment.trim()) {
             setComments(
                 comments.map((comment) =>
-                    comment.id === id ? {...comment, text: editedComment} : comment
+                    comment.id === id ? { ...comment, text: editedComment } : comment
                 )
             );
             try {
-                const response = await axios.put(`/tasks/${taskId}/comments/${id}`, {comment: editedComment})
+                const response = await axios.put(`/tasks/${taskId}/comments/${id}`, { comment: editedComment })
                 const updated = response?.status
                 if (updated === 200) {
                     setEditing(null);
                     setEditedComment("");
                     await reFetchComments()
-                    addToast('Comment Updated', {appearance: 'success'});
+                    addToast('Comment Updated', { appearance: 'success' });
                     setIsSubmitting(false)
                 } else {
-                    addToast('Failed to update the comment', {appearance: 'error'});
+                    addToast('Failed to update the comment', { appearance: 'error' });
                     setIsSubmitting(false)
                 }
             } catch (error) {
-                addToast('Failed to update the comment', {appearance: 'error'});
+                addToast('Failed to update the comment', { appearance: 'error' });
                 setIsSubmitting(false)
             }
         } else {
-            addToast('Comment is required', {appearance: 'warning'});
+            addToast('Comment is required', { appearance: 'warning' });
             setIsSubmitting(false)
         }
     };
@@ -110,12 +110,12 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
             const deleted = response?.status
             if (deleted) {
                 await reFetchComments()
-                addToast('Comment successfully deleted', {appearance: 'success'});
+                addToast('Comment successfully deleted', { appearance: 'success' });
             } else {
-                addToast('Failed to delete the comment', {appearance: 'error'});
+                addToast('Failed to delete the comment', { appearance: 'error' });
             }
         } catch (error) {
-            addToast('Failed to delete the comment', {appearance: 'error'});
+            addToast('Failed to delete the comment', { appearance: 'error' });
         }
     };
 
@@ -133,7 +133,7 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
         if (code) {
             history.push(`/task/${code}`);
         } else {
-            addToast('Task not found', {appearance: 'warning'});
+            addToast('Task not found', { appearance: 'warning' });
         }
     };
 
@@ -141,7 +141,7 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
         if (id) {
             history.push(`/profile/${id}`);
         } else {
-            addToast('User not found', {appearance: 'warning'});
+            addToast('User not found', { appearance: 'warning' });
         }
     };
 
@@ -159,7 +159,7 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
             if (mention) {
                 parts.push(
                     <p className={"cursor-pointer text-task-status-qa-bold"} key={`mention-${mentionId}`}
-                       onClick={() => handleUserCommentClick(mentionId)}>
+                        onClick={() => handleUserCommentClick(mentionId)}>
                         @{mentionName}
                     </p>
                 );
@@ -167,7 +167,7 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
                 const taskCode = tasksList.find((t) => t.id === parseInt(taskId, 10))?.code;
                 parts.push(
                     <p className={"cursor-pointer text-task-status-done-bold"} key={`task-${taskId}`}
-                       onClick={() => handleTaskCommentClick(taskCode)}>
+                        onClick={() => handleTaskCommentClick(taskCode)}>
                         #{taskDesc}
                     </p>
                 );
@@ -193,11 +193,11 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
                 </div>
                 <div className={"w-10/12"}>
                     <MentionInput placeholder={'Add a comment...'} value={newComment} onchange={setNewComment}
-                                  users={users} tasks={tasks}/>
+                        users={users} tasks={tasks} />
                 </div>
                 <button disabled={isSubmitting}
-                        className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
-                     onClick={() => handleAddComment(0)}>
+                    className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"
+                    onClick={() => handleAddComment(0)}>
                     <p>Post</p>
                 </button>
             </div>
@@ -208,7 +208,7 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
                             <div className={"flex w-full gap-4 items-center"}>
                                 <div className={"w-full"}>
                                     <MentionInput value={editedComment} onchange={setEditedComment}
-                                                  placeholder={'Add a comment...'} users={users} tasks={tasks}/>
+                                        placeholder={'Add a comment...'} users={users} tasks={tasks} />
                                 </div>
                                 <div className={"flex gap-4"}>
                                     <button disabled={isSubmitting}
@@ -241,14 +241,14 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
 
                                 <div className="flex space-x-2">
                                     <div onClick={() => setReplying(comment?.id)} className={"cursor-pointer"}>
-                                        <ReceiptRefundIcon className={"w-5 h-5 text-green-700"}/>
+                                        <ReceiptRefundIcon className={"w-5 h-5 text-green-700"} />
                                     </div>
                                     <div onClick={() => handleEditComment(comment?.id, comment?.comment)}
-                                         className={"cursor-pointer"}>
-                                        <PencilSquareIcon className={"w-5 h-5 text-black"}/>
+                                        className={"cursor-pointer"}>
+                                        <PencilIcon className={"w-5 h-5 text-black"} />
                                     </div>
                                     <div onClick={() => handleDeleteComment(comment?.id)} className={"cursor-pointer"}>
-                                        <TrashIcon className={"w-5 h-5 text-pink-700"}/>
+                                        <TrashIcon className={"w-5 h-5 text-pink-700"} />
                                     </div>
                                 </div>
                             </div>
@@ -264,8 +264,8 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
                                             <div className={"flex w-full gap-4 items-center"}>
                                                 <div className={"w-full"}>
                                                     <MentionInput value={editedComment} onchange={setEditedComment}
-                                                                  placeholder="Write a reply..." users={users}
-                                                                  tasks={tasks}/>
+                                                        placeholder="Write a reply..." users={users}
+                                                        tasks={tasks} />
                                                 </div>
                                                 <div className={"flex gap-4"}>
                                                     <button disabled={isSubmitting}
@@ -300,11 +300,11 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
                                                     <div
                                                         onClick={() => handleEditComment(reply?.id, reply?.comment)}
                                                         className={"cursor-pointer"}>
-                                                        <PencilSquareIcon className={"w-5 h-5 text-black"}/>
+                                                        <PencilIcon className={"w-5 h-5 text-black"} />
                                                     </div>
                                                     <div onClick={() => handleDeleteComment(reply?.id)}
-                                                         className={"cursor-pointer"}>
-                                                        <TrashIcon className={"w-5 h-5 text-pink-700"}/>
+                                                        className={"cursor-pointer"}>
+                                                        <TrashIcon className={"w-5 h-5 text-pink-700"} />
                                                     </div>
                                                 </div>
                                             </div>
@@ -317,7 +317,7 @@ const CommentSection = ({taskId, userDetails, initialComments, reFetchComments})
                             <div className="pl-3 border-l-2 border-gray-200 flex gap-4 items-center w-full mt-4 ml-4">
                                 <div className={"w-full"}>
                                     <MentionInput value={replyingComment} onchange={setReplyingComment}
-                                                  placeholder="Write a reply..." users={users} tasks={tasks}/>
+                                        placeholder="Write a reply..." users={users} tasks={tasks} />
                                 </div>
                                 <button disabled={isSubmitting}
                                     className="flex items-center justify-center cursor-pointer btn-primary text-center w-20"

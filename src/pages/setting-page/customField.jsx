@@ -4,7 +4,7 @@ import { useToasts } from "react-toast-notifications";
 import { useDispatch, useSelector } from "react-redux";
 import {
   TrashIcon,
-  PencilSquareIcon,
+  PencilIcon,
   PlusCircleIcon,
   XMarkIcon,
   EllipsisVerticalIcon,
@@ -113,7 +113,7 @@ const CustomFieldPage = () => {
                 <div className="flex space-x-2">
                   {showActionsId === data.data.id ? (
                     <div className="flex items-center gap-3">
-                      <PencilSquareIcon
+                      <PencilIcon
                         className="w-5 h-5 text-text-color cursor-pointer"
                         onClick={() => handleEdit(data.data)}
                       />

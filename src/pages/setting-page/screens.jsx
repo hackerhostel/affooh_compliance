@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   TrashIcon,
-  PencilSquareIcon,
+  PencilIcon,
   PlusCircleIcon,
   XMarkIcon,
   ChevronLeftIcon,
@@ -87,7 +87,7 @@ const Screens = () => {
       try {
         const response = await axios.delete(`/screens/${confirmDeleteId}`);
         const status = response?.status;
-  
+
         if (status === 200 || status === 204) {
           addToast("Screen deleted successfully!", { appearance: "success" });
           setCurrentPage(1);
@@ -102,7 +102,7 @@ const Screens = () => {
       }
     }
   };
-  
+
 
 
   const handlePreviousPage = () => {
@@ -120,8 +120,8 @@ const Screens = () => {
         onClose={() => {
           setShowUpdateComponent(false);
           setEditingRow(null);
-          dispatch(fetchScreensByOrganization()); 
-          setCurrentPage(1); 
+          dispatch(fetchScreensByOrganization());
+          setCurrentPage(1);
         }}
       />
     );
@@ -167,11 +167,11 @@ const Screens = () => {
               <div>
                 {data.data.projects && data.data.projects.length > 0
                   ? data.data.projects.map((project, index) => (
-                      <span key={project.id}>
-                        {project.name}
-                        {index < data.data.projects.length - 1 ? ", " : ""}
-                      </span>
-                    ))
+                    <span key={project.id}>
+                      {project.name}
+                      {index < data.data.projects.length - 1 ? ", " : ""}
+                    </span>
+                  ))
                   : "No projects"}
               </div>
             )}
@@ -183,7 +183,7 @@ const Screens = () => {
               <div className="flex space-x-2">
                 {showActionsId === data.data.id ? (
                   <div className="flex items-center gap-3">
-                    <PencilSquareIcon
+                    <PencilIcon
                       className="w-5 h-5 text-text-color cursor-pointer"
                       onClick={() => handleEdit(data.data)}
                     />

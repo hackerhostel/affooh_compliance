@@ -66,14 +66,14 @@ const CompetencyMatrixOverview = () => {
         <table className="table-auto w-full border-collapse">
           <thead>
             <tr className="text-left text-secondary-grey border-b border-gray-200">
-              <th className="py-4 px-2 w-10">#</th>
+              <th className="py-4 px-4 w-10 text-center">#</th>
               <th className="py-4 px-4">Employee</th>
               <th className="py-4 px-4">Communication</th>
               <th className="py-4 px-4">Technical Skills</th>
               <th className="py-4 px-4">Leadership</th>
               <th className="py-4 px-4">Problem Solving</th>
               <th className="py-4 px-4">Domain Knowledge</th>
-              <th className="py-4 px-2">Action</th>
+              <th className="py-4 px-4 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -86,18 +86,20 @@ const CompetencyMatrixOverview = () => {
             ) : (
               competencyRows.map((row, index) => (
                 <tr key={row.id} className="border-b border-gray-200">
-                  <td className="py-5 px-2">{index + 1}</td>
-                  <td className="py-4 px-2">{row.employee}</td>
-                  <td className="py-4 px-2">{row.communication}</td>
-                  <td className="py-4 px-2">{row.technical}</td>
-                  <td className="py-4 px-2">{row.leadership}</td>
-                  <td className="py-4 px-2">{row.problemSolving}</td>
-                  <td className="py-4 px-2">{row.domainKnowledge}</td>
-                  <td className="py-4 px-2">
-                    <TrashIcon
-                      onClick={() => handleDeleteRow(row.id)}
-                      className="w-5 h-5 text-text-color cursor-pointer"
-                    />
+                  <td className="py-5 px-4 text-center">{index + 1}</td>
+                  <td className="py-4 px-4">{row.employee}</td>
+                  <td className="py-4 px-4">{row.communication}</td>
+                  <td className="py-4 px-4">{row.technical}</td>
+                  <td className="py-4 px-4">{row.leadership}</td>
+                  <td className="py-4 px-4">{row.problemSolving}</td>
+                  <td className="py-4 px-4">{row.domainKnowledge}</td>
+                  <td className="py-4 px-4 text-center">
+                    <div className="flex justify-center">
+                      <TrashIcon
+                        onClick={() => handleDeleteRow(row.id)}
+                        className="w-5 h-5 text-text-color cursor-pointer"
+                      />
+                    </div>
                   </td>
                 </tr>
               ))

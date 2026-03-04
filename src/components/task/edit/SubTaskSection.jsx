@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-    CheckBadgeIcon,
+    CheckCircleIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
     EllipsisVerticalIcon,
@@ -127,13 +127,13 @@ const SubTaskSection = ({
 
         const [isEditing, setIsEditing] = useState(false);
         const [editRow, setEditRow] = useState(initialData);
-        
+
 
         const handleEditFormChange = (name, value, isText) => {
             setEditRow({ ...editRow, [name]: isText ? value : Number(value) });
         };
 
-        
+
 
         const onHideEdit = () => {
             setIsEditing(false)
@@ -247,7 +247,7 @@ const SubTaskSection = ({
                                 values={{ assignee: editRow.assignee }}
                                 users={users}
                                 onChange={({ target: { name, value } }) => handleEditFormChange(name, value, false)}
-                                
+
                             />
                         </td>
                         <td className="px-4 py-5">
@@ -261,7 +261,7 @@ const SubTaskSection = ({
                         <td className="px-4 py-5">
                             <div className={"flex gap-5"}>
                                 <div className={"cursor-pointer"} onClick={handleUpdateTask}>
-                                    <CheckBadgeIcon className={"w-6 h-6 text-pink-700"} />
+                                    <CheckCircleIcon className={"w-6 h-6 text-primary-pink"} />
                                 </div>
                                 <div className={"cursor-pointer"} onClick={onHideEdit}>
                                     <XMarkIcon className={"w-6 h-6 text-text-color"} />
@@ -317,7 +317,7 @@ const SubTaskSection = ({
                                     <td className="px-4 py-5">
                                         <div className={"flex gap-5"}>
                                             <div className={"cursor-pointer"} onClick={handleSaveSubTask}>
-                                                <CheckBadgeIcon className={"w-6 h-6 text-pink-700"} />
+                                                <CheckCircleIcon className={"w-6 h-6 text-primary-pink"} />
                                             </div>
                                             <div className={"cursor-pointer"} onClick={onHideNew}>
                                                 <XMarkIcon className={"w-6 h-6 text-text-color"} />

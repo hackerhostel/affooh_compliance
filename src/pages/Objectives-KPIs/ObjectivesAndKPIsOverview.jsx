@@ -5,7 +5,7 @@ import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import {
   PencilIcon,
   EllipsisVerticalIcon,
-  CheckBadgeIcon,
+  CheckCircleIcon,
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -347,7 +347,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
                       <td className="py-3 px-2">
                         <div className="flex gap-3 items-center">
                           <div className="cursor-pointer" onClick={() => handleDoneEdit(row)}>
-                            <CheckBadgeIcon className="w-5 h-5 text-text-color" />
+                            <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                           </div>
                           <div className="cursor-pointer" onClick={handleCloseEdit}>
                             <XMarkIcon className="w-5 h-5 text-text-color" />
@@ -406,7 +406,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
                 <td className="py-3 px-2">
                   <div className="flex gap-3 items-center">
                     <div className="cursor-pointer" onClick={handleSaveNew}>
-                      <CheckBadgeIcon className="w-5 h-5 text-pink-700" />
+                      <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                     </div>
                     <div className="cursor-pointer" onClick={handleCancelNew}>
                       <XMarkIcon className="w-5 h-5 text-text-color" />

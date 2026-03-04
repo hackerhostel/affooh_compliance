@@ -18,7 +18,7 @@ import FormSelect from "../../components/FormSelect.jsx";
 import { getInitials, getSelectOptions } from "../../utils/commonUtils.js";
 import useFetchTestPlan from "../../hooks/custom-hooks/test-plan/useFetchTestPlan.jsx";
 import useFetchTestExecution from "../../hooks/custom-hooks/test-plan/useFetchTestExecution.jsx";
-import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 import { useToasts } from "react-toast-notifications";
 import { useHistory } from "react-router-dom";
@@ -28,7 +28,7 @@ import IssueListPopup from "./IssueListPopup.jsx";
 import useFetchTestSuite from "../../hooks/custom-hooks/test-plan/useFetchTestSuite.jsx";
 import useFetchIssue from "../../hooks/custom-hooks/test-plan/useFetchIssue.jsx";
 import { doGetIssueCount } from "../../state/slice/testIssueSlice.js";
-import debounce from "lodash/debounce"; 
+import debounce from "lodash/debounce";
 
 const TestSuiteContentPage = () => {
   const dispatch = useDispatch();
@@ -57,9 +57,9 @@ const TestSuiteContentPage = () => {
     fail: 0,
     pending: 0,
   });
-  const [issueCounts, setIssueCounts] = useState([]); 
+  const [issueCounts, setIssueCounts] = useState([]);
   const [issueCountsLoading, setIssueCountsLoading] = useState(false);
-  const [issueCountCache, setIssueCountCache] = useState({}); 
+  const [issueCountCache, setIssueCountCache] = useState({});
 
   const { fetchTestSuite } = useFetchTestSuite(testSuiteId);
   const {
@@ -89,11 +89,11 @@ const TestSuiteContentPage = () => {
       let testEOP = testPlanResponse?.testExecutionOptions || [];
       if (testEOP.length) {
         setTestExecutionOptions(testEOP);
-       
+
         const firstSuiteId = testEOP[0].id;
         setTestSuiteId(firstSuiteId);
 
-        
+
         const firstSuiteCycles = testEOP[0]?.cycles || [];
         if (firstSuiteCycles.length) {
           setTestExecutionCycles(firstSuiteCycles);
@@ -140,7 +140,7 @@ const TestSuiteContentPage = () => {
           ?.cycles || [];
       if (filteredTestExecutionCycles.length) {
         setTestExecutionCycles(filteredTestExecutionCycles);
-        
+
         setTestCycleId(filteredTestExecutionCycles[0].id);
       } else {
         setTestExecutionCycles([]);
@@ -207,7 +207,7 @@ const TestSuiteContentPage = () => {
   // Trigger issue count fetch only on testSuiteId or testCycleId change
   useEffect(() => {
     fetchIssueCounts();
-    return () => fetchIssueCounts.cancel(); 
+    return () => fetchIssueCounts.cancel();
   }, [testSuiteId, testCycleId, fetchIssueCounts]);
 
   const handleAddIssue = (testCaseID, platform) => {
@@ -225,12 +225,12 @@ const TestSuiteContentPage = () => {
   const handleAddIssueClose = async (issueAdded) => {
     setIsOpenAddIssue(false);
     if (issueAdded) {
-      await fetchTestSuite(); 
-      await fetchIssue(); 
-      const updatedExecutions = await refetchTextExecution(true); 
-      setTestExecutions(updatedExecutions || []); 
+      await fetchTestSuite();
+      await fetchIssue();
+      const updatedExecutions = await refetchTextExecution(true);
+      setTestExecutions(updatedExecutions || []);
       setTestSuiteId((prev) => prev); // Trigger re-render if needed
-      fetchIssueCounts(); 
+      fetchIssueCounts();
     }
     setSelectedTestCaseId(null);
     setSelectedPlatform(null);
@@ -239,14 +239,14 @@ const TestSuiteContentPage = () => {
   const handleSuiteChange = (value) => {
     if (value) {
       setTestSuiteId(Number(value));
-      setIssueCounts([]); 
+      setIssueCounts([]);
     }
   };
 
   const handleCycleChange = (value) => {
     if (value) {
       setTestCycleId(Number(value));
-      setIssueCounts([]); 
+      setIssueCounts([]);
     }
   };
 
@@ -266,7 +266,7 @@ const TestSuiteContentPage = () => {
           appearance: "success",
         });
         refetchTextExecution(true);
-        
+
         setStatusCounts({
           ...statusCounts,
           all: testExecutions.length,
@@ -478,9 +478,9 @@ const TestSuiteContentPage = () => {
                       className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                       aria-label="Save input"
                     >
-                      <CheckIcon
+                      <CheckCircleIcon
                         onClick={onSaveNote}
-                        className="w-5 h-5 text-green-500"
+                        className="w-5 h-5 text-primary-pink"
                       />
                     </button>
                   </div>
@@ -493,9 +493,8 @@ const TestSuiteContentPage = () => {
           <tr className="py-0">
             <td className="p-2" colSpan={8}>
               <div
-                className={`overflow-hidden transition-[max-height] duration-300 ${
-                  open ? "max-h-[1000px]" : "max-h-0"
-                } px-5`}
+                className={`overflow-hidden transition-[max-height] duration-300 ${open ? "max-h-[1000px]" : "max-h-0"
+                  } px-5`}
               >
                 <div className="rounded-xl border p-4 bg-slate-50 shadow-sm">
                   <p className="text-gray-600 font-medium mb-4">

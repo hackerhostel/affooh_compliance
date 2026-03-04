@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   TrashIcon,
   PencilIcon,
-  CheckIcon,
+  CheckCircleIcon,
   XMarkIcon,
   EllipsisVerticalIcon,
   PlusCircleIcon,
@@ -295,16 +295,16 @@ const DeviceMovedOverview = () => {
       // Prepare update data - if approved, only send reason and returnDate
       const updateData = isApproved
         ? {
-            returnDate: editForm.returnDate || undefined,
-            reason: editForm.reason || undefined,
-          }
+          returnDate: editForm.returnDate || undefined,
+          reason: editForm.reason || undefined,
+        }
         : {
-            assetID: Number(editForm.assetID),
-            movedByUserID: Number(editForm.movedByUserID),
-            movementDate: editForm.moveDate,
-            returnDate: editForm.returnDate || undefined,
-            reason: editForm.reason || undefined,
-          };
+          assetID: Number(editForm.assetID),
+          movedByUserID: Number(editForm.movedByUserID),
+          movementDate: editForm.moveDate,
+          returnDate: editForm.returnDate || undefined,
+          reason: editForm.reason || undefined,
+        };
 
       await dispatch(
         doUpdateMovement({
@@ -695,9 +695,9 @@ const DeviceMovedOverview = () => {
                           <div className="flex justify-center gap-2">
                             <button
                               onClick={handleSaveEdit}
-                              className="text-green-600 hover:text-green-800"
+                              className="text-primary-pink hover:text-pink-700"
                             >
-                              <CheckIcon className="w-5 h-5" />
+                              <CheckCircleIcon className="w-5 h-5" />
                             </button>
                             <button
                               onClick={handleCancelEdit}
@@ -749,7 +749,7 @@ const DeviceMovedOverview = () => {
                                 }}
                                 title="Edit"
                               >
-                                <PencilIcon className="w-5 h-5 text-blue-600 hover:text-blue-800" />
+                                <PencilIcon className="w-5 h-5 text-text-color" />
                               </div>
                               {/* Delete button - only for Pending */}
                               {row.status === "Pending" && (
@@ -885,9 +885,9 @@ const DeviceMovedOverview = () => {
                       <div className="flex justify-center gap-2">
                         <button
                           onClick={handleSaveNew}
-                          className="text-green-600 hover:text-green-800"
+                          className="text-primary-pink hover:text-pink-700"
                         >
-                          <CheckIcon className="w-5 h-5" />
+                          <CheckCircleIcon className="w-5 h-5" />
                         </button>
                         <button
                           onClick={handleCancelNew}

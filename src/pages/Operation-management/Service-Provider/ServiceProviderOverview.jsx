@@ -3,7 +3,7 @@ import FormTextArea from "../../../components/FormTextArea.jsx";
 import {
   PencilIcon,
   EllipsisVerticalIcon,
-  CheckBadgeIcon,
+  CheckCircleIcon,
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -247,7 +247,7 @@ const ServiceProviderOverview = () => {
                       <td className="py-3 px-2">
                         <div className="flex gap-3 items-center">
                           <div className="cursor-pointer" onClick={handleDoneEdit}>
-                            <CheckBadgeIcon className="w-5 h-5 text-text-color" />
+                            <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                           </div>
                           <div className="cursor-pointer" onClick={handleCancelNew}>
                             <XMarkIcon className="w-5 h-5 text-text-color" />
@@ -284,7 +284,7 @@ const ServiceProviderOverview = () => {
                 <td className="py-3 px-2">
                   <div className="flex gap-3 items-center">
                     <div className="cursor-pointer" onClick={handleSaveNew}>
-                      <CheckBadgeIcon className="w-5 h-5 text-pink-700" />
+                      <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                     </div>
                     <div className="cursor-pointer" onClick={handleCancelNew}>
                       <XMarkIcon className="w-5 h-5 text-text-color" />
@@ -312,11 +312,10 @@ const ServiceProviderOverview = () => {
           <div className="w-full flex gap-5 items-center justify-end mt-4">
             <button
               onClick={handlePreviousPage}
-              className={`p-2 rounded-full bg-gray-200 ${
-                currentPage === 1
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === 1
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-gray-300"
-              }`}
+                }`}
               disabled={currentPage === 1}
             >
               <ChevronLeftIcon className="w-4 h-4 text-secondary-grey" />
@@ -326,11 +325,10 @@ const ServiceProviderOverview = () => {
             </span>
             <button
               onClick={handleNextPage}
-              className={`p-2 rounded-full bg-gray-200 ${
-                currentPage === totalPages
+              className={`p-2 rounded-full bg-gray-200 ${currentPage === totalPages
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-gray-300"
-              }`}
+                }`}
               disabled={currentPage === totalPages}
             >
               <ChevronRightIcon className="w-4 h-4 text-secondary-grey" />

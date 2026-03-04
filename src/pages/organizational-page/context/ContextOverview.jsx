@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import FormTextArea from "../../../components/FormTextArea.jsx";
 import FormInput from '../../../components/FormInput.jsx';
 import FormSelect from '../../../components/FormSelect.jsx';
-import { PencilIcon, EllipsisVerticalIcon, CheckBadgeIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, EllipsisVerticalIcon, CheckCircleIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { getUserSelectOptions } from "../../../utils/commonUtils.js";
 import { useSelector } from "react-redux";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
@@ -320,7 +320,7 @@ const ContextOverview = () => {
     const handleChange = (eventOrName, value) => {
         // Handle both event object and direct name/value
         let fieldName, fieldValue;
-        
+
         if (typeof eventOrName === 'string') {
             // Direct name/value call
             fieldName = eventOrName;
@@ -330,7 +330,7 @@ const ContextOverview = () => {
             fieldName = eventOrName.target.name;
             fieldValue = eventOrName.target.value;
         }
-        
+
         if (fieldName) {
             setFormValues(prev => ({
                 ...prev,
@@ -431,7 +431,7 @@ const ContextOverview = () => {
             <div className='mt-6'>
                 <span className='text-lg font-semibold'>Company Details</span>
                 <div className='bg-white rounded p-3 mt-2 '>
-                    <div  className='flex items-center gap-5'>
+                    <div className='flex items-center gap-5'>
                         <label htmlFor="">Company Name</label>
                         <FormInput
                             type="text"
@@ -442,7 +442,7 @@ const ContextOverview = () => {
                         />
                     </div>
 
-                     <div className='flex items-center gap-5'>
+                    <div className='flex items-center gap-5'>
                         <label htmlFor="">Company Address</label>
                         <FormInput
                             type="text"
@@ -453,7 +453,7 @@ const ContextOverview = () => {
                         />
                     </div>
 
-                     <div className='flex items-center gap-5'>
+                    <div className='flex items-center gap-5'>
                         <label htmlFor="">Contact Information</label>
                         <FormInput
                             type="text"
@@ -472,21 +472,21 @@ const ContextOverview = () => {
 
             <div className='mt-6'>
                 <div className='flex items-center gap-5'>
-                <span className='text-lg font-semibold'>Functions</span>
-                <div className='flex items-center gap-1'>
-                <PlusCircleIcon onClick={handleAddNewClick} className={'w-6 h-6 text-pink-500'} />
-                <button className='text-text-color' onClick={handleAddNewClick}>Add New</button>
-                </div>
+                    <span className='text-lg font-semibold'>Functions</span>
+                    <div className='flex items-center gap-1'>
+                        <PlusCircleIcon onClick={handleAddNewClick} className={'w-6 h-6 text-pink-500'} />
+                        <button className='text-text-color' onClick={handleAddNewClick}>Add New</button>
+                    </div>
                 </div>
                 <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
                     <table className='table-fixed w-full border-collapse'>
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                                <th className='py-3 px-2' style={{width: '5%'}}>#</th>
-                                <th className='py-3 px-2' style={{width: '20%'}}>Department</th>
-                                <th className='py-3 px-2' style={{width: '50%'}}>Description</th>
-                                <th className='py-3 px-2' style={{width: '20%'}}>HOD</th>
-                                <th className='py-3 px-2' style={{width: '5%'}}>Action</th>
+                                <th className='py-3 px-2' style={{ width: '5%' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '20%' }}>Department</th>
+                                <th className='py-3 px-2' style={{ width: '50%' }}>Description</th>
+                                <th className='py-3 px-2' style={{ width: '20%' }}>HOD</th>
+                                <th className='py-3 px-2' style={{ width: '5%' }}>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -520,7 +520,7 @@ const ContextOverview = () => {
                                     <td className='py-3 px-2'>
                                         <div className='flex gap-3 items-center'>
                                             <div className={'cursor-pointer'} onClick={handleSaveNew}>
-                                                <CheckBadgeIcon className={'w-5 h-5 text-pink-700'} />
+                                                <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
                                             </div>
                                             <div className={'cursor-pointer'} onClick={handleCancelNew}>
                                                 <XMarkIcon className={'w-5 h-5 text-text-color'} />
@@ -595,7 +595,7 @@ const ContextOverview = () => {
                                                 <td className='py-3 px-2'>
                                                     <div className={'flex gap-3 items-center'}>
                                                         <div className={'cursor-pointer'} onClick={handleDoneEdit}>
-                                                            <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
+                                                            <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
                                                         </div>
                                                         <div className={'cursor-pointer'} onClick={handleCloseEdit}>
                                                             <XMarkIcon className={'w-5 h-5 text-text-color'} />
@@ -643,114 +643,114 @@ const ContextOverview = () => {
                 <div className='bg-white rounded p-3 mt-2 overflow-x-auto'>
                     <table className='table-fixed w-full border-collapse'>
                         <thead>
-                        <tr className='text-left text-secondary-grey border-b border-gray-200'>
-                            <th className='py-3 px-2' style={{width: '5%'}}>#</th>
-                            <th className='py-3 px-2' style={{width: '30%'}}>Law</th>
-                            <th className='py-3 px-2' style={{width: '60%'}}>Jurisdiction</th>
-                            <th className='py-3 px-2' style={{width: '5%'}}>Action</th>
-                        </tr>
+                            <tr className='text-left text-secondary-grey border-b border-gray-200'>
+                                <th className='py-3 px-2' style={{ width: '5%' }}>#</th>
+                                <th className='py-3 px-2' style={{ width: '30%' }}>Law</th>
+                                <th className='py-3 px-2' style={{ width: '60%' }}>Jurisdiction</th>
+                                <th className='py-3 px-2' style={{ width: '5%' }}>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {showNewLawRow && (
-                            <tr className='text-left border-b border-gray-200'>
-                                <td className='py-3 px-2'>-</td>
-                                <td className='py-3 px-2'>
-                                    <FormInput
-                                        type="text"
-                                        name="law"
-                                        formValues={{ law: newLawRow.law }}
-                                        onChange={handleNewLawChange}
-                                    />
-                                </td>
-                                <td className='py-3 px-2'>
-                                    <FormTextArea
-                                        type="text"
-                                        name="jurisdiction"
-                                        formValues={{ jurisdiction: newLawRow.jurisdiction }}
-                                        onChange={handleNewLawChange}
-                                    />
-                                </td>
-                                <td className='py-3 px-2'>
-                                    <div className='flex gap-3 items-center'>
-                                        <div className={'cursor-pointer'} onClick={handleSaveNewLaw}>
-                                            <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
+                            {showNewLawRow && (
+                                <tr className='text-left border-b border-gray-200'>
+                                    <td className='py-3 px-2'>-</td>
+                                    <td className='py-3 px-2'>
+                                        <FormInput
+                                            type="text"
+                                            name="law"
+                                            formValues={{ law: newLawRow.law }}
+                                            onChange={handleNewLawChange}
+                                        />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <FormTextArea
+                                            type="text"
+                                            name="jurisdiction"
+                                            formValues={{ jurisdiction: newLawRow.jurisdiction }}
+                                            onChange={handleNewLawChange}
+                                        />
+                                    </td>
+                                    <td className='py-3 px-2'>
+                                        <div className='flex gap-3 items-center'>
+                                            <div className={'cursor-pointer'} onClick={handleSaveNewLaw}>
+                                                <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
+                                            </div>
+                                            <div className={'cursor-pointer'} onClick={handleCancelNewLaw}>
+                                                <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                            </div>
                                         </div>
-                                        <div className={'cursor-pointer'} onClick={handleCancelNewLaw}>
-                                            <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {lawsRows.length === 0 && !showNewLawRow && (
-                            <tr>
-                                <td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Laws Available</td>
-                            </tr>
-                        )}
-                        {pagedLawsRows.map((row, index) => {
-                            const isRowEditing = editingLawRowId === row.id;
-                            return (
-                                <tr className='text-left border-b border-gray-200' key={row.id}>
-                                    <td className='py-3 px-2'>{lawsIndexOfFirst + index + 1}</td>
-                                    {!isRowEditing ? (
-                                        <>
-                                            <td className='py-3 px-2'>{row.law || '-'}</td>
-                                            <td className='py-3 px-2'>{row.jurisdiction || '-'}</td>
-                                            <td className='py-3 px-2'>
-                                                <div className='flex items-center gap-3'>
-                                                    {openLawActionRowId !== row.id ? (
-                                                        <div className='cursor-pointer inline-flex' onClick={() => toggleLawActionMenu(row.id)}>
-                                                            <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <div className='cursor-pointer' onClick={() => handleStartEditLaw(row.id)}>
-                                                                <PencilIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                            <div className='cursor-pointer' onClick={() => handleDeleteLawRow(row)}>
-                                                                <TrashIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                            <div className='cursor-pointer' onClick={() => setOpenLawActionRowId(null)}>
-                                                                <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className='py-3 px-2'>
-                                                <FormInput
-                                                    type="text"
-                                                    name="law"
-                                                    formValues={{ law: row.law }}
-                                                    onChange={(e) => handleEditLawChange(row.id, e)}
-                                                />
-                                            </td>
-                                            <td className='py-3 px-2'>
-                                                <FormTextArea
-                                                    type="text"
-                                                    name="jurisdiction"
-                                                    formValues={{ jurisdiction: row.jurisdiction }}
-                                                    onChange={(e) => handleEditLawChange(row.id, e)}
-                                                />
-                                            </td>
-                                            <td className='py-3 px-2'>
-                                                <div className={'flex gap-3 items-center'}>
-                                                    <div className={'cursor-pointer'} onClick={handleDoneEditLaw}>
-                                                        <CheckBadgeIcon className={'w-5 h-5 text-text-color'} />
-                                                    </div>
-                                                    <div className={'cursor-pointer'} onClick={handleCloseEditLaw}>
-                                                        <XMarkIcon className={'w-5 h-5 text-text-color'} />
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </>
-                                    )}
+                                    </td>
                                 </tr>
-                            );
-                        })}
+                            )}
+                            {lawsRows.length === 0 && !showNewLawRow && (
+                                <tr>
+                                    <td className='py-3 px-2 text-text-color text-center' colSpan={4}>No Laws Available</td>
+                                </tr>
+                            )}
+                            {pagedLawsRows.map((row, index) => {
+                                const isRowEditing = editingLawRowId === row.id;
+                                return (
+                                    <tr className='text-left border-b border-gray-200' key={row.id}>
+                                        <td className='py-3 px-2'>{lawsIndexOfFirst + index + 1}</td>
+                                        {!isRowEditing ? (
+                                            <>
+                                                <td className='py-3 px-2'>{row.law || '-'}</td>
+                                                <td className='py-3 px-2'>{row.jurisdiction || '-'}</td>
+                                                <td className='py-3 px-2'>
+                                                    <div className='flex items-center gap-3'>
+                                                        {openLawActionRowId !== row.id ? (
+                                                            <div className='cursor-pointer inline-flex' onClick={() => toggleLawActionMenu(row.id)}>
+                                                                <EllipsisVerticalIcon className={'w-5 h-5 text-secondary-grey'} />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className='cursor-pointer' onClick={() => handleStartEditLaw(row.id)}>
+                                                                    <PencilIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                                <div className='cursor-pointer' onClick={() => handleDeleteLawRow(row)}>
+                                                                    <TrashIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                                <div className='cursor-pointer' onClick={() => setOpenLawActionRowId(null)}>
+                                                                    <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className='py-3 px-2'>
+                                                    <FormInput
+                                                        type="text"
+                                                        name="law"
+                                                        formValues={{ law: row.law }}
+                                                        onChange={(e) => handleEditLawChange(row.id, e)}
+                                                    />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <FormTextArea
+                                                        type="text"
+                                                        name="jurisdiction"
+                                                        formValues={{ jurisdiction: row.jurisdiction }}
+                                                        onChange={(e) => handleEditLawChange(row.id, e)}
+                                                    />
+                                                </td>
+                                                <td className='py-3 px-2'>
+                                                    <div className={'flex gap-3 items-center'}>
+                                                        <div className={'cursor-pointer'} onClick={handleDoneEditLaw}>
+                                                            <CheckCircleIcon className={'w-5 h-5 text-primary-pink'} />
+                                                        </div>
+                                                        <div className={'cursor-pointer'} onClick={handleCloseEditLaw}>
+                                                            <XMarkIcon className={'w-5 h-5 text-text-color'} />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                     {lawsRows.length > 0 && (
