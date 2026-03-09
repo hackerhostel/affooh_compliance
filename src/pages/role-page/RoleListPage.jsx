@@ -13,9 +13,6 @@ const RoleListPage = ({ onDocumentSelect }) => {
     { id: 3, name: "Skill Inventory", classification: "Confidential" },
     { id: 4, name: "Competency Matrix", classification: "Restricted" },
     { id: 5, name: "User access Matrix", classification: "Restricted" },
-    { id: 6, name: "Scope", classification: "Restricted" },
-    { id: 7, name: "Communication Register", classification: "Restricted" },
-
   ]);
 
   const [selectedDoc, setSelectedDoc] = useState(null);

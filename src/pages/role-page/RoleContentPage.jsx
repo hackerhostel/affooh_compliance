@@ -26,8 +26,6 @@ const RoleContentPage = ({ selectedDocument }) => {
         return <CompetencyMatrixContentPage />;
       case "Stakeholder Context":
         return <StakeholderContextContent />;
-      case "Communication Register":
-        return <CommunicationRegisterContent />;
       default:
         return (
           <div className="text-gray-600 text-center mt-10">
