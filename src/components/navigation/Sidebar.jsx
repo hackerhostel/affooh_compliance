@@ -6,7 +6,6 @@ import {
   ArrowUpCircleIcon,
   Bars2Icon,
   BellIcon,
-  CalendarIcon,
   CogIcon,
   DocumentTextIcon,
   FolderIcon,
@@ -94,7 +93,7 @@ function Sidebar() {
           <MenuItem link="/objectives" Icon={Bars2Icon} />
           <MenuItem link="/training" Icon={AcademicCapIcon} />
           <MenuItem link="/operations" Icon={ArrowPathIcon} />
-          <MenuItem link="/sprints" Icon={CalendarIcon} />
+
           {/* <MenuItem link="/test-plans" Icon={TableCellsIcon}/>  */}
           <MenuItem link="/projects" Icon={Square3Stack3DIcon} />
 

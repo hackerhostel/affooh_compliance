@@ -12,7 +12,7 @@ import ServiceDownPage from "./ServiceDownPage.jsx";
 import TestPlanLayout from "./test-plan-page/index.jsx";
 import DashboardLayout from "./dashboard-page/index.jsx";
 import ReleaseLayout from "./release-page/index.jsx";
-import SprintLayout from "./sprint-page/index.jsx";
+
 import SettingLayout from "./setting-page/index.jsx";
 import OrganizationalLayout from "./organizational-page/index.jsx";
 import RoleLayout from "./role-page/index.jsx";
@@ -108,17 +108,13 @@ const Dashboard = () => {
             </Route>
 
 
-            <Route path="/sprints">
-              <SprintLayout />
-            </Route>
+
 
             <Route path="/role">
               <RoleLayout />
             </Route>
 
-            <Route path="/sprints/:sprint_id">
-              <SprintLayout />
-            </Route>
+
 
             <Route path="/task/:code">
               <EditTaskPage />
