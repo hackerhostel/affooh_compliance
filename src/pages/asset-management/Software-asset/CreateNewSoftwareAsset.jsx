@@ -7,8 +7,8 @@ import FormTextArea from "../../../components/FormTextArea.jsx";
 import ToggleButton from "../../../components/ToggleButton.jsx";
 import { useToasts } from 'react-toast-notifications';
 import {
-  doCreateSoftwareAsset,
-  doGetSoftwareMasterData,
+    doCreateSoftwareAsset,
+    doGetSoftwareMasterData,
 } from "../../../state/slice/assetSlice.js";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
 
@@ -73,9 +73,9 @@ const CreateNewSoftwareAsset = ({ isOpen, onClose }) => {
 
     // Prepare options from master data
     const teamOptions =
-        softwareMasterData.teams?.map((team) => ({
-            label: team.name,
-            value: team.id.toString(),
+        softwareMasterData.assetDepartments?.map((dept) => ({
+            label: dept.departmentName,
+            value: dept.id.toString(),
         })) || [];
 
     const statusOptions = [

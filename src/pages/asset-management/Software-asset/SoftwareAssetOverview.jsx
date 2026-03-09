@@ -73,9 +73,9 @@ const SoftwareAssetOverview = () => {
 
   // Prepare filter options from master data
   const teamOptions =
-    softwareMasterData.teams?.map((team) => ({
-      label: team.name,
-      value: team.id.toString(),
+    softwareMasterData.assetDepartments?.map((dept) => ({
+      label: dept.departmentName,
+      value: dept.id.toString(),
     })) || [];
 
   const statusOptions = [
@@ -193,9 +193,8 @@ const SoftwareAssetOverview = () => {
     };
     return (
       <span
-        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-          statusColors[status] || statusColors.Inactive
-        }`}
+        className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[status] || statusColors.Inactive
+          }`}
       >
         {status}
       </span>
@@ -223,13 +222,7 @@ const SoftwareAssetOverview = () => {
           {/* Top Buttons */}
           <div className="flex justify-end items-center mt-4 space-x-2">
             <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-              Archived
-            </button>
-            <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
               Approved
-            </button>
-            <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-              Save
             </button>
           </div>
 
@@ -248,7 +241,7 @@ const SoftwareAssetOverview = () => {
 
           {/* Filter Section */}
           <div className="flex items-center mt-4 justify-between">
-            <div className="flex space-x-4">
+            <div className="flex items-center space-x-4">
               <div className="w-40">
                 <FormSelect
                   name="teamID"
@@ -309,14 +302,18 @@ const SoftwareAssetOverview = () => {
                   }
                 />
               </div>
-              <div>
-                <button
-                  onClick={handleClearFilters}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm"
-                >
-                  Clear Filters
-                </button>
-              </div>
+              {(formValues.teamID ||
+                formValues.hasLicense !== "" ||
+                formValues.isLatestVersion !== "" ||
+                formValues.status ||
+                formValues.isTempApproved !== "") && (
+                  <span
+                    onClick={handleClearFilters}
+                    className="text-primary-pink hover:text-pink-600 cursor-pointer transition-colors font-medium text-sm whitespace-nowrap"
+                  >
+                    Clear Filters
+                  </span>
+                )}
             </div>
           </div>
 

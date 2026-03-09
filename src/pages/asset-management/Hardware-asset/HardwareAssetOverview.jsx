@@ -14,7 +14,6 @@ import {
 import FormSelect from "../../../components/FormSelect.jsx";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
 import CreateNewHardwareAsset from "./CreateNewHardwareAsset.jsx";
-import CreateNewHardwareAssetFurniture from "./CreateNewHardwareAssetFurniture.jsx";
 import DeviceUpdate from "./DeviceUpdate.jsx";
 import FurnitureUpdate from "./FurnitureUpdate.jsx";
 import {
@@ -36,7 +35,6 @@ const HardwareAssetOverview = () => {
   const selectedProject = useSelector(selectSelectedProject);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [showCategorySelection, setShowCategorySelection] = useState(false);
   const [selectedType, setSelectedType] = useState("");
   const [openActionRowId, setOpenActionRowId] = useState(null);
   const [editAsset, setEditAsset] = useState(null);
@@ -153,15 +151,9 @@ const HardwareAssetOverview = () => {
 
   // handle "Add New" button
   const onAddNew = () => {
-    setShowCategorySelection(true);
-  };
-
-  // handle category selection
-  const handleCategorySelect = (category) => {
-    setSelectedType(category.toLowerCase());
     setIsOpen(true);
+    setSelectedType("hardware"); // Unified form
     setEditAsset(null);
-    setShowCategorySelection(false);
   };
 
   const handleClose = () => {
@@ -261,73 +253,6 @@ const HardwareAssetOverview = () => {
 
   return (
     <div className="relative mt-6">
-      {/* Category Selection Modal */}
-      {showCategorySelection && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-primary-pink to-pink-600 px-6 py-4 relative">
-              <button
-                onClick={() => setShowCategorySelection(false)}
-                className="absolute top-4 right-4 text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition-colors"
-              >
-                <XMarkIcon className="w-6 h-6" />
-              </button>
-              <div className="text-center">
-                <h4 className="text-xl font-bold text-white">Select Asset Category</h4>
-                <p className="text-pink-100 text-sm mt-1">
-                  Choose the type of asset you want to create
-                </p>
-              </div>
-            </div>
-
-            {/* Category Options */}
-            <div className="p-6">
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                {/* Device Option */}
-                <button
-                  onClick={() => handleCategorySelect("Device")}
-                  className="group relative flex flex-col items-center justify-center p-6 border-2 border-gray-200 rounded-lg hover:border-primary-pink hover:bg-pink-50 transition-all duration-200 transform hover:scale-105"
-                >
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:shadow-lg transition-shadow">
-                    <ComputerDesktopIcon className="w-8 h-8 text-white" />
-                  </div>
-                  <span className="text-lg font-semibold text-gray-800 group-hover:text-primary-pink transition-colors">
-                    Device
-                  </span>
-                  <span className="text-xs text-gray-500 mt-1">
-                    Computers, Printers, etc.
-                  </span>
-                </button>
-
-                {/* Furniture Option */}
-                <button
-                  onClick={() => handleCategorySelect("Furniture")}
-                  className="group relative flex flex-col items-center justify-center p-6 border-2 border-gray-200 rounded-lg hover:border-primary-pink hover:bg-pink-50 transition-all duration-200 transform hover:scale-105"
-                >
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mb-3 group-hover:shadow-lg transition-shadow">
-                    <CubeIcon className="w-8 h-8 text-white" />
-                  </div>
-                  <span className="text-lg font-semibold text-gray-800 group-hover:text-primary-pink transition-colors">
-                    Furniture
-                  </span>
-                  <span className="text-xs text-gray-500 mt-1">
-                    Desks, Chairs, etc.
-                  </span>
-                </button>
-              </div>
-
-              {/* Cancel Button */}
-              <button
-                onClick={() => setShowCategorySelection(false)}
-                className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ✅ Hide Overview when editing or adding */}
       {!isOpen && (
@@ -335,13 +260,7 @@ const HardwareAssetOverview = () => {
           {/* Top Buttons */}
           <div className="flex justify-end items-center mt-4 space-x-2">
             <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-              Archived
-            </button>
-            <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
               Approved
-            </button>
-            <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-              Save
             </button>
           </div>
 
@@ -361,7 +280,7 @@ const HardwareAssetOverview = () => {
 
           {/* Filter Section */}
           <div className="flex items-center justify-between mt-4">
-            <div className="flex space-x-4">
+            <div className="flex items-center space-x-4">
               <div className="w-32">
                 <FormSelect
                   name="category"
@@ -440,21 +359,28 @@ const HardwareAssetOverview = () => {
                   }
                 />
               </div>
-              <button
-                onClick={() => {
-                  setFormValues({
-                    category: "",
-                    type: "",
-                    classification: "",
-                    ownerID: "",
-                    assigneeID: "",
-                    assetDepartmentID: "",
-                  });
-                }}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm"
-              >
-                Clear Filters
-              </button>
+              {(formValues.category ||
+                formValues.type ||
+                formValues.classification ||
+                formValues.ownerID ||
+                formValues.assigneeID ||
+                formValues.assetDepartmentID) && (
+                  <span
+                    onClick={() => {
+                      setFormValues({
+                        category: "",
+                        type: "",
+                        classification: "",
+                        ownerID: "",
+                        assigneeID: "",
+                        assetDepartmentID: "",
+                      });
+                    }}
+                    className="text-primary-pink hover:text-pink-600 cursor-pointer transition-colors font-medium text-sm whitespace-nowrap"
+                  >
+                    Clear Filters
+                  </span>
+                )}
             </div>
           </div>
 
@@ -571,17 +497,8 @@ const HardwareAssetOverview = () => {
         </>
       )}
 
-      {/* ✅ Popups / Update Forms */}
-      {isOpen && !editAsset && selectedType === "device" && (
+      {isOpen && !editAsset && selectedType === "hardware" && (
         <CreateNewHardwareAsset
-          onClose={handleClose}
-          isOpen={isOpen}
-          projectID={selectedProject?.id}
-        />
-      )}
-
-      {isOpen && !editAsset && selectedType === "furniture" && (
-        <CreateNewHardwareAssetFurniture
           onClose={handleClose}
           isOpen={isOpen}
           projectID={selectedProject?.id}
@@ -623,11 +540,11 @@ const HardwareAssetOverview = () => {
               </button>
               <div>
                 <h4 className="text-xl font-bold text-white">
-                  {selectedAssetForConfig?.category?.toLowerCase() === "device" 
-                    ? "Device Configuration" 
+                  {selectedAssetForConfig?.category?.toLowerCase() === "device"
+                    ? "Device Configuration"
                     : selectedAssetForConfig?.category?.toLowerCase() === "furniture"
-                    ? "Furniture Details"
-                    : "Asset Details"}
+                      ? "Furniture Details"
+                      : "Asset Details"}
                 </h4>
                 {selectedAssetForConfig && (
                   <p className="text-pink-100 text-sm mt-1">

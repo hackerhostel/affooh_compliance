@@ -248,7 +248,7 @@ const CloudAssetOverview = () => {
 
       {/* Filter Section */}
       <div className="flex items-center mt-4 justify-between">
-        <div className="flex space-x-4">
+        <div className="flex items-center space-x-4">
           <div className="w-40">
             <FormSelect
               name="vendor"
@@ -285,18 +285,22 @@ const CloudAssetOverview = () => {
               }
             />
           </div>
-          <button
-            onClick={() => {
-              setFormValues({
-                vendor: "",
-                assetType: "",
-                classification: "",
-              });
-            }}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm"
-          >
-            Clear Filters
-          </button>
+          {(formValues.vendor ||
+            formValues.assetType ||
+            formValues.classification) && (
+              <span
+                onClick={() => {
+                  setFormValues({
+                    vendor: "",
+                    assetType: "",
+                    classification: "",
+                  });
+                }}
+                className="text-primary-pink hover:text-pink-600 cursor-pointer transition-colors font-medium text-sm"
+              >
+                Clear Filters
+              </span>
+            )}
         </div>
       </div>
 
@@ -337,14 +341,7 @@ const CloudAssetOverview = () => {
                     className="border-b border-gray-200 hover:bg-gray-50"
                   >
                     <td className="py-4 px-2">{index + 1}</td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={() => handleAssetNameClick(row.id)}
-                        className="text-primary-pink hover:underline cursor-pointer"
-                      >
-                        {row.cloudAssetName}
-                      </button>
-                    </td>
+                    <td className="py-4 px-4">{row.cloudAssetName}</td>
                     <td className="py-4 px-4">{row.vendor}</td>
                     <td className="py-4 px-4">{row.assetType}</td>
                     <td className="py-4 px-4">
