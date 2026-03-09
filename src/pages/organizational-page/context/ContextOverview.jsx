@@ -402,7 +402,6 @@ const ContextOverview = () => {
         <div>
             {/* Top Buttons */}
             <div className='flex justify-end items-center mt-4 space-x-2'>
-                <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Archived</button>
                 <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Approved</button>
                 <button className='bg-primary-pink px-8 py-3 rounded-md text-white' onClick={handleSaveContext}>Save</button>
             </div>
