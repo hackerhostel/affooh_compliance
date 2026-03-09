@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
     ChevronLeftIcon,
+    ChevronDownIcon,
     PlusCircleIcon,
     EllipsisVerticalIcon,
     CheckCircleIcon,
@@ -296,67 +297,62 @@ const ObjectiveDetailView = ({ objectiveId, onBack }) => {
                                 {editingKpiId === kpi.id ? (
                                     <>
                                         <td className="py-2 px-2">
-                                            <FormInput
+                                            <input
                                                 type="date"
-                                                name="trackDate"
-                                                showLabel={false}
-                                                formValues={editingKpiData}
+                                                value={editingKpiData.trackDate}
                                                 onChange={(e) => setEditingKpiData({ ...editingKpiData, trackDate: e.target.value })}
-                                                className="!p-2 !shadow-none text-sm"
+                                                className="w-full p-2 rounded-lg border border-black focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white h-[38px] text-sm"
                                             />
                                         </td>
                                         <td className="py-2 px-2">
-                                            <FormInput
+                                            <input
+                                                type="text"
                                                 placeholder="Target"
-                                                name="target"
-                                                showLabel={false}
-                                                formValues={editingKpiData}
+                                                value={editingKpiData.target}
                                                 onChange={(e) => setEditingKpiData({ ...editingKpiData, target: e.target.value })}
-                                                className="!p-2 !shadow-none text-sm"
+                                                className="w-full p-2 rounded-lg border border-black focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white h-[38px] text-sm"
                                             />
                                         </td>
                                         <td className="py-2 px-2">
-                                            <FormInput
+                                            <input
+                                                type="text"
                                                 placeholder="Value"
-                                                name="value"
-                                                showLabel={false}
-                                                formValues={editingKpiData}
+                                                value={editingKpiData.value}
                                                 onChange={(e) => setEditingKpiData({ ...editingKpiData, value: e.target.value })}
-                                                className="!p-2 !shadow-none text-sm"
+                                                className="w-full p-2 rounded-lg border border-black focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white h-[38px] text-sm"
                                             />
                                         </td>
                                         <td className="py-2 px-2">
-                                            <FormSelect
-                                                name="statusID"
-                                                showLabel={false}
-                                                formValues={editingKpiData}
-                                                options={[
-                                                    { value: 1, label: "To Do" },
-                                                    { value: 2, label: "In Progress" },
-                                                    { value: 3, label: "Done" },
-                                                ]}
-                                                onChange={(e) => setEditingKpiData({ ...editingKpiData, statusID: parseInt(e.target.value) })}
-                                                className="!p-2 !shadow-none text-sm"
-                                            />
+                                            <div className="relative">
+                                                <select
+                                                    value={editingKpiData.statusID}
+                                                    onChange={(e) => setEditingKpiData({ ...editingKpiData, statusID: parseInt(e.target.value) })}
+                                                    className="w-full p-2 pr-8 rounded-lg border border-black focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white h-[38px] text-sm appearance-none cursor-pointer"
+                                                >
+                                                    <option value={1}>To Do</option>
+                                                    <option value={2}>In Progress</option>
+                                                    <option value={3}>Done</option>
+                                                </select>
+                                                <ChevronDownIcon className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                            </div>
                                         </td>
                                         <td className="py-2 px-2">
-                                            <FormInput
-                                                name="comments"
-                                                showLabel={false}
-                                                formValues={editingKpiData}
+                                            <input
+                                                type="text"
                                                 placeholder="Comments..."
+                                                value={editingKpiData.comments}
                                                 onChange={(e) => setEditingKpiData({ ...editingKpiData, comments: e.target.value })}
-                                                className="!p-2 !shadow-none text-sm"
+                                                className="w-full p-2 rounded-lg border border-black focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white h-[38px] text-sm"
                                             />
                                         </td>
                                         <td className="py-2 px-2 text-center">
-                                            <div className="flex items-center justify-center gap-2">
+                                            <div className="flex items-center justify-center gap-3">
                                                 <CheckCircleIcon
-                                                    className="w-7 h-7 text-primary-pink cursor-pointer hover:text-pink-700 transition"
+                                                    className="w-5 h-5 text-primary-pink cursor-pointer hover:text-pink-700 transition"
                                                     onClick={handleSaveEdit}
                                                 />
                                                 <XMarkIcon
-                                                    className="w-7 h-7 text-gray-400 cursor-pointer hover:text-gray-600 transition"
+                                                    className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600 transition"
                                                     onClick={handleCancelEdit}
                                                 />
                                             </div>
@@ -364,7 +360,7 @@ const ObjectiveDetailView = ({ objectiveId, onBack }) => {
                                     </>
                                 ) : (
                                     <>
-                                        <td className="py-4 px-4">{moment(kpi.trackDate).format("DD - MMM")}</td>
+                                        <td className="py-4 px-4">{moment(kpi.trackDate).format("DD - MMM - YYYY")}</td>
                                         <td className="py-4 px-4">{kpi.target}</td>
                                         <td className="py-4 px-4">{kpi.value}</td>
                                         <td className="py-4 px-4">
@@ -415,67 +411,62 @@ const ObjectiveDetailView = ({ objectiveId, onBack }) => {
                         {showNewKpi && (
                             <tr className="bg-pink-50/10 border-b border-pink-100">
                                 <td className="py-2 px-2">
-                                    <FormInput
+                                    <input
                                         type="date"
-                                        name="date"
-                                        showLabel={false}
-                                        formValues={newKpi}
+                                        value={newKpi.date}
                                         onChange={(e) => setNewKpi({ ...newKpi, date: e.target.value })}
-                                        className="!p-2 !shadow-none text-sm"
+                                        className="w-full p-2 rounded-lg border border-black focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white h-[38px] text-sm"
                                     />
                                 </td>
                                 <td className="py-2 px-2">
-                                    <FormInput
+                                    <input
+                                        type="text"
                                         placeholder="Target"
-                                        name="target"
-                                        showLabel={false}
-                                        formValues={newKpi}
+                                        value={newKpi.target}
                                         onChange={(e) => setNewKpi({ ...newKpi, target: e.target.value })}
-                                        className="!p-2 !shadow-none text-sm"
+                                        className="w-full p-2 rounded-lg border border-black focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white h-[38px] text-sm"
                                     />
                                 </td>
                                 <td className="py-2 px-2">
-                                    <FormInput
+                                    <input
+                                        type="text"
                                         placeholder="Value"
-                                        name="value"
-                                        showLabel={false}
-                                        formValues={newKpi}
+                                        value={newKpi.value}
                                         onChange={(e) => setNewKpi({ ...newKpi, value: e.target.value })}
-                                        className="!p-2 !shadow-none text-sm"
+                                        className="w-full p-2 rounded-lg border border-black focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white h-[38px] text-sm"
                                     />
                                 </td>
                                 <td className="py-2 px-2">
-                                    <FormSelect
-                                        name="statusID"
-                                        showLabel={false}
-                                        formValues={newKpi}
-                                        options={[
-                                            { value: 1, label: "To Do" },
-                                            { value: 2, label: "In Progress" },
-                                            { value: 3, label: "Done" },
-                                        ]}
-                                        onChange={(e) => setNewKpi({ ...newKpi, statusID: parseInt(e.target.value) })}
-                                        className="!p-2 !shadow-none text-sm"
-                                    />
+                                    <div className="relative">
+                                        <select
+                                            value={newKpi.statusID}
+                                            onChange={(e) => setNewKpi({ ...newKpi, statusID: parseInt(e.target.value) })}
+                                            className="w-full p-2 pr-8 rounded-lg border border-black focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white h-[38px] text-sm appearance-none cursor-pointer"
+                                        >
+                                            <option value={1}>To Do</option>
+                                            <option value={2}>In Progress</option>
+                                            <option value={3}>Done</option>
+                                        </select>
+                                        <ChevronDownIcon className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                    </div>
                                 </td>
                                 <td className="py-2 px-2">
-                                    <FormInput
-                                        name="comments"
-                                        showLabel={false}
-                                        formValues={newKpi}
+                                    <input
+                                        type="text"
                                         placeholder="Comments..."
+                                        value={newKpi.comments}
                                         onChange={(e) => setNewKpi({ ...newKpi, comments: e.target.value })}
-                                        className="!p-2 !shadow-none text-sm"
+                                        className="w-full p-2 rounded-lg border border-black focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white h-[38px] text-sm"
                                     />
                                 </td>
-                                <td className="py-2 px-2">
-                                    <div className="flex items-center gap-2">
+                                <td className="py-2 px-2 text-center">
+                                    <div className="flex items-center justify-center gap-3">
                                         <CheckCircleIcon
-                                            className="w-7 h-7 text-primary-pink cursor-pointer hover:text-pink-700 transition"
+                                            className="w-5 h-5 text-primary-pink cursor-pointer hover:text-pink-700 transition"
                                             onClick={handleAddKpi}
                                         />
                                         <XMarkIcon
-                                            className="w-7 h-7 text-gray-400 cursor-pointer hover:text-gray-600 transition"
+                                            className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600 transition"
                                             onClick={() => setShowNewKpi(false)}
                                         />
                                     </div>

@@ -111,13 +111,13 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
 
   const handleSaveNew = async () => {
     if (
-      !newRow.department ||
-      !newRow.type ||
-      !newRow.objective ||
+      !newRow.departmentID ||
+      !newRow.typeID ||
+      !newRow.objectiveText ||
       !newRow.kpi ||
       !newRow.initialStatus ||
       !newRow.target ||
-      !newRow.monitoringFrequency ||
+      !newRow.frequencyID ||
       !newRow.howToMeasure
     ) {
       addToast("Please fill all fields", { appearance: "warning" });
@@ -224,13 +224,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
     <div className="p-4">
       <div className="flex justify-end items-center mt-4 space-x-2">
         <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-          Archived
-        </button>
-        <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
           Approved
-        </button>
-        <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-          Save
         </button>
       </div>
       <div className="flex items-center gap-5">
@@ -363,7 +357,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
 
             {showNewRow && (
               <tr className="border-b border-gray-200">
-                <td className="py-3 px-2">-</td>
+                <td className="py-3 px-2"></td>
                 <td className="py-3 px-2 w-40">
                   <FormSelect
                     name="departmentID"
