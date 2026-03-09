@@ -53,6 +53,10 @@ const DocumentaryListPage = () => {
     setIsDialogOpen(false);
   };
 
+  const handleDocumentClick = (doc) => {
+    setSelectedDoc(doc);
+  };
+
   return (
     <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-5 pr-3 mt-6">
       {documents.length === 0 ? (
@@ -61,7 +65,9 @@ const DocumentaryListPage = () => {
         documents.map((doc, index) => (
           <div
             key={doc.id}
-            className="relative flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer border-gray-200"
+            onClick={() => handleDocumentClick(doc)}
+            className={`relative flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedDoc?.id === doc.id ? "border-primary-pink border-2" : "border-gray-200"
+              }`}
           >
             <div className="flex flex-col">
               <div className="font-medium text-gray-900">{doc.name}</div>

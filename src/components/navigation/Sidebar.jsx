@@ -60,9 +60,9 @@ function Sidebar() {
     <Link
       to={link}
       className={`w-12 h-12 ${location.pathname === link
-        ? 'bg-primary-pink'
-        : 'bg-gray-200 hover:bg-secondary-pink'
-        } rounded-full flex items-center justify-center transition-colors duration-200`}
+        ? 'bg-primary-pink border-2 border-primary-pink ring-2 ring-primary-pink ring-offset-2'
+        : 'bg-gray-200 hover:bg-secondary-pink border-2 border-transparent'
+        } rounded-full flex items-center justify-center transition-all duration-200`}
     >
       <Icon
         className={`w-6 h-6 ${location.pathname === link ? 'text-white' : 'text-gray-700'

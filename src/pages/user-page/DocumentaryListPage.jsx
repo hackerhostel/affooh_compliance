@@ -39,14 +39,19 @@ const DocumentaryListPage = () => {
         {documents.map((doc) => (
           <div
             key={doc.id}
-            className="flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer"
+            onClick={() => setSelectedDocument(doc)}
+            className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedDocument?.id === doc.id ? "border-primary-pink border-2" : "border-gray-200"
+              }`}
           >
             <div className="col-span-2 text-left">
               <div className="font-bold">{doc.name}</div>
             </div>
             <div className="flex gap-1 ml-6">
               <TrashIcon
-                onClick={() => handleDeleteClick(doc)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClick(doc);
+                }}
                 className="w-4 h-4 text-pink-700 cursor-pointer"
               />
               <ChevronRightIcon className="w-4 h-4 text-black" />

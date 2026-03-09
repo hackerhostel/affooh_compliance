@@ -15,7 +15,7 @@ const RoleListPage = ({ onDocumentSelect }) => {
     { id: 5, name: "User access Matrix", classification: "Restricted" },
     { id: 6, name: "Scope", classification: "Restricted" },
     { id: 7, name: "Communication Register", classification: "Restricted" },
-  
+
   ]);
 
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -55,6 +55,7 @@ const RoleListPage = ({ onDocumentSelect }) => {
   };
 
   const handleDocumentClick = (doc) => {
+    setSelectedDoc(doc);
     if (onDocumentSelect) {
       onDocumentSelect(doc);
     }
@@ -69,7 +70,8 @@ const RoleListPage = ({ onDocumentSelect }) => {
           <div
             key={doc.id}
             onClick={() => handleDocumentClick(doc)}
-            className="relative flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer border-gray-200"
+            className={`relative flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedDoc?.id === doc.id ? "border-primary-pink border-2" : "border-gray-200"
+              }`}
           >
             <div className="flex flex-col">
               <div className="font-medium text-gray-900">{doc.name}</div>

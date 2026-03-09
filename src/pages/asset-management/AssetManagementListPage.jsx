@@ -14,8 +14,8 @@ const AssetManagementPage = ({ onDocumentSelect }) => {
     { id: 4, name: "Cloud Asset", classification: "Restricted" },
     { id: 5, name: "Device Moved", classification: "Restricted" },
     { id: 6, name: "Device Disposed", classification: "Restricted" },
-    
-  
+
+
   ]);
 
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -55,6 +55,7 @@ const AssetManagementPage = ({ onDocumentSelect }) => {
   };
 
   const handleDocumentClick = (doc) => {
+    setSelectedDoc(doc);
     if (onDocumentSelect) {
       onDocumentSelect(doc);
     }
@@ -69,7 +70,8 @@ const AssetManagementPage = ({ onDocumentSelect }) => {
           <div
             key={doc.id}
             onClick={() => handleDocumentClick(doc)}
-            className="relative flex justify-between items-center p-2  border rounded-md w-60 gap-2 hover:bg-gray-100 cursor-pointer border-gray-200"
+            className={`relative flex justify-between items-center p-2  border rounded-md w-60 gap-2 hover:bg-gray-100 cursor-pointer ${selectedDoc?.id === doc.id ? "border-primary-pink border-2" : "border-gray-200"
+              }`}
           >
             <div className="flex flex-col">
               <div className="font-medium text-gray-900">{doc.name}</div>
