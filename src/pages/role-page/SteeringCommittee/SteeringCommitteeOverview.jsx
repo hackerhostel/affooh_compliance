@@ -22,6 +22,7 @@ import {
   updateSteeringCommittee,
   deleteSteeringCommittee as deleteSteeringCommitteeApi,
   getSteeringCommitteeRoles,
+  getOrganizationRoles,
 } from "../../../utils/complianceApi.js";
 import { useToasts } from "react-toast-notifications";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
@@ -60,16 +61,15 @@ const SteeringCommitteeOverview = () => {
   }, [committeeData]);
 
   useEffect(() => {
-    if (projectId) {
-      getSteeringCommitteeRoles(projectId).then(setAvailableRoles);
-    } else {
-      setAvailableRoles([]);
-    }
-  }, [projectId]);
+    getOrganizationRoles().then((roles) => {
+      setAvailableRoles(roles.map((r) => r.name));
+    });
+  }, []);
 
   const roleOptions = getSelectOptions(
     availableRoles.map((r) => ({ id: r, name: r }))
   );
+
 
   const rowsPerPage = 5;
   const totalPages = Math.max(

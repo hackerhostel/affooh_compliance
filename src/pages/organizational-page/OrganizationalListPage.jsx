@@ -10,12 +10,11 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
   // Dummy document list
   const [documents, setDocuments] = useState([
     { id: 1, name: "Context", classification: "Public" },
-    { id: 2, name: "Organization Chart", classification: "Public" },
     { id: 3, name: "SWOT", classification: "Confidential" },
     { id: 4, name: "PEST", classification: "Restricted" },
     { id: 5, name: "Stakeholder Context", classification: "Restricted" },
     { id: 6, name: "Communication Register", classification: "Restricted" },
-  
+
   ]);
 
   // Auto-select first document on mount
@@ -64,12 +63,12 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
               : d
           )
         );
-        
+
         // Call API if document has an ID from backend
         if (selectedDoc.contextId) {
           await updateOrganizationalContext(selectedDoc.contextId, updatedData);
         }
-        
+
         addToast("Document updated successfully!", { appearance: "success" });
       }
     } catch (error) {
@@ -80,6 +79,7 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
   };
 
   const handleDocumentClick = (doc) => {
+    setSelectedDoc(doc);
     if (onDocumentSelect) {
       onDocumentSelect(doc);
     }
@@ -94,7 +94,8 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
           <div
             key={doc.id}
             onClick={() => handleDocumentClick(doc)}
-            className="relative flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer border-gray-200"
+            className={`relative flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedDoc?.id === doc.id ? "border-primary-pink border-2" : "border-gray-200"
+              }`}
           >
             <div className="flex flex-col">
               <div className="font-medium text-gray-900">{doc.name}</div>

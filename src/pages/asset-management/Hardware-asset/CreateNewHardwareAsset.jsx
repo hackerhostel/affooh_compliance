@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import FormInput from "../../../components/FormInput.jsx";
 import FormSelect from "../../../components/FormSelect.jsx";
+import FormTextArea from "../../../components/FormTextArea.jsx";
 import { useToasts } from "react-toast-notifications";
 import { doCreateAsset, doGetMasterData } from "../../../state/slice/assetSlice.js";
 import { doGetProjectUsers } from "../../../state/slice/projectUsersSlice.js";
@@ -44,6 +45,9 @@ const CreateNewHardwareAsset = ({ isOpen, onClose, projectID }) => {
       manufacturer: "",
       macAddress: "",
     },
+    quantity: 1,
+    areaID: "",
+    remarks: "",
   });
 
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
@@ -95,6 +99,9 @@ const CreateNewHardwareAsset = ({ isOpen, onClose, projectID }) => {
         manufacturer: "",
         macAddress: "",
       },
+      quantity: 1,
+      areaID: "",
+      remarks: "",
     });
     setIsValidationErrorsShown(false);
   };
@@ -141,18 +148,29 @@ const CreateNewHardwareAsset = ({ isOpen, onClose, projectID }) => {
       value: opt.value,
     })) || [];
 
+  const areaOptions =
+    masterData.areas?.map((area) => ({
+      label: area.areaName,
+      value: area.id.toString(),
+    })) || [];
+
   const createNewAsset = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setIsValidationErrorsShown(false);
 
     // Validation
-    if (
+    const commonFields =
       !formValues.assetName ||
       !formValues.assetCode ||
       !formValues.assetType ||
-      !formValues.classification
-    ) {
+      !formValues.classification;
+
+    const furnitureFields =
+      formValues.category === "Furniture" &&
+      (!formValues.quantity || !formValues.areaID);
+
+    if (commonFields || furnitureFields) {
       addToast("Please fill in all required fields.", {
         appearance: "error",
       });
@@ -166,7 +184,7 @@ const CreateNewHardwareAsset = ({ isOpen, onClose, projectID }) => {
         projectID: Number(projectID),
         assetName: formValues.assetName,
         assetCode: formValues.assetCode,
-        category: "Device",
+        category: formValues.category,
         assetType: formValues.assetType,
         classification: formValues.classification,
         serialKey: formValues.serialKey || undefined,
@@ -174,7 +192,10 @@ const CreateNewHardwareAsset = ({ isOpen, onClose, projectID }) => {
         assetDepartmentID: formValues.assetDepartmentID
           ? Number(formValues.assetDepartmentID)
           : undefined,
-        deviceConfig: {
+      };
+
+      if (formValues.category === "Device") {
+        assetData.deviceConfig = {
           operatingSystem: formValues.deviceConfig.operatingSystem || undefined,
           osVersion: formValues.deviceConfig.osVersion || undefined,
           osLicense: formValues.deviceConfig.osLicense || false,
@@ -184,8 +205,14 @@ const CreateNewHardwareAsset = ({ isOpen, onClose, projectID }) => {
           model: formValues.deviceConfig.model || undefined,
           manufacturer: formValues.deviceConfig.manufacturer || undefined,
           macAddress: formValues.deviceConfig.macAddress || undefined,
-        },
-      };
+        };
+      } else if (formValues.category === "Furniture") {
+        assetData.quantity = Number(formValues.quantity);
+        assetData.areaID = formValues.areaID
+          ? Number(formValues.areaID)
+          : undefined;
+        assetData.remarks = formValues.remarks || undefined;
+      }
 
       await dispatch(doCreateAsset(assetData)).unwrap();
       addToast("Hardware asset created successfully!", {
@@ -209,7 +236,7 @@ const CreateNewHardwareAsset = ({ isOpen, onClose, projectID }) => {
       <div className="bg-white p-6 shadow-lg w-1/2 overflow-y-auto max-h-screen">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <p className="font-bold text-2xl">New Hardware Asset (Device)</p>
+          <p className="font-bold text-2xl">New Hardware Asset</p>
           <div className="cursor-pointer" onClick={handleClose}>
             <XMarkIcon className="w-6 h-6 text-gray-500" />
           </div>
@@ -232,7 +259,6 @@ const CreateNewHardwareAsset = ({ isOpen, onClose, projectID }) => {
                   handleFormChange(name, value)
                 }
                 showErrors={isValidationErrorsShown}
-                disabled={true}
               />
             </div>
 
@@ -335,127 +361,179 @@ const CreateNewHardwareAsset = ({ isOpen, onClose, projectID }) => {
               />
             </div>
 
-            {/* Device Configuration Section */}
-            <div className="border-t pt-4 mt-4">
-              <p className="text-lg font-semibold mb-4">Device Configuration</p>
+            {/* Conditional Configuration Section */}
+            {formValues.category === "Device" && (
+              <div className="border-t pt-4 mt-4">
+                <p className="text-lg font-semibold mb-4">Device Configuration</p>
 
-              {/* Operating System */}
-              <div className="flex-col mb-4">
-                <p className="text-secondary-grey">Operating System</p>
-                <FormSelect
-                  name="deviceConfig.operatingSystem"
-                  formValues={formValues}
-                  options={operatingSystemOptions}
-                  onChange={({ target: { value } }) =>
-                    handleFormChange("deviceConfig.operatingSystem", value)
-                  }
-                />
-              </div>
-
-              {/* OS Version */}
-              <div className="flex-col mb-4">
-                <p className="text-secondary-grey">OS Version</p>
-                <FormInput
-                  type="text"
-                  name="deviceConfig.osVersion"
-                  formValues={formValues}
-                  onChange={({ target: { value } }) =>
-                    handleFormChange("deviceConfig.osVersion", value)
-                  }
-                />
-              </div>
-
-              {/* OS License */}
-              <div className="flex-col mb-4">
-                <p className="text-secondary-grey">OS License</p>
-                <FormSelect
-                  name="deviceConfig.osLicense"
-                  formValues={formValues}
-                  options={osLicenseOptions}
-                  onChange={({ target: { value } }) =>
-                    handleFormChange("deviceConfig.osLicense", value === "true")
-                  }
-                />
-              </div>
-
-              {/* CPU + Processor */}
-              <div className="flex space-x-4 mb-4">
-                <div className="flex-col w-1/2">
-                  <p className="text-secondary-grey">CPU</p>
-                  <FormInput
-                    type="text"
-                    name="deviceConfig.cpu"
+                {/* Operating System */}
+                <div className="flex-col mb-4">
+                  <p className="text-secondary-grey">Operating System</p>
+                  <FormSelect
+                    name="deviceConfig.operatingSystem"
                     formValues={formValues}
+                    options={operatingSystemOptions}
                     onChange={({ target: { value } }) =>
-                      handleFormChange("deviceConfig.cpu", value)
+                      handleFormChange("deviceConfig.operatingSystem", value)
                     }
                   />
                 </div>
-                <div className="flex-col w-1/2">
-                  <p className="text-secondary-grey">Processor</p>
+
+                {/* OS Version */}
+                <div className="flex-col mb-4">
+                  <p className="text-secondary-grey">OS Version</p>
                   <FormInput
                     type="text"
-                    name="deviceConfig.processor"
+                    name="deviceConfig.osVersion"
                     formValues={formValues}
                     onChange={({ target: { value } }) =>
-                      handleFormChange("deviceConfig.processor", value)
+                      handleFormChange("deviceConfig.osVersion", value)
+                    }
+                  />
+                </div>
+
+                {/* OS License */}
+                <div className="flex-col mb-4">
+                  <p className="text-secondary-grey">OS License</p>
+                  <FormSelect
+                    name="deviceConfig.osLicense"
+                    formValues={formValues}
+                    options={osLicenseOptions}
+                    onChange={({ target: { value } }) =>
+                      handleFormChange("deviceConfig.osLicense", value === "true")
+                    }
+                  />
+                </div>
+
+                {/* CPU + Processor */}
+                <div className="flex space-x-4 mb-4">
+                  <div className="flex-col w-1/2">
+                    <p className="text-secondary-grey">CPU</p>
+                    <FormInput
+                      type="text"
+                      name="deviceConfig.cpu"
+                      formValues={formValues}
+                      onChange={({ target: { value } }) =>
+                        handleFormChange("deviceConfig.cpu", value)
+                      }
+                    />
+                  </div>
+                  <div className="flex-col w-1/2">
+                    <p className="text-secondary-grey">Processor</p>
+                    <FormInput
+                      type="text"
+                      name="deviceConfig.processor"
+                      formValues={formValues}
+                      onChange={({ target: { value } }) =>
+                        handleFormChange("deviceConfig.processor", value)
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* RAM */}
+                <div className="flex-col mb-4">
+                  <p className="text-secondary-grey">RAM</p>
+                  <FormInput
+                    type="text"
+                    name="deviceConfig.ram"
+                    formValues={formValues}
+                    onChange={({ target: { value } }) =>
+                      handleFormChange("deviceConfig.ram", value)
+                    }
+                  />
+                </div>
+
+                {/* Model + Manufacturer */}
+                <div className="flex space-x-4 mb-4">
+                  <div className="flex-col w-1/2">
+                    <p className="text-secondary-grey">Model</p>
+                    <FormInput
+                      type="text"
+                      name="deviceConfig.model"
+                      formValues={formValues}
+                      onChange={({ target: { value } }) =>
+                        handleFormChange("deviceConfig.model", value)
+                      }
+                    />
+                  </div>
+                  <div className="flex-col w-1/2">
+                    <p className="text-secondary-grey">Manufacturer</p>
+                    <FormInput
+                      type="text"
+                      name="deviceConfig.manufacturer"
+                      formValues={formValues}
+                      onChange={({ target: { value } }) =>
+                        handleFormChange("deviceConfig.manufacturer", value)
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* MAC Address */}
+                <div className="flex-col mb-4">
+                  <p className="text-secondary-grey">MAC Address</p>
+                  <FormInput
+                    type="text"
+                    name="deviceConfig.macAddress"
+                    formValues={formValues}
+                    onChange={({ target: { value } }) =>
+                      handleFormChange("deviceConfig.macAddress", value)
                     }
                   />
                 </div>
               </div>
+            )}
 
-              {/* RAM */}
-              <div className="flex-col mb-4">
-                <p className="text-secondary-grey">RAM</p>
-                <FormInput
-                  type="text"
-                  name="deviceConfig.ram"
-                  formValues={formValues}
-                  onChange={({ target: { value } }) =>
-                    handleFormChange("deviceConfig.ram", value)
-                  }
-                />
-              </div>
+            {formValues.category === "Furniture" && (
+              <div className="border-t pt-4 mt-4 space-y-4">
+                <p className="text-lg font-semibold mb-4">Furniture Details</p>
 
-              {/* Model + Manufacturer */}
-              <div className="flex space-x-4 mb-4">
-                <div className="flex-col w-1/2">
-                  <p className="text-secondary-grey">Model</p>
-                  <FormInput
-                    type="text"
-                    name="deviceConfig.model"
+                {/* QTY + Area */}
+                <div className="flex space-x-5">
+                  <div className="flex-col w-1/2">
+                    <p className="text-secondary-grey">QTY *</p>
+                    <FormInput
+                      type="number"
+                      name="quantity"
+                      formValues={formValues}
+                      onChange={({ target: { name, value } }) =>
+                        handleFormChange(name, value)
+                      }
+                      showErrors={isValidationErrorsShown}
+                      min="1"
+                    />
+                  </div>
+
+                  <div className="flex-col w-1/2">
+                    <p className="text-secondary-grey">Area *</p>
+                    <FormSelect
+                      name="areaID"
+                      formValues={formValues}
+                      options={areaOptions}
+                      onChange={({ target: { name, value } }) =>
+                        handleFormChange(name, value)
+                      }
+                      showErrors={isValidationErrorsShown}
+                    />
+                  </div>
+                </div>
+
+                {/* Remarks */}
+                <div className="flex-col">
+                  <p className="text-secondary-grey">Remarks</p>
+                  <FormTextArea
+                    name="remarks"
                     formValues={formValues}
-                    onChange={({ target: { value } }) =>
-                      handleFormChange("deviceConfig.model", value)
+                    onChange={({ target: { name, value } }) =>
+                      handleFormChange(name, value)
                     }
+                    showErrors={isValidationErrorsShown}
+                    rows={4}
                   />
                 </div>
-                <div className="flex-col w-1/2">
-                  <p className="text-secondary-grey">Manufacturer</p>
-                  <FormInput
-                    type="text"
-                    name="deviceConfig.manufacturer"
-                    formValues={formValues}
-                    onChange={({ target: { value } }) =>
-                      handleFormChange("deviceConfig.manufacturer", value)
-                    }
-                  />
-                </div>
               </div>
-
-              {/* MAC Address */}
-              <div className="flex-col mb-4">
-                <p className="text-secondary-grey">MAC Address</p>
-                <FormInput
-                  type="text"
-                  name="deviceConfig.macAddress"
-                  formValues={formValues}
-                  onChange={({ target: { value } }) =>
-                    handleFormChange("deviceConfig.macAddress", value)
-                  }
-                />
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Buttons */}

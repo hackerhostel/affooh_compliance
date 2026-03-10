@@ -12,8 +12,10 @@ import {
   TrashIcon,
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import { selectProjectUserList, doGetProjectUsers } from "../../../state/slice/projectUsersSlice.js";
+import { getUserSelectOptions } from "../../../utils/commonUtils.js";
 import useFetchCommunications from "../../../hooks/custom-hooks/compliance/useFetchCommunications.jsx";
 import {
   createCommunication,
@@ -28,9 +30,19 @@ const CommunicationRegisterOverview = () => {
   // INTERNAL COMMUNICATION SECTION
   // -------------------------------
   const { addToast } = useToasts();
+  const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
   const projectId = selectedProject?.id;
   const { data: communications, refetch } = useFetchCommunications(projectId);
+  const projectUsers = useSelector(selectProjectUserList);
+
+  useEffect(() => {
+    if (projectId) {
+      dispatch(doGetProjectUsers(projectId));
+    }
+  }, [projectId, dispatch]);
+
+  const userOptions = getUserSelectOptions(projectUsers || []);
 
   const [internalRows, setInternalRows] = useState([]);
   const [showNewInternalRow, setShowNewInternalRow] = useState(false);
@@ -335,15 +347,13 @@ const CommunicationRegisterOverview = () => {
           <table className="table-fixed w-full border-collapse min-w-max">
             <thead>
               <tr className="text-left text-secondary-grey border-b border-gray-200">
-                <th className="py-3 px-2" style={{ width: '50px' }}>#</th>
-                <th className="py-3 px-2" style={{ width: '150px' }}>Subject</th>
-                <th className="py-3 px-2">Description</th>
-                <th className="py-3 px-2" style={{ width: '100px' }}>Method</th>
-                <th className="py-3 px-2" style={{ width: '100px' }}>Frequency</th>
-                <th className="py-3 px-2" style={{ width: '120px' }}>Sender</th>
-                <th className="py-3 px-2" style={{ width: '120px' }}>Recipient</th>
-                <th className="py-3 px-2" style={{ width: '120px' }}>Date</th>
-                <th className="py-3 px-2" style={{ width: '100px' }}>Status</th>
+                <th className="py-3 px-2" style={{ width: '40px' }}>#</th>
+                <th className="py-3 px-2" style={{ width: '200px' }}>Communication Media</th>
+                <th className="py-3 px-2" style={{ width: '250px' }}>What is communicate</th>
+                <th className="py-3 px-2" style={{ width: '120px' }}>Method</th>
+                <th className="py-3 px-2" style={{ width: '120px' }}>Frequency</th>
+                <th className="py-3 px-2" style={{ width: '200px' }}>Responsibility</th>
+                <th className="py-3 px-2" style={{ width: '150px' }}>Target team</th>
                 <th className="py-3 px-2" style={{ width: '80px' }}>Actions</th>
               </tr>
             </thead>
@@ -380,9 +390,10 @@ const CommunicationRegisterOverview = () => {
                     />
                   </td>
                   <td className="py-3 px-2">
-                    <FormInput
+                    <FormSelect
                       name="sender"
                       formValues={{ sender: newInternalRow.sender }}
+                      options={userOptions}
                       onChange={handleInternalChange}
                     />
                   </td>
@@ -390,22 +401,6 @@ const CommunicationRegisterOverview = () => {
                     <FormInput
                       name="recipient"
                       formValues={{ recipient: newInternalRow.recipient }}
-                      onChange={handleInternalChange}
-                    />
-                  </td>
-                  <td className="py-3 px-2">
-                    <FormInput
-                      type="date"
-                      name="communicationDate"
-                      formValues={{ communicationDate: newInternalRow.communicationDate }}
-                      onChange={handleInternalChange}
-                    />
-                  </td>
-                  <td className="py-3 px-2">
-                    <FormSelect
-                      name="status"
-                      formValues={{ status: newInternalRow.status }}
-                      options={statusOptions}
                       onChange={handleInternalChange}
                     />
                   </td>
@@ -435,10 +430,8 @@ const CommunicationRegisterOverview = () => {
                         <td className="py-3 px-2">{row.description}</td>
                         <td className="py-3 px-2">{row.method}</td>
                         <td className="py-3 px-2">{row.frequency}</td>
-                        <td className="py-3 px-2">{row.sender}</td>
+                        <td className="py-3 px-2">{userOptions.find(u => String(u.value) === String(row.sender))?.label || row.sender}</td>
                         <td className="py-3 px-2">{row.recipient}</td>
-                        <td className="py-3 px-2">{row.communicationDate ? row.communicationDate.split('T')[0] : '-'}</td>
-                        <td className="py-3 px-2">{row.status}</td>
                         <td className="py-3 px-2">
                           <div className="flex items-center gap-3">
                             {openActionRowId !== row.id ? (
@@ -504,9 +497,10 @@ const CommunicationRegisterOverview = () => {
                           />
                         </td>
                         <td className="py-3 px-2">
-                          <FormInput
+                          <FormSelect
                             name="sender"
                             formValues={{ sender: row.sender }}
+                            options={userOptions}
                             onChange={(e) => handleEditInternalChange(row.id, e)}
                           />
                         </td>
@@ -514,22 +508,6 @@ const CommunicationRegisterOverview = () => {
                           <FormInput
                             name="recipient"
                             formValues={{ recipient: row.recipient }}
-                            onChange={(e) => handleEditInternalChange(row.id, e)}
-                          />
-                        </td>
-                        <td className="py-3 px-2">
-                          <FormInput
-                            type="date"
-                            name="communicationDate"
-                            formValues={{ communicationDate: row.communicationDate }}
-                            onChange={(e) => handleEditInternalChange(row.id, e)}
-                          />
-                        </td>
-                        <td className="py-3 px-2">
-                          <FormSelect
-                            name="status"
-                            formValues={{ status: row.status }}
-                            options={statusOptions}
                             onChange={(e) => handleEditInternalChange(row.id, e)}
                           />
                         </td>
@@ -603,15 +581,12 @@ const CommunicationRegisterOverview = () => {
           <table className="table-fixed w-full border-collapse min-w-max">
             <thead>
               <tr className="text-left text-secondary-grey border-b border-gray-200">
-                <th className="py-3 px-2" style={{ width: '50px' }}>#</th>
-                <th className="py-3 px-2" style={{ width: '150px' }}>Subject</th>
-                <th className="py-3 px-2">Description</th>
-                <th className="py-3 px-2" style={{ width: '100px' }}>Method</th>
-                <th className="py-3 px-2" style={{ width: '100px' }}>Frequency</th>
-                <th className="py-3 px-2" style={{ width: '120px' }}>Sender</th>
-                <th className="py-3 px-2" style={{ width: '120px' }}>Recipient</th>
-                <th className="py-3 px-2" style={{ width: '120px' }}>Date</th>
-                <th className="py-3 px-2" style={{ width: '100px' }}>Status</th>
+                <th className="py-3 px-2" style={{ width: '40px' }}>#</th>
+                <th className="py-3 px-2" style={{ width: '220px' }}>With whom to communicate</th>
+                <th className="py-3 px-2" style={{ width: '250px' }}>What is communicate</th>
+                <th className="py-3 px-2" style={{ width: '180px' }}>How to communicate</th>
+                <th className="py-3 px-2" style={{ width: '180px' }}>Who communicates</th>
+                <th className="py-3 px-2" style={{ width: '150px' }}>When to communicate</th>
                 <th className="py-3 px-2" style={{ width: '80px' }}>Actions</th>
               </tr>
             </thead>
@@ -642,13 +617,6 @@ const CommunicationRegisterOverview = () => {
                   </td>
                   <td className="py-3 px-2">
                     <FormInput
-                      name="frequency"
-                      formValues={{ frequency: newExternalRow.frequency }}
-                      onChange={handleExternalChange}
-                    />
-                  </td>
-                  <td className="py-3 px-2">
-                    <FormInput
                       name="sender"
                       formValues={{ sender: newExternalRow.sender }}
                       onChange={handleExternalChange}
@@ -656,24 +624,8 @@ const CommunicationRegisterOverview = () => {
                   </td>
                   <td className="py-3 px-2">
                     <FormInput
-                      name="recipient"
-                      formValues={{ recipient: newExternalRow.recipient }}
-                      onChange={handleExternalChange}
-                    />
-                  </td>
-                  <td className="py-3 px-2">
-                    <FormInput
-                      type="date"
-                      name="communicationDate"
-                      formValues={{ communicationDate: newExternalRow.communicationDate }}
-                      onChange={handleExternalChange}
-                    />
-                  </td>
-                  <td className="py-3 px-2">
-                    <FormSelect
-                      name="status"
-                      formValues={{ status: newExternalRow.status }}
-                      options={statusOptions}
+                      name="frequency"
+                      formValues={{ frequency: newExternalRow.frequency }}
                       onChange={handleExternalChange}
                     />
                   </td>
@@ -702,11 +654,8 @@ const CommunicationRegisterOverview = () => {
                         <td className="py-3 px-2">{row.subject}</td>
                         <td className="py-3 px-2">{row.description}</td>
                         <td className="py-3 px-2">{row.method}</td>
-                        <td className="py-3 px-2">{row.frequency}</td>
                         <td className="py-3 px-2">{row.sender}</td>
-                        <td className="py-3 px-2">{row.recipient}</td>
-                        <td className="py-3 px-2">{row.communicationDate ? row.communicationDate.split('T')[0] : '-'}</td>
-                        <td className="py-3 px-2">{row.status}</td>
+                        <td className="py-3 px-2">{row.frequency}</td>
                         <td className="py-3 px-2">
                           <div className="flex items-center gap-3">
                             {openActionRowId !== row.id ? (
@@ -766,13 +715,6 @@ const CommunicationRegisterOverview = () => {
                         </td>
                         <td className="py-3 px-2">
                           <FormInput
-                            name="frequency"
-                            formValues={{ frequency: row.frequency }}
-                            onChange={(e) => handleEditExternalChange(row.id, e)}
-                          />
-                        </td>
-                        <td className="py-3 px-2">
-                          <FormInput
                             name="sender"
                             formValues={{ sender: row.sender }}
                             onChange={(e) => handleEditExternalChange(row.id, e)}
@@ -780,24 +722,8 @@ const CommunicationRegisterOverview = () => {
                         </td>
                         <td className="py-3 px-2">
                           <FormInput
-                            name="recipient"
-                            formValues={{ recipient: row.recipient }}
-                            onChange={(e) => handleEditExternalChange(row.id, e)}
-                          />
-                        </td>
-                        <td className="py-3 px-2">
-                          <FormInput
-                            type="date"
-                            name="communicationDate"
-                            formValues={{ communicationDate: row.communicationDate }}
-                            onChange={(e) => handleEditExternalChange(row.id, e)}
-                          />
-                        </td>
-                        <td className="py-3 px-2">
-                          <FormSelect
-                            name="status"
-                            formValues={{ status: row.status }}
-                            options={statusOptions}
+                            name="frequency"
+                            formValues={{ frequency: row.frequency }}
                             onChange={(e) => handleEditExternalChange(row.id, e)}
                           />
                         </td>

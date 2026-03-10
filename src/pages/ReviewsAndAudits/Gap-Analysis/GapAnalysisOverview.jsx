@@ -260,7 +260,18 @@ const GapAnalysisOverview = ({ selectedDocument }) => {
                         showLabel={false}
                     />
                 </div>
-                <button className="text-primary-pink font-semibold hover:underline text-sm whitespace-nowrap ml-1" onClick={handleClearFilters}>Clear Filters</button>
+                {(filters.control ||
+                    filters.assignee ||
+                    filters.compliance ||
+                    filters.severity ||
+                    filters.status) && (
+                        <span
+                            className="text-primary-pink font-semibold hover:text-pink-600 cursor-pointer text-sm whitespace-nowrap"
+                            onClick={handleClearFilters}
+                        >
+                            Clear Filters
+                        </span>
+                    )}
                 <div className="flex-grow flex justify-end items-center space-x-2">
                     <button className="bg-primary-pink px-8 py-2 rounded-md text-white hover:opacity-90 transition-all font-medium" disabled={saving} onClick={handleSave}>
                         {saving ? "Updating..." : "Update"}

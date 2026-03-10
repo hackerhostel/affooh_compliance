@@ -416,13 +416,7 @@ const DeviceDisposedOverview = () => {
     <div className="mt-6">
       <div className="flex justify-end items-center mt-4 space-x-2">
         <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-          Archived
-        </button>
-        <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
           Approved
-        </button>
-        <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-          Save
         </button>
       </div>
 
@@ -468,14 +462,16 @@ const DeviceDisposedOverview = () => {
               }
             />
           </div>
-          <button
-            onClick={() => {
-              setFormValues({ checkedBy: "", status: "" });
-            }}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm"
-          >
-            Clear Filters
-          </button>
+          {(formValues.checkedBy || formValues.status) && (
+            <span
+              onClick={() => {
+                setFormValues({ checkedBy: "", status: "" });
+              }}
+              className="text-primary-pink hover:text-pink-600 cursor-pointer transition-colors font-medium text-sm whitespace-nowrap"
+            >
+              Clear Filters
+            </span>
+          )}
         </div>
       </div>
 

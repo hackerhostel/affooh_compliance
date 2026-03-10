@@ -71,8 +71,8 @@ const OperationListPage = ({ onDocumentSelect }) => {
               key={doc.id}
               onClick={() => handleDocumentClick(doc)}
               className={`relative flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer transition-all duration-200 ${isSelected
-                  ? "border-primary-pink bg-pink-50/10"
-                  : "border-gray-200"
+                ? "border-primary-pink border-2 bg-pink-50/10"
+                : "border-gray-200"
                 }`}
             >
               <div className="flex flex-col">

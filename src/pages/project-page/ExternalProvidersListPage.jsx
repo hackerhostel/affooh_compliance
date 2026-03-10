@@ -89,11 +89,10 @@ const ExternalProvidersListPage = () => {
             {["draft", "approved", "archived"].map((filter) => (
               <button
                 key={filter}
-                className={`px-3 py-1 rounded-xl text-xs ${
-                  selectedFilters[filter]
+                className={`px-3 py-1 rounded-xl text-xs ${selectedFilters[filter]
                     ? "bg-primary-pink text-white"
                     : "bg-gray-200"
-                }`}
+                  }`}
                 onClick={() => handleFilterChange(filter)}
               >
                 {filter.charAt(0).toUpperCase() + filter.slice(1)} (
@@ -115,11 +114,10 @@ const ExternalProvidersListPage = () => {
               key={provider.id}
               style={{ width: "256px" }}
               onClick={() => setSelectedProvider(provider)}
-              className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${
-                selectedProvider?.id === provider.id
-                  ? "border-primary-pink"
+              className={`flex justify-between items-center p-3 border rounded-md w-full gap-2 hover:bg-gray-100 cursor-pointer ${selectedProvider?.id === provider.id
+                  ? "border-primary-pink border-2"
                   : "border-gray-200"
-              }`}
+                }`}
             >
               <div className="col-span-2 text-left flex flex-col gap-1">
                 <div className="font-bold">{provider.name}</div>

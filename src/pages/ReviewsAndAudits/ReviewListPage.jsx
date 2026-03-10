@@ -82,7 +82,7 @@ const ReviewAndAuditsListPage = ({ onDocumentSelect, refreshTrigger }) => {
           <div
             key={doc.id}
             onClick={() => handleDocumentClick(doc)}
-            className={`relative flex justify-between items-center p-3 border rounded-md w-64 gap-2 hover:bg-gray-100 cursor-pointer ${selectedDoc?.id === doc.id ? "border-primary-pink" : "border-gray-200"
+            className={`relative flex justify-between items-center p-3 border rounded-md w-64 gap-2 hover:bg-gray-100 cursor-pointer ${selectedDoc?.id === doc.id ? "border-primary-pink border-2" : "border-gray-200"
               }`}
           >
             <div className="flex flex-col">
