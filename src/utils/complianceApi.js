@@ -175,3 +175,21 @@ export const deleteRasci = async (id) => {
   const response = await axios.delete(`/compliance/rasci/${id}`);
   return response?.data?.body;
 };
+
+export const getOrganizationRoles = async () => {
+  const response = await axios.get("/organizations/roles");
+  const responseData = response?.data;
+  let data;
+  if (responseData?.body) {
+    data = responseData.body;
+  } else if (Array.isArray(responseData)) {
+    data = responseData;
+  } else {
+    data = responseData;
+  }
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    data = Object.values(data);
+  }
+  return data || [];
+};
+
