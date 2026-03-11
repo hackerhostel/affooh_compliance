@@ -1,4 +1,4 @@
-import {getBuildConstant} from "../constants/build-constants.jsx";
+import { getBuildConstant } from "../constants/build-constants.jsx";
 import moment from "moment";
 
 export const getAPIBaseURL = () => {
@@ -20,9 +20,9 @@ export const isNotEmptyObj = (value) =>
 
 export const getInitials = (name) => {
   return name
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase())
-      .join('');
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase())
+    .join('');
 }
 
 export const getFirstName = (name) => {
@@ -32,11 +32,11 @@ export const getFirstName = (name) => {
 export const getSelectOptions = (options) => {
   if (options && options.length) {
     return options.map(o => ({
-      value: o?.id 
-        ? String(o?.id) 
-        : o?.rID 
-        ? String(o?.rID) 
-        : String(o?.checklistID),
+      value: o?.id
+        ? String(o?.id)
+        : o?.rID
+          ? String(o?.rID)
+          : String(o?.checklistID),
       label: o?.name || o?.value || o?.summary
     }));
   } else {
@@ -46,7 +46,7 @@ export const getSelectOptions = (options) => {
 
 
 export const getUserSelectOptions = (options) => {
-  return options.map(o => ({value: Number(o.id), label: `${o.firstName} ${o.lastName}`}));
+  return options.map(o => ({ value: Number(o.id), label: `${o.firstName} ${o.lastName}` }));
 };
 
 export const getUserOptions = (options) => {
@@ -73,7 +73,7 @@ export const getMultiSelectOptions = (options, ids) => {
 export const formatShortDate = (dateString) => {
   if (dateString) {
     const date = new Date(dateString);
-    const options = {month: 'short', day: 'numeric'};
+    const options = { month: 'short', day: 'numeric' };
     return date.toLocaleDateString('en-US', options);
   } else {
     return "N/A"
@@ -116,7 +116,7 @@ export const isValidEstimationFormat = (inputString) => {
 };
 
 export const calculateRemainingTime = (estimation, spent) => {
-  const timeUnits = {mo: 30.44 * 24, w: 7 * 24, d: 24, h: 1, m: 1 / 60};
+  const timeUnits = { mo: 30.44 * 24, w: 7 * 24, d: 24, h: 1, m: 1 / 60 };
 
   const parseTime = (timeString) => {
     const regex = /(\d+)(mo|w|d|h|m)/g;

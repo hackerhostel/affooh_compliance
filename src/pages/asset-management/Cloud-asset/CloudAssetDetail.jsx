@@ -130,11 +130,11 @@ const CloudAssetDetail = ({ assetId, onBack }) => {
     { label: "public", value: "public" },
   ];
 
-  const departmentOptions = [
-    { label: "IT Department", value: "1" },
-    { label: "Financial Department", value: "2" },
-    { label: "HR Department", value: "3" },
-  ];
+  const departmentOptions =
+    masterData.assetDepartments?.map((dept) => ({
+      label: dept.departmentName,
+      value: dept.id.toString(),
+    })) || [];
 
   // Classification color handler
   const getColorClass = (classification) => {

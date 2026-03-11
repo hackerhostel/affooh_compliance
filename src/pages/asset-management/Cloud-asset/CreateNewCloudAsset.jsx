@@ -80,11 +80,17 @@ const CreateNewCloudAsset = ({ isOpen, onClose }) => {
     { label: "public", value: "public" },
   ];
 
-  const departmentOptions = [
-    { label: "IT Department", value: "1" },
-    { label: "Financial Department", value: "2" },
-    { label: "HR Department", value: "3" },
-  ];
+  const departmentOptions =
+    masterData.assetDepartments?.map((dept) => ({
+      label: dept.departmentName,
+      value: dept.id.toString(),
+    })) || [];
+
+  const userOptions =
+    masterData.projectUsers?.map((user) => ({
+      label: user.name,
+      value: user.id.toString(),
+    })) || [];
 
   const createNewAsset = async (e) => {
     e.preventDefault();
@@ -141,148 +147,148 @@ const CreateNewCloudAsset = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 flex items-right justify-end bg-white bg-opacity-25 backdrop-blur-sm z-50">
       <div className="bg-white p-6 shadow-lg w-1/2 overflow-y-auto max-h-screen">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-              <p className="font-bold text-2xl">Create New Cloud Asset</p>
-              <div className="cursor-pointer" onClick={handleClose}>
-                <XMarkIcon className="w-6 h-6 text-gray-500" />
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <p className="font-bold text-2xl">Create New Cloud Asset</p>
+          <div className="cursor-pointer" onClick={handleClose}>
+            <XMarkIcon className="w-6 h-6 text-gray-500" />
+          </div>
+        </div>
+
+        {/* Form */}
+        <form
+          className="flex flex-col justify-between h-5/6 mt-10"
+          onSubmit={createNewAsset}
+        >
+          <div className="space-y-4 text-left">
+            {/* Cloud Asset Name - Required */}
+            <div className="flex-col">
+              <p className="text-secondary-grey">
+                Cloud Asset Name <span className="text-red-500">*</span>
+              </p>
+              <FormInput
+                type="text"
+                name="cloudAssetName"
+                formValues={formValues}
+                onChange={({ target: { name, value } }) =>
+                  handleFormChange(name, value)
+                }
+                showErrors={isValidationErrorsShown}
+              />
+            </div>
+
+            {/* Vendor and Asset Type - Required */}
+            <div className="flex space-x-5">
+              <div className="flex-col w-1/2">
+                <p className="text-secondary-grey">
+                  Vendor <span className="text-red-500">*</span>
+                </p>
+                <FormSelect
+                  name="vendor"
+                  formValues={formValues}
+                  options={vendorOptions}
+                  onChange={({ target: { name, value } }) =>
+                    handleFormChange(name, value)
+                  }
+                  showErrors={isValidationErrorsShown}
+                />
+              </div>
+
+              <div className="flex-col w-1/2">
+                <p className="text-secondary-grey">
+                  Asset Type <span className="text-red-500">*</span>
+                </p>
+                <FormSelect
+                  name="assetType"
+                  formValues={formValues}
+                  options={assetTypeOptions}
+                  onChange={({ target: { name, value } }) =>
+                    handleFormChange(name, value)
+                  }
+                  showErrors={isValidationErrorsShown}
+                />
               </div>
             </div>
 
-            {/* Form */}
-            <form
-              className="flex flex-col justify-between h-5/6 mt-10"
-              onSubmit={createNewAsset}
-            >
-              <div className="space-y-4 text-left">
-                {/* Cloud Asset Name - Required */}
-                <div className="flex-col">
-                  <p className="text-secondary-grey">
-                    Cloud Asset Name <span className="text-red-500">*</span>
-                  </p>
-                  <FormInput
-                    type="text"
-                    name="cloudAssetName"
-                    formValues={formValues}
-                    onChange={({ target: { name, value } }) =>
-                      handleFormChange(name, value)
-                    }
-                    showErrors={isValidationErrorsShown}
-                  />
-                </div>
-
-                {/* Vendor and Asset Type - Required */}
-                <div className="flex space-x-5">
-                  <div className="flex-col w-1/2">
-                    <p className="text-secondary-grey">
-                      Vendor <span className="text-red-500">*</span>
-                    </p>
-                    <FormSelect
-                      name="vendor"
-                      formValues={formValues}
-                      options={vendorOptions}
-                      onChange={({ target: { name, value } }) =>
-                        handleFormChange(name, value)
-                      }
-                      showErrors={isValidationErrorsShown}
-                    />
-                  </div>
-
-                  <div className="flex-col w-1/2">
-                    <p className="text-secondary-grey">
-                      Asset Type <span className="text-red-500">*</span>
-                    </p>
-                    <FormSelect
-                      name="assetType"
-                      formValues={formValues}
-                      options={assetTypeOptions}
-                      onChange={({ target: { name, value } }) =>
-                        handleFormChange(name, value)
-                      }
-                      showErrors={isValidationErrorsShown}
-                    />
-                  </div>
-                </div>
-
-                {/* Backup Availability and Backup Location - Optional */}
-                <div className="flex space-x-5">
-                  <div className="flex-col w-1/2">
-                    <p className="text-secondary-grey">Backup Availability</p>
-                    <FormSelect
-                      name="backupAvailability"
-                      formValues={formValues}
-                      options={backupAvailabilityOptions}
-                      onChange={({ target: { name, value } }) =>
-                        handleFormChange(name, value)
-                      }
-                      showErrors={isValidationErrorsShown}
-                    />
-                  </div>
-
-                  <div className="flex-col w-1/2">
-                    <p className="text-secondary-grey">Backup Location</p>
-                    <FormInput
-                      type="text"
-                      name="backupLocation"
-                      formValues={formValues}
-                      onChange={({ target: { name, value } }) =>
-                        handleFormChange(name, value)
-                      }
-                      showErrors={isValidationErrorsShown}
-                    />
-                  </div>
-                </div>
-
-                {/* Classification and Owned By - Optional */}
-                <div className="flex space-x-5">
-                  <div className="flex-col w-1/2">
-                    <p className="text-secondary-grey">Classification</p>
-                    <FormSelect
-                      name="classification"
-                      formValues={formValues}
-                      options={classificationOptions}
-                      onChange={({ target: { name, value } }) =>
-                        handleFormChange(name, value)
-                      }
-                      showErrors={isValidationErrorsShown}
-                    />
-                  </div>
-
-                  <div className="flex-col w-1/2">
-                    <p className="text-secondary-grey">Owned By</p>
-                    <FormSelect
-                      name="resourceOwnerID"
-                      formValues={formValues}
-                      options={departmentOptions}
-                      onChange={({ target: { name, value } }) =>
-                        handleFormChange(name, value)
-                      }
-                      showErrors={isValidationErrorsShown}
-                    />
-                  </div>
-                </div>
+            {/* Backup Availability and Backup Location - Optional */}
+            <div className="flex space-x-5">
+              <div className="flex-col w-1/2">
+                <p className="text-secondary-grey">Backup Availability</p>
+                <FormSelect
+                  name="backupAvailability"
+                  formValues={formValues}
+                  options={backupAvailabilityOptions}
+                  onChange={({ target: { name, value } }) =>
+                    handleFormChange(name, value)
+                  }
+                  showErrors={isValidationErrorsShown}
+                />
               </div>
 
-              {/* Buttons */}
-              <div className="flex space-x-4 mt-6 self-end w-full">
-                <button
-                  onClick={handleClose}
-                  type="button"
-                  className="btn-secondary"
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Creating..." : "Create"}
-                </button>
+              <div className="flex-col w-1/2">
+                <p className="text-secondary-grey">Backup Location</p>
+                <FormInput
+                  type="text"
+                  name="backupLocation"
+                  formValues={formValues}
+                  onChange={({ target: { name, value } }) =>
+                    handleFormChange(name, value)
+                  }
+                  showErrors={isValidationErrorsShown}
+                />
               </div>
-            </form>
+            </div>
+
+            {/* Classification and Owned By - Optional */}
+            <div className="flex space-x-5">
+              <div className="flex-col w-1/2">
+                <p className="text-secondary-grey">Classification</p>
+                <FormSelect
+                  name="classification"
+                  formValues={formValues}
+                  options={classificationOptions}
+                  onChange={({ target: { name, value } }) =>
+                    handleFormChange(name, value)
+                  }
+                  showErrors={isValidationErrorsShown}
+                />
+              </div>
+
+              <div className="flex-col w-1/2">
+                <p className="text-secondary-grey">Owned By</p>
+                <FormSelect
+                  name="resourceOwnerID"
+                  formValues={formValues}
+                  options={departmentOptions}
+                  onChange={({ target: { name, value } }) =>
+                    handleFormChange(name, value)
+                  }
+                  showErrors={isValidationErrorsShown}
+                />
+              </div>
+            </div>
           </div>
+
+          {/* Buttons */}
+          <div className="flex space-x-4 mt-6 self-end w-full">
+            <button
+              onClick={handleClose}
+              type="button"
+              className="btn-secondary"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating..." : "Create"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
