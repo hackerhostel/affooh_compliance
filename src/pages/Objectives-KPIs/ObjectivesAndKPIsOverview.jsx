@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
@@ -20,30 +20,31 @@ import {
   createObjective,
   updateObjective,
   deleteObjective,
+  getObjectiveMasterData,
 } from "../../utils/objectiveApi.js";
 
 const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
   const { addToast } = useToasts();
   const [loading, setLoading] = useState(false);
-  // Dummy select options with integer IDs
-  const departmentOptions = getSelectOptions([
-    { id: 1, name: "HR" },
-    { id: 2, name: "Finance" },
-    { id: 3, name: "Operations" },
-    { id: 4, name: "IT" },
-  ]);
+  
+  const [departmentOptions, setDepartmentOptions] = useState([]);
+  const [typeOptions, setTypeOptions] = useState([]);
+  const [frequencyOptions, setFrequencyOptions] = useState([]);
 
-  const typeOptions = getSelectOptions([
-    { id: 1, name: "Strategic" },
-    { id: 2, name: "Operational" },
-    { id: 3, name: "Compliance" },
-  ]);
-
-  const frequencyOptions = getSelectOptions([
-    { id: 1, name: "Monthly" },
-    { id: 2, name: "Quarterly" },
-    { id: 3, name: "Annually" },
-  ]);
+  useEffect(() => {
+    const fetchMasterData = async () => {
+      const projectID = localStorage.getItem("projectID");
+      try {
+        const data = await getObjectiveMasterData(projectID);
+        if (data.departments) setDepartmentOptions(getSelectOptions(data.departments));
+        if (data.types) setTypeOptions(getSelectOptions(data.types));
+        if (data.frequencies) setFrequencyOptions(getSelectOptions(data.frequencies));
+      } catch (error) {
+        console.error("Failed to fetch objective master data", error);
+      }
+    };
+    fetchMasterData();
+  }, []);
 
   const [kpiRows, setKpiRows] = useState([]);
 
@@ -63,7 +64,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchObjectives();
   }, [selectedDocument]);
 
