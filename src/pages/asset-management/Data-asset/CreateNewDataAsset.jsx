@@ -89,25 +89,39 @@ const CreateNewDataAsset = ({ isOpen, onClose }) => {
     dataAssetMasterData.sources?.map((source) => ({
       label: source.label,
       value: source.value,
-    })) || [];
+    })) || [
+      { label: "Internal Created", value: "Internal Created" },
+      { label: "External Created", value: "External Created" },
+    ];
 
   const backupOptions =
     dataAssetMasterData.backupOptions?.map((option) => ({
       label: option.label,
       value: option.value.toString(),
-    })) || [];
+    })) || [
+      { label: "Yes", value: "true" },
+      { label: "No", value: "false" },
+    ];
 
   const personalInfoOptions =
     dataAssetMasterData.personalInfoOptions?.map((option) => ({
       label: option.label,
       value: option.value.toString(),
-    })) || [];
+    })) || [
+      { label: "Yes", value: "true" },
+      { label: "No", value: "false" },
+    ];
 
   const dataClassificationOptions =
     dataAssetMasterData.dataClassifications?.map((classification) => ({
       label: classification.label,
       value: classification.value,
-    })) || [];
+    })) || [
+      { label: "Public", value: "Public" },
+      { label: "Internal", value: "Internal" },
+      { label: "Confidential", value: "Confidential" },
+      { label: "Restricted", value: "Restricted" },
+    ];
 
   const dataOwnerOptions = projectUsers.map((user) => ({
     label: `${user.firstName} ${user.lastName}`,

@@ -34,7 +34,10 @@ const AddCollectionPopup = ({ isOpen, onClose, onAddSuccess }) => {
         }
         setLoading(true);
         try {
-            await createObjectiveCollection(formData);
+            await createObjectiveCollection({
+                ...formData,
+                classificationID: Number(formData.classificationID),
+            });
             addToast("Collection created successfully", { appearance: "success" });
             onAddSuccess();
             onClose();

@@ -93,19 +93,29 @@ const HardwareAssetOverview = () => {
     masterData.categories?.map((cat) => ({
       label: cat.label,
       value: cat.value,
-    })) || [];
+    })) || [
+      { label: "Device", value: "Device" },
+      { label: "Furniture", value: "Furniture" },
+    ];
 
   const typeOptions =
     masterData.types?.map((type) => ({
       label: type.label,
       value: type.value,
-    })) || [];
+    })) || [
+      { label: "Personal", value: "Personal" },
+      { label: "Company", value: "Company" },
+    ];
 
   const classificationOptions =
     masterData.classifications?.map((cls) => ({
       label: cls.label,
       value: cls.value,
-    })) || [];
+    })) || [
+      { label: "Public", value: "Public" },
+      { label: "Confidential", value: "Confidential" },
+      { label: "Restricted", value: "Restricted" },
+    ];
 
   const departmentOptions =
     masterData.assetDepartments?.map((dept) => ({
