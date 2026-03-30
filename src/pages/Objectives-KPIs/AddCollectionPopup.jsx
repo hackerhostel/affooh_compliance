@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import Modal from "../../components/Modal.jsx";
@@ -8,6 +10,7 @@ import { getSelectOptions } from "../../utils/commonUtils.js";
 
 const AddCollectionPopup = ({ isOpen, onClose, onAddSuccess }) => {
     const { addToast } = useToasts();
+    const selectedProject = useSelector(selectSelectedProject);
     const [formData, setFormData] = useState({
         name: "",
         classificationID: "",
@@ -18,8 +21,9 @@ const AddCollectionPopup = ({ isOpen, onClose, onAddSuccess }) => {
 
     useEffect(() => {
         const fetchMasterData = async () => {
+            const projectID = selectedProject?.id;
             try {
-                const data = await getObjectiveMasterData();
+                const data = await getObjectiveMasterData(projectID);
                 if (data.classifications) {
                     setClassifications(getSelectOptions(data.classifications));
                 }
@@ -31,7 +35,7 @@ const AddCollectionPopup = ({ isOpen, onClose, onAddSuccess }) => {
         if (isOpen) {
             fetchMasterData();
         }
-    }, [isOpen]);
+    }, [isOpen, selectedProject]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;

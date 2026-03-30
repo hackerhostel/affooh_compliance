@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
@@ -27,13 +29,16 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
   const { addToast } = useToasts();
   const [loading, setLoading] = useState(false);
   
+  const selectedProject = useSelector(selectSelectedProject);
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [typeOptions, setTypeOptions] = useState([]);
   const [frequencyOptions, setFrequencyOptions] = useState([]);
 
   useEffect(() => {
     const fetchMasterData = async () => {
-      const projectID = localStorage.getItem("projectID");
+      const projectID = selectedProject?.id;
+      if (!projectID) return;
+      
       try {
         const data = await getObjectiveMasterData(projectID);
         if (data.departments) setDepartmentOptions(getSelectOptions(data.departments));
@@ -44,7 +49,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
       }
     };
     fetchMasterData();
-  }, []);
+  }, [selectedProject]);
 
   const [kpiRows, setKpiRows] = useState([]);
 
