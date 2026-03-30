@@ -90,3 +90,8 @@ export const getAvailableTasks = async (projectId) => {
     const response = await axios.get(`/available-tasks${query}`);
     return response?.data || [];
 };
+
+export const getObjectiveMasterData = async () => {
+    const response = await axios.get("/master-data");
+    return response?.data || {};
+};

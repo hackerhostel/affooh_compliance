@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import Modal from "../../components/Modal.jsx";
-import { createObjectiveCollection } from "../../utils/objectiveApi.js";
+import { createObjectiveCollection, getObjectiveMasterData } from "../../utils/objectiveApi.js";
 import { useToasts } from "react-toast-notifications";
 import { getSelectOptions } from "../../utils/commonUtils.js";
 
@@ -14,13 +14,24 @@ const AddCollectionPopup = ({ isOpen, onClose, onAddSuccess }) => {
         description: "",
     });
     const [loading, setLoading] = useState(false);
+    const [classifications, setClassifications] = useState([]);
 
-    // In a real scenario, fetch these from an API
-    const classifications = getSelectOptions([
-        { id: 1, name: "Public" },
-        { id: 2, name: "Confidential" },
-        { id: 3, name: "Restricted" },
-    ]);
+    useEffect(() => {
+        const fetchMasterData = async () => {
+            try {
+                const data = await getObjectiveMasterData();
+                if (data.classifications) {
+                    setClassifications(getSelectOptions(data.classifications));
+                }
+            } catch (error) {
+                console.error("Failed to fetch objective master data", error);
+            }
+        };
+
+        if (isOpen) {
+            fetchMasterData();
+        }
+    }, [isOpen]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
