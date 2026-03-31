@@ -10,11 +10,17 @@ import PublicGuard from './auth/PublicGuard';
 import Register from './auth/Register';
 import UserInviteRegister from './auth/UserInviteRegister';
 import Dashboard from './pages/Dashboard';
+import LogoutPage from './auth/LogoutPage';
 
 function App() {
   return (
     <BrowserRouter>
       <Switch>
+        {/* Cognito redirectSignOut target */}
+        <Route path="/logout">
+          <LogoutPage />
+        </Route>
+
         <Route path="/login">
           <PublicGuard>
             <Login />
