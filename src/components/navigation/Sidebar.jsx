@@ -34,7 +34,12 @@ function Sidebar() {
   const handleSignOut = async () => {
     setLoading(true);
     try {
+      localStorage.clear();
+      sessionStorage.clear();
+      // Inform other tabs on same-origin (dev)
+      localStorage.setItem('logout-event', Date.now().toString());
       await signOut({ global: true });
+      window.location.href = "/auth";
     } catch (err) {
       console.error("Logout failed", err);
     } finally {

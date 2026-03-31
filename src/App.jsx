@@ -11,7 +11,10 @@ import Register from './auth/Register';
 import UserInviteRegister from './auth/UserInviteRegister';
 import Dashboard from './pages/Dashboard';
 
+import { useGlobalLogout } from "./hooks/useGlobalLogout";
+
 function App() {
+  useGlobalLogout();
   return (
     <BrowserRouter>
       <Switch>
