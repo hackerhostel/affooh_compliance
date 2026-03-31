@@ -10,6 +10,19 @@ const AuthGuard = ({ children, ...rest }) => {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
 
+  // Listen for global logout broadcast from other tabs or modules
+  useEffect(() => {
+    const logoutChannel = new BroadcastChannel("affooh_logout");
+    logoutChannel.onmessage = (event) => {
+      if (event.data?.type === "LOGOUT") {
+        localStorage.clear();
+        sessionStorage.clear();
+        signInWithRedirect();
+      }
+    };
+    return () => logoutChannel.close();
+  }, []);
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
