@@ -31,14 +31,24 @@ function Sidebar() {
   const [loading, setLoading] = useState(false);
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
 
-  const handleSignOut = async () => {
+    const handleSignOut = async () => {
     setLoading(true);
     try {
+      // API call MUST happen before tokens are cleared from local storage
+      await signOut({ global: true });
+      
+      // Set cross-subdomain cookie valid for 15 seconds to act as an event broadcaster
+      const hostname = window.location.hostname;
+      const domainParams = hostname.includes('affooh.com') ? '; domain=.affooh.com' : '';
+      document.cookie = `global-logout=true; path=/; max-age=15${domainParams}`;
+      
+      // Set same-origin event
+      localStorage.setItem('logout-event', Date.now().toString());
+      
+      // Finally clear local logs
       localStorage.clear();
       sessionStorage.clear();
-      // Inform other tabs on same-origin (dev)
-      localStorage.setItem('logout-event', Date.now().toString());
-      await signOut({ global: true });
+      
       window.location.href = "/auth";
     } catch (err) {
       console.error("Logout failed", err);
