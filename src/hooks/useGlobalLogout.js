@@ -7,6 +7,13 @@ import {getCurrentUser} from "aws-amplify/auth";
 export const useGlobalLogout = () => {
     useEffect(() => {
         const checkAuthStatus = async () => {
+            const publicPaths = ["/auth", "/login", "/register", "/forgot-password", "/reset-password", "/otp-verification", "/inviteUserRegister"];
+            const currentPath = window.location.pathname;
+
+            if (publicPaths.some(path => currentPath.startsWith(path))) {
+                return;
+            }
+
             try {
                 await getCurrentUser();
             } catch (err) {
