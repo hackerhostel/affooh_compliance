@@ -18,6 +18,10 @@ function App() {
   return (
     <BrowserRouter>
       <Switch>
+        <Route path="/logout">
+            <Login />
+        </Route>
+
         <Route path="/login">
           <PublicGuard>
             <Login />

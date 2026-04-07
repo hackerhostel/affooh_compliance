@@ -21,6 +21,7 @@ import { Link, useHistory, useLocation } from 'react-router-dom';
 import AffoohLogo from '../../assets/affooh_logo.png';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearAuthState, selectUser } from '../../state/slice/authSlice';
+import { AwsConfigAuth } from '../../auth/auth';
 import React, { Fragment, useState } from 'react';
 import Notification from "./NotificationPopup.jsx";
 
@@ -53,8 +54,13 @@ function Sidebar() {
       localStorage.clear();
       sessionStorage.clear();
 
-      // Redirect to login
-      window.location.href = "/login";
+      // Redirect to Cognito logout endpoint to clear actual cookies on auth.affooh.com
+      const clientId = AwsConfigAuth.aws_user_pools_web_client_id;
+      // We redirect back to the main app logout uri being whitelisted in Cognito
+      const logoutUri = "https://app.affooh.com/logout"; 
+      const cognitoLogoutUrl = `https://auth.affooh.com/logout?client_id=${clientId}&logout_uri=${logoutUri}`;
+      
+      window.location.href = cognitoLogoutUrl;
     } catch (err) {
       console.error("Logout failed", err);
     } finally {
