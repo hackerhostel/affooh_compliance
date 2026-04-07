@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {Route, useHistory, useLocation} from "react-router-dom";
-import {getCurrentUser} from "aws-amplify/auth";
+import {Route, useLocation} from "react-router-dom";
+import {getCurrentUser, signInWithRedirect} from "aws-amplify/auth";
 import LoadingPage from "../pages/LoadingPage.jsx";
 import {setupAuthorizationHeader} from "../utils/apiUtils.js";
 
@@ -8,7 +8,6 @@ setupAuthorizationHeader();
 
 const AuthGuard = ({ children, ...rest }) => {
   const location = useLocation();
-  const history = useHistory();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,7 +16,7 @@ const AuthGuard = ({ children, ...rest }) => {
         await getCurrentUser();
         setLoading(false);
       } catch (err) {
-        history.push("/login");
+        await signInWithRedirect();
       }
     };
 
