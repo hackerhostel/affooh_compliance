@@ -23,7 +23,7 @@ export const useGlobalLogout = () => {
                 console.warn("Global logout cookie detected. Logging out locally...");
                 localStorage.clear();
                 sessionStorage.clear();
-                window.location.href = "/auth";
+                window.location.href = "/login";
                 return;
             }
 
@@ -33,7 +33,7 @@ export const useGlobalLogout = () => {
                 console.warn("Global logout detected or session expired. Logging out...");
                 localStorage.clear();
                 sessionStorage.clear();
-                window.location.href = "/auth";
+                window.location.href = "/login";
             }
         };
 
