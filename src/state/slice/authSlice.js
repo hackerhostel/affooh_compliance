@@ -15,8 +15,11 @@ export const doGetWhoAmI = createAsyncThunk('src/auth/doGetWhoAmI', async (_, th
 
     const responseData = response.data.body;
     if (responseData) {
-      thunkApi.dispatch(setProjectList(responseData.projects));
-      thunkApi.dispatch(setSelectedProject(responseData.projects[0]));
+      const complianceProjects = responseData.projects?.filter(p => p.projectType === 3) || [];
+      thunkApi.dispatch(setProjectList(complianceProjects));
+      if (complianceProjects.length > 0) {
+        thunkApi.dispatch(setSelectedProject(complianceProjects[0]));
+      }
       return responseData.userDetails;
     } else {
       console.error('❌ doGetWhoAmI: Response body is missing.');
