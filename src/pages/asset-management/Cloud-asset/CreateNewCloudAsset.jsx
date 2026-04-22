@@ -9,12 +9,17 @@ import {
   doGetCloudMasterData,
 } from "../../../state/slice/cloudAssetSlice.js";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import {
+  doGetProjectUsers,
+  selectProjectUserList,
+} from "../../../state/slice/projectUsersSlice.js";
 
 const CreateNewCloudAsset = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const { addToast } = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
   const masterData = useSelector((state) => state.cloudAsset.masterData || {});
+  const projectUsers = useSelector(selectProjectUserList) || [];
 
   // Initial form values
   const [formValues, setFormValues] = useState({
@@ -30,10 +35,11 @@ const CreateNewCloudAsset = ({ isOpen, onClose }) => {
   const [isValidationErrorsShown, setIsValidationErrorsShown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load master data when component opens
+  // Load master data and project users when component opens
   useEffect(() => {
     if (isOpen && selectedProject?.id) {
       dispatch(doGetCloudMasterData(selectedProject.id));
+      dispatch(doGetProjectUsers(selectedProject.id));
     }
   }, [isOpen, selectedProject?.id, dispatch]);
 
@@ -80,17 +86,10 @@ const CreateNewCloudAsset = ({ isOpen, onClose }) => {
     { label: "public", value: "public" },
   ];
 
-  const departmentOptions =
-    masterData.assetDepartments?.map((dept) => ({
-      label: dept.departmentName,
-      value: dept.id.toString(),
-    })) || [];
-
-  const userOptions =
-    masterData.projectUsers?.map((user) => ({
-      label: user.name,
-      value: user.id.toString(),
-    })) || [];
+  const userOptions = projectUsers.map((user) => ({
+    label: `${user.firstName} ${user.lastName}`,
+    value: user.id.toString(),
+  }));
 
   const createNewAsset = async (e) => {
     e.preventDefault();
@@ -259,7 +258,7 @@ const CreateNewCloudAsset = ({ isOpen, onClose }) => {
                 <FormSelect
                   name="resourceOwnerID"
                   formValues={formValues}
-                  options={departmentOptions}
+                  options={userOptions}
                   onChange={({ target: { name, value } }) =>
                     handleFormChange(name, value)
                   }
