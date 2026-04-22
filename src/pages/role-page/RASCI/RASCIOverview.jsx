@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FormSelect from "../../../components/FormSelect.jsx";
 import FormInput from "../../../components/FormInput.jsx";
+import FormTextArea from "../../../components/FormTextArea.jsx";
 import {
   PencilIcon,
   EllipsisVerticalIcon,
@@ -197,14 +198,14 @@ const RASCIOverview = () => {
         <table className="table-fixed w-full border-collapse min-w-max">
           <thead>
             <tr className="text-left text-secondary-grey border-b border-gray-200">
-              <th className="py-3 px-4 w-10 text-center">#</th>
-              <th className="py-3 px-4">Task/Activity</th>
-              <th className="py-3 px-4">R</th>
-              <th className="py-3 px-4">A</th>
-              <th className="py-3 px-4">S</th>
-              <th className="py-3 px-4">C</th>
-              <th className="py-3 px-4">I</th>
-              <th className="py-3 px-4 text-center">Action</th>
+              <th className="py-3 px-4 text-center" style={{ width: '4%' }}>#</th>
+              <th className="py-3 px-4" style={{ width: '20%' }}>Task/Activity</th>
+              <th className="py-3 px-4" style={{ width: '13%' }}>R</th>
+              <th className="py-3 px-4" style={{ width: '13%' }}>A</th>
+              <th className="py-3 px-4" style={{ width: '13%' }}>S</th>
+              <th className="py-3 px-4" style={{ width: '13%' }}>C</th>
+              <th className="py-3 px-4" style={{ width: '13%' }}>I</th>
+              <th className="py-3 px-4 text-center" style={{ width: '11%' }}>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -212,7 +213,7 @@ const RASCIOverview = () => {
               <tr className="border-b border-gray-200">
                 <td className="py-3 px-4 text-center">-</td>
                 <td className="py-3 px-4">
-                  <FormInput
+                  <FormTextArea
                     name="taskActivity"
                     formValues={{ taskActivity: newRow.taskActivity }}
                     onChange={handleNewChange}
@@ -220,7 +221,7 @@ const RASCIOverview = () => {
                   />
                 </td>
                 {["R", "A", "S", "C", "I"].map((field) => (
-                  <td key={field} className="py-3 px-4 w-40">
+                  <td key={field} className="py-3 px-4">
                     <FormSelect
                       name={field}
                       formValues={{ [field]: newRow[field] }}
@@ -296,7 +297,7 @@ const RASCIOverview = () => {
                   ) : (
                     <>
                       <td className="py-3 px-4">
-                        <FormInput
+                        <FormTextArea
                           name="taskActivity"
                           formValues={{ taskActivity: row.taskActivity }}
                           onChange={(e) => handleEditChange(row.id, e)}
@@ -304,7 +305,7 @@ const RASCIOverview = () => {
                         />
                       </td>
                       {["R", "A", "S", "C", "I"].map((field) => (
-                        <td key={field} className="py-3 px-4 w-40">
+                        <td key={field} className="py-3 px-4">
                           <FormSelect
                             name={field}
                             formValues={{ [field]: row[field] }}
