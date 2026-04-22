@@ -21,6 +21,7 @@ import {
   doGetAvailableAssets,
 } from "../../../state/slice/deviceMovementSlice.js";
 import { doGetProjectUsers } from "../../../state/slice/projectUsersSlice.js";
+import { selectUser } from "../../../state/slice/authSlice.js";
 
 const DeviceMovedOverview = () => {
   const dispatch = useDispatch();
@@ -36,6 +37,7 @@ const DeviceMovedOverview = () => {
   const isMovementsLoading = useSelector(
     (state) => state.deviceMovement.isMovementsLoading
   );
+  const currentUser = useSelector(selectUser);
 
   // Filter form state
   const [filters, setFilters] = useState({
@@ -147,7 +149,7 @@ const DeviceMovedOverview = () => {
       returnDate: "",
       reason: "",
       movedByUserID: "",
-      approvedBy: "",
+      approvedBy: currentUser?.id?.toString() || "",
     });
   };
 
@@ -658,7 +660,7 @@ const DeviceMovedOverview = () => {
                                 reason: e.target.value,
                               })
                             }
-                            className="w-36 p-1.5 border border-gray-300 rounded text-sm"
+                            className="w-56 p-1.5 border border-gray-300 rounded text-sm"
                             placeholder="Reason"
                           />
                         </td>
@@ -836,7 +838,7 @@ const DeviceMovedOverview = () => {
                         onChange={(e) =>
                           setNewRow({ ...newRow, reason: e.target.value })
                         }
-                        className="w-36 p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        className="w-56 p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                         placeholder="Reason"
                       />
                     </td>
@@ -862,24 +864,18 @@ const DeviceMovedOverview = () => {
                       />
                     </td>
                     <td className="py-3 px-2">
-                      <SearchableDropdown
-                        name="approvedBy"
-                        value={newRow.approvedBy}
-                        onChange={(e) =>
-                          setNewRow({
-                            ...newRow,
-                            approvedBy: e.target.value,
-                          })
-                        }
-                        options={projectUsers}
-                        placeholder="Select Approver"
-                        displayKey={(user) =>
-                          `${user.firstName} ${user.lastName}`
-                        }
-                        valueKey="id"
-                        onSearch={handleUserSearch}
-                        className="w-32"
-                      />
+                      {currentUser ? (
+                        <div className="flex items-center space-x-1.5">
+                          <div className="w-6 h-6 rounded-full bg-primary-pink flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                            {currentUser.firstName?.[0]}{currentUser.lastName?.[0]}
+                          </div>
+                          <span className="text-sm whitespace-nowrap">
+                            {currentUser.firstName} {currentUser.lastName}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 italic text-sm">—</span>
+                      )}
                     </td>
                     <td className="py-3 px-2 text-center">
                       <div className="flex justify-center gap-2">

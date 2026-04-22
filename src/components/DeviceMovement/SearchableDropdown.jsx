@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import ReactDOM from "react-dom";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 
 const SearchableDropdown = ({
@@ -19,7 +20,9 @@ const SearchableDropdown = ({
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(null);
-  const ref = useRef(null);
+  const [dropdownStyle, setDropdownStyle] = useState({});
+  const triggerRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (!value) {
@@ -34,7 +37,12 @@ const SearchableDropdown = ({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
+      if (
+        triggerRef.current &&
+        !triggerRef.current.contains(event.target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
         setSearch("");
       }
@@ -51,6 +59,19 @@ const SearchableDropdown = ({
       onSearch(search);
     }
   }, [search, isOpen, onSearch]);
+
+  useEffect(() => {
+    if (isOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownStyle({
+        position: "fixed",
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+        zIndex: 9999,
+      });
+    }
+  }, [isOpen]);
 
   const handleSelect = (option) => {
     setIsOpen(false);
@@ -73,26 +94,13 @@ const SearchableDropdown = ({
     return optionValue.includes(searchValue) || searchFieldValue.includes(searchValue);
   });
 
-  return (
-    <div className={`relative w-full ${className}`} ref={ref}>
-      {label && (
-        <label className="block text-sm font-medium text-gray-500 mb-1">
-          {label}
-        </label>
-      )}
-      <div
-        className={`flex items-center justify-between p-2 border border-gray-300 rounded-md bg-white cursor-pointer ${
-          disabled ? "opacity-60 cursor-not-allowed" : "hover:border-gray-400"
-        }`}
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-      >
-        <span className="text-sm text-gray-700 flex-1 truncate">
-          {selected ? getDisplayValue(selected) : placeholder}
-        </span>
-        <ChevronDownIcon className="h-4 w-4 text-gray-400" />
-      </div>
-      {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-hidden">
+  const dropdownMenu = isOpen
+    ? ReactDOM.createPortal(
+        <div
+          ref={dropdownRef}
+          style={dropdownStyle}
+          className="bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-hidden"
+        >
           <div className="p-2 border-b border-gray-200">
             <input
               type="text"
@@ -124,8 +132,31 @@ const SearchableDropdown = ({
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
+      )
+    : null;
+
+  return (
+    <div className={`relative w-full ${className}`}>
+      {label && (
+        <label className="block text-sm font-medium text-gray-500 mb-1">
+          {label}
+        </label>
       )}
+      <div
+        ref={triggerRef}
+        className={`flex items-center justify-between p-2 border border-gray-300 rounded-md bg-white cursor-pointer ${
+          disabled ? "opacity-60 cursor-not-allowed" : "hover:border-gray-400"
+        }`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <span className="text-sm text-gray-700 flex-1 truncate">
+          {selected ? getDisplayValue(selected) : placeholder}
+        </span>
+        <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+      </div>
+      {dropdownMenu}
     </div>
   );
 };
