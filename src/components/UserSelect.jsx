@@ -42,21 +42,20 @@ const UserSelect = ({ name, value, onChange, users, label = '', disabled = false
 
     return (
         <div className="relative w-full" ref={ref}>
-            <label className="block text-sm font-medium text-gray-500">{label}</label>
+            {label && <label className="block text-sm font-medium text-gray-500">{label}</label>}
             <div
-                className={`-mt-1 flex items-center space-x-2 ${className} ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+                className={`flex items-center p-3 pr-8 rounded-lg shadow-md border border-gray-300 bg-white overflow-hidden ${className} ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"} ${label ? "-mt-1" : ""}`}
                 onClick={() => !disabled && setIsOpen(!isOpen)}
             >
                 {selected?.id ? (
-                    <div className={"flex gap-4 items-center"}>
-                        <div
-                            className="w-8 h-8 rounded-full bg-primary-pink flex items-center justify-center text-white text-lg font-semibold">
+                    <div className={"flex gap-2 items-center min-w-0"}>
+                        <div className="w-6 h-6 shrink-0 rounded-full bg-primary-pink flex items-center justify-center text-white text-xs font-semibold">
                             {avatarInitials || 'N/A'}
                         </div>
-                        <span className="text-text-color">{selected?.name || `${selected?.firstName} ${selected?.lastName}`}</span>
+                        <span className="text-text-color truncate">{selected?.name || `${selected?.firstName} ${selected?.lastName}`}</span>
                     </div>
                 ) : (
-                    <span className="flex-grow text-text-color h-7 flex items-center">Select an option</span>
+                    <span className="text-text-color truncate">Select an option</span>
                 )}
                 <ChevronDownIcon className="absolute right-3 h-5 w-5 text-gray-400 pointer-events-none" />
             </div>
@@ -78,7 +77,7 @@ const UserSelect = ({ name, value, onChange, users, label = '', disabled = false
                                     onClick={() => handleSelect(user)}
                                 >
                                     <div
-                                        className="w-8 h-8 rounded-full bg-primary-pink flex items-center justify-center text-white font-semibold">
+                                        className="w-6 h-6 rounded-full bg-primary-pink flex items-center justify-center text-white text-xs font-semibold">
                                         {user?.name
                                             ? user.name.charAt(0).toUpperCase()
                                             : `${user.firstName.charAt(0).toUpperCase()}${user.lastName.charAt(0).toUpperCase()}`}

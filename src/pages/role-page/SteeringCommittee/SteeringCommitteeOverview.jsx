@@ -224,22 +224,22 @@ const SteeringCommitteeOverview = () => {
       </div>
 
       <div className="bg-white rounded p-3 mt-2">
-        <table className="table-auto w-full border-collapse">
+        <table className="table-fixed w-full border-collapse">
           <thead>
             <tr className="text-left text-secondary-grey border-b border-gray-200">
-              <th className="py-3 px-4 text-center w-10">#</th>
-              <th className="py-3 px-4">Name</th>
-              <th className="py-3 px-4">Role</th>
-              <th className="py-3 px-4">Type</th>
-              <th className="py-3 px-4">Responsibility</th>
-              <th className="py-3 px-4 text-center">Action</th>
+              <th className="py-3 px-4 text-center" style={{ width: '4%' }}>#</th>
+              <th className="py-3 px-4" style={{ width: '14%' }}>Name</th>
+              <th className="py-3 px-4" style={{ width: '14%' }}>Role</th>
+              <th className="py-3 px-4" style={{ width: '14%' }}>Type</th>
+              <th className="py-3 px-4" style={{ width: '42%' }}>Responsibility</th>
+              <th className="py-3 px-4 text-center" style={{ width: '12%' }}>Action</th>
             </tr>
           </thead>
           <tbody>
             {showNewRow && (
               <tr className="border-b border-gray-200">
                 <td className="py-3 px-4 text-center">-</td>
-                <td className="py-3 px-4 w-40">
+                <td className="py-3 px-4 w-32">
                   <UserSelect
                     name="userID"
                     value={newRow.userID}
@@ -247,20 +247,22 @@ const SteeringCommitteeOverview = () => {
                     users={projectUserList}
                   />
                 </td>
-                <td className="py-3 px-4 w-40">
+                <td className="py-3 px-4 w-32">
                   <FormSelect
                     name="role"
                     formValues={{ role: newRow.role }}
                     options={roleOptions}
                     onChange={handleNewChange}
+                    showLabel={false}
                   />
                 </td>
-                <td className="py-3 px-4 w-40">
+                <td className="py-3 px-4 w-32">
                   <FormSelect
                     name="type"
                     formValues={{ type: newRow.type }}
                     options={TYPE_OPTIONS}
                     onChange={handleNewChange}
+                    showLabel={false}
                   />
                 </td>
                 <td className="py-3 px-4">
@@ -341,7 +343,7 @@ const SteeringCommitteeOverview = () => {
                     </>
                   ) : (
                     <>
-                      <td className="py-3 px-4 w-40">
+                      <td className="py-3 px-4 w-32">
                         <UserSelect
                           name="userID"
                           value={row.userID}
@@ -349,20 +351,22 @@ const SteeringCommitteeOverview = () => {
                           users={projectUserList}
                         />
                       </td>
-                      <td className="py-3 px-4 w-40">
+                      <td className="py-3 px-4 w-32">
                         <FormSelect
                           name="role"
                           formValues={{ role: row.role }}
                           options={roleOptions}
                           onChange={(e) => handleEditChange(row.id, e)}
+                          showLabel={false}
                         />
                       </td>
-                      <td className="py-3 px-4 w-40">
+                      <td className="py-3 px-4 w-32">
                         <FormSelect
                           name="type"
                           formValues={{ type: row.type }}
                           options={TYPE_OPTIONS}
                           onChange={(e) => handleEditChange(row.id, e)}
+                          showLabel={false}
                         />
                       </td>
                       <td className="py-3 px-4">
