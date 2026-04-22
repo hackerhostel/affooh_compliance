@@ -7,7 +7,7 @@ const DataAssetContentPage = () => {
   const [activeTab, setActiveTab] = useState("overview");
 
   return (
-    <div className=" bg-dashboard-bgc min-h-screen">
+    <div className="bg-dashboard-bgc">
       <div className="flex flex-col gap-6">
         {/* Tabs */}
         <div style={{ flex: 1 }} className="rounded-lg">

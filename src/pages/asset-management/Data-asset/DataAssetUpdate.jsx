@@ -306,6 +306,7 @@ const DataAssetUpdate = ({ asset, onBack }) => {
                   handleFormChange(name, value)
                 }
                 placeholder="e.g., Daily at 2 AM"
+                showLabel={false}
               />
             </div>
           </div>
@@ -333,6 +334,7 @@ const DataAssetUpdate = ({ asset, onBack }) => {
                 }
                 rows={2}
                 placeholder="Describe what personal information is stored"
+                showLabel={false}
               />
             </div>
           </div>
@@ -374,6 +376,7 @@ const DataAssetUpdate = ({ asset, onBack }) => {
               }
               rows={2}
               placeholder="Describe any access restrictions"
+              showLabel={false}
             />
           </div>
 

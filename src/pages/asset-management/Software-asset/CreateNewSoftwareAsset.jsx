@@ -214,9 +214,9 @@ const CreateNewSoftwareAsset = ({ isOpen, onClose }) => {
                                 </div>
 
                                 <div className='flex space-x-5'>
-                                    {/* Team */}
+                                    {/* Department */}
                                     <div className="flex-col w-1/2">
-                                        <p className="text-secondary-grey">Team</p>
+                                        <p className="text-secondary-grey">Department</p>
                                         <FormSelect
                                             name="teamID"
                                             formValues={formValues}

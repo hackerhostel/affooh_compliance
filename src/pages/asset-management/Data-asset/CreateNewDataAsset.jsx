@@ -307,6 +307,7 @@ const CreateNewDataAsset = ({ isOpen, onClose }) => {
                   handleFormChange(name, value)
                 }
                 placeholder="e.g., Daily at 2 AM"
+                showLabel={false}
               />
             </div>
 
@@ -335,6 +336,7 @@ const CreateNewDataAsset = ({ isOpen, onClose }) => {
                   }
                   rows={2}
                   placeholder="Describe what personal information is stored"
+                  showLabel={false}
                 />
               </div>
             </div>
@@ -376,6 +378,7 @@ const CreateNewDataAsset = ({ isOpen, onClose }) => {
                 }
                 rows={2}
                 placeholder="Describe any access restrictions"
+                showLabel={false}
               />
             </div>
 

@@ -39,7 +39,7 @@ const AssetManagementContentPage = ({ selectedDocument }) => {
     }
   };
 
-  return <div className="p-6 bg-dashboard-bgc min-h-screen">{renderContent()}</div>;
+  return <div className="p-6 bg-dashboard-bgc h-full">{renderContent()}</div>;
 };
 
 export default AssetManagementContentPage;
