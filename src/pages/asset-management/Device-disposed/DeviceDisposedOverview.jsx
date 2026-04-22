@@ -26,6 +26,7 @@ import {
   selectProjectUserList,
 } from "../../../state/slice/projectUsersSlice.js";
 import { getSelectOptions } from "../../../utils/commonUtils.js";
+import { selectUser } from "../../../state/slice/authSlice.js";
 
 const DeviceDisposedOverview = () => {
   const dispatch = useDispatch();
@@ -42,6 +43,7 @@ const DeviceDisposedOverview = () => {
   const isDisposalsLoading = useSelector(
     (state) => state.deviceDisposal?.isDisposalsLoading || false
   );
+  const currentUser = useSelector(selectUser);
 
   const [formValues, setFormValues] = useState({
     checkedBy: "",
@@ -480,12 +482,12 @@ const DeviceDisposedOverview = () => {
           <thead>
             <tr className="text-left text-gray-600 border-b border-gray-200">
               <th className="py-4 px-2 w-10">#</th>
-              <th className="py-4 px-4 w-72">Asset Name</th>
+              <th className="py-4 px-4 w-96">Asset Name</th>
               <th className="py-4 px-4 w-32">Code</th>
               <th className="py-4 px-4 w-40">Department</th>
               <th className="py-4 px-4 w-40">Classification</th>
               <th className="py-4 px-4 w-40">Disposal Date</th>
-              <th className="py-4 px-4 w-40">Notes</th>
+              <th className="py-4 px-4 w-64">Notes</th>
               <th className="py-4 px-4 w-48">Checked By</th>
               <th className="py-4 px-4 w-32">Status</th>
               <th className="py-4 px-4 w-48">Approved</th>
@@ -560,7 +562,20 @@ const DeviceDisposedOverview = () => {
                   />
                 </td>
                 <td className="py-4 px-4">Pending</td>
-                <td className="py-4 px-4">-</td>
+                <td className="py-4 px-4">
+                  {currentUser ? (
+                    <div className="flex items-center space-x-1.5">
+                      <div className="w-6 h-6 rounded-full bg-primary-pink flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                        {currentUser.firstName?.[0]}{currentUser.lastName?.[0]}
+                      </div>
+                      <span className="text-sm whitespace-nowrap">
+                        {currentUser.firstName} {currentUser.lastName}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-gray-400 italic text-sm">—</span>
+                  )}
+                </td>
                 <td className="py-4 px-4">
                   <div className="flex gap-3 items-center justify-center">
                     <CheckCircleIcon
