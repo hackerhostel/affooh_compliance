@@ -44,7 +44,7 @@ const ObjectiveDetailView = ({ objectiveId, onBack }) => {
         date: moment().format("YYYY-MM-DD"),
         target: "",
         value: "",
-        statusID: 1, // Default to 'To Do' ID
+        statusID: 1,
         comments: "",
     });
 

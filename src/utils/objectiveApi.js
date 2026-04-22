@@ -96,3 +96,4 @@ export const getObjectiveMasterData = async (projectID) => {
     const response = await axios.get(`/master-data${query}`);
     return response?.data || {};
 };
+

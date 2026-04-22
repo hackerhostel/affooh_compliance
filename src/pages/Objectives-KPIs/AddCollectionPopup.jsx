@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import FormInput from "../../components/FormInput.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
+import FormTextArea from "../../components/FormTextArea.jsx";
 import Modal from "../../components/Modal.jsx";
 import { createObjectiveCollection, getObjectiveMasterData } from "../../utils/objectiveApi.js";
 import { useToasts } from "react-toast-notifications";
@@ -86,11 +87,13 @@ const AddCollectionPopup = ({ isOpen, onClose, onAddSuccess }) => {
                     onChange={handleChange}
                     required
                 />
-                <FormInput
+                <FormTextArea
                     name="description"
                     placeholder="Description"
                     formValues={formData}
                     onChange={handleChange}
+                    rows={4}
+                    showLabel={false}
                 />
                 <div className="flex justify-end gap-3 mt-4">
                     <button
