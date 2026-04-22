@@ -429,40 +429,45 @@ const ContextOverview = () => {
 
             <div className='mt-6'>
                 <span className='text-lg font-semibold'>Company Details</span>
-                <div className='bg-white rounded p-3 mt-2 '>
-                    <div className='flex items-center gap-5'>
-                        <label htmlFor="">Company Name</label>
-                        <FormInput
-                            type="text"
-                            name="companyName"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) => handleChange(name, value)}
-                            className="w-96 p-2 border rounded-md mt-2 ml-6 bg-slate-100"
-                        />
+                <div className='bg-white rounded p-4 mt-2 flex flex-col gap-4'>
+                    <div className='flex items-center gap-4'>
+                        <label className='w-44 shrink-0 text-sm font-medium'>Company Name</label>
+                        <div className='flex-1'>
+                            <FormInput
+                                type="text"
+                                name="companyName"
+                                formValues={formValues}
+                                onChange={({ target: { name, value } }) => handleChange(name, value)}
+                                className="w-1/2 p-3 border rounded-md bg-slate-100"
+                            />
+                        </div>
                     </div>
 
-                    <div className='flex items-center gap-5'>
-                        <label htmlFor="">Company Address</label>
-                        <FormInput
-                            type="text"
-                            name="companyAddress"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) => handleChange(name, value)}
-                            className="w-96 p-2 border rounded-md mt-2 ml-2 bg-slate-100"
-                        />
+                    <div className='flex items-center gap-4'>
+                        <label className='w-44 shrink-0 text-sm font-medium'>Company Address</label>
+                        <div className='flex-1'>
+                            <FormInput
+                                type="text"
+                                name="companyAddress"
+                                formValues={formValues}
+                                onChange={({ target: { name, value } }) => handleChange(name, value)}
+                                className="w-1/2 p-3 border rounded-md bg-slate-100"
+                            />
+                        </div>
                     </div>
 
-                    <div className='flex items-center gap-5'>
-                        <label htmlFor="">Contact Information</label>
-                        <FormInput
-                            type="text"
-                            name="contactInformation"
-                            formValues={formValues}
-                            onChange={({ target: { name, value } }) => handleChange(name, value)}
-                            className="w-96 p-2 border rounded-md mt-2 bg-slate-100"
-                        />
+                    <div className='flex items-center gap-4'>
+                        <label className='w-44 shrink-0 text-sm font-medium'>Contact Information</label>
+                        <div className='flex-1'>
+                            <FormInput
+                                type="text"
+                                name="contactInformation"
+                                formValues={formValues}
+                                onChange={({ target: { name, value } }) => handleChange(name, value)}
+                                className="w-1/2 p-3 border rounded-md bg-slate-100"
+                            />
+                        </div>
                     </div>
-
                 </div>
             </div>
 
