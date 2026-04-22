@@ -19,6 +19,17 @@ const ProcessFrameworkListPage = ({ onDocumentSelect }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
 
+  // Auto-select first document on mount
+  React.useEffect(() => {
+    if (documents.length > 0) {
+      const firstDoc = documents[0];
+      setSelectedDoc(firstDoc);
+      if (onDocumentSelect) {
+        onDocumentSelect(firstDoc);
+      }
+    }
+  }, []);
+
   const getColorClass = (classification) => {
     switch (classification) {
       case "Public":

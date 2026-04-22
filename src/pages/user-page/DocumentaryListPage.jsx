@@ -18,6 +18,13 @@ const DocumentaryListPage = () => {
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Auto-select first document on mount
+  React.useEffect(() => {
+    if (documents.length > 0) {
+      setSelectedDocument(documents[0]);
+    }
+  }, []);
+
   const handleDeleteClick = (doc) => {
     setSelectedDocument(doc);
     setIsDialogOpen(true);

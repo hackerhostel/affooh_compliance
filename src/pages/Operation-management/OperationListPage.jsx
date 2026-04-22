@@ -15,10 +15,21 @@ const OperationListPage = ({ onDocumentSelect }) => {
     { id: 5, name: "Service Provider Management", classification: "Restricted" },
   ]);
 
-  const [selectedDocId, setSelectedDocId] = useState(1);
+  const [selectedDocId, setSelectedDocId] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
   const [selectedDocForDelete, setSelectedDocForDelete] = useState(null);
+
+  // Auto-select first document on mount
+  React.useEffect(() => {
+    if (documents.length > 0) {
+      const firstDoc = documents[0];
+      setSelectedDocId(firstDoc.id);
+      if (onDocumentSelect) {
+        onDocumentSelect(firstDoc);
+      }
+    }
+  }, []);
 
   const getColorClass = (classification) => {
     switch (classification) {

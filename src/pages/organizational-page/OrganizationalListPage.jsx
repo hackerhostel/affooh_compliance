@@ -19,8 +19,12 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
 
   // Auto-select first document on mount
   useEffect(() => {
-    if (documents.length > 0 && onDocumentSelect) {
-      onDocumentSelect(documents[0]);
+    if (documents.length > 0) {
+      const firstDoc = documents[0];
+      setSelectedDoc(firstDoc);
+      if (onDocumentSelect) {
+        onDocumentSelect(firstDoc);
+      }
     }
   }, []);
 

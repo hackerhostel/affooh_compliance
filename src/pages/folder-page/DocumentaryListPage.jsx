@@ -3,7 +3,7 @@ import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
 import { useToasts } from "react-toast-notifications";
 
-const DocumentaryListPage = () => {
+const DocumentaryListPage = ({ onSelect }) => {
   const { addToast } = useToasts();
 
   // Dummy document list
@@ -20,6 +20,17 @@ const DocumentaryListPage = () => {
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
+
+  // Auto-select first document on mount
+  React.useEffect(() => {
+    if (documents.length > 0) {
+      const firstDoc = documents[0];
+      setSelectedDoc(firstDoc);
+      if (onSelect) {
+        onSelect(firstDoc.id);
+      }
+    }
+  }, []);
 
   const getColorClass = (classification) => {
     switch (classification) {
@@ -55,6 +66,9 @@ const DocumentaryListPage = () => {
 
   const handleDocumentClick = (doc) => {
     setSelectedDoc(doc);
+    if (onSelect) {
+      onSelect(doc.id);
+    }
   };
 
   return (
