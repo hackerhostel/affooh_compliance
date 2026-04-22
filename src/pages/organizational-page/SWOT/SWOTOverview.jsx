@@ -363,7 +363,7 @@ const SWOTOverview = () => {
             {/* Strengths */}
             <div className='mt-6'>
                 <div className='flex items-center gap-5'>
-                    <span className='text-lg font-semibold'>Strengths</span>
+                    <span className='text-xl font-semibold'>Strengths</span>
                     <div className='flex items-center gap-1'>
                         <PlusCircleIcon onClick={handleAddNewStrength} className={'w-6 h-6 text-pink-500'} />
                         <button className='text-text-color' onClick={handleAddNewStrength}>Add New</button>
@@ -374,7 +374,7 @@ const SWOTOverview = () => {
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
                                 <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
-                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2' style={{ width: '350px' }}>Title</th>
                                 <th className='py-3 px-2'>Description</th>
                                 <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
                             </tr>
@@ -477,7 +477,7 @@ const SWOTOverview = () => {
             {/* Weaknesses */}
             <div className='mt-6'>
                 <div className='flex items-center gap-5'>
-                    <span className='text-lg font-semibold'>Weaknesses</span>
+                    <span className='text-xl font-semibold'>Weaknesses</span>
                     <div className='flex items-center gap-1'>
                         <PlusCircleIcon onClick={handleAddNewWeakness} className={'w-6 h-6 text-pink-500'} />
                         <button className='text-text-color' onClick={handleAddNewWeakness}>Add New</button>
@@ -488,7 +488,7 @@ const SWOTOverview = () => {
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
                                 <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
-                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2' style={{ width: '350px' }}>Title</th>
                                 <th className='py-3 px-2'>Description</th>
                                 <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
                             </tr>
@@ -591,7 +591,7 @@ const SWOTOverview = () => {
             {/* Opportunities */}
             <div className='mt-6'>
                 <div className='flex items-center gap-5'>
-                    <span className='text-lg font-semibold'>Opportunities</span>
+                    <span className='text-xl font-semibold'>Opportunities</span>
                     <div className='flex items-center gap-1'>
                         <PlusCircleIcon onClick={handleAddNewOpportunity} className={'w-6 h-6 text-pink-500'} />
                         <button className='text-text-color' onClick={handleAddNewOpportunity}>Add New</button>
@@ -602,7 +602,7 @@ const SWOTOverview = () => {
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
                                 <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
-                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2' style={{ width: '350px' }}>Title</th>
                                 <th className='py-3 px-2'>Description</th>
                                 <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
                             </tr>
@@ -705,7 +705,7 @@ const SWOTOverview = () => {
             {/* Threats */}
             <div className='mt-6'>
                 <div className='flex items-center gap-5'>
-                    <span className='text-lg font-semibold'>Threats</span>
+                    <span className='text-xl font-semibold'>Threats</span>
                     <div className='flex items-center gap-1'>
                         <PlusCircleIcon onClick={handleAddNewThreat} className={'w-6 h-6 text-pink-500'} />
                         <button className='text-text-color' onClick={handleAddNewThreat}>Add New</button>
@@ -716,7 +716,7 @@ const SWOTOverview = () => {
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
                                 <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
-                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2' style={{ width: '350px' }}>Title</th>
                                 <th className='py-3 px-2'>Description</th>
                                 <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
                             </tr>

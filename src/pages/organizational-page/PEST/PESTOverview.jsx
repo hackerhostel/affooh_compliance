@@ -366,7 +366,7 @@ const PESTOverview = () => {
             {/* Political */}
             <div className='mt-6'>
                 <div className='flex items-center gap-5'>
-                    <span className='text-lg font-semibold'>Political</span>
+                    <span className='text-xl font-semibold'>Political</span>
                     <div className='flex items-center gap-1'>
                         <PlusCircleIcon onClick={addPolitical} className={'w-6 h-6 text-pink-500'} />
                         <button className='text-text-color' onClick={addPolitical}>Add New</button>
@@ -377,7 +377,7 @@ const PESTOverview = () => {
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
                                 <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
-                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2' style={{ width: '350px' }}>Title</th>
                                 <th className='py-3 px-2'>Description</th>
                                 <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
                             </tr>
@@ -452,7 +452,7 @@ const PESTOverview = () => {
             {/* Economic */}
             <div className='mt-6'>
                 <div className='flex items-center gap-5'>
-                    <span className='text-lg font-semibold'>Economic</span>
+                    <span className='text-xl font-semibold'>Economic</span>
                     <div className='flex items-center gap-1'>
                         <PlusCircleIcon onClick={addEconomic} className={'w-6 h-6 text-pink-500'} />
                         <button className='text-text-color' onClick={addEconomic}>Add New</button>
@@ -463,7 +463,7 @@ const PESTOverview = () => {
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
                                 <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
-                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2' style={{ width: '350px' }}>Title</th>
                                 <th className='py-3 px-2'>Description</th>
                                 <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
                             </tr>
@@ -538,7 +538,7 @@ const PESTOverview = () => {
             {/* Social */}
             <div className='mt-6'>
                 <div className='flex items-center gap-5'>
-                    <span className='text-lg font-semibold'>Social</span>
+                    <span className='text-xl font-semibold'>Social</span>
                     <div className='flex items-center gap-1'>
                         <PlusCircleIcon onClick={addSocial} className={'w-6 h-6 text-pink-500'} />
                         <button className='text-text-color' onClick={addSocial}>Add New</button>
@@ -549,7 +549,7 @@ const PESTOverview = () => {
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
                                 <th className='py-3 px-2' style={{ width: '50px' }}>#</th>
-                                <th className='py-3 px-2' style={{ width: '200px' }}>Title</th>
+                                <th className='py-3 px-2' style={{ width: '350px' }}>Title</th>
                                 <th className='py-3 px-2'>Description</th>
                                 <th className='py-3 px-2' style={{ width: '80px' }}>Action</th>
                             </tr>
@@ -624,7 +624,7 @@ const PESTOverview = () => {
             {/* Technological */}
             <div className='mt-6'>
                 <div className='flex items-center gap-5'>
-                    <span className='text-lg font-semibold'>Technological</span>
+                    <span className='text-xl font-semibold'>Technological</span>
                     <div className='flex items-center gap-1'>
                         <PlusCircleIcon onClick={addTech} className={'w-6 h-6 text-pink-500'} />
                         <button className='text-text-color' onClick={addTech}>Add New</button>
