@@ -137,23 +137,23 @@ const DeviceUpdate = ({ onBack, asset }) => {
         try {
             const updateData = {
                 assetName: formValues.assetName,
-                serialKey: formValues.serialKey || undefined,
+                serialKey: formValues.serialKey || null,
                 assetType: formValues.assetType,
                 classification: formValues.classification,
-                ownerID: formValues.ownerID ? Number(formValues.ownerID) : undefined,
+                ownerID: formValues.ownerID ? Number(formValues.ownerID) : null,
                 assetDepartmentID: formValues.assetDepartmentID
                     ? Number(formValues.assetDepartmentID)
-                    : undefined,
+                    : null,
                 deviceConfig: {
-                    operatingSystem: formValues.deviceConfig.operatingSystem || undefined,
-                    osVersion: formValues.deviceConfig.osVersion || undefined,
+                    operatingSystem: formValues.deviceConfig.operatingSystem || null,
+                    osVersion: formValues.deviceConfig.osVersion || null,
                     osLicense: formValues.deviceConfig.osLicense || false,
-                    cpu: formValues.deviceConfig.cpu || undefined,
-                    processor: formValues.deviceConfig.processor || undefined,
-                    ram: formValues.deviceConfig.ram || undefined,
-                    model: formValues.deviceConfig.model || undefined,
-                    manufacturer: formValues.deviceConfig.manufacturer || undefined,
-                    macAddress: formValues.deviceConfig.macAddress || undefined,
+                    cpu: formValues.deviceConfig.cpu || null,
+                    processor: formValues.deviceConfig.processor || null,
+                    ram: formValues.deviceConfig.ram || null,
+                    model: formValues.deviceConfig.model || null,
+                    manufacturer: formValues.deviceConfig.manufacturer || null,
+                    macAddress: formValues.deviceConfig.macAddress || null,
                 },
             };
 
@@ -183,20 +183,29 @@ const DeviceUpdate = ({ onBack, asset }) => {
     return (
         <div className="w-full text-left p-4">
             {/* Header Section */}
-            <div className="mb-4 justify-between flex">
-                <div>
-                    <span className="text-black font-semibold mt-4 block">
-                        Hardware Asset / Device
-                    </span>
-                    <div className="flex-col mt-2 text-text-color space-x-10 text-sm">
-                        {assetDetail && (
-                            <>
-                                <span>Create Date: {new Date(assetDetail.createdAt).toLocaleDateString()}</span>
-                                {assetDetail.owner && (
-                                    <span>Created By: {assetDetail.owner.firstName} {assetDetail.owner.lastName}</span>
-                                )}
-                            </>
-                        )}
+            <div className="mb-4 justify-between flex items-center">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={onBack}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        title="Back to Overview"
+                    >
+                        <ArrowLeftIcon className="w-6 h-6 text-gray-600" />
+                    </button>
+                    <div>
+                        <span className="text-black font-semibold block">
+                            Hardware Asset / Device
+                        </span>
+                        <div className="flex mt-1 text-text-color gap-10 text-sm">
+                            {assetDetail && (
+                                <>
+                                    <span>Create Date: {new Date(assetDetail.createdAt).toLocaleDateString()}</span>
+                                    {assetDetail.owner && (
+                                        <span>Created By: {assetDetail.owner.firstName} {assetDetail.owner.lastName}</span>
+                                    )}
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -311,6 +320,7 @@ const DeviceUpdate = ({ onBack, asset }) => {
                 <div className="flex justify-end mb-6">
                     <div className="flex space-x-2">
                         <button
+                            type="button"
                             onClick={() => setActiveTab("configuration")}
                             className={`px-6 py-2 rounded-2xl ${activeTab === "configuration"
                                 ? "bg-black text-white"
@@ -320,6 +330,7 @@ const DeviceUpdate = ({ onBack, asset }) => {
                             Configuration
                         </button>
                         <button
+                            type="button"
                             onClick={() => setActiveTab("users")}
                             className={`px-6 py-2 rounded-2xl ${activeTab === "users"
                                 ? "bg-black text-white"
@@ -444,7 +455,7 @@ const DeviceUpdate = ({ onBack, asset }) => {
                     </div>
                 )}
 
-                {activeTab === "users" && <UserTable />}
+                {activeTab === "users" && <UserTable assetId={asset?.id} projectUsers={projectUsers} />}
             </div>
             </form>
         </div>

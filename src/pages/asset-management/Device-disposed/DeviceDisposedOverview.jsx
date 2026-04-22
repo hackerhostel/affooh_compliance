@@ -475,21 +475,21 @@ const DeviceDisposedOverview = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded p-3 mt-3 shadow-sm">
+      <div className="bg-white rounded p-3 mt-3 shadow-sm overflow-x-auto">
         <table className="table-auto w-full border-collapse">
           <thead>
             <tr className="text-left text-gray-600 border-b border-gray-200">
-              <th className="py-4 px-2 w-10">ID</th>
-              <th className="py-4 px-4">Asset Name</th>
-              <th className="py-4 px-4">Code</th>
-              <th className="py-4 px-4">Department</th>
-              <th className="py-4 px-4">Classification</th>
-              <th className="py-4 px-4">Disposal Date</th>
-              <th className="py-4 px-4">Notes</th>
-              <th className="py-4 px-4">Checked By</th>
-              <th className="py-4 px-4">Status</th>
-              <th className="py-4 px-4">Approved</th>
-              <th className="py-4 px-4 text-center">Action</th>
+              <th className="py-4 px-2 w-10">#</th>
+              <th className="py-4 px-4 w-72">Asset Name</th>
+              <th className="py-4 px-4 w-32">Code</th>
+              <th className="py-4 px-4 w-40">Department</th>
+              <th className="py-4 px-4 w-40">Classification</th>
+              <th className="py-4 px-4 w-40">Disposal Date</th>
+              <th className="py-4 px-4 w-40">Notes</th>
+              <th className="py-4 px-4 w-48">Checked By</th>
+              <th className="py-4 px-4 w-32">Status</th>
+              <th className="py-4 px-4 w-48">Approved</th>
+              <th className="py-4 px-4 w-28">Action</th>
             </tr>
           </thead>
           <tbody>

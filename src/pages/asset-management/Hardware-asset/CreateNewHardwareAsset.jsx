@@ -204,31 +204,31 @@ const CreateNewHardwareAsset = ({ isOpen, onClose, projectID }) => {
         category: formValues.category,
         assetType: formValues.assetType,
         classification: formValues.classification,
-        serialKey: formValues.serialKey || undefined,
-        ownerID: formValues.ownerID ? Number(formValues.ownerID) : undefined,
+        serialKey: formValues.serialKey || null,
+        ownerID: formValues.ownerID ? Number(formValues.ownerID) : null,
         assetDepartmentID: formValues.assetDepartmentID
           ? Number(formValues.assetDepartmentID)
-          : undefined,
+          : null,
       };
 
       if (formValues.category === "Device") {
         assetData.deviceConfig = {
-          operatingSystem: formValues.deviceConfig.operatingSystem || undefined,
-          osVersion: formValues.deviceConfig.osVersion || undefined,
+          operatingSystem: formValues.deviceConfig.operatingSystem || null,
+          osVersion: formValues.deviceConfig.osVersion || null,
           osLicense: formValues.deviceConfig.osLicense || false,
-          cpu: formValues.deviceConfig.cpu || undefined,
-          processor: formValues.deviceConfig.processor || undefined,
-          ram: formValues.deviceConfig.ram || undefined,
-          model: formValues.deviceConfig.model || undefined,
-          manufacturer: formValues.deviceConfig.manufacturer || undefined,
-          macAddress: formValues.deviceConfig.macAddress || undefined,
+          cpu: formValues.deviceConfig.cpu || null,
+          processor: formValues.deviceConfig.processor || null,
+          ram: formValues.deviceConfig.ram || null,
+          model: formValues.deviceConfig.model || null,
+          manufacturer: formValues.deviceConfig.manufacturer || null,
+          macAddress: formValues.deviceConfig.macAddress || null,
         };
       } else if (formValues.category === "Furniture") {
         assetData.quantity = Number(formValues.quantity);
         assetData.areaID = formValues.areaID
           ? Number(formValues.areaID)
-          : undefined;
-        assetData.remarks = formValues.remarks || undefined;
+          : null;
+        assetData.remarks = formValues.remarks || null;
       }
 
       await dispatch(doCreateAsset(assetData)).unwrap();

@@ -167,22 +167,22 @@ const CreateNewDataAsset = ({ isOpen, onClose }) => {
       const assetData = {
         projectID: selectedProject.id,
         dataAssetName: formValues.dataAssetName.trim(),
-        description: formValues.description || undefined,
+        description: formValues.description || null,
         source: formValues.source,
         hasBackup: formValues.hasBackup === "true",
-        backupLocation: formValues.backupLocation || undefined,
-        backupFrequency: formValues.backupFrequency || undefined,
+        backupLocation: formValues.backupLocation || null,
+        backupFrequency: formValues.backupFrequency || null,
         containsPersonalInfo: formValues.containsPersonalInfo === "true",
-        personalInfoDetails: formValues.personalInfoDetails || undefined,
+        personalInfoDetails: formValues.personalInfoDetails || null,
         dataClassification: formValues.dataClassification || "Internal",
         dataOwnerID: formValues.dataOwnerID
           ? Number(formValues.dataOwnerID)
-          : undefined,
-        accessRestrictions: formValues.accessRestrictions || undefined,
+          : null,
+        accessRestrictions: formValues.accessRestrictions || null,
         internalRecipients:
           formValues.internalRecipients && formValues.internalRecipients.length > 0
             ? formValues.internalRecipients.map((id) => Number(id))
-            : undefined,
+            : null,
       };
 
       await dispatch(doCreateDataAsset(assetData)).unwrap();

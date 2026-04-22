@@ -7,6 +7,7 @@ const ProcessFrameWorkLayout = () => {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   const onAddNew = () => {
     setIsOpen(true);
@@ -18,6 +19,7 @@ const ProcessFrameWorkLayout = () => {
 
   const handleDocumentSelect = (document) => {
     setSelectedDocument(document);
+    setResetKey((prev) => prev + 1);
   };
 
   return (
@@ -30,7 +32,12 @@ const ProcessFrameWorkLayout = () => {
           onDocumentSelect={handleDocumentSelect}
         />
       }
-      rightColumn={<ProcessContentPage selectedDocument={selectedDocument} />}
+      rightColumn={
+        <ProcessContentPage
+          key={resetKey}
+          selectedDocument={selectedDocument}
+        />
+      }
       onAction={onAddNew}
     />
   );

@@ -345,7 +345,7 @@ const DataAssetOverview = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded p-3 mt-3 shadow-sm">
+      <div className="bg-white rounded p-3 mt-3 shadow-sm overflow-x-auto">
         {isDataAssetsLoading ? (
           <div className="text-center text-gray-500 py-8">Loading...</div>
         ) : isDataAssetsError ? (
@@ -356,15 +356,15 @@ const DataAssetOverview = () => {
           <table className="table-auto w-full border-collapse">
             <thead>
               <tr className="text-left text-gray-600 border-b border-gray-200">
-                <th className="py-4 px-2 w-10">ID</th>
-                <th className="py-4 px-4">Full Name</th>
-                <th className="py-4 px-4">Source</th>
-                <th className="py-4 px-4">Contains Personal Information</th>
-                <th className="py-4 px-4">Backup Availability</th>
-                <th className="py-4 px-4">Backup Location</th>
-                <th className="py-4 px-4">Classification</th>
-                <th className="py-4 px-4">Data Owner</th>
-                <th className="py-3 px-4 text-center">Action</th>
+                <th className="py-4 px-2 w-10">#</th>
+                <th className="py-4 px-4 w-80">Data Asset Name</th>
+                <th className="py-4 px-4 w-40">Source</th>
+                <th className="py-4 px-4 w-40">Personal Info</th>
+                <th className="py-4 px-4 w-32">Backup</th>
+                <th className="py-4 px-4 w-40">Backup Location</th>
+                <th className="py-4 px-4 w-40">Classification</th>
+                <th className="py-4 px-4 w-48">Owner</th>
+                <th className="py-4 px-4 w-28">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -380,17 +380,17 @@ const DataAssetOverview = () => {
                     <tr className="border-b border-gray-200 hover:bg-gray-50">
                       <td className="py-4 px-2">{index + 1}</td>
                       <td className="py-4 px-4">
-                        <div
-                          className="flex items-center gap-2 cursor-pointer hover:text-primary-pink"
-                          onClick={() => toggleExpandRow(row.id)}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleStartEdit(row.id);
+                          }}
+                          className="text-blue-600 hover:underline cursor-pointer font-medium text-left"
                         >
-                          {expandedRowId === row.id ? (
-                            <ChevronUpIcon className="w-4 h-4 text-primary-pink" />
-                          ) : (
-                            <ChevronDownIcon className="w-4 h-4 text-gray-400" />
-                          )}
-                          <span className="font-medium">{row.dataAssetName}</span>
-                        </div>
+                          {row.dataAssetName}
+                        </button>
                       </td>
                       <td className="py-4 px-4">{row.source}</td>
                       <td className="py-4 px-4">

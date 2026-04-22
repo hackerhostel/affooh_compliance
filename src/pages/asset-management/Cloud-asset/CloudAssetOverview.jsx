@@ -305,7 +305,7 @@ const CloudAssetOverview = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded p-3 mt-3 shadow-sm">
+      <div className="bg-white rounded p-3 mt-3 shadow-sm overflow-x-auto">
         {isAssetsLoading ? (
           <div className="text-center py-8 text-gray-500">Loading...</div>
         ) : isAssetsError ? (
@@ -316,15 +316,15 @@ const CloudAssetOverview = () => {
           <table className="table-auto w-full border-collapse">
             <thead>
               <tr className="text-left text-gray-600 border-b border-gray-200">
-                <th className="py-4 px-2 w-10">ID</th>
-                <th className="py-4 px-4">Asset Name</th>
-                <th className="py-4 px-4">Vendor</th>
-                <th className="py-4 px-4">Asset Type</th>
-                <th className="py-4 px-4">Backup Availability</th>
-                <th className="py-4 px-4">Backup Location</th>
-                <th className="py-4 px-4">Classification</th>
-                <th className="py-4 px-4">Owner</th>
-                <th className="py-3 px-4 text-center">Action</th>
+                <th className="py-4 px-2 w-10">#</th>
+                <th className="py-4 px-4 w-80">Cloud Asset Name</th>
+                <th className="py-4 px-4 w-40">Vendor</th>
+                <th className="py-4 px-4 w-40">Asset Type</th>
+                <th className="py-4 px-4 w-40">Backup Availability</th>
+                <th className="py-4 px-4 w-40">Backup Location</th>
+                <th className="py-4 px-4 w-40">Classification</th>
+                <th className="py-4 px-4 w-48">Resource Owner</th>
+                <th className="py-4 px-4 w-28">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -341,7 +341,19 @@ const CloudAssetOverview = () => {
                     className="border-b border-gray-200 hover:bg-gray-50"
                   >
                     <td className="py-4 px-2">{index + 1}</td>
-                    <td className="py-4 px-4">{row.cloudAssetName}</td>
+                    <td className="py-4 px-4">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleStartEdit(row.id);
+                        }}
+                        className="text-blue-600 hover:underline cursor-pointer font-medium text-left"
+                      >
+                        {row.cloudAssetName}
+                      </button>
+                    </td>
                     <td className="py-4 px-4">{row.vendor}</td>
                     <td className="py-4 px-4">{row.assetType}</td>
                     <td className="py-4 px-4">

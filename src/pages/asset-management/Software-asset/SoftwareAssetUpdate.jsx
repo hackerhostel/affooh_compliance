@@ -137,17 +137,17 @@ const SoftwareAssetUpdate = ({ asset, onBack }) => {
         // Prepare data for API - Always send boolean values explicitly (even if false)
         const assetData = {
             softwareName: formValues.softwareName.trim(),
-            version: formValues.version || undefined,
-            description: formValues.description || undefined,
-            vendor: formValues.vendor || undefined,
+            version: formValues.version || null,
+            description: formValues.description || null,
+            vendor: formValues.vendor || null,
             hasLicense: toStrictBoolean(formValues.hasLicense), // Always defined, true or false
-            licenseKey: formValues.licenseKey || undefined,
-            licenseExpiryDate: formValues.licenseExpiryDate || undefined,
+            licenseKey: formValues.licenseKey || null,
+            licenseExpiryDate: formValues.licenseExpiryDate || null,
             isLatestVersion: toStrictBoolean(formValues.isLatestVersion), // Always defined, true or false
-            teamID: formValues.teamID ? Number(formValues.teamID) : undefined,
+            teamID: formValues.teamID ? Number(formValues.teamID) : null,
             isTempApproved: toStrictBoolean(formValues.isTempApproved), // Always defined, true or false
-            tempApprovalDueDate: formValues.tempApprovalDueDate || undefined,
-            tempApprovalNotes: formValues.tempApprovalNotes || undefined,
+            tempApprovalDueDate: formValues.tempApprovalDueDate || null,
+            tempApprovalNotes: formValues.tempApprovalNotes || null,
             status: formValues.status || 'Active',
         };
 

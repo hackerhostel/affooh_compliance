@@ -20,7 +20,6 @@ import {
   doGetAssets,
   doDeleteAsset,
   doGetMasterData,
-  doGetAssetDetail,
 } from "../../../state/slice/assetSlice.js";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
 import {
@@ -232,19 +231,6 @@ const HardwareAssetOverview = () => {
     }
   };
 
-  // handle asset name click - show configuration popup
-  const handleAssetNameClick = async (id, e) => {
-    e?.preventDefault();
-    e?.stopPropagation();
-    const asset = assets.find((row) => row.id === id);
-    if (asset) {
-      setSelectedAssetForConfig(asset);
-      setDeviceConfigPopupOpen(true);
-      // Fetch asset detail to get configuration data
-      dispatch(doGetAssetDetail(id));
-    }
-  };
-
   // handle device config popup close
   const handleDeviceConfigPopupClose = () => {
     setDeviceConfigPopupOpen(false);
@@ -395,7 +381,7 @@ const HardwareAssetOverview = () => {
           </div>
 
           {/* Table */}
-          <div className="bg-white rounded p-3 mt-3 shadow-sm">
+          <div className="bg-white rounded p-3 mt-3 shadow-sm overflow-x-auto">
             {isAssetsLoading ? (
               <div className="text-center text-gray-500 py-8">Loading...</div>
             ) : isAssetsError ? (
@@ -407,16 +393,16 @@ const HardwareAssetOverview = () => {
                 <thead>
                   <tr className="text-left text-secondary-grey border-b border-gray-200">
                     <th className="py-4 px-2 w-10">#</th>
-                    <th className="py-4 px-4">Asset Name</th>
-                    <th className="py-4 px-4">Code</th>
-                    <th className="py-4 px-4">Serial Key</th>
-                    <th className="py-4 px-4">Type</th>
-                    <th className="py-4 px-4">Category</th>
-                    <th className="py-4 px-4">Classification</th>
-                    <th className="py-4 px-4">Department</th>
-                    <th className="py-4 px-4">Owner</th>
-                    <th className="py-4 px-4">Assignee</th>
-                    <th className="py-4 px-4">Actions</th>
+                    <th className="py-4 px-4 w-80">Asset Name</th>
+                    <th className="py-4 px-4 w-32">Code</th>
+                    <th className="py-4 px-4 w-40">Serial Key</th>
+                    <th className="py-4 px-4 w-32">Type</th>
+                    <th className="py-4 px-4 w-32">Category</th>
+                    <th className="py-4 px-4 w-32">Classification</th>
+                    <th className="py-4 px-4 w-40">Department</th>
+                    <th className="py-4 px-4 w-40">Owner</th>
+                    <th className="py-4 px-4 w-40">Assignee</th>
+                    <th className="py-4 px-4 w-28">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -439,7 +425,7 @@ const HardwareAssetOverview = () => {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              handleAssetNameClick(row.id, e);
+                              handleStartEdit(row.id);
                             }}
                             className="text-blue-600 hover:underline cursor-pointer"
                           >

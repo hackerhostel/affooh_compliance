@@ -547,19 +547,19 @@ const DeviceMovedOverview = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded p-3 mt-3 shadow-sm">
+      <div className="bg-white rounded p-3 mt-3 shadow-sm overflow-x-auto">
         <table className="table-auto w-full border-collapse">
           <thead>
             <tr className="text-left text-gray-600 border-b border-gray-200">
-              <th className="py-3 px-2 w-12">ID</th>
-              <th className="py-3 px-2 w-32">Asset Name</th>
-              <th className="py-3 px-2 w-20">Code</th>
-              <th className="py-3 px-2 w-28">Move Date</th>
-              <th className="py-3 px-2 w-28">Return Date</th>
-              <th className="py-3 px-2 w-32">Reason</th>
-              <th className="py-3 px-2 w-36">Moved By</th>
-              <th className="py-3 px-2 w-36">Approved</th>
-              <th className="py-3 px-2 w-20 text-center">Action</th>
+              <th className="py-3 px-2 w-12">#</th>
+              <th className="py-3 px-2 w-72">Asset Name</th>
+              <th className="py-3 px-2 w-32">Code</th>
+              <th className="py-3 px-2 w-32">Move Date</th>
+              <th className="py-3 px-2 w-32">Return Date</th>
+              <th className="py-3 px-2 w-40">Reason</th>
+              <th className="py-3 px-2 w-40">Moved By</th>
+              <th className="py-3 px-2 w-40">Approved</th>
+              <th className="py-3 px-2 w-28">Action</th>
             </tr>
           </thead>
           <tbody>

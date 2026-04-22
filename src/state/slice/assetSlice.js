@@ -242,6 +242,20 @@ export const doUpdateAssignment = createAsyncThunk(
   }
 );
 
+export const doDeleteAssignment = createAsyncThunk(
+  "asset/deleteAssignment",
+  async (assignmentID, thunkAPI) => {
+    try {
+      const response = await axios.delete(`/assets/assignments/${assignmentID}`);
+      return response.data.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Failed to delete assignment"
+      );
+    }
+  }
+);
+
 // Data Asset Async Thunks
 export const doGetDataAssets = createAsyncThunk(
   "asset/getDataAssets",
@@ -666,6 +680,15 @@ const assetSlice = createSlice({
         // Assignment history will be refreshed
       })
       .addCase(doUpdateAssignment.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      .addCase(doDeleteAssignment.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(doDeleteAssignment.fulfilled, (state) => {
+        // Assignment history will be refreshed
+      })
+      .addCase(doDeleteAssignment.rejected, (state, action) => {
         state.error = action.payload;
       })
       // Get Data Assets

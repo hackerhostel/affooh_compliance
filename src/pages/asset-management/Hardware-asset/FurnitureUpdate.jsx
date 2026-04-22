@@ -103,16 +103,16 @@ const FurnitureUpdate = ({ onBack, asset }) => {
         try {
             const updateData = {
                 assetName: formValues.assetName,
-                serialKey: formValues.serialKey || undefined,
+                serialKey: formValues.serialKey || null,
                 assetType: formValues.assetType,
                 classification: formValues.classification,
-                ownerID: formValues.ownerID ? Number(formValues.ownerID) : undefined,
+                ownerID: formValues.ownerID ? Number(formValues.ownerID) : null,
                 assetDepartmentID: formValues.assetDepartmentID
                     ? Number(formValues.assetDepartmentID)
-                    : undefined,
+                    : null,
                 quantity: Number(formValues.quantity),
-                areaID: formValues.areaID ? Number(formValues.areaID) : undefined,
-                remarks: formValues.remarks || undefined,
+                areaID: formValues.areaID ? Number(formValues.areaID) : null,
+                remarks: formValues.remarks || null,
             };
 
             await dispatch(doUpdateAsset({ assetID: asset.id, assetData: updateData })).unwrap();
@@ -141,20 +141,29 @@ const FurnitureUpdate = ({ onBack, asset }) => {
     return (
         <div className="w-full text-left p-4">
             {/* Header Section */}
-            <div className="mb-4 justify-between flex">
-                <div>
-                    <span className="text-black font-semibold mt-4 block">
-                        Hardware Asset / Furniture
-                    </span>
-                    <div className="flex-col mt-2 text-text-color space-x-10 text-sm">
-                        {assetDetail && (
-                            <>
-                                <span>Create Date: {new Date(assetDetail.createdAt).toLocaleDateString()}</span>
-                                {assetDetail.owner && (
-                                    <span>Created By: {assetDetail.owner.firstName} {assetDetail.owner.lastName}</span>
-                                )}
-                            </>
-                        )}
+            <div className="mb-4 justify-between flex items-center">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={onBack}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        title="Back to Overview"
+                    >
+                        <ArrowLeftIcon className="w-6 h-6 text-gray-600" />
+                    </button>
+                    <div>
+                        <span className="text-black font-semibold block">
+                            Hardware Asset / Furniture
+                        </span>
+                        <div className="flex mt-1 text-text-color gap-10 text-sm">
+                            {assetDetail && (
+                                <>
+                                    <span>Create Date: {new Date(assetDetail.createdAt).toLocaleDateString()}</span>
+                                    {assetDetail.owner && (
+                                        <span>Created By: {assetDetail.owner.firstName} {assetDetail.owner.lastName}</span>
+                                    )}
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div>

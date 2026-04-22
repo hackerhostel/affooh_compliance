@@ -7,6 +7,7 @@ const RoleLayout = () => {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   const onAddNew = () => {
     setIsOpen(true);
@@ -18,6 +19,7 @@ const RoleLayout = () => {
 
   const handleDocumentSelect = (document) => {
     setSelectedDocument(document);
+    setResetKey((prev) => prev + 1);
   };
 
   return (
@@ -30,7 +32,12 @@ const RoleLayout = () => {
           onDocumentSelect={handleDocumentSelect}
         />
       }
-      rightColumn={<RoleContentPage selectedDocument={selectedDocument} />}
+      rightColumn={
+        <RoleContentPage
+          key={resetKey}
+          selectedDocument={selectedDocument}
+        />
+      }
       onAction={onAddNew}
     />
   );

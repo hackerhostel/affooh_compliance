@@ -318,7 +318,7 @@ const SoftwareAssetOverview = () => {
           </div>
 
           {/* Table */}
-          <div className="bg-white rounded p-3 mt-3 shadow-sm">
+          <div className="bg-white rounded p-3 mt-3 shadow-sm overflow-x-auto">
             {isSoftwareAssetsLoading ? (
               <div className="text-center text-gray-500 py-8">Loading...</div>
             ) : isSoftwareAssetsError ? (
@@ -330,15 +330,15 @@ const SoftwareAssetOverview = () => {
                 <thead>
                   <tr className="text-left text-gray-600 border-b border-gray-200">
                     <th className="py-4 px-2 w-10">#</th>
-                    <th className="py-4 px-4">Software Name</th>
-                    <th className="py-4 px-4">Version</th>
-                    <th className="py-4 px-4">Vendor</th>
-                    <th className="py-4 px-4">Team</th>
-                    <th className="py-4 px-4">Latest Version</th>
-                    <th className="py-4 px-4">License</th>
-                    <th className="py-4 px-4">Status</th>
-                    <th className="py-4 px-4">Temp Approved</th>
-                    <th className="py-4 px-4">Actions</th>
+                    <th className="py-4 px-4 w-80">Software Name</th>
+                    <th className="py-4 px-4 w-28">Version</th>
+                    <th className="py-4 px-4 w-32">Vendor</th>
+                    <th className="py-4 px-4 w-32">Team</th>
+                    <th className="py-4 px-4 w-32">Latest Version</th>
+                    <th className="py-4 px-4 w-28">License</th>
+                    <th className="py-4 px-4 w-28">Status</th>
+                    <th className="py-4 px-4 w-32">Temp Approved</th>
+                    <th className="py-4 px-4 w-28">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -356,21 +356,17 @@ const SoftwareAssetOverview = () => {
                         >
                           <td className="py-4 px-2">{index + 1}</td>
                           <td className="py-4 px-4">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => toggleExpandRow(row.id)}
-                                className="flex items-center gap-1 hover:text-primary-pink transition-colors"
-                              >
-                                {expandedRowId === row.id ? (
-                                  <ChevronUpIcon className="w-4 h-4" />
-                                ) : (
-                                  <ChevronDownIcon className="w-4 h-4" />
-                                )}
-                                <span className="font-medium cursor-pointer">
-                                  {row.softwareName}
-                                </span>
-                              </button>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleStartEdit(row.id);
+                              }}
+                              className="text-blue-600 hover:underline cursor-pointer font-medium"
+                            >
+                              {row.softwareName}
+                            </button>
                           </td>
                           <td className="py-4 px-4">{row.version || "-"}</td>
                           <td className="py-4 px-4">{row.vendor || "-"}</td>
