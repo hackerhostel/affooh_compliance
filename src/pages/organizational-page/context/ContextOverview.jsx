@@ -487,8 +487,8 @@ const ContextOverview = () => {
                         <thead>
                             <tr className='text-left text-secondary-grey border-b border-gray-200'>
                                 <th className='py-3 px-2' style={{ width: '5%' }}>#</th>
-                                <th className='py-3 px-2' style={{ width: '20%' }}>Department</th>
-                                <th className='py-3 px-2' style={{ width: '50%' }}>Description</th>
+                                <th className='py-3 px-2' style={{ width: '30%' }}>Department</th>
+                                <th className='py-3 px-2' style={{ width: '40%' }}>Description</th>
                                 <th className='py-3 px-2' style={{ width: '20%' }}>HOD</th>
                                 <th className='py-3 px-2' style={{ width: '5%' }}>Action</th>
                             </tr>
