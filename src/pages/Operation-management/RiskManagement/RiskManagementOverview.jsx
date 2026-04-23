@@ -270,7 +270,12 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                             {/* Top Section */}
                             <div className="grid grid-cols-12 gap-4 px-8 py-7 items-start">
                                 <div className="col-span-1 text-base text-gray-500 font-medium pt-0.5">{row.id}.</div>
-                                <div className="col-span-3 text-sm text-gray-700 font-semibold leading-relaxed pr-4">{row.isoControl}</div>
+                                <div 
+                                    className="col-span-3 text-sm text-gray-700 font-semibold leading-relaxed pr-4 cursor-pointer hover:text-primary-pink transition-colors"
+                                    onClick={() => { setEditingRisk(row); setViewMode('EDIT'); }}
+                                >
+                                    {row.isoControl}
+                                </div>
                                 <div className="col-span-2 text-sm text-gray-500 leading-relaxed pr-4">{row.currentGaps}</div>
                                 <div className="col-span-2 text-sm text-gray-500 leading-relaxed pr-4">{row.interestedParties}</div>
                                 <div className="col-span-1 text-sm text-gray-500">{row.threat}</div>

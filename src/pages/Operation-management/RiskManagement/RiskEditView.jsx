@@ -14,6 +14,7 @@ import { useToasts } from "react-toast-notifications";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../../state/slice/authSlice.js";
+import AddTaskModal from "./AddTaskModal.jsx";
 
 const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
     const user = useSelector(selectUser);
@@ -27,6 +28,12 @@ const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
         threat: risk.threat || "",
         migrationReference: risk.migrationReference || "",
         owner: risk.owner || "",
+        probability: risk.probability || 1,
+        impact: risk.impact || 1,
+        response: risk.response || "",
+        recommendedAction: risk.recommendedAction || "",
+        dueDate: risk.dueDate || "",
+        status: risk.status || "To Do",
         ...risk
     });
 
@@ -60,6 +67,7 @@ const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
         newProbability: 1,
         newImpact: 1
     });
+    const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
 
     // Load reassessments on component mount
     useEffect(() => {
@@ -114,6 +122,12 @@ const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
                 threat: formData.threat || "",
                 migrationReference: formData.migrationReference || "",
                 owner: formData.owner || "",
+                probability: formData.probability || 1,
+                impact: formData.impact || 1,
+                response: formData.response || "",
+                recommendedAction: formData.recommendedAction || "",
+                dueDate: formData.dueDate || "",
+                status: formData.status || "To Do",
                 title: formData.isoControl || "Untitled Risk"
             };
 
@@ -395,12 +409,25 @@ const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
                         </div>
                     </div>
                 </div>
-                <button
-                    onClick={handleSave}
-                    className="bg-primary-pink text-white px-10 py-3 rounded-xl font-bold shadow-lg hover:bg-pink-600 transition-all active:scale-95 shadow-pink-100 uppercase tracking-widest text-xs"
-                >
-                    Update
-                </button>
+                <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-end mr-4">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Linked Task</span>
+                        <span className="text-xs font-bold text-primary-pink">{risk.task || "None"}</span>
+                    </div>
+                    <button
+                        onClick={() => setIsAddTaskModalOpen(true)}
+                        className="p-2.5 bg-white border border-gray-100 rounded-xl text-primary-pink hover:bg-gray-50 transition-all shadow-sm"
+                        title="Link Task"
+                    >
+                        <PlusIcon className="w-5 h-5" />
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        className="bg-primary-pink text-white px-10 py-3 rounded-xl font-bold shadow-lg hover:bg-pink-600 transition-all active:scale-95 shadow-pink-100 uppercase tracking-widest text-xs"
+                    >
+                        Update
+                    </button>
+                </div>
             </div>
 
             {/* Form Fields */}
@@ -468,6 +495,80 @@ const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
                         <option value="">Select Owner</option>
                         {userOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                     </select>
+                </div>
+
+                {/* New Fields Section */}
+                <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider text-left">Initial Probability</label>
+                        <select
+                            className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-base focus:ring-4 focus:ring-primary-pink/10 focus:border-primary-pink outline-none shadow-sm transition-all"
+                            value={formData.probability}
+                            onChange={(e) => handleInputChange('probability', e.target.value)}
+                        >
+                            {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
+                        </select>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider text-left">Initial Impact</label>
+                        <select
+                            className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-base focus:ring-4 focus:ring-primary-pink/10 focus:border-primary-pink outline-none shadow-sm transition-all"
+                            value={formData.impact}
+                            onChange={(e) => handleInputChange('impact', e.target.value)}
+                        >
+                            {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider text-left">Response</label>
+                        <select
+                            className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-base focus:ring-4 focus:ring-primary-pink/10 focus:border-primary-pink outline-none shadow-sm transition-all"
+                            value={formData.response}
+                            onChange={(e) => handleInputChange('response', e.target.value)}
+                        >
+                            <option value="">Select Response</option>
+                            <option value="Mitigate">Mitigate</option>
+                            <option value="Accept">Accept</option>
+                            <option value="Avoid">Avoid</option>
+                            <option value="Transfer">Transfer</option>
+                        </select>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider text-left">Status</label>
+                        <select
+                            className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-base focus:ring-4 focus:ring-primary-pink/10 focus:border-primary-pink outline-none shadow-sm transition-all"
+                            value={formData.status}
+                            onChange={(e) => handleInputChange('status', e.target.value)}
+                        >
+                            <option value="To Do">To Do</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Done">Done</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider text-left">Due Date</label>
+                        <input
+                            type="date"
+                            className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-base focus:ring-4 focus:ring-primary-pink/10 focus:border-primary-pink outline-none shadow-sm transition-all"
+                            value={formData.dueDate ? formData.dueDate.split('T')[0] : ""}
+                            onChange={(e) => handleInputChange('dueDate', e.target.value)}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider text-left">Recommended Action</label>
+                        <textarea
+                            className="w-full bg-white border border-gray-200 rounded-2xl p-5 text-base h-32 focus:ring-4 focus:ring-primary-pink/10 focus:border-primary-pink outline-none shadow-sm resize-none transition-all"
+                            value={formData.recommendedAction}
+                            onChange={(e) => handleInputChange('recommendedAction', e.target.value)}
+                            placeholder="Describe recommended actions..."
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -665,6 +766,16 @@ const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
                 onConfirm={handleConfirmDeleteReassessment}
                 title="Delete Reassessment"
                 message="Are you sure you want to delete this reassessment? This action cannot be undone."
+            />
+            <AddTaskModal
+                isOpen={isAddTaskModalOpen}
+                onClose={() => setIsAddTaskModalOpen(false)}
+                riskId={risk.id}
+                existingTasks={risk.tasks || []}
+                onTasksUpdated={() => {
+                    // Ideally reload the risk data or update local state
+                    addToast("Tasks updated", { appearance: "info" });
+                }}
             />
         </div>
     );
