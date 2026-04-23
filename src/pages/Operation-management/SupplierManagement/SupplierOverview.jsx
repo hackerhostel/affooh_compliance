@@ -23,28 +23,7 @@ const SupplierOverview = () => {
   };
 
   // Dummy data
-  const [supplierRows, setSupplierRows] = useState([
-    {
-      id: 1,
-      supplierName: "ABC Traders",
-      namesAndItems: "John Supplies - Laptops, Keyboards",
-      address: "123 Main Street, Colombo",
-      contactPerson: "John Silva",
-      contactNumber: "+94 77 123 4567",
-      email: "john@abctraders.com",
-      contractEndDate: "2025-12-10",
-    },
-    {
-      id: 2,
-      supplierName: "TechZone Pvt Ltd",
-      namesAndItems: "TechZone - Monitors, Printers",
-      address: "45 Galle Road, Gampaha",
-      contactPerson: "Jane Fernando",
-      contactNumber: "+94 71 987 6543",
-      email: "jane@techzone.lk",
-      contractEndDate: "2025-11-20",
-    },
-  ]);
+  const [supplierRows, setSupplierRows] = useState([]);
 
   const [showNewRow, setShowNewRow] = useState(false);
   const [newRow, setNewRow] = useState({

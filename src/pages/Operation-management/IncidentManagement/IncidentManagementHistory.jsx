@@ -22,63 +22,7 @@ import DataGrid, {
 } from "devextreme-react/data-grid";
 
 // Dummy Data
-const dummyData = [
-  {
-    name: "Project Alpha",
-    revisionDate: "2025-01-15",
-    version: "1.0.0",
-    summary: "Initial release with core functionalities.",
-    responsibility: {
-      firstName: "John",
-      lastName: "Doe",
-      avatar: ""
-    }
-  },
-  {
-    name: "Project Beta",
-    revisionDate: "2025-02-10",
-    version: "1.1.0",
-    summary: "Added user authentication and profile features.",
-    responsibility: {
-      firstName: "John",
-      lastName: "Doe",
-      avatar: ""
-    }
-  },
-  {
-    name: "Project Gamma",
-    revisionDate: "2025-03-05",
-    version: "1.2.0",
-    summary: "Improved dashboard UI and fixed bug in reports.",
-    responsibility: {
-      firstName: "John",
-      lastName: "Doe",
-      avatar: ""
-    }
-  },
-  {
-    name: "Project Delta",
-    revisionDate: "2025-04-12",
-    version: "2.0.0",
-    summary: "Major update with API integration.",
-    responsibility: {
-      firstName: "John",
-      lastName: "Doe",
-      avatar: ""
-    }
-  },
-  {
-    name: "Project Omega",
-    revisionDate: "2025-05-20",
-    version: "2.1.0",
-    summary: "Security patches and performance optimization.",
-    responsibility: {
-      firstName: "John",
-      lastName: "Doe",
-      avatar: ""
-    }
-  }
-];
+const dummyData = [];
 
 const IncidentManagementHistory = () => {
   const { addToast } = useToasts();
@@ -86,9 +30,9 @@ const IncidentManagementHistory = () => {
   const selectedUser = useSelector(clickedUser);
 
   const [formValues, setFormValues] = useState({
-    documentID: "DOC-001",
-    version: "1.0",
-    effectiveDate: "2025-10-07",
+    documentID: "",
+    version: "",
+    effectiveDate: "",
     classification: "",
     preparedBy: "",
     approvedBy: "",
@@ -102,11 +46,7 @@ const IncidentManagementHistory = () => {
 
   // Dummy options and users for sidebar
   const roles = ["Internal", "Confidential", "Public"];
-  const dummyUsers = [
-    { id: 1, name: "John Doe" },
-    { id: 2, name: "Jane Smith" },
-    { id: 3, name: "Alice Johnson" },
-  ];
+  const dummyUsers = [];
 
   const toggleEditable = () => setIsEditable((prev) => !prev);
   const handleUserChange = (field, userId) => {

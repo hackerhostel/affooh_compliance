@@ -23,28 +23,7 @@ const statusOptions = [
     { label: "Pending", value: "Pending" },
 ];
 
-const initialData = [
-    {
-        id: 1,
-        title: "ISO control - close/Annex A",
-        currentGaps: "Gap 1: Missing documentation",
-        complianceStatus: "Non-Compliant",
-        severity: "High",
-        recommendedAction: "Review and update documentation accordingly.",
-        recommendedAction2: "Review and update documentation accordingly2.",
-        responsibility: {
-            firstName: "John",
-            lastName: "Doe",
-            avatar: "",
-        },
-        dueDate: "2025-08-15",
-        status: "In Progress",
-        task: "Update ISO documentation",
-        recommended: "Add context documentation",
-        status2: "Pending",
-        task2: "2"
-    },
-];
+const initialData = [];
 
 const IncidentManagementOverview = () => {
     const [filterValues, setFilterValues] = useState({
@@ -80,7 +59,7 @@ const IncidentManagementOverview = () => {
                 <div className="flex gap-4 p-4">
                     <div className='border-2 border-secondary-bcg rounded-lg px-24 py-8'>
                         <div className='flex flex-col items-center gap-1 text-text-color'>
-                            <span className='text-3xl font-medium'>25</span>
+                            <span className='text-3xl font-medium'>0</span>
                             <span className='text-lg font-medium'>All</span>
                         </div>
                     </div>
@@ -89,7 +68,7 @@ const IncidentManagementOverview = () => {
                 <div className="flex gap-4 p-4">
                     <div className='border-2 border-pass-border-color rounded-lg px-24 py-8'>
                         <div className='flex flex-col items-center gap-1 text-text-color'>
-                            <span className='text-3xl font-medium'>25</span>
+                            <span className='text-3xl font-medium'>0</span>
                             <span className='text-lg font-medium'>Pass</span>
                         </div>
                     </div>
@@ -98,7 +77,7 @@ const IncidentManagementOverview = () => {
                 <div className="flex gap-4 p-4">
                     <div className='border-2 border-priority-high rounded-lg px-24 py-8'>
                         <div className='flex flex-col items-center gap-1 text-text-color'>
-                            <span className='text-3xl font-medium'>12</span>
+                            <span className='text-3xl font-medium'>0</span>
                             <span className='text-lg font-medium'>Fail</span>
                         </div>
                     </div>
@@ -107,7 +86,7 @@ const IncidentManagementOverview = () => {
                 <div className="flex gap-4 p-4">
                     <div className='border-2 border-pending-border-color rounded-lg px-24  py-8'>
                         <div className='flex flex-col items-center gap-1  text-text-color'>
-                            <span className='text-3xl font-medium'>25</span>
+                            <span className='text-3xl font-medium'>0</span>
                             <span className='text-lg font-medium'>Pending</span>
                         </div>
                     </div>
@@ -330,19 +309,24 @@ const IncidentManagementOverview = () => {
                             <th className="w-15">Re-Assessment Date</th>
                             <th></th>
                         </tr>
-                        {rows.map((row) => (
-                            <tr key={row.id} className="border-t bg-gray-100">
-                                <td className="px-4 py-3 w-[420px]">
-                                    4.2 - Understanding the organization and its context
-                                </td>
-                                <td className="px-4 py-3">
-                                    test
-                                </td>
-                                <td className="px-4 py-3">
-                                   test
-                                </td>
-                                <td className="px-4 py-3">
-                                    <FormInput
+                        {rows.length === 0 ? (
+                            <tr>
+                                <td colSpan="5" className="text-center py-4 text-gray-500">No data available</td>
+                            </tr>
+                        ) : (
+                            rows.map((row) => (
+                                <tr key={row.id} className="border-t bg-gray-100">
+                                    <td className="px-4 py-3 w-[420px]">
+                                        {row.interestedParties || "-"}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {row.threat || "-"}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {row.reference || "-"}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <FormInput
                                             name="dueDate"
                                             value={row.dueDate}
                                             type="date"
@@ -351,19 +335,20 @@ const IncidentManagementOverview = () => {
                                             }
                                             showLabel={false}
                                             className="w-full"
-                                            />
+                                        />
                                     </td>
                                     <FormTextArea
-                                            name="recommendedAction"
-                                            value={row.test}
-                                            onChange={(e) =>
-                                                handleRowChange(row.id, "recommendedAction", e.target.value)
-                                            }
-                                            showLabel={false}
-                                            className="w-full rounded-md p-4"
-                                        />
-                            </tr>
-                        ))}
+                                        name="recommendedAction"
+                                        value={row.test}
+                                        onChange={(e) =>
+                                            handleRowChange(row.id, "recommendedAction", e.target.value)
+                                        }
+                                        showLabel={false}
+                                        className="w-full rounded-md p-4"
+                                    />
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
 

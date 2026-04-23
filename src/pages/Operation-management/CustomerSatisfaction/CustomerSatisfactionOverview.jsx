@@ -28,28 +28,7 @@ const CustomerSatisfactionOverview = () => {
   ]);
 
   // Dummy data
-  const [trainingRows, setTrainingRows] = useState([
-    {
-      id: 1,
-      date: "2025-10-25",
-      trainingModule: "Workplace Safety",
-      targetAudience: "Employees",
-      duration: "2 Days",
-      evaluationMethodology: "Quiz and Practical Assessment",
-      resourcePerson: "John Doe",
-      status: "Planned",
-    },
-    {
-      id: 2,
-      date: "2025-11-05",
-      trainingModule: "Leadership Skills",
-      targetAudience: "Managers",
-      duration: "3 Days",
-      evaluationMethodology: "Group Presentation",
-      resourcePerson: "Jane Smith",
-      status: "In Progress",
-    },
-  ]);
+  const [trainingRows, setTrainingRows] = useState([]);
 
   const [showNewRow, setShowNewRow] = useState(false);
   const [newRow, setNewRow] = useState({
