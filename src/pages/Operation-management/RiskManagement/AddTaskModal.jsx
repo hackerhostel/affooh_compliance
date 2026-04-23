@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import Select from "react-select";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
 import { useToasts } from "react-toast-notifications";
+import { selectUser } from "../../../state/slice/authSlice.js";
 import axios from "axios";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -14,6 +15,7 @@ const AddTaskModal = ({
     onTasksUpdated
 }) => {
     const selectedProject = useSelector(selectSelectedProject);
+    const user = useSelector(selectUser);
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedTasks, setSelectedTasks] = useState([]);
@@ -27,8 +29,8 @@ const AddTaskModal = ({
         try {
             // Reusing the same endpoint as in affooh-web-new if available, 
             // or a general task list endpoint
-            const response = await axios.get(`/tasks/project/${selectedProject.id}`);
-            setTasks(response.data.body || []);
+            const response = await axios.get(`/tasks/by-project/${selectedProject.id}`);
+            setTasks(response.data.body?.tasks || []);
         } catch (error) {
             console.error("Error fetching tasks:", error);
             addToast("Failed to fetch tasks", { appearance: "error" });
@@ -73,7 +75,10 @@ const AddTaskModal = ({
         try {
             const taskIds = selectedTasks.map(t => t.value);
             // Assuming the updateRisk endpoint handles linking tasks
-            await axios.put(`/risk/${riskId}/link-tasks`, { taskIds });
+            await axios.put(`/risk/${riskId}/link-tasks`, { 
+                taskIds,
+                userId: user?.id
+            });
             addToast("Tasks linked successfully", { appearance: "success" });
             if (onTasksUpdated) onTasksUpdated();
             handleClose();

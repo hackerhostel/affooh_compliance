@@ -151,7 +151,7 @@ const RiskEditView = ({ risk, userOptions, onBack, onUpdate }) => {
             const previousRiskLevel = risk.riskLevel || "Low";
 
             const reassessmentData = {
-                riskID: risk.id,
+                riskID: risk.databaseId || risk.id,
                 previousProbability,
                 previousImpact,
                 previousRiskLevel,

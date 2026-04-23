@@ -16,8 +16,11 @@ const riskApi = {
     deleteRisk: async (id) => {
         return await axios.delete(`/risk/${id}`);
     },
-    linkTasks: async (id, taskIds) => {
-        return await axios.put(`/risk/${id}/link-tasks`, { taskIds });
+    linkTasks: async (id, taskIds, userId) => {
+        return await axios.put(`/risk/${id}/link-tasks`, { taskIds, userId });
+    },
+    unlinkTask: async (riskId, taskId) => {
+        return await axios.delete(`/risk/${riskId}/tasks/${taskId}`);
     },
     listReassessments: async (riskId) => {
         return await axios.get(`/risk/${riskId}/reassessments`);
