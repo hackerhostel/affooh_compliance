@@ -136,14 +136,7 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
         <div className="bg-[#F8F9FD] min-h-screen p-6 font-sans">
             <div className="max-w-[1400px] mx-auto space-y-8">
                 
-                {/* Top Header Section */}
-                <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-bold text-gray-800">Risk Management</h1>
-                    <div className="flex items-center bg-white rounded-full p-1 shadow-sm border border-gray-100">
-                        <button className="px-6 py-1.5 rounded-full text-xs font-bold bg-black text-white">Overview</button>
-                        <button className="px-6 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-gray-600">History</button>
-                    </div>
-                </div>
+
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-4 gap-6">
@@ -165,13 +158,21 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                     </div>
                 </div>
 
-                {/* Filter Row */}
-                <div className="flex items-center gap-3">
-                    <div className="w-36"><FormSelect placeholder="Control" options={[]} showLabel={false} /></div>
-                    <div className="w-36"><FormSelect placeholder="Assignee" options={[]} showLabel={false} /></div>
-                    <div className="w-36"><FormSelect placeholder="Compliance" options={[]} showLabel={false} /></div>
-                    <div className="w-36"><FormSelect placeholder="Risk Level" options={[]} showLabel={false} /></div>
-                    <div className="w-36"><FormSelect placeholder="Status" options={[]} showLabel={false} /></div>
+                {/* Filter & Action Row */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-32"><FormSelect placeholder="Control" options={[]} showLabel={false} /></div>
+                        <div className="w-32"><FormSelect placeholder="Assignee" options={userOptions} showLabel={false} /></div>
+                        <div className="w-32"><FormSelect placeholder="Compliance" options={[]} showLabel={false} /></div>
+                        <div className="w-32"><FormSelect placeholder="Risk Level" options={[]} showLabel={false} /></div>
+                        <div className="w-32"><FormSelect placeholder="Status" options={[]} showLabel={false} /></div>
+                    </div>
+                    <button 
+                        onClick={() => { setEditingRisk(null); setFormData(initialFormState); setIsSidePanelOpen(true); }}
+                        className="bg-primary-pink text-white px-8 py-2.5 rounded-lg font-bold shadow-lg hover:bg-pink-600 transition-all active:scale-95 uppercase tracking-widest text-[10px]"
+                    >
+                        New Risk
+                    </button>
                 </div>
 
                 {/* Risk Cards List */}
@@ -265,15 +266,36 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                 <div className="col-span-1.5 space-y-2">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider text-right pr-2">Responsible</div>
                                     <div className="flex items-center gap-2 justify-end">
-                                        <div className="w-9 h-9 rounded-full bg-gray-200 overflow-hidden"></div>
-                                        <span className="text-sm text-gray-600 font-semibold">{row.owner}</span>
+                                        {(() => {
+                                            const responsibleUser = organizationUsers?.find(u => String(u.id) === String(row.owner));
+                                            const displayName = responsibleUser ? `${responsibleUser.firstName} ${responsibleUser.lastName || ""}` : row.owner;
+                                            return (
+                                                <>
+                                                    <div className="w-9 h-9 rounded-full bg-primary-pink/10 border border-primary-pink/20 flex items-center justify-center text-primary-pink font-bold text-xs overflow-hidden">
+                                                        {responsibleUser?.avatar ? (
+                                                            <img src={responsibleUser.avatar} alt="" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <span>{displayName?.[0] || "U"}</span>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-sm text-gray-600 font-semibold">{displayName}</span>
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
 
                                 {/* Due Date */}
                                 <div className="col-span-1.5 space-y-2">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Due Date</div>
-                                    <div className="bg-white border border-gray-200 rounded-md h-10"></div>
+                                    <FormInput
+                                        name="dueDate"
+                                        type="date"
+                                        value={row.dueDate ? row.dueDate.split('T')[0] : ""}
+                                        onChange={(e) => handleUpdateField(row.id, 'dueDate', e.target.value)}
+                                        showLabel={false}
+                                        className="w-full bg-white text-sm"
+                                    />
                                 </div>
 
                                 {/* Status */}
