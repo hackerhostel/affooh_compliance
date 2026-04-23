@@ -24,6 +24,8 @@ import { clearAuthState, selectUser } from '../../state/slice/authSlice';
 import { AwsConfigAuth } from '../../auth/auth';
 import React, { Fragment, useState } from 'react';
 import Notification from "./NotificationPopup.jsx";
+import AnimatedLoader from "../AnimatedLoader.jsx";
+
 
 function Sidebar() {
   const location = useLocation();
@@ -229,7 +231,7 @@ function Sidebar() {
               </Menu>
             ) : (
               <div className="w-12 h-12 flex items-center justify-center">
-                <Spinner />
+                <AnimatedLoader size="small" showMessage={false} />
               </div>
             )}
           </div>
