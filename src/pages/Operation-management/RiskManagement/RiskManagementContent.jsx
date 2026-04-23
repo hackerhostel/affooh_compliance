@@ -10,7 +10,7 @@ const RiskManagementContentPage = () => {
       <div className="flex flex-col gap-6">
         {/* Header Row: Title and Tabs */}
         <div className="flex items-center justify-between mb-2">
-          <h4 className="text-lg font-semibold text-gray-800 text-left">Risk Management</h4>
+          <h4 className="text-2xl font-bold text-gray-800 text-left">Risk Management</h4>
           <div className="flex bg-gray-200 p-1 rounded-xl shadow-inner">
             <button
               onClick={() => setActiveTab("overview")}

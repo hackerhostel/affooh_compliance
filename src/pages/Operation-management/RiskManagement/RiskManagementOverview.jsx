@@ -83,6 +83,54 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
         statusFilter: ""
     });
 
+    const [newRiskData, setNewRiskData] = useState({
+        isoControl: "",
+        currentGaps: "",
+        interestedParties: "",
+        threat: "",
+        migrationReference: "",
+        owner: "",
+        probability: 1,
+        impact: 1,
+        response: "",
+        recommendedAction: "",
+        dueDate: "",
+        status: "In Progress"
+    });
+
+    const handleCreateRisk = async () => {
+        if (!organizationID) return;
+        try {
+            await riskApi.createRisk({
+                ...newRiskData,
+                organizationID,
+                createdBy: user?.id,
+                updatedBy: user?.id,
+                title: newRiskData.isoControl || "New Risk"
+            });
+            addToast("Risk created successfully", { appearance: "success" });
+            setIsSidePanelOpen(false);
+            fetchData();
+            setNewRiskData({
+                isoControl: "",
+                currentGaps: "",
+                interestedParties: "",
+                threat: "",
+                migrationReference: "",
+                owner: "",
+                probability: 1,
+                impact: 1,
+                response: "",
+                recommendedAction: "",
+                dueDate: "",
+                status: "In Progress"
+            });
+        } catch (error) {
+            console.error("Error creating risk:", error);
+            addToast("Failed to create risk", { appearance: "error" });
+        }
+    };
+
     const fetchData = async () => {
         if (!organizationID) return;
         setIsLoading(true);
@@ -133,9 +181,9 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
     }
 
     return (
-        <div className="bg-[#F8F9FD] min-h-screen p-6 font-sans">
+        <div className="bg-[#F8F9FD] p-6 font-sans">
             <div className="max-w-[1400px] mx-auto space-y-8">
-                
+
 
 
                 {/* Stats Cards */}
@@ -167,8 +215,8 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                         <div className="w-32"><FormSelect placeholder="Risk Level" options={[]} showLabel={false} /></div>
                         <div className="w-32"><FormSelect placeholder="Status" options={[]} showLabel={false} /></div>
                     </div>
-                    <button 
-                        onClick={() => { setEditingRisk(null); setFormData(initialFormState); setIsSidePanelOpen(true); }}
+                    <button
+                        onClick={() => { setEditingRisk(null); setIsSidePanelOpen(true); }}
                         className="bg-primary-pink text-white px-8 py-2.5 rounded-lg font-bold shadow-lg hover:bg-pink-600 transition-all active:scale-95 uppercase tracking-widest text-[10px]"
                     >
                         New Risk
@@ -214,22 +262,22 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                     <div className="flex gap-2">
                                         <div className="flex-1">
                                             <span className="text-[11px] text-gray-400 block mb-1">Probability</span>
-                                            <select 
+                                            <select
                                                 className="w-full bg-white border border-gray-200 rounded-md px-2 py-1.5 text-sm outline-none"
                                                 value={row.probability}
                                                 onChange={(e) => handleUpdateField(row.id, 'probability', e.target.value)}
                                             >
-                                                {[1,2,3,4,5].map(v => <option key={v} value={v}>{v}</option>)}
+                                                {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
                                             </select>
                                         </div>
                                         <div className="flex-1">
                                             <span className="text-[11px] text-gray-400 block mb-1">Impact</span>
-                                            <select 
+                                            <select
                                                 className="w-full bg-white border border-gray-200 rounded-md px-2 py-1.5 text-sm outline-none"
                                                 value={row.impact}
                                                 onChange={(e) => handleUpdateField(row.id, 'impact', e.target.value)}
                                             >
-                                                {[1,2,3,4,5].map(v => <option key={v} value={v}>{v}</option>)}
+                                                {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
                                             </select>
                                         </div>
                                     </div>
@@ -239,9 +287,9 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                 </div>
 
                                 {/* Response Select */}
-                                <div className="col-span-1.5 space-y-2">
+                                <div className="col-span-2 space-y-2">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Response</div>
-                                    <select 
+                                    <select
                                         className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-sm outline-none"
                                         value={row.response}
                                         onChange={(e) => handleUpdateField(row.id, 'response', e.target.value)}
@@ -253,9 +301,9 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                 </div>
 
                                 {/* Recommended Action */}
-                                <div className="col-span-4 space-y-2">
+                                <div className="col-span-3 space-y-2">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Recommended Action</div>
-                                    <textarea 
+                                    <textarea
                                         className="w-full bg-white border border-gray-200 rounded-lg p-3 text-sm h-24 outline-none focus:border-primary-pink transition-colors resize-none"
                                         value={row.recommendedAction}
                                         onChange={(e) => handleUpdateField(row.id, 'recommendedAction', e.target.value)}
@@ -263,9 +311,9 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                 </div>
 
                                 {/* Responsible */}
-                                <div className="col-span-1.5 space-y-2">
-                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider text-right pr-2">Responsible</div>
-                                    <div className="flex items-center gap-2 justify-end">
+                                <div className="col-span-2 space-y-2">
+                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Responsible</div>
+                                    <div className="flex items-center gap-2">
                                         {(() => {
                                             const responsibleUser = organizationUsers?.find(u => String(u.id) === String(row.owner));
                                             const displayName = responsibleUser ? `${responsibleUser.firstName} ${responsibleUser.lastName || ""}` : row.owner;
@@ -286,8 +334,8 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                 </div>
 
                                 {/* Due Date */}
-                                <div className="col-span-1.5 space-y-2">
-                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Due Date</div>
+                                <div className="col-span-1 space-y-2">
+                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Due Date</div>
                                     <FormInput
                                         name="dueDate"
                                         type="date"
@@ -299,9 +347,9 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                 </div>
 
                                 {/* Status */}
-                                <div className="col-span-1.5 space-y-2">
-                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Status</div>
-                                    <select 
+                                <div className="col-span-1 space-y-2">
+                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Status</div>
+                                    <select
                                         className="w-full bg-white border border-gray-200 rounded-md px-2 py-2 text-xs outline-none font-bold text-gray-600"
                                         value={row.status}
                                         onChange={(e) => handleUpdateField(row.id, 'status', e.target.value)}
@@ -331,7 +379,112 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                             <h4 className="text-2xl font-semibold text-gray-800">Create New Risk</h4>
                             <button onClick={() => setIsSidePanelOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><XMarkIcon className="w-6 h-6 text-gray-400" /></button>
                         </div>
-                        {/* Form fields here */}
+                        <div className="space-y-6 pb-24">
+                            <div className="space-y-2">
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">ISO Control</label>
+                                <select
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-pink/20 outline-none transition-all"
+                                    value={newRiskData.isoControl}
+                                    onChange={(e) => setNewRiskData(prev => ({ ...prev, isoControl: e.target.value }))}
+                                >
+                                    <option value="">Select Control</option>
+                                    <option value="ISO 27001 A.5.1">ISO 27001 A.5.1</option>
+                                    <option value="ISO 27001 A.8.1">ISO 27001 A.8.1</option>
+                                    <option value="ISO 27001 A.9.1">ISO 27001 A.9.1</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Current Gaps</label>
+                                <textarea
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm h-32 focus:ring-2 focus:ring-primary-pink/20 outline-none resize-none transition-all"
+                                    placeholder="Describe current gaps..."
+                                    value={newRiskData.currentGaps}
+                                    onChange={(e) => setNewRiskData(prev => ({ ...prev, currentGaps: e.target.value }))}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Interested Parties</label>
+                                <input
+                                    type="text"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-pink/20 outline-none transition-all"
+                                    value={newRiskData.interestedParties}
+                                    onChange={(e) => setNewRiskData(prev => ({ ...prev, interestedParties: e.target.value }))}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Threat</label>
+                                    <input
+                                        type="text"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-pink/20 outline-none transition-all"
+                                        value={newRiskData.threat}
+                                        onChange={(e) => setNewRiskData(prev => ({ ...prev, threat: e.target.value }))}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Reference(s)</label>
+                                    <input
+                                        type="text"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-pink/20 outline-none transition-all"
+                                        value={newRiskData.migrationReference}
+                                        onChange={(e) => setNewRiskData(prev => ({ ...prev, migrationReference: e.target.value }))}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Owner</label>
+                                <select
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-pink/20 outline-none transition-all"
+                                    value={newRiskData.owner}
+                                    onChange={(e) => setNewRiskData(prev => ({ ...prev, owner: e.target.value }))}
+                                >
+                                    <option value="">Select Owner</option>
+                                    {userOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                </select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Probability</label>
+                                    <select
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-pink/20 outline-none transition-all"
+                                        value={newRiskData.probability}
+                                        onChange={(e) => setNewRiskData(prev => ({ ...prev, probability: parseInt(e.target.value) }))}
+                                    >
+                                        {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Impact</label>
+                                    <select
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-pink/20 outline-none transition-all"
+                                        value={newRiskData.impact}
+                                        onChange={(e) => setNewRiskData(prev => ({ ...prev, impact: parseInt(e.target.value) }))}
+                                    >
+                                        {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4 pt-6 border-t border-gray-100 mt-8">
+                                <button
+                                    onClick={() => setIsSidePanelOpen(false)}
+                                    className="flex-1 max-w-[160px] py-3.5 rounded-lg border border-[#475569] text-[#475569] font-medium hover:bg-gray-50 transition-all text-sm"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleCreateRisk}
+                                    className="flex-[4] bg-primary-pink text-white py-3.5 rounded-lg font-medium shadow-sm hover:bg-pink-600 transition-all active:scale-[0.99] text-sm"
+                                >
+                                    Create
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </>
             )}
