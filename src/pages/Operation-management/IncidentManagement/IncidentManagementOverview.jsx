@@ -191,11 +191,11 @@ const IncidentManagementOverview = () => {
                                 <td className="px-4 w-44 py-3">
                                     <RiskLevelCell data={{ impact: 5, likelihood: 3 }} />
                                 </td>
-                                 <td className="px-4 py-3">
-                                        
-                                    </td>
+                                <td className="px-4 py-3">
 
-                                    <td className="px-4 w-44 py-3">
+                                </td>
+
+                                <td className="px-4 w-44 py-3">
                                     <RiskLevelCell data={{ impact: 5, likelihood: 3 }} />
                                 </td>
 
@@ -233,7 +233,7 @@ const IncidentManagementOverview = () => {
                                             className="w-full rounded-md"
                                         />
                                     </td>
-                                     
+
                                     <td className="px-4 py-3 align-top">
                                         <FormTextArea
                                             name="recommendedAction"
@@ -278,7 +278,7 @@ const IncidentManagementOverview = () => {
                                             }
                                             showLabel={false}
                                             className="w-full"
-                                            />
+                                        />
                                     </td>
                                     <td className="px-4 py-3">
                                         <FormSelect
@@ -352,7 +352,7 @@ const IncidentManagementOverview = () => {
                     </tbody>
                 </table>
 
-               
+
 
             </div>
         </div>
