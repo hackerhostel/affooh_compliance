@@ -4,6 +4,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import FormInput from "../../../components/FormInput";
 import FormSelect from "../../../components/FormSelect";
 import FormTextArea from "../../../components/FormTextArea";
+import FormMultiSelect from "../../../components/FormMultiSelect";
 import {
   doGetDataAssetDetail,
   doGetDataMasterData,
@@ -13,6 +14,7 @@ import {
 import {
   doGetProjectUsers,
   selectProjectUserList,
+  selectIsProjectUsersLoading,
 } from "../../../state/slice/projectUsersSlice";
 import { useToasts } from "react-toast-notifications";
 import { selectSelectedProject } from "../../../state/slice/projectSlice";
@@ -33,6 +35,7 @@ const DataAssetUpdate = ({ asset, onBack }) => {
   const isDataAssetDetailLoading = useSelector(
     (state) => state.asset.isDataAssetDetailLoading
   );
+  const isProjectUsersLoading = useSelector(selectIsProjectUsersLoading);
 
   const [formValues, setFormValues] = useState({
     dataAssetName: "",
@@ -380,32 +383,15 @@ const DataAssetUpdate = ({ asset, onBack }) => {
             />
           </div>
 
-          {/* Internal Recipients - Multi-select */}
           <div className="flex-col mt-4">
-            <label>Internal Recipients</label>
-            <select
+            <FormMultiSelect
               name="internalRecipients"
-              multiple
-              value={formValues.internalRecipients || []}
-              onChange={(e) => {
-                const selectedOptions = Array.from(
-                  e.target.selectedOptions,
-                  (option) => option.value
-                );
-                handleFormChange("internalRecipients", selectedOptions);
-              }}
-              className="w-full p-3 rounded-lg shadow-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer h-32"
-            >
-              {recipientOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-gray-500 mt-1">
-              Hold Ctrl/Cmd to select multiple recipients. Currently selected:{" "}
-              {formValues.internalRecipients?.length || 0}
-            </p>
+              label="Internal Recipients"
+              options={recipientOptions}
+              value={formValues.internalRecipients}
+              onChange={handleFormChange}
+              isLoading={isProjectUsersLoading}
+            />
           </div>
         </form>
       </div>
