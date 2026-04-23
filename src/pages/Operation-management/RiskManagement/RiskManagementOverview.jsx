@@ -19,6 +19,7 @@ import riskApi from "../../../utils/riskApi.js";
 import { useToasts } from "react-toast-notifications";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
 import RiskEditView from "./RiskEditView.jsx";
+import AddTaskModal from "./AddTaskModal.jsx";
 
 const initialData = [
     {
@@ -82,6 +83,9 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
         riskLevelFilter: "",
         statusFilter: ""
     });
+
+    const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
+    const [selectedRiskForTask, setSelectedRiskForTask] = useState(null);
 
     const [newRiskData, setNewRiskData] = useState({
         isoControl: "",
@@ -166,9 +170,16 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
         try {
             const actualId = rows.find(r => r.id === id)?.databaseId || id;
             await riskApi.updateRisk(actualId, { [field]: value, updatedBy: user?.id });
+            addToast(`Updated ${field} successfully`, { appearance: "success" });
         } catch (error) {
             console.error("Update failed:", error);
+            addToast(`Failed to update ${field}`, { appearance: "error" });
         }
+    };
+
+    const handleOpenAddTask = (risk) => {
+        setSelectedRiskForTask(risk);
+        setIsAddTaskModalOpen(true);
     };
 
     const userOptions = organizationUsers?.map(u => ({
@@ -181,28 +192,46 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
     }
 
     return (
-        <div className="bg-[#F8F9FD] p-6 font-sans">
+        <div className="bg-[#F8F9FD] p-6 font-sans min-h-screen">
             <div className="max-w-[1400px] mx-auto space-y-8">
-
-
+                {/* Header Section */}
+                {!hideTitle && (
+                    <div className="flex justify-between items-center">
+                        <h4 className="text-2xl font-bold text-[#1E293B]">Risk Management</h4>
+                        <div className="bg-gray-200/50 p-1 rounded-xl flex gap-1">
+                            <button 
+                                onClick={() => setViewMode('OVERVIEW')}
+                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'OVERVIEW' ? 'bg-black text-white shadow-lg' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                Overview
+                            </button>
+                            <button 
+                                onClick={() => setViewMode('HISTORY')}
+                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'HISTORY' ? 'bg-black text-white shadow-lg' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                History
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-4 gap-6">
-                    <div className="bg-white rounded-xl p-8 border border-gray-100 shadow-sm flex flex-col items-center justify-center">
-                        <span className="text-4xl font-normal text-gray-500 mb-1">{stats.total}</span>
-                        <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">All</span>
+                    <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col items-center justify-center group hover:shadow-md transition-all">
+                        <span className="text-5xl font-light text-gray-700 mb-2">{stats.total}</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">All</span>
                     </div>
-                    <div className="bg-white rounded-xl p-8 border-2 border-red-400 shadow-sm flex flex-col items-center justify-center">
-                        <span className="text-4xl font-normal text-gray-500 mb-1">{stats.todo}</span>
-                        <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">To Do</span>
+                    <div className="bg-white rounded-2xl p-8 border-2 border-red-100 shadow-sm flex flex-col items-center justify-center group hover:border-red-400 transition-all">
+                        <span className="text-5xl font-light text-gray-700 mb-2">{stats.todo}</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">To Do</span>
                     </div>
-                    <div className="bg-white rounded-xl p-8 border-2 border-yellow-400 shadow-sm flex flex-col items-center justify-center">
-                        <span className="text-4xl font-normal text-gray-500 mb-1">{stats.inProgress}</span>
-                        <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">In Progress</span>
+                    <div className="bg-white rounded-2xl p-8 border-2 border-yellow-100 shadow-sm flex flex-col items-center justify-center group hover:border-yellow-400 transition-all">
+                        <span className="text-5xl font-light text-gray-700 mb-2">{stats.inProgress}</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">In Progress</span>
                     </div>
-                    <div className="bg-white rounded-xl p-8 border-2 border-green-400 shadow-sm flex flex-col items-center justify-center">
-                        <span className="text-4xl font-normal text-gray-500 mb-1">{stats.done}</span>
-                        <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">Done</span>
+                    <div className="bg-white rounded-2xl p-8 border-2 border-green-100 shadow-sm flex flex-col items-center justify-center group hover:border-green-400 transition-all">
+                        <span className="text-5xl font-light text-gray-700 mb-2">{stats.done}</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Done</span>
                     </div>
                 </div>
 
@@ -261,9 +290,9 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Risk Level</div>
                                     <div className="flex gap-2">
                                         <div className="flex-1">
-                                            <span className="text-[11px] text-gray-400 block mb-1">Probability</span>
+                                            <span className="text-[10px] text-gray-400 block mb-1 font-bold">Prob.</span>
                                             <select
-                                                className="w-full bg-white border border-gray-200 rounded-md px-2 py-1.5 text-sm outline-none"
+                                                className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary-pink transition-all"
                                                 value={row.probability}
                                                 onChange={(e) => handleUpdateField(row.id, 'probability', e.target.value)}
                                             >
@@ -271,9 +300,9 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                             </select>
                                         </div>
                                         <div className="flex-1">
-                                            <span className="text-[11px] text-gray-400 block mb-1">Impact</span>
+                                            <span className="text-[10px] text-gray-400 block mb-1 font-bold">Impact</span>
                                             <select
-                                                className="w-full bg-white border border-gray-200 rounded-md px-2 py-1.5 text-sm outline-none"
+                                                className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary-pink transition-all"
                                                 value={row.impact}
                                                 onChange={(e) => handleUpdateField(row.id, 'impact', e.target.value)}
                                             >
@@ -281,7 +310,7 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                             </select>
                                         </div>
                                     </div>
-                                    <div className="h-7 w-full bg-primary-pink rounded-md flex items-center justify-center text-xs font-bold text-white shadow-sm shadow-pink-100">
+                                    <div className="h-8 w-full bg-primary-pink rounded-lg flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-pink-100 mt-2">
                                         {parseInt(row.probability || 1) * parseInt(row.impact || 1)}
                                     </div>
                                 </div>
@@ -290,43 +319,49 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                 <div className="col-span-2 space-y-2">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Response</div>
                                     <select
-                                        className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-sm outline-none"
+                                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary-pink transition-all h-10 mt-5"
                                         value={row.response}
                                         onChange={(e) => handleUpdateField(row.id, 'response', e.target.value)}
                                     >
                                         <option value="">Select</option>
                                         <option value="Mitigate">Mitigate</option>
                                         <option value="Accept">Accept</option>
+                                        <option value="Avoid">Avoid</option>
+                                        <option value="Transfer">Transfer</option>
                                     </select>
                                 </div>
 
                                 {/* Recommended Action */}
-                                <div className="col-span-3 space-y-2">
+                                <div className="col-span-2 space-y-2">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Recommended Action</div>
                                     <textarea
-                                        className="w-full bg-white border border-gray-200 rounded-lg p-3 text-sm h-24 outline-none focus:border-primary-pink transition-colors resize-none"
+                                        className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm h-24 outline-none focus:border-primary-pink transition-all resize-none shadow-sm"
                                         value={row.recommendedAction}
                                         onChange={(e) => handleUpdateField(row.id, 'recommendedAction', e.target.value)}
+                                        placeholder="Enter actions..."
                                     />
                                 </div>
 
                                 {/* Responsible */}
                                 <div className="col-span-2 space-y-2">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Responsible</div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
                                         {(() => {
                                             const responsibleUser = organizationUsers?.find(u => String(u.id) === String(row.owner));
                                             const displayName = responsibleUser ? `${responsibleUser.firstName} ${responsibleUser.lastName || ""}` : row.owner;
                                             return (
                                                 <>
-                                                    <div className="w-9 h-9 rounded-full bg-primary-pink/10 border border-primary-pink/20 flex items-center justify-center text-primary-pink font-bold text-xs overflow-hidden">
+                                                    <div className="w-10 h-10 rounded-full bg-primary-pink/10 border-2 border-primary-pink/20 flex items-center justify-center text-primary-pink font-bold text-sm overflow-hidden shrink-0">
                                                         {responsibleUser?.avatar ? (
                                                             <img src={responsibleUser.avatar} alt="" className="w-full h-full object-cover" />
                                                         ) : (
                                                             <span>{displayName?.[0] || "U"}</span>
                                                         )}
                                                     </div>
-                                                    <span className="text-sm text-gray-600 font-semibold">{displayName}</span>
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span className="text-xs text-gray-800 font-bold truncate leading-tight">{responsibleUser?.firstName || row.owner}</span>
+                                                        <span className="text-[10px] text-gray-400 font-semibold truncate leading-tight">{responsibleUser?.lastName || ""}</span>
+                                                    </div>
                                                 </>
                                             );
                                         })()}
@@ -334,26 +369,27 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                 </div>
 
                                 {/* Due Date */}
-                                <div className="col-span-1 space-y-2">
+                                <div className="col-span-2 space-y-2">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Due Date</div>
-                                    <FormInput
-                                        name="dueDate"
-                                        type="date"
-                                        value={row.dueDate ? row.dueDate.split('T')[0] : ""}
-                                        onChange={(e) => handleUpdateField(row.id, 'dueDate', e.target.value)}
-                                        showLabel={false}
-                                        className="w-full bg-white text-sm"
-                                    />
+                                    <div className="relative group">
+                                        <input
+                                            type="date"
+                                            value={row.dueDate ? row.dueDate.split('T')[0] : ""}
+                                            onChange={(e) => handleUpdateField(row.id, 'dueDate', e.target.value)}
+                                            className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary-pink transition-all appearance-none"
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Status */}
                                 <div className="col-span-1 space-y-2">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Status</div>
                                     <select
-                                        className="w-full bg-white border border-gray-200 rounded-md px-2 py-2 text-xs outline-none font-bold text-gray-600"
+                                        className="w-full bg-white border border-gray-200 rounded-lg px-2 py-2 text-xs outline-none font-bold text-gray-600 focus:border-primary-pink transition-all"
                                         value={row.status}
                                         onChange={(e) => handleUpdateField(row.id, 'status', e.target.value)}
                                     >
+                                        <option value="To Do">To Do</option>
                                         <option value="In Progress">In Progress</option>
                                         <option value="Done">Done</option>
                                     </select>
@@ -362,7 +398,17 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                                 {/* Task */}
                                 <div className="col-span-1 space-y-2">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Task</div>
-                                    <div className="text-right text-xs font-bold text-gray-400 pt-2">{row.task}</div>
+                                    <div className="flex flex-col items-end gap-1.5 pt-1">
+                                        <div className="text-[11px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded uppercase tracking-tighter">
+                                            {row.task || "N/A"}
+                                        </div>
+                                        <button 
+                                            onClick={() => handleOpenAddTask(row)}
+                                            className="text-primary-pink hover:text-pink-600 transition-colors"
+                                        >
+                                            <PlusIcon className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -488,6 +534,17 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                     </div>
                 </>
             )}
+            {/* Add Task Modal */}
+            <AddTaskModal
+                isOpen={isAddTaskModalOpen}
+                onClose={() => setIsAddTaskModalOpen(false)}
+                riskId={selectedRiskForTask?.databaseId || selectedRiskForTask?.id}
+                existingTasks={selectedRiskForTask?.tasks || []}
+                onTasksUpdated={() => {
+                    fetchData();
+                    setIsAddTaskModalOpen(false);
+                }}
+            />
         </div>
     );
 };
