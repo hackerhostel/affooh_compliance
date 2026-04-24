@@ -76,17 +76,31 @@ const IncidentEditView = ({ incident, onBack, onUpdate }) => {
                     />
                 </div>
 
-                {/* Owner */}
-                <div className="space-y-2">
-                    <label className={label}>Owner</label>
-                    <select
-                        className={`${field} appearance-none cursor-pointer`}
-                        value={formData.owner}
-                        onChange={(e) => set("owner", e.target.value)}
-                    >
-                        <option value="">Select Owner</option>
-                        {ownerOptions.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
+                {/* Owner / Status */}
+                <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                        <label className={label}>Owner</label>
+                        <select
+                            className={`${field} appearance-none cursor-pointer`}
+                            value={formData.owner}
+                            onChange={(e) => set("owner", e.target.value)}
+                        >
+                            <option value="">Select Owner</option>
+                            {ownerOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                    </div>
+                    <div className="space-y-2">
+                        <label className={label}>Status</label>
+                        <select
+                            className={`${field} appearance-none cursor-pointer`}
+                            value={formData.status}
+                            onChange={(e) => set("status", e.target.value)}
+                        >
+                            <option value="To Do">To Do</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Done">Done</option>
+                        </select>
+                    </div>
                 </div>
 
                 {/* Date / Severity / Personal data */}
@@ -153,20 +167,6 @@ const IncidentEditView = ({ incident, onBack, onUpdate }) => {
                             onChange={(e) => set("potentialImpact", e.target.value)}
                         />
                     </div>
-                </div>
-
-                {/* Status */}
-                <div className="space-y-2">
-                    <label className={label}>Status</label>
-                    <select
-                        className={`${field} appearance-none cursor-pointer`}
-                        value={formData.status}
-                        onChange={(e) => set("status", e.target.value)}
-                    >
-                        <option value="To Do">To Do</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Done">Done</option>
-                    </select>
                 </div>
 
                 {/* Divider */}
