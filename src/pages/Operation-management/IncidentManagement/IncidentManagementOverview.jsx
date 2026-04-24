@@ -29,7 +29,7 @@ const formatDate = (dateStr) => {
     if (!dateStr) return "-";
     try {
         const [year, month, day] = dateStr.split("T")[0].split("-");
-        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         return `${day}-${months[parseInt(month) - 1]}-${year}`;
     } catch {
         return dateStr;
@@ -362,7 +362,7 @@ const IncidentManagementOverview = () => {
                     <div className="flex-1 bg-black/30" onClick={handleClosePanel} />
                     <div className="w-[560px] bg-white h-full shadow-2xl flex flex-col overflow-y-auto">
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
-                            <h2 className="text-sm font-semibold text-gray-800">Create New Incident</h2>
+                            <h4 className="text-sm font-semibold text-gray-800">Create New Incident</h4>
                             <button onClick={handleClosePanel} className="text-gray-400 hover:text-gray-600">
                                 <XMarkIcon className="w-5 h-5" />
                             </button>
