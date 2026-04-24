@@ -317,9 +317,9 @@ const IncidentManagementOverview = () => {
                     <div className="w-[560px] bg-white h-full shadow-2xl flex flex-col overflow-y-auto">
                         {/* Panel Header */}
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
-                            <h2 className="text-sm font-semibold text-gray-800">
+                            <h4 className="text-sm font-semibold text-gray-800">
                                 {editingId ? "Edit Incident" : "Create New Incident"}
-                            </h2>
+                            </h4>
                             <button
                                 onClick={handleClosePanel}
                                 className="text-gray-400 hover:text-gray-600"
