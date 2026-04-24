@@ -298,129 +298,144 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                     </button>
                 </div>
 
-                <div className="space-y-4">
-                    <div className="grid grid-cols-12 gap-4 px-8 mb-6">
-                        <div className="col-span-1 text-[12px] font-extrabold text-gray-600 uppercase tracking-widest">ID</div>
-                        <div className="col-span-2 text-[12px] font-extrabold text-gray-600 uppercase tracking-widest pl-2">ISO Control</div>
-                        <div className="col-span-2 text-[12px] font-extrabold text-gray-600 uppercase tracking-widest text-center">Current Gaps</div>
-                        <div className="col-span-1 text-[12px] font-extrabold text-gray-600 uppercase tracking-widest text-center">Parties</div>
-                        <div className="col-span-1 text-[12px] font-extrabold text-gray-600 uppercase tracking-widest text-center">Threat</div>
-                        <div className="col-span-2 text-[12px] font-extrabold text-gray-600 uppercase tracking-widest text-center">Reference(s)</div>
-                        <div className="col-span-1 text-[12px] font-extrabold text-gray-600 uppercase tracking-widest text-center">Owner</div>
-                        <div className="col-span-2 text-[12px] font-extrabold text-gray-600 uppercase tracking-widest text-center">Action</div>
-                    </div>
-
-                    {rows.map((row) => (
-                        <div key={row.id} className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${expandedId === row.id ? 'shadow-xl border-primary-pink/30 ring-1 ring-primary-pink/5' : 'shadow-sm border-gray-100 hover:shadow-md hover:border-gray-200'}`}>
-                            <div className="grid grid-cols-12 gap-4 items-center px-8 py-8">
-                                <div className="col-span-1">
-                                    <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">{row.id}</span>
-                                </div>
-                                <div className="col-span-2">
-                                    <button 
-                                        onClick={() => { setEditingRisk(row); setViewMode('EDIT'); }}
-                                        className="text-[13px] font-bold text-gray-900 hover:text-primary-pink transition-colors text-left line-clamp-1"
-                                    >
-                                        {row.isoControl}
-                                    </button>
-                                </div>
-                                <div className="col-span-2 text-center">
-                                    <p className="text-[13px] text-gray-600 font-medium line-clamp-1 px-2">{row.currentGaps || '-'}</p>
-                                </div>
-                                <div className="col-span-1 text-center">
-                                    <p className="text-[13px] text-gray-600 font-medium line-clamp-1">{row.interestedParties || '-'}</p>
-                                </div>
-                                <div className="col-span-1 text-center">
-                                    <p className="text-[13px] text-gray-600 font-medium">{row.threat || '-'}</p>
-                                </div>
-                                <div className="col-span-2 text-center">
-                                    <p className="text-[13px] text-gray-600 font-medium line-clamp-1 px-2">{row.migrationReference || '-'}</p>
-                                </div>
-                                <div className="col-span-1 flex justify-center">
-                                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-[10px] font-bold text-gray-400 border border-gray-100 uppercase shadow-sm">
-                                        {(row.owner && typeof row.owner === 'string') ? row.owner.split(' ').map(n => n[0]).join('') : 'NA'}
-                                    </div>
-                                </div>
-                                <div className="col-span-2 flex items-center justify-center gap-1">
-                                    <button 
-                                        onClick={() => { setEditingRisk(row); setViewMode('EDIT'); }} 
-                                        className="p-2.5 text-gray-400 hover:text-primary-pink hover:bg-primary-pink/5 rounded-xl transition-all"
-                                        title="Edit"
-                                    >
-                                        <PencilIcon className="w-5 h-5" />
-                                    </button>
-                                    <button 
-                                        onClick={() => setRiskToDelete(row)} 
-                                        className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                        title="Delete"
-                                    >
-                                        <TrashIcon className="w-5 h-5" />
-                                    </button>
-                                    <button 
-                                        onClick={() => setExpandedId(expandedId === row.id ? null : row.id)} 
-                                        className={`p-2.5 rounded-xl transition-all ${expandedId === row.id ? 'bg-primary-pink text-white shadow-lg shadow-primary-pink/20' : 'text-gray-400 hover:bg-gray-100'}`}
-                                        title={expandedId === row.id ? "Cancel" : "View Details"}
-                                    >
-                                        {expandedId === row.id ? <XMarkIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
-                                    </button>
-                                </div>
-                            </div>
-
-                            {expandedId === row.id && (
-                                <div className="bg-[#FBFBFC] px-8 py-7 border-t border-gray-50 grid grid-cols-12 gap-6 items-start">
-                                    <div className="col-span-2 space-y-2">
-                                        <div className="text-xs font-bold text-gray-400 uppercase">Risk Level</div>
-                                        <div className="flex gap-2">
-                                            <select className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm" value={row.probability} onChange={(e) => handleUpdateField(row.id, 'probability', e.target.value)}>{[1,2,3,4,5].map(v => <option key={v} value={v}>{v}</option>)}</select>
-                                            <select className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm" value={row.impact} onChange={(e) => handleUpdateField(row.id, 'impact', e.target.value)}>{[1,2,3,4,5].map(v => <option key={v} value={v}>{v}</option>)}</select>
-                                        </div>
-                                        <div className="h-8 w-full bg-primary-pink rounded-lg flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-pink-100 mt-2 animate-in fade-in zoom-in duration-300">
-                                            {parseInt(row.probability || 1) * parseInt(row.impact || 1)}
-                                        </div>
-                                    </div>
-                                    <div className="col-span-2 space-y-2">
-                                        <div className="text-xs font-bold text-gray-400 uppercase">Response</div>
-                                        <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" value={row.response} onChange={(e) => handleUpdateField(row.id, 'response', e.target.value)}>
-                                            <option value="">Select</option><option value="Mitigate">Mitigate</option><option value="Accept">Accept</option>
-                                        </select>
-                                    </div>
-                                    <div className="col-span-2 space-y-2">
-                                        <div className="text-xs font-bold text-gray-400 uppercase">Recommended Action</div>
-                                        <textarea className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm h-24" value={row.recommendedAction} onChange={(e) => handleUpdateField(row.id, 'recommendedAction', e.target.value)} />
-                                    </div>
-                                    <div className="col-span-2 space-y-2">
-                                        <div className="text-xs font-bold text-gray-400 uppercase">Due Date</div>
-                                        <input type="date" value={(row.dueDate && typeof row.dueDate === 'string') ? row.dueDate.split('T')[0] : ""} onChange={(e) => handleUpdateField(row.id, 'dueDate', e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
-                                    </div>
-                                    <div className="col-span-1 space-y-2">
-                                        <div className="text-xs font-bold text-gray-400 uppercase">Status</div>
-                                        <select className="w-full bg-white border border-gray-200 rounded-lg px-2 py-2 text-xs" value={row.status} onChange={(e) => handleUpdateField(row.id, 'status', e.target.value)}>
-                                            <option value="To Do">To Do</option><option value="In Progress">In Progress</option><option value="Done">Done</option>
-                                        </select>
-                                    </div>
-                                    <div className="col-span-1 space-y-2">
-                                        <div className="text-xs font-bold text-gray-400 uppercase text-right">Task</div>
-                                        <div className="flex items-center justify-end gap-2 pt-1">
-                                            <button 
-                                                onClick={() => handleOpenLinkedTasks(row)} 
-                                                className="text-[11px] font-bold text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all border border-gray-200 shadow-sm"
-                                                title="View Linked Tasks"
+                <div className="bg-white rounded-lg overflow-x-auto">
+                    <table className="w-full border-collapse text-sm">
+                        <thead className="text-left border-b border-gray-200">
+                            <tr>
+                                <th className="px-4 py-3 font-semibold text-gray-700 w-16">ID</th>
+                                <th className="px-4 py-3 font-semibold text-gray-700">ISO Control</th>
+                                <th className="px-4 py-3 font-semibold text-gray-700">Current Gaps</th>
+                                <th className="px-4 py-3 font-semibold text-gray-700">Parties</th>
+                                <th className="px-4 py-3 font-semibold text-gray-700">Threat</th>
+                                <th className="px-4 py-3 font-semibold text-gray-700">Reference(s)</th>
+                                <th className="px-4 py-3 font-semibold text-gray-700 text-center">Owner</th>
+                                <th className="px-4 py-3 font-semibold text-gray-700 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.length === 0 ? (
+                                <tr>
+                                    <td colSpan={8} className="text-center py-8 text-gray-400">No data available</td>
+                                </tr>
+                            ) : rows.map((row) => (
+                                <React.Fragment key={row.id}>
+                                    <tr className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${expandedId === row.id ? 'bg-pink-50/30' : ''}`}>
+                                        <td className="px-4 py-4">
+                                            <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">{row.id}</span>
+                                        </td>
+                                        <td className="px-4 py-4 max-w-[200px]">
+                                            <button
+                                                onClick={() => { setEditingRisk(row); setViewMode('EDIT'); }}
+                                                className="text-sm font-bold text-gray-900 hover:text-primary-pink transition-colors text-left line-clamp-2"
                                             >
-                                                {row.tasks ? row.tasks.length : 0}
+                                                {row.isoControl}
                                             </button>
-                                            <button 
-                                                onClick={() => handleOpenAddTask(row)} 
-                                                className="w-7 h-7 flex items-center justify-center bg-primary-pink/5 text-primary-pink hover:bg-primary-pink hover:text-white rounded-lg transition-all shadow-sm border border-primary-pink/10"
-                                                title="Add Task"
-                                            >
-                                                <PlusIcon className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                        </td>
+                                        <td className="px-4 py-4 text-gray-600 max-w-[180px]">
+                                            <p className="text-sm line-clamp-2">{row.currentGaps || '-'}</p>
+                                        </td>
+                                        <td className="px-4 py-4 text-gray-600 max-w-[140px]">
+                                            <p className="text-sm line-clamp-2">{row.interestedParties || '-'}</p>
+                                        </td>
+                                        <td className="px-4 py-4 text-gray-600">
+                                            <p className="text-sm">{row.threat || '-'}</p>
+                                        </td>
+                                        <td className="px-4 py-4 text-gray-600 max-w-[160px]">
+                                            <p className="text-sm line-clamp-1">{row.migrationReference || '-'}</p>
+                                        </td>
+                                        <td className="px-4 py-4 text-center">
+                                            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-500 border border-gray-200 uppercase mx-auto">
+                                                {(row.owner && typeof row.owner === 'string') ? row.owner.split(' ').map(n => n[0]).join('') : 'NA'}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <button
+                                                    onClick={() => { setEditingRisk(row); setViewMode('EDIT'); }}
+                                                    className="p-2 text-gray-400 hover:text-primary-pink hover:bg-pink-50 rounded-lg transition-all"
+                                                    title="Edit"
+                                                >
+                                                    <PencilIcon className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => setRiskToDelete(row)}
+                                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                    title="Delete"
+                                                >
+                                                    <TrashIcon className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => setExpandedId(expandedId === row.id ? null : row.id)}
+                                                    className={`p-2 rounded-lg transition-all ${expandedId === row.id ? 'bg-primary-pink text-white' : 'text-gray-400 hover:bg-gray-100'}`}
+                                                    title={expandedId === row.id ? "Collapse" : "View Details"}
+                                                >
+                                                    {expandedId === row.id ? <XMarkIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    {expandedId === row.id && (
+                                        <tr className="border-b border-gray-100">
+                                            <td colSpan={8} className="px-6 py-5 bg-gray-50/60">
+                                                <div className="flex flex-wrap gap-6 items-start">
+                                                    <div className="space-y-1.5 min-w-[140px]">
+                                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Risk Level</div>
+                                                        <div className="flex gap-2">
+                                                            <select className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm" value={row.probability} onChange={(e) => handleUpdateField(row.id, 'probability', e.target.value)}>
+                                                                {[1,2,3,4,5].map(v => <option key={v} value={v}>{v}</option>)}
+                                                            </select>
+                                                            <select className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm" value={row.impact} onChange={(e) => handleUpdateField(row.id, 'impact', e.target.value)}>
+                                                                {[1,2,3,4,5].map(v => <option key={v} value={v}>{v}</option>)}
+                                                            </select>
+                                                        </div>
+                                                        <div className="h-7 bg-primary-pink rounded-lg flex items-center justify-center text-xs font-bold text-white">
+                                                            {parseInt(row.probability || 1) * parseInt(row.impact || 1)}
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-1.5 min-w-[130px]">
+                                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Response</div>
+                                                        <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" value={row.response} onChange={(e) => handleUpdateField(row.id, 'response', e.target.value)}>
+                                                            <option value="">Select</option>
+                                                            <option value="Mitigate">Mitigate</option>
+                                                            <option value="Accept">Accept</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-1.5 flex-1 min-w-[200px]">
+                                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Recommended Action</div>
+                                                        <textarea className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm h-20 resize-none" value={row.recommendedAction} onChange={(e) => handleUpdateField(row.id, 'recommendedAction', e.target.value)} />
+                                                    </div>
+                                                    <div className="space-y-1.5 min-w-[140px]">
+                                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Due Date</div>
+                                                        <input type="date" value={(row.dueDate && typeof row.dueDate === 'string') ? row.dueDate.split('T')[0] : ""} onChange={(e) => handleUpdateField(row.id, 'dueDate', e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+                                                    </div>
+                                                    <div className="space-y-1.5 min-w-[120px]">
+                                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Status</div>
+                                                        <select className="w-full bg-white border border-gray-200 rounded-lg px-2 py-2 text-sm" value={row.status} onChange={(e) => handleUpdateField(row.id, 'status', e.target.value)}>
+                                                            <option value="To Do">To Do</option>
+                                                            <option value="In Progress">In Progress</option>
+                                                            <option value="Done">Done</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-1.5">
+                                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Task</div>
+                                                        <div className="flex items-center gap-2 pt-0.5">
+                                                            <button onClick={() => handleOpenLinkedTasks(row)} className="text-xs font-bold text-gray-600 bg-white px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all border border-gray-200" title="View Linked Tasks">
+                                                                {row.tasks ? row.tasks.length : 0}
+                                                            </button>
+                                                            <button onClick={() => handleOpenAddTask(row)} className="w-7 h-7 flex items-center justify-center bg-primary-pink/5 text-primary-pink hover:bg-primary-pink hover:text-white rounded-lg transition-all border border-primary-pink/10" title="Add Task">
+                                                                <PlusIcon className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
