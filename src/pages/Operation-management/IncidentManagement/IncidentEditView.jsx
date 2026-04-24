@@ -1,20 +1,26 @@
 import { useState } from "react";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../../state/slice/authSlice.js";
+import { useToasts } from "react-toast-notifications";
+import incidentApi from "../../../utils/incidentApi.js";
 
-const ownerOptions = ["Nilanga", "Kamal", "Saman", "Priya", "Ruwan"];
 const severityOptions = ["Low", "Medium", "High", "Critical"];
 
 const field = "w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-base focus:ring-4 focus:ring-primary-pink/10 focus:border-primary-pink outline-none shadow-sm transition-all";
 const fieldTextarea = "w-full bg-white border border-gray-200 rounded-2xl p-5 text-base focus:ring-4 focus:ring-primary-pink/10 focus:border-primary-pink outline-none shadow-sm resize-none transition-all leading-relaxed";
 const label = "block text-xs font-bold text-gray-500 uppercase tracking-wider text-left";
 
-const IncidentEditView = ({ incident, onBack, onUpdate }) => {
+const IncidentEditView = ({ incident, userOptions = [], onBack }) => {
+    const user = useSelector(selectUser);
+    const { addToast } = useToasts();
+
     const [formData, setFormData] = useState({
         description: incident.description || "",
         owner: incident.owner || "",
-        date: incident.date || "",
+        date: incident.incidentDate ? incident.incidentDate.split("T")[0] : "",
         severity: incident.severity || "",
-        personalDataInvolved: incident.personalDataInvolved ?? "YES",
+        personalDataInvolved: incident.personalDataInvolved === 0 ? "NO" : "YES",
         natureOfIncidents: incident.natureOfIncidents || "",
         scopeAndAffectedAssets: incident.scopeAndAffectedAssets || "",
         potentialImpact: incident.potentialImpact || "",
@@ -27,8 +33,31 @@ const IncidentEditView = ({ incident, onBack, onUpdate }) => {
 
     const set = (f, v) => setFormData(prev => ({ ...prev, [f]: v }));
 
-    const handleUpdate = () => {
-        onUpdate(incident.id, formData);
+    const handleUpdate = async () => {
+        const actualId = incident.databaseId || incident.id;
+        try {
+            await incidentApi.updateIncident(actualId, {
+                description: formData.description,
+                owner: formData.owner || null,
+                incidentDate: formData.date || null,
+                severity: formData.severity,
+                personalDataInvolved: formData.personalDataInvolved === "YES" ? 1 : 0,
+                natureOfIncidents: formData.natureOfIncidents,
+                scopeAndAffectedAssets: formData.scopeAndAffectedAssets,
+                potentialImpact: formData.potentialImpact,
+                status: formData.status,
+                containment: formData.containment,
+                investigationEradication: formData.investigationEradication,
+                recovery: formData.recovery,
+                closureLessonsLearned: formData.closureLessonsLearned,
+                updatedBy: user?.id,
+            });
+            addToast("Incident updated successfully", { appearance: "success" });
+            onBack();
+        } catch (error) {
+            console.error("Update failed:", error);
+            addToast("Failed to update incident", { appearance: "error" });
+        }
     };
 
     return (
@@ -86,7 +115,7 @@ const IncidentEditView = ({ incident, onBack, onUpdate }) => {
                             onChange={(e) => set("owner", e.target.value)}
                         >
                             <option value="">Select Owner</option>
-                            {ownerOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                            {userOptions.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
                         </select>
                     </div>
                     <div className="space-y-2">
