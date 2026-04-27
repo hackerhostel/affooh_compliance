@@ -1,6 +1,5 @@
 import { Menu, Transition } from '@headlessui/react';
 import {
-  AcademicCapIcon,
   ArrowPathIcon,
   ArrowRightStartOnRectangleIcon,
   ArrowUpCircleIcon,
@@ -119,7 +118,6 @@ function Sidebar() {
           <MenuItem link="/processFramework" Icon={WrenchScrewdriverIcon} />
           <MenuItem link="/reviewAndAudits" Icon={ArrowUpCircleIcon} />
           <MenuItem link="/objectives" Icon={Bars2Icon} />
-          <MenuItem link="/training" Icon={AcademicCapIcon} />
           <MenuItem link="/operations" Icon={ArrowPathIcon} />
 
           {/* <MenuItem link="/test-plans" Icon={TableCellsIcon}/>  */}

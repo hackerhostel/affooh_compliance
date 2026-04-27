@@ -1,6 +1,7 @@
 import React from "react";
 import RiskManagementContentPage from "./RiskManagement/RiskManagementContent";
 import IncidentManagementContentPage from "./IncidentManagement/IncidentManagementContent";
+import TrainingPlansContentPage from "../Training-plans/TrainingPlansContent";
 import CustomerSatisfactionContentPage from "./CustomerSatisfaction/CustomerSatisfactionContent";
 import SupplierContentPage from "./SupplierManagement/SupplierContent";
 import ServiceProviderContentPage from "./Service-Provider/ServiceProviderContent";
@@ -21,6 +22,8 @@ const RoleContentPage = ({ selectedDocument }) => {
         return <RiskManagementContentPage />;
       case "Incident Management":
         return <IncidentManagementContentPage />;
+      case "Training Plans":
+        return <TrainingPlansContentPage />;
       case "Customer Satisfaction":
         return <CustomerSatisfactionContentPage />;
       case "Supplier Management":
