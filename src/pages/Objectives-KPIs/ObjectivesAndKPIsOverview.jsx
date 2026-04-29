@@ -34,6 +34,14 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
   const [typeOptions, setTypeOptions] = useState([]);
   const [frequencyOptions, setFrequencyOptions] = useState([]);
 
+  const currentYear = new Date().getFullYear();
+  const yearOptions = getSelectOptions(
+    Array.from({ length: 10 }, (_, i) => {
+      const year = (currentYear - 2 + i).toString();
+      return { id: year, name: year };
+    })
+  );
+
   useEffect(() => {
     const fetchMasterData = async () => {
       const projectID = selectedProject?.id;
@@ -75,6 +83,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
 
   const [showNewRow, setShowNewRow] = useState(false);
   const [newRow, setNewRow] = useState({
+    year: "",
     departmentID: "",
     typeID: "",
     objectiveText: "",
@@ -84,6 +93,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
     frequencyID: "",
     howToMeasure: "",
   });
+  const [filters, setFilters] = useState({ year: "", departmentID: "", typeID: "" });
   const [editingRowId, setEditingRowId] = useState(null);
   const [openActionRowId, setOpenActionRowId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,15 +101,23 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
   const [rowToDeleteId, setRowToDeleteId] = useState(null);
 
   const rowsPerPage = 5;
-  const totalPages = Math.ceil(kpiRows.length / rowsPerPage);
+  const filteredRows = kpiRows.filter(
+    (row) =>
+      (filters.year === "" || row.year === filters.year) &&
+      (filters.departmentID === "" || row.departmentID?.toString() === filters.departmentID) &&
+      (filters.typeID === "" || row.typeID?.toString() === filters.typeID || row.typeName === filters.typeID || row.type === filters.typeID)
+  );
+
+  const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
   const indexOfLast = currentPage * rowsPerPage;
   const indexOfFirst = indexOfLast - rowsPerPage;
-  const pagedRows = kpiRows.slice(indexOfFirst, indexOfLast);
+  const pagedRows = filteredRows.slice(indexOfFirst, indexOfLast);
 
   // Handlers
   const handleAddNewClick = () => {
     setShowNewRow(true);
     setNewRow({
+      year: "",
       departmentID: "",
       typeID: "",
       objectiveText: "",
@@ -111,12 +129,18 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
     });
   };
 
+  const handleFilterChange = ({ target: { name, value } }) => {
+    setFilters((prev) => ({ ...prev, [name]: value }));
+    setCurrentPage(1);
+  };
+
   const handleNewChange = ({ target: { name, value } }) => {
     setNewRow((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSaveNew = async () => {
     if (
+      !newRow.year ||
       !newRow.departmentID ||
       !newRow.typeID ||
       !newRow.objectiveText ||
@@ -138,6 +162,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
     try {
       await createObjective({
         collectionID: selectedDocument.keyId || selectedDocument.id,
+        year: newRow.year,
         departmentID: parseInt(newRow.departmentID),
         typeID: parseInt(newRow.typeID),
         objectiveText: newRow.objectiveText,
@@ -176,6 +201,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
       const updatedRow = kpiRows.find((r) => r.id === editingRowId);
       if (updatedRow) {
         await updateObjective(editingRowId, {
+          year: updatedRow.year,
           departmentID: parseInt(updatedRow.departmentID),
           typeID: parseInt(updatedRow.typeID),
           objectiveText: updatedRow.objectiveText,
@@ -233,21 +259,48 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
           Approved
         </button>
       </div>
-      <div className="flex items-center gap-5">
-        <span className="text-lg font-semibold">Objectives and KPIs</span>
-        <div className="flex items-center gap-1">
-          <PlusCircleIcon onClick={handleAddNewClick} className="w-6 h-6 text-pink-500 cursor-pointer" />
-          <button className="text-text-color" onClick={handleAddNewClick}>
-            Add New
-          </button>
+        <div className="flex items-center gap-3 mt-2 flex-wrap">
+          <FormSelect
+            name="year"
+            formValues={filters}
+            placeholder="Year"
+            showLabel={false}
+            options={yearOptions}
+            onChange={handleFilterChange}
+            className="w-[150px]"
+          />
+          <FormSelect
+            name="departmentID"
+            formValues={filters}
+            placeholder="Department"
+            showLabel={false}
+            options={departmentOptions}
+            onChange={handleFilterChange}
+            className="w-[150px]"
+          />
+          <FormSelect
+            name="typeID"
+            formValues={filters}
+            placeholder="Type"
+            showLabel={false}
+            options={typeOptions}
+            onChange={handleFilterChange}
+            className="w-[150px]"
+          />
+          <div className="flex items-center gap-1">
+            <PlusCircleIcon onClick={handleAddNewClick} className="w-6 h-6 text-pink-500 cursor-pointer" />
+            <button className="text-text-color" onClick={handleAddNewClick}>
+              Add New
+            </button>
+          </div>
         </div>
-      </div>
 
       <div className="bg-white rounded p-3 mt-2">
         <table className="table-auto w-full border-collapse">
           <thead>
             <tr className="text-left text-secondary-grey border-b border-gray-200">
               <th className="py-3 px-2 w-10">#</th>
+              <th className="py-3 px-2">Year</th>
               <th className="py-3 px-2">Department</th>
               <th className="py-3 px-2">Type</th>
               <th className="py-3 px-2">Objective</th>
@@ -269,6 +322,7 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
 
                   {!isEditing ? (
                     <>
+                      <td className="py-3 px-2">{row.year}</td>
                       <td className="py-3 px-2">{row.departmentName || row.department}</td>
                       <td className="py-3 px-2">{row.typeName || row.type}</td>
                       <td className="py-3 px-2">{row.objectiveText || row.objective}</td>
@@ -305,6 +359,14 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
                     </>
                   ) : (
                     <>
+                      <td className="py-3 px-2 w-24">
+                        <FormSelect
+                          name="year"
+                          formValues={row}
+                          options={yearOptions}
+                          onChange={(e) => handleEditChange(row.id, e)}
+                        />
+                      </td>
                       <td className="py-3 px-2 w-40">
                         <FormSelect
                           name="departmentID"
@@ -363,7 +425,15 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
 
             {showNewRow && (
               <tr className="border-b border-gray-200">
-                <td className="py-3 px-2"></td>
+                <td className="py-3 px-2">-</td>
+                <td className="py-3 px-2 w-24">
+                  <FormSelect
+                    name="year"
+                    formValues={newRow}
+                    options={yearOptions}
+                    onChange={handleNewChange}
+                  />
+                </td>
                 <td className="py-3 px-2 w-40">
                   <FormSelect
                     name="departmentID"
