@@ -5,6 +5,7 @@ import TrainingPlansContentPage from "../Training-plans/TrainingPlansContent";
 import CustomerSatisfactionContentPage from "./CustomerSatisfaction/CustomerSatisfactionContent";
 import SupplierContentPage from "./SupplierManagement/SupplierContent";
 import ServiceProviderContentPage from "./Service-Provider/ServiceProviderContent";
+import ObjectivesAndKPIsOperationsContent from "./ObjectivesAndKPIsOperationsContent";
 
 
 const RoleContentPage = ({ selectedDocument }) => {
@@ -24,6 +25,8 @@ const RoleContentPage = ({ selectedDocument }) => {
         return <IncidentManagementContentPage />;
       case "Training Plans":
         return <TrainingPlansContentPage />;
+      case "Objectives and KPIs":
+        return <ObjectivesAndKPIsOperationsContent />;
       case "Customer Satisfaction":
         return <CustomerSatisfactionContentPage />;
       case "Supplier Management":

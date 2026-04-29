@@ -11,6 +11,7 @@ const OperationListPage = ({ onDocumentSelect }) => {
     { id: 1, name: "Risk Management", classification: "Public" },
     { id: 2, name: "Incident Management", classification: "Confidential" },
     { id: 3, name: "Training Plans", classification: "Public" },
+    { id: 7, name: "Objectives and KPIs", classification: "Public" },
     { id: 4, name: "Customer Satisfaction", classification: "Restricted" },
     { id: 5, name: "Supplier Management", classification: "Restricted" },
     { id: 6, name: "Service Provider Management", classification: "Restricted" },

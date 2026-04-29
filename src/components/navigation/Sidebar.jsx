@@ -3,7 +3,6 @@ import {
   ArrowPathIcon,
   ArrowRightStartOnRectangleIcon,
   ArrowUpCircleIcon,
-  Bars2Icon,
   BellIcon,
   CogIcon,
   DocumentTextIcon,
@@ -117,7 +116,6 @@ function Sidebar() {
           <MenuItem link="/assetManagement" Icon={DocumentTextIcon} />
           <MenuItem link="/processFramework" Icon={WrenchScrewdriverIcon} />
           <MenuItem link="/reviewAndAudits" Icon={ArrowUpCircleIcon} />
-          <MenuItem link="/objectives" Icon={Bars2Icon} />
           <MenuItem link="/operations" Icon={ArrowPathIcon} />
 
           {/* <MenuItem link="/test-plans" Icon={TableCellsIcon}/>  */}
