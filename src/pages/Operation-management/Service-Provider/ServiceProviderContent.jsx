@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import ServiceProviderHistory from "./ServiceProviderHistory";
 import ServiceProviderOverview from "./ServiceProviderOverview";
+import ServiceProviderDetail from "./ServiceProviderDetail";
+import ServiceProviderCriteria from "./ServiceProviderCriteria";
 
 const ServiceProviderContentPage = () => {
   // Left sidebar removed; state related to it has been removed
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectedServiceProviderId, setSelectedServiceProviderId] = useState(null);
+
+  const handleSelectServiceProvider = (id) => {
+    setSelectedServiceProviderId(id);
+    setActiveTab("detail");
+  };
 
   return (
     <div className=" bg-dashboard-bgc min-h-screen">
@@ -17,17 +25,27 @@ const ServiceProviderContentPage = () => {
                 onClick={() => setActiveTab("overview")}
                 className={`px-6 py-2 rounded-2xl ${
                   activeTab === "overview"
-                    ? "bg-black text-white"
+                    ? "bg-primary-pink text-white"
                     : "bg-gray-200 text-black hover:bg-gray-300"
                 }`}
               >
-                Overview
+                Approved List
+              </button>
+              <button
+                onClick={() => setActiveTab("criteria")}
+                className={`px-6 py-2 rounded-2xl ${
+                  activeTab === "criteria"
+                    ? "bg-primary-pink text-white"
+                    : "bg-gray-200 text-black hover:bg-gray-300"
+                }`}
+              >
+                Criteria
               </button>
               <button
                 onClick={() => setActiveTab("history")}
                 className={`px-6 py-2 rounded-2xl ${
                   activeTab === "history"
-                    ? "bg-black text-white"
+                    ? "bg-primary-pink text-white"
                     : "bg-gray-200 text-black hover:bg-gray-300"
                 }`}
               >
@@ -36,8 +54,17 @@ const ServiceProviderContentPage = () => {
             </div>
           </div>
 
-          {activeTab === "overview" && <ServiceProviderOverview />}
+          {activeTab === "overview" && (
+            <ServiceProviderOverview onSelectServiceProvider={handleSelectServiceProvider} />
+          )}
+          {activeTab === "criteria" && <ServiceProviderCriteria />}
           {activeTab === "history" && <ServiceProviderHistory />}
+          {activeTab === "detail" && (
+            <ServiceProviderDetail
+              serviceProviderId={selectedServiceProviderId}
+              onBack={() => setActiveTab("overview")}
+            />
+          )}
         </div>
       </div> 
     </div>
