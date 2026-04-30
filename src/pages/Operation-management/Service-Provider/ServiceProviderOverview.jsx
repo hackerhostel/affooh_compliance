@@ -89,7 +89,6 @@ const ServiceProviderOverview = ({ onSelectServiceProvider }) => {
   };
 
   const handleNewChange = ({ target: { name, value } }) => {
-    if (name === "contactNumber" && value && !/^\d*$/.test(value)) return;
     setNewRow((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -105,8 +104,9 @@ const ServiceProviderOverview = ({ onSelectServiceProvider }) => {
       return;
     }
 
-    if (newRow.contactNumber && !/^\d+$/.test(newRow.contactNumber)) {
-      addToast("Contact number must contain only digits", { appearance: "warning" });
+    const phonePattern = /^\d+$/;
+    if (newRow.contactNumber && !phonePattern.test(newRow.contactNumber)) {
+      addToast("Contact number should contain only numbers", { appearance: "warning" });
       return;
     }
 
@@ -128,7 +128,6 @@ const ServiceProviderOverview = ({ onSelectServiceProvider }) => {
   };
 
   const handleEditChange = (id, { target: { name, value } }) => {
-    if (name === "contactNumber" && value && !/^\d*$/.test(value)) return;
     setServiceProviderRows((prev) =>
       prev.map((r) => (r.id === id ? { ...r, [name]: value } : r))
     );
@@ -143,8 +142,9 @@ const ServiceProviderOverview = ({ onSelectServiceProvider }) => {
       return;
     }
 
-    if (row.contactNumber && !/^\d+$/.test(row.contactNumber)) {
-      addToast("Contact number must contain only digits", { appearance: "warning" });
+    const phonePattern = /^\d+$/;
+    if (row.contactNumber && !phonePattern.test(row.contactNumber)) {
+      addToast("Contact number should contain only numbers", { appearance: "warning" });
       return;
     }
 

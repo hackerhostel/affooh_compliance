@@ -50,7 +50,6 @@ const ServiceProviderDetail = ({ serviceProviderId, onBack }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "contactNumber" && value && !/^\d*$/.test(value)) return;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -66,8 +65,9 @@ const ServiceProviderDetail = ({ serviceProviderId, onBack }) => {
       return;
     }
 
-    if (formData.contactNumber && !/^\d+$/.test(formData.contactNumber)) {
-      addToast("Contact number must contain only digits", { appearance: "warning" });
+    const phonePattern = /^\d+$/;
+    if (formData.contactNumber && !phonePattern.test(formData.contactNumber)) {
+      addToast("Contact number should contain only numbers", { appearance: "warning" });
       return;
     }
 
