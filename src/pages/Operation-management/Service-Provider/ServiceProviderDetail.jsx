@@ -50,6 +50,7 @@ const ServiceProviderDetail = ({ serviceProviderId, onBack }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === "contactNumber" && value && !/^\d*$/.test(value)) return;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -62,6 +63,11 @@ const ServiceProviderDetail = ({ serviceProviderId, onBack }) => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(formData.email)) {
       addToast("Please enter a valid email address", { appearance: "warning" });
+      return;
+    }
+
+    if (formData.contactNumber && !/^\d+$/.test(formData.contactNumber)) {
+      addToast("Contact number must contain only digits", { appearance: "warning" });
       return;
     }
 

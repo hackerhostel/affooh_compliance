@@ -89,6 +89,7 @@ const ServiceProviderOverview = ({ onSelectServiceProvider }) => {
   };
 
   const handleNewChange = ({ target: { name, value } }) => {
+    if (name === "contactNumber" && value && !/^\d*$/.test(value)) return;
     setNewRow((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -101,6 +102,11 @@ const ServiceProviderOverview = ({ onSelectServiceProvider }) => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(newRow.email)) {
       addToast("Please enter a valid email address", { appearance: "warning" });
+      return;
+    }
+
+    if (newRow.contactNumber && !/^\d+$/.test(newRow.contactNumber)) {
+      addToast("Contact number must contain only digits", { appearance: "warning" });
       return;
     }
 
@@ -122,6 +128,7 @@ const ServiceProviderOverview = ({ onSelectServiceProvider }) => {
   };
 
   const handleEditChange = (id, { target: { name, value } }) => {
+    if (name === "contactNumber" && value && !/^\d*$/.test(value)) return;
     setServiceProviderRows((prev) =>
       prev.map((r) => (r.id === id ? { ...r, [name]: value } : r))
     );
@@ -133,6 +140,11 @@ const ServiceProviderOverview = ({ onSelectServiceProvider }) => {
 
     if (!row.serviceProviderName || !row.email) {
       addToast("Service Provider Name and Email are required", { appearance: "warning" });
+      return;
+    }
+
+    if (row.contactNumber && !/^\d+$/.test(row.contactNumber)) {
+      addToast("Contact number must contain only digits", { appearance: "warning" });
       return;
     }
 
