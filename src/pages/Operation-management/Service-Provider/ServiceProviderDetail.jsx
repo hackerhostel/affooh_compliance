@@ -9,6 +9,8 @@ import {
   unassignCriteriaFromServiceProvider,
 } from "../../../utils/serviceProviderApi";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
+import ServiceProviderEvaluation from "./ServiceProviderEvaluation.jsx";
+
 
 const ServiceProviderDetail = ({ serviceProviderId, onBack }) => {
   const { addToast } = useToasts();
@@ -93,10 +95,22 @@ const ServiceProviderDetail = ({ serviceProviderId, onBack }) => {
     }
   };
 
-  const handleUnassignCriteria = async (criteriaId) => {
+  // Delete state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [criteriaToDelete, setCriteriaToDelete] = useState(null);
+
+  const confirmDelete = (criteriaId) => {
+    setCriteriaToDelete(criteriaId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleUnassignCriteria = async () => {
+    if (!criteriaToDelete) return;
     try {
-      await unassignCriteriaFromServiceProvider(serviceProviderId, criteriaId);
+      await unassignCriteriaFromServiceProvider(serviceProviderId, criteriaToDelete);
       addToast("Criteria removed successfully", { appearance: "success" });
+      setDeleteDialogOpen(false);
+      setCriteriaToDelete(null);
       fetchData(); // refresh
     } catch (error) {
       addToast("Failed to remove criteria", { appearance: "error" });
@@ -268,7 +282,7 @@ const ServiceProviderDetail = ({ serviceProviderId, onBack }) => {
                     </td>
                     <td className="py-3 px-2 text-center">
                       <button
-                        onClick={() => handleUnassignCriteria(c.id)}
+                        onClick={() => confirmDelete(c.id)}
                         className="text-red-500 hover:text-red-700 p-2"
                         title="Remove Criteria"
                       >
@@ -284,7 +298,24 @@ const ServiceProviderDetail = ({ serviceProviderId, onBack }) => {
           <p className="text-gray-500 text-center py-4">No criteria assigned yet.</p>
         )}
       </div>
+
+      {/* Section 3: Evaluation */}
+      <ServiceProviderEvaluation 
+        serviceProviderId={serviceProviderId} 
+        assignedCriteria={serviceProvider.criteria || []} 
+      />
+
+      <ConfirmationDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setCriteriaToDelete(null);
+        }}
+        onConfirm={handleUnassignCriteria}
+        message="Are you sure you want to remove this criteria from this service provider?"
+      />
     </div>
+
   );
 };
 

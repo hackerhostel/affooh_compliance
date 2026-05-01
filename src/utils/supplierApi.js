@@ -57,3 +57,25 @@ export const deleteSupplierCriteria = async (id) => {
     const response = await axios.delete(`/supplier-criteria/${id}`);
     return response?.data;
 };
+
+// Supplier Evaluation API
+export const getSupplierEvaluations = async (supplierId) => {
+    const response = await axios.get(`/suppliers/${supplierId}/evaluations`);
+    return response?.data || [];
+};
+
+export const createSupplierEvaluation = async (supplierId, payload) => {
+    const response = await axios.post(`/suppliers/${supplierId}/evaluations`, payload);
+    return response?.data;
+};
+
+export const updateSupplierEvaluation = async (evaluationId, payload) => {
+    const response = await axios.put(`/supplier-evaluations/${evaluationId}`, payload);
+    return response?.data;
+};
+
+export const deleteSupplierEvaluation = async (evaluationId) => {
+    const response = await axios.delete(`/supplier-evaluations/${evaluationId}`);
+    return response?.data;
+};
+

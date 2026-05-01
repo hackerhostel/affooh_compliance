@@ -9,6 +9,8 @@ import {
   unassignCriteriaFromSupplier,
 } from "../../../utils/supplierApi";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
+import SupplierEvaluation from "./SupplierEvaluation.jsx";
+
 
 const SupplierDetail = ({ supplierId, onBack }) => {
   const { addToast } = useToasts();
@@ -89,10 +91,22 @@ const SupplierDetail = ({ supplierId, onBack }) => {
     }
   };
 
-  const handleUnassignCriteria = async (criteriaId) => {
+  // Delete state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [criteriaToDelete, setCriteriaToDelete] = useState(null);
+
+  const confirmDelete = (criteriaId) => {
+    setCriteriaToDelete(criteriaId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleUnassignCriteria = async () => {
+    if (!criteriaToDelete) return;
     try {
-      await unassignCriteriaFromSupplier(supplierId, criteriaId);
+      await unassignCriteriaFromSupplier(supplierId, criteriaToDelete);
       addToast("Criteria removed successfully", { appearance: "success" });
+      setDeleteDialogOpen(false);
+      setCriteriaToDelete(null);
       fetchData(); // refresh
     } catch (error) {
       addToast("Failed to remove criteria", { appearance: "error" });
@@ -264,7 +278,7 @@ const SupplierDetail = ({ supplierId, onBack }) => {
                     </td>
                     <td className="py-3 px-2 text-center">
                       <button
-                        onClick={() => handleUnassignCriteria(c.id)}
+                        onClick={() => confirmDelete(c.id)}
                         className="text-red-500 hover:text-red-700 p-2"
                         title="Remove Criteria"
                       >
@@ -280,7 +294,24 @@ const SupplierDetail = ({ supplierId, onBack }) => {
           <p className="text-gray-500 text-center py-4">No criteria assigned yet.</p>
         )}
       </div>
+
+      {/* Section 3: Evaluation */}
+      <SupplierEvaluation 
+        supplierId={supplierId} 
+        assignedCriteria={supplier.criteria || []} 
+      />
+
+      <ConfirmationDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setCriteriaToDelete(null);
+        }}
+        onConfirm={handleUnassignCriteria}
+        message="Are you sure you want to remove this criteria from this supplier?"
+      />
     </div>
+
   );
 };
 

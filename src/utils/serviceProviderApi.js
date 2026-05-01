@@ -57,3 +57,25 @@ export const deleteServiceProviderCriteria = async (id) => {
     const response = await axios.delete(`/service-provider-criteria/${id}`);
     return response?.data;
 };
+
+// Service Provider Evaluation API
+export const getServiceProviderEvaluations = async (serviceProviderId) => {
+    const response = await axios.get(`/service-providers/${serviceProviderId}/evaluations`);
+    return response?.data || [];
+};
+
+export const createServiceProviderEvaluation = async (serviceProviderId, payload) => {
+    const response = await axios.post(`/service-providers/${serviceProviderId}/evaluations`, payload);
+    return response?.data;
+};
+
+export const updateServiceProviderEvaluation = async (evaluationId, payload) => {
+    const response = await axios.put(`/service-provider-evaluations/${evaluationId}`, payload);
+    return response?.data;
+};
+
+export const deleteServiceProviderEvaluation = async (evaluationId) => {
+    const response = await axios.delete(`/service-provider-evaluations/${evaluationId}`);
+    return response?.data;
+};
+
