@@ -19,7 +19,7 @@ const SupplierCriteria = () => {
 
   // New Row state
   const [showNewRow, setShowNewRow] = useState(false);
-  const [newRow, setNewRow] = useState({ name: "" });
+  const [newRow, setNewRow] = useState({ name: "", weight: "", description: "" });
 
   // Edit/Action states
   const [editingRowId, setEditingRowId] = useState(null);
@@ -47,7 +47,7 @@ const SupplierCriteria = () => {
 
   const handleAddNewClick = () => {
     setShowNewRow(true);
-    setNewRow({ name: "" });
+    setNewRow({ name: "", weight: "", description: "" });
   };
 
   const handleNewChange = ({ target: { name, value } }) => {
@@ -87,7 +87,11 @@ const SupplierCriteria = () => {
     if (!row) return;
 
     try {
-      await updateSupplierCriteria(id, { name: row.name });
+      await updateSupplierCriteria(id, { 
+        name: row.name, 
+        weight: row.weight, 
+        description: row.description 
+      });
       addToast("Criteria updated successfully", { appearance: "success" });
       setEditingRowId(null);
       fetchCriteria();
@@ -135,7 +139,7 @@ const SupplierCriteria = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded p-3 mt-4">
+      <div className="bg-white rounded p-3 mt-4 overflow-x-auto">
         {loading ? (
           <div className="text-center text-gray-500 py-10">Loading...</div>
         ) : (
@@ -143,21 +147,29 @@ const SupplierCriteria = () => {
             <thead>
               <tr className="text-left text-secondary-grey border-b border-gray-200">
                 <th className="py-3 px-2 w-10">#</th>
-                <th className="py-3 px-2 w-3/4">Criteria Name</th>
-                <th className="py-3 px-2">Action</th>
+                <th className="py-3 px-2 w-1/4">Criteria</th>
+                <th className="py-3 px-2 w-20">Weight</th>
+                <th className="py-3 px-2">Description</th>
+                <th className="py-3 px-2 w-16 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
               {criteriaRows.map((row, index) => {
                 const isEditing = editingRowId === row.id;
                 return (
-                  <tr key={row.id} className="border-b border-gray-200">
+                  <tr key={row.id} className="border-b border-gray-200 align-top">
                     <td className="py-3 px-2">{index + 1}</td>
 
                     {!isEditing ? (
                       <>
                         <td className="py-3 px-2">{row.name}</td>
+                        <td className="py-3 px-2">{row.weight}%</td>
                         <td className="py-3 px-2">
+                          <div className="whitespace-pre-wrap text-sm text-gray-600">
+                            {row.description}
+                          </div>
+                        </td>
+                        <td className="py-3 px-2 text-center">
                           {openActionRowId !== row.id ? (
                             <div
                               className="cursor-pointer inline-flex"
@@ -166,7 +178,7 @@ const SupplierCriteria = () => {
                               <EllipsisVerticalIcon className="w-5 h-5 text-secondary-grey" />
                             </div>
                           ) : (
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-center gap-3">
                               <div
                                 className="cursor-pointer"
                                 onClick={() => handleStartEdit(row.id)}
@@ -203,7 +215,25 @@ const SupplierCriteria = () => {
                           />
                         </td>
                         <td className="py-3 px-2">
-                          <div className="flex gap-3 items-center">
+                          <input
+                            name="weight"
+                            type="number"
+                            className="border p-2 w-full rounded"
+                            value={row.weight}
+                            onChange={(e) => handleEditChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <textarea
+                            name="description"
+                            rows={3}
+                            className="border p-2 w-full rounded text-sm"
+                            value={row.description}
+                            onChange={(e) => handleEditChange(row.id, e)}
+                          />
+                        </td>
+                        <td className="py-3 px-2 text-center">
+                          <div className="flex gap-3 items-center justify-center">
                             <div className="cursor-pointer" onClick={() => handleDoneEdit(row.id)}>
                               <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                             </div>
@@ -220,19 +250,39 @@ const SupplierCriteria = () => {
 
               {/* New Row - shown at bottom */}
               {showNewRow && (
-                <tr className="border-b border-gray-200">
+                <tr className="border-b border-gray-200 align-top">
                   <td className="py-3 px-2">-</td>
                   <td className="py-3 px-2">
                     <input
                       name="name"
-                      placeholder="Enter criteria name"
+                      placeholder="Criteria name"
                       className="border p-2 w-full rounded"
                       value={newRow.name}
                       onChange={handleNewChange}
                     />
                   </td>
                   <td className="py-3 px-2">
-                    <div className="flex gap-3 items-center">
+                    <input
+                      name="weight"
+                      type="number"
+                      placeholder="%"
+                      className="border p-2 w-full rounded"
+                      value={newRow.weight}
+                      onChange={handleNewChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <textarea
+                      name="description"
+                      placeholder="Criteria description (scores)"
+                      rows={3}
+                      className="border p-2 w-full rounded text-sm"
+                      value={newRow.description}
+                      onChange={handleNewChange}
+                    />
+                  </td>
+                  <td className="py-3 px-2 text-center">
+                    <div className="flex gap-3 items-center justify-center">
                       <div className="cursor-pointer" onClick={handleSaveNew}>
                         <CheckCircleIcon className="w-5 h-5 text-primary-pink" />
                       </div>
@@ -246,7 +296,7 @@ const SupplierCriteria = () => {
 
               {criteriaRows.length === 0 && !showNewRow && (
                 <tr>
-                  <td className="py-3 px-2 text-center text-gray-500" colSpan={3}>
+                  <td className="py-3 px-2 text-center text-gray-500" colSpan={5}>
                     No criteria data found
                   </td>
                 </tr>

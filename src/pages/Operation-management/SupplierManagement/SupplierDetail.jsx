@@ -240,20 +240,42 @@ const SupplierDetail = ({ supplierId, onBack }) => {
 
         {/* List of Assigned Criteria */}
         {supplier.criteria && supplier.criteria.length > 0 ? (
-          <ul className="flex flex-col gap-2">
-            {supplier.criteria.map((c, index) => (
-              <li key={c.id} className="flex justify-between items-center p-3 border rounded">
-                <span className="font-medium text-gray-700">{index + 1}. {c.name}</span>
-                <button
-                  onClick={() => handleUnassignCriteria(c.id)}
-                  className="text-red-500 hover:text-red-700 p-2"
-                  title="Remove Criteria"
-                >
-                  <TrashIcon className="w-5 h-5" />
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto">
+            <table className="table-auto w-full border-collapse">
+              <thead>
+                <tr className="text-left text-secondary-grey border-b border-gray-200 bg-gray-50">
+                  <th className="py-3 px-2 w-10">#</th>
+                  <th className="py-3 px-2 w-1/4">Criteria</th>
+                  <th className="py-3 px-2 w-20">Weight</th>
+                  <th className="py-3 px-2">Description</th>
+                  <th className="py-3 px-2 w-12 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {supplier.criteria.map((c, index) => (
+                  <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50 align-top">
+                    <td className="py-3 px-2">{index + 1}</td>
+                    <td className="py-3 px-2 font-medium text-gray-700">{c.name}</td>
+                    <td className="py-3 px-2">{c.weight}%</td>
+                    <td className="py-3 px-2">
+                      <div className="whitespace-pre-wrap text-sm text-gray-600">
+                        {c.description}
+                      </div>
+                    </td>
+                    <td className="py-3 px-2 text-center">
+                      <button
+                        onClick={() => handleUnassignCriteria(c.id)}
+                        className="text-red-500 hover:text-red-700 p-2"
+                        title="Remove Criteria"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <p className="text-gray-500 text-center py-4">No criteria assigned yet.</p>
         )}
