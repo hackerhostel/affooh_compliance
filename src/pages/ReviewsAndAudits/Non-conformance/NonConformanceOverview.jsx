@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FormTextArea from "../../../components/FormTextArea.jsx";
 import FormSelect from "../../../components/FormSelect.jsx";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
+import { useSelector } from "react-redux";
+import { reviewAuditApi } from "../../../utils/reviewAuditApi.js";
+import { useToasts } from "react-toast-notifications";
+import NonConformanceDetail from "./NonConformanceDetail.jsx";
 
 const complianceOptions = [
   { label: "Compliant", value: "Compliant" },
-  { label: "Partially Compliant", value: "Partially Compliant" },
-  { label: "Non-Compliant", value: "Non-Compliant" },
+  { label: "Partial Compliance", value: "Partial Compliance" },
+  { label: "Non-Compliance", value: "Non-Compliance" },
 ];
 
 const severityOptions = [
@@ -21,43 +25,9 @@ const statusOptions = [
   { label: "Done", value: "Done" },
 ];
 
-const dummyRows = [
-  {
-    id: 1,
-    nonConformance: "Procedure not followed for ISO documentation update",
-    source: "Internal Audit",
-    compliance: "Non-Compliant",
-    clause: "4.2",
-    severity: "High",
-    dueDate: "2025-08-15",
-    status: "In Progress",
-    owner: { firstName: "John", lastName: "Doe", avatar: "" },
-  },
-  {
-    id: 2,
-    nonConformance: "Lack of employee training documentation",
-    source: "External Audit",
-    compliance: "Partially Compliant",
-    clause: "7.2",
-    severity: "Medium",
-    dueDate: "2025-07-22",
-    status: "To Do",
-    owner: { firstName: "Jane", lastName: "Smith", avatar: "" },
-  },
-  {
-    id: 3,
-    nonConformance: "Inconsistent record keeping in quality control",
-    source: "Process Review",
-    compliance: "Compliant",
-    clause: "8.3",
-    severity: "Low",
-    dueDate: "2025-05-10",
-    status: "Done",
-    owner: { firstName: "Michael", lastName: "Brown", avatar: "" },
-  },
-];
-
 const NonConformanceOverview = () => {
+  const { addToast } = useToasts();
+  const orgId = useSelector((state) => state.auth?.user?.organization?.id);
   const [filterValues, setFilterValues] = useState({
     control: "",
     assignee: "",
@@ -66,32 +36,47 @@ const NonConformanceOverview = () => {
     status: "",
   });
 
-  const [rows, setRows] = useState(dummyRows);
+  const [rows, setRows] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [selectedEvaluationId, setSelectedEvaluationId] = useState(null);
 
-  const handleRowChange = (id, field, value) => {
-    setRows((prev) =>
-      prev.map((row) =>
-        row.id === id ? { ...row, [field]: value } : row
-      )
-    );
+  const fetchNonConformances = async () => {
+    setLoading(true);
+    try {
+      const res = await reviewAuditApi.getNonConformances(orgId, page, limit);
+      const data = res.data?.body?.data || [];
+      const pagination = res.data?.body?.pagination;
+      setRows(data);
+      if (pagination) {
+        setTotalPages(pagination.totalPages);
+        setTotalRecords(pagination.total);
+      }
+    } catch (e) {
+      addToast("Failed to fetch Non Conformances", { appearance: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (orgId) {
+      fetchNonConformances();
+    }
+  }, [orgId, page]);
+
+  if (selectedEvaluationId) {
+    return <NonConformanceDetail evaluationId={selectedEvaluationId} onBack={() => setSelectedEvaluationId(null)} />;
+  }
 
   return (
     <div>
       <div className="items-center justify-between flex px-4">
         <div>
           <span className="text-xl font-semibold">Non Conformance</span>
-        </div>
-        <div className="flex justify-end items-center mt-4 space-x-2">
-          <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-            Archived
-          </button>
-          <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-            Approved
-          </button>
-          <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-            Save
-          </button>
         </div>
       </div>
 
@@ -100,35 +85,8 @@ const NonConformanceOverview = () => {
         <div className="flex gap-4 p-4">
           <div className="border-2 border-secondary-bcg rounded-lg px-24 py-8">
             <div className="flex flex-col items-center gap-1 text-text-color">
-              <span className="text-3xl font-medium">25</span>
+              <span className="text-3xl font-medium">{totalRecords}</span>
               <span className="text-lg font-medium">NCRs</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-4 p-4">
-          <div className="border-2 border-pass-border-color rounded-lg px-24 py-8">
-            <div className="flex flex-col items-center gap-1 text-text-color">
-              <span className="text-3xl font-medium">25</span>
-              <span className="text-lg font-medium">To Do</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-4 p-4">
-          <div className="border-2 border-priority-high rounded-lg px-24 py-8">
-            <div className="flex flex-col items-center gap-1 text-text-color">
-              <span className="text-3xl font-medium">12</span>
-              <span className="text-lg font-medium">In Progress</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-4 p-4">
-          <div className="border-2 border-pending-border-color rounded-lg px-24  py-8">
-            <div className="flex flex-col items-center gap-1  text-text-color">
-              <span className="text-3xl font-medium">25</span>
-              <span className="text-lg font-medium">Done</span>
             </div>
           </div>
         </div>
@@ -138,32 +96,6 @@ const NonConformanceOverview = () => {
       <div className="flex items-center justify-between">
         <div className="flex space-x-4 mt-4">
           <div className="w-28">
-            <FormSelect
-              name="control"
-              options={[]}
-              placeholder="Control"
-              showLabel={false}
-              value={filterValues.control}
-              onChange={(e) =>
-                setFilterValues({ ...filterValues, control: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="w-28">
-            <FormSelect
-              name="assignee"
-              placeholder="Assignee"
-              showLabel={false}
-              options={[]}
-              value={filterValues.assignee}
-              onChange={(e) =>
-                setFilterValues({ ...filterValues, assignee: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="w-36">
             <FormSelect
               name="compliance"
               placeholder="Compliance"
@@ -205,51 +137,51 @@ const NonConformanceOverview = () => {
       </div>
 
       {/* Table */}
-      <div className="px-4 mt-5 h-[600px] rounded-md bg-white">
-        <table className="w-full border-collapse bg-white mb-10">
-          <thead className="text-left">
-            <tr>
-              <th className="px-4 py-6">#</th>
-              <th className="px-4 py-3">Non Conformance</th>
-              <th className="px-4 py-3">Source</th>
-              <th className="px-4 py-3">Compliance</th>
-              <th className="px-4 py-3">Clause</th>
-              <th className="px-4 py-3 text-center">Severity</th>
-              <th className="px-4 py-3 text-center">Due Date</th>
-              <th className="px-4 py-3 text-center">Status</th>
-              <th className="px-4 py-3 text-center">Owner</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => {
-              const user = row.owner;
-              return (
-                <tr key={row.id} className="border-t">
-                  <td className="px-4 py-3">{row.id}</td>
-                  <td className="px-4 py-3 w-[200px]">{row.nonConformance}</td>
-                  <td className="px-4 py-3">{row.source}</td>
-                  <td className="px-4 py-3">{row.compliance}</td>
-                  <td className="px-4 py-3">{row.clause}</td>
+      <div className="px-4 mt-5 bg-white rounded-md">
+        <div className="overflow-auto min-h-[500px]">
+          <table className="w-full border-collapse bg-white">
+            <thead className="text-left bg-gray-50 border-b">
+              <tr>
+                <th className="px-4 py-6">ID</th>
+                <th className="px-4 py-3">Non Conformance</th>
+                <th className="px-4 py-3">Source</th>
+                <th className="px-4 py-3">Compliance</th>
+                <th className="px-4 py-3">Clause</th>
+                <th className="px-4 py-3 text-center">Severity</th>
+                <th className="px-4 py-3 text-center">Due Date</th>
+                <th className="px-4 py-3 text-center">Status</th>
+                <th className="px-4 py-3 text-center">Owner</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && <tr><td colSpan="9" className="text-center py-4">Loading...</td></tr>}
+              {!loading && rows.map((row) => (
+                <tr key={row.evaluationId} className="border-t hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedEvaluationId(row.evaluationId)}>
+                  <td className="px-4 py-3">NCR-{row.evaluationId}</td>
+                  <td className="px-4 py-3 w-[200px]">{row.descriptionOfNC || "N/A"}</td>
+                  <td className="px-4 py-3">{row.source || "Audit"}</td>
+                  <td className="px-4 py-3">{row.complianceStatus}</td>
+                  <td className="px-4 py-3">{row.clauseReference}</td>
                   <td className="px-4 py-3 text-center">{row.severity}</td>
-                  <td className="px-4 py-3 text-center">{row.dueDate}</td>
-                  <td className="px-4 py-3 text-center">{row.status}</td>
+                  <td className="px-4 py-3 text-center">{row.dueDate ? new Date(row.dueDate).toLocaleDateString() : ""}</td>
+                  <td className="px-4 py-3 text-center">{row.implementationStatus}</td>
                   <td className="px-4 py-3 ">
-                    {user ? (
+                    {row.ownerFirstName ? (
                       <div className="flex items-center justify-left space-x-2">
-                        {user.avatar ? (
+                        {row.ownerAvatar ? (
                           <img
-                            src={user.avatar}
-                            alt={`${user.firstName} ${user.lastName}`}
+                            src={row.ownerAvatar}
+                            alt={`${row.ownerFirstName} ${row.ownerLastName}`}
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold">
-                            {user.firstName?.[0]}
-                            {user.lastName?.[0]}
+                            {row.ownerFirstName?.[0]}
+                            {row.ownerLastName?.[0]}
                           </div>
                         )}
                         <span>
-                          {user.firstName} {user.lastName}
+                          {row.ownerFirstName} {row.ownerLastName}
                         </span>
                       </div>
                     ) : (
@@ -257,10 +189,32 @@ const NonConformanceOverview = () => {
                     )}
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center py-4 border-t">
+          <span className="text-sm text-gray-600">
+            Page {page} of {totalPages}
+          </span>
+          <div className="flex space-x-2">
+            <button
+              className="px-4 py-2 border rounded-md disabled:opacity-50"
+              disabled={page === 1}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+            >
+              Previous
+            </button>
+            <button
+              className="px-4 py-2 border rounded-md disabled:opacity-50"
+              disabled={page === totalPages || totalPages === 0}
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

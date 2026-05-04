@@ -5,9 +5,11 @@ import { useToasts } from "react-toast-notifications";
 import { reviewAuditApi } from "../../utils/reviewAuditApi";
 import { useSelector } from "react-redux";
 
-const ReviewAndAuditsListPage = ({ onDocumentSelect, refreshTrigger }) => {
+const NON_CONFORMANCE_ITEM = { id: "__non_conformance__", name: "Non Conformance", type: null, category: "Restricted" };
+
+const ReviewAndAuditsListPage = ({ onDocumentSelect, onEditRequest, refreshTrigger }) => {
   const { addToast } = useToasts();
-  const orgId = useSelector((state) => state.auth?.user?.organizationID) || 1;
+  const orgId = useSelector((state) => state.auth?.user?.organization?.id);
 
   const [documents, setDocuments] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -73,6 +75,12 @@ const ReviewAndAuditsListPage = ({ onDocumentSelect, refreshTrigger }) => {
     }
   };
 
+  const handleEditClick = (e, doc) => {
+    e.stopPropagation();
+    setOpenMenu(null);
+    if (onEditRequest) onEditRequest(doc);
+  };
+
   return (
     <div className="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-3 pl-5 pr-3 mt-6">
       {documents.length === 0 ? (
@@ -101,6 +109,12 @@ const ReviewAndAuditsListPage = ({ onDocumentSelect, refreshTrigger }) => {
               {openMenu === index && (
                 <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-md shadow-md w-28 z-10">
                   <button
+                    onClick={(e) => handleEditClick(e, doc)}
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Edit
+                  </button>
+                  <button
                     onClick={() => handleDeleteClick(doc)}
                     className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                   >
@@ -112,6 +126,43 @@ const ReviewAndAuditsListPage = ({ onDocumentSelect, refreshTrigger }) => {
           </div>
         ))
       )}
+
+      {/* Hardcoded Non Conformance item */}
+      <div
+        onClick={() => handleDocumentClick(NON_CONFORMANCE_ITEM)}
+        className={`relative flex justify-between items-center p-3 border rounded-md w-64 gap-2 hover:bg-gray-100 cursor-pointer ${selectedDoc?.id === NON_CONFORMANCE_ITEM.id ? "border-primary-pink border-2" : "border-gray-200"}`}
+      >
+        <div className="flex flex-col">
+          <div className="font-medium text-gray-900">Non Conformance</div>
+          <div className={`text-sm font-semibold ${getColorClass(NON_CONFORMANCE_ITEM.category)}`}>
+            {NON_CONFORMANCE_ITEM.category}
+          </div>
+        </div>
+
+        {/* Three-dot menu for Non Conformance */}
+        <div className="relative">
+          <EllipsisVerticalIcon
+            onClick={(e) => toggleMenuOpen("non-conformance", e)}
+            className="w-5 h-5 text-gray-600 cursor-pointer"
+          />
+          {openMenu === "non-conformance" && (
+            <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-md shadow-md w-28 z-10">
+              <button
+                onClick={(e) => handleEditClick(e, NON_CONFORMANCE_ITEM)}
+                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDeleteClick(NON_CONFORMANCE_ITEM)}
+                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Confirmation Dialog */}
       <ConfirmationDialog

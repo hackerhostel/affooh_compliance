@@ -87,10 +87,10 @@ const SupplierCriteria = () => {
     if (!row) return;
 
     try {
-      await updateSupplierCriteria(id, { 
-        name: row.name, 
-        weight: row.weight, 
-        description: row.description 
+      await updateSupplierCriteria(id, {
+        name: row.name,
+        weight: row.weight,
+        description: row.description
       });
       addToast("Criteria updated successfully", { appearance: "success" });
       setEditingRowId(null);

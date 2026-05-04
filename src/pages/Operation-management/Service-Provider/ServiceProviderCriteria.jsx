@@ -9,11 +9,11 @@ import {
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useToasts } from "react-toast-notifications";
-import { 
-  getServiceProviderCriteria, 
-  createServiceProviderCriteria, 
-  updateServiceProviderCriteria, 
-  deleteServiceProviderCriteria 
+import {
+  getServiceProviderCriteria,
+  createServiceProviderCriteria,
+  updateServiceProviderCriteria,
+  deleteServiceProviderCriteria
 } from "../../../utils/serviceProviderApi";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
 
@@ -92,10 +92,10 @@ const ServiceProviderCriteria = () => {
     if (!row) return;
 
     try {
-      await updateServiceProviderCriteria(id, { 
-        name: row.name, 
-        weight: row.weight, 
-        description: row.description 
+      await updateServiceProviderCriteria(id, {
+        name: row.name,
+        weight: row.weight,
+        description: row.description
       });
       addToast("Criteria updated successfully", { appearance: "success" });
       setEditingRowId(null);

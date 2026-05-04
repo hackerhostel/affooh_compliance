@@ -8,13 +8,17 @@ import { useSelector } from "react-redux";
 
 const AddReviewAuditPopup = ({ isOpen, onClose, onSuccess }) => {
     const { addToast } = useToasts();
-    const orgId = useSelector((state) => state.auth?.user?.organizationID) || 1;
+    const orgId = useSelector((state) => state.auth?.user?.organization?.id);
 
     const [formData, setFormData] = useState({ name: "", type: "", category: "" });
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!orgId) {
+            addToast("Organization not loaded. Please refresh and try again.", { appearance: "error" });
+            return;
+        }
         setLoading(true);
         try {
             await reviewAuditApi.createReviewAudit(orgId, formData);

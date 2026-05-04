@@ -307,13 +307,13 @@ const SupplierOverview = ({ onSelectSupplier }) => {
                             </td>
                           ))}
                           <td className="py-3 px-2">
-                             <input 
-                               type="date"
-                               name="contractEndDate"
-                               className="border p-1 w-full"
-                               value={row.contractEndDate ? row.contractEndDate.split('T')[0] : ""}
-                               onChange={(e) => handleEditChange(row.id, e)}
-                             />
+                            <input
+                              type="date"
+                              name="contractEndDate"
+                              className="border p-1 w-full"
+                              value={row.contractEndDate ? row.contractEndDate.split('T')[0] : ""}
+                              onChange={(e) => handleEditChange(row.id, e)}
+                            />
                           </td>
                           <td className="py-3 px-2">
                             <div className="flex gap-3 items-center">
@@ -345,13 +345,13 @@ const SupplierOverview = ({ onSelectSupplier }) => {
                       </td>
                     ))}
                     <td className="py-3 px-2">
-                       <input 
-                         type="date"
-                         name="contractEndDate"
-                         className="border p-1 w-full"
-                         value={newRow.contractEndDate}
-                         onChange={handleNewChange}
-                       />
+                      <input
+                        type="date"
+                        name="contractEndDate"
+                        className="border p-1 w-full"
+                        value={newRow.contractEndDate}
+                        onChange={handleNewChange}
+                      />
                     </td>
                     <td className="py-3 px-2">
                       <div className="flex gap-3 items-center">

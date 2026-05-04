@@ -36,6 +36,9 @@ const GapAnalysisOverview = ({ selectedDocument }) => {
         Observation: 0
     });
     const [saving, setSaving] = useState(false);
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
 
     // Get project users from Redux
     const projectUserList = useSelector(selectProjectUserList) || [];
@@ -55,8 +58,14 @@ const GapAnalysisOverview = ({ selectedDocument }) => {
             const detailRes = await reviewAuditApi.getReviewAuditDetail(selectedDocument.id);
             setStats(detailRes.data?.body?.stats || stats);
 
-            const controlsRes = await reviewAuditApi.getAuditControls(selectedDocument.id);
-            const controlsData = controlsRes.data?.body || [];
+            const controlsRes = await reviewAuditApi.getAuditControls(selectedDocument.id, page, limit);
+            const responseData = controlsRes.data?.body;
+            
+            const controlsData = responseData?.data || [];
+            if (responseData?.pagination) {
+                setTotalPages(responseData.pagination.totalPages);
+            }
+
             const mappedRows = controlsData.map(c => ({
                 standardControlID: c.standardControlID,
                 clauseReference: c.clauseReference,
@@ -80,7 +89,7 @@ const GapAnalysisOverview = ({ selectedDocument }) => {
         if (selectedDocument) {
             fetchControls();
         }
-    }, [selectedDocument]);
+    }, [selectedDocument, page]);
 
     const handleRowChange = (id, field, value) => {
         setRows((prev) =>
@@ -157,7 +166,7 @@ const GapAnalysisOverview = ({ selectedDocument }) => {
     return (
         <div>
             <div className="flex items-center justify-between px-4 mt-4">
-                <span className="text-3xl font-semibold text-gray-800">{selectedDocument?.name || "Gap Analysis"}</span>
+                <span className="text-3xl font-semibold text-gray-800">{selectedDocument?.name || "Review"}</span>
                 <div className="flex space-x-2">
                     <button className="bg-primary-pink px-8 py-3 rounded-md text-white hover:opacity-90 transition-all font-medium" onClick={handleArchived}>
                         Archived
@@ -372,6 +381,29 @@ const GapAnalysisOverview = ({ selectedDocument }) => {
                         ))}
                     </tbody>
                 </table>
+
+                {/* Pagination Controls */}
+                <div className="flex justify-between items-center py-4 border-t">
+                    <span className="text-sm text-gray-600">
+                        Page {page} of {totalPages}
+                    </span>
+                    <div className="flex space-x-2">
+                        <button 
+                            className="px-4 py-2 border rounded-md disabled:opacity-50"
+                            disabled={page === 1}
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                        >
+                            Previous
+                        </button>
+                        <button 
+                            className="px-4 py-2 border rounded-md disabled:opacity-50"
+                            disabled={page === totalPages || totalPages === 0}
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
