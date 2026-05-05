@@ -61,9 +61,9 @@ const Dashboard = () => {
               <DashboardLayout />
             </Route>
 
-            <Route path="/projects">
+            {/* <Route path="/projects">
               <ProjectLayout />
-            </Route>
+            </Route> */}
 
             <Route path="/organizational">
               <OrganizationalLayout />

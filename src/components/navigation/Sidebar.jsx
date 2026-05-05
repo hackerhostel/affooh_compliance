@@ -119,7 +119,7 @@ function Sidebar() {
           <MenuItem link="/operations" Icon={ArrowPathIcon} />
 
           {/* <MenuItem link="/test-plans" Icon={TableCellsIcon}/>  */}
-          <MenuItem link="/projects" Icon={Square3Stack3DIcon} />
+          {/* <MenuItem link="/projects" Icon={Square3Stack3DIcon} /> */}
 
 
           <div className="flex flex-col items-center ">
