@@ -1,58 +1,62 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { TrashIcon } from "@heroicons/react/24/outline";
+import { useToasts } from "react-toast-notifications";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../../state/slice/authSlice.js";
+import { fetchSkillInventory, deleteSkillInventoryEntry } from "../../../utils/complianceApi.js";
+import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
+
+const PROFICIENCY_COLORS = {
+  Advance: "bg-green-100 text-green-700",
+  Intermediate: "bg-yellow-100 text-yellow-700",
+  Beginner: "bg-gray-100 text-gray-600",
+};
 
 const SkillInventoryOverview = () => {
-  // Dummy skill inventory data
-  const [skillRows, setSkillRows] = useState([
-    {
-      id: 1,
-      employee: "Alice Johnson",
-      jobTitle: "Software Engineer",
-      skill: "React.js",
-      certification: "AWS Certified Developer",
-      experience: "5 years",
-      proficiency: "Advanced",
-    },
-    {
-      id: 2,
-      employee: "Bob Smith",
-      jobTitle: "Backend Developer",
-      skill: "Node.js",
-      certification: "Microsoft Azure Fundamentals",
-      experience: "4 years",
-      proficiency: "Intermediate",
-    },
-    {
-      id: 3,
-      employee: "Carol Lee",
-      jobTitle: "UI/UX Designer",
-      skill: "Figma",
-      certification: "Adobe Certified Expert",
-      experience: "6 years",
-      proficiency: "Advanced",
-    },
-    {
-      id: 4,
-      employee: "David Brown",
-      jobTitle: "DevOps Engineer",
-      skill: "Docker & Kubernetes",
-      certification: "AWS DevOps Professional",
-      experience: "7 years",
-      proficiency: "Advanced",
-    },
-    {
-      id: 5,
-      employee: "Evelyn White",
-      jobTitle: "QA Engineer",
-      skill: "Selenium",
-      certification: "ISTQB Certified Tester",
-      experience: "3 years",
-      proficiency: "Intermediate",
-    },
-  ]);
+  const { addToast } = useToasts();
+  const user = useSelector(selectUser);
+  const [skillRows, setSkillRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [skillToDelete, setSkillToDelete] = useState(null);
 
-  const handleDeleteRow = (id) => {
-    setSkillRows((prev) => prev.filter((row) => row.id !== id));
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchSkillInventory(user?.organization?.id);
+      setSkillRows(Array.isArray(data) ? data : []);
+    } catch {
+      // No data yet or endpoint not available
+      setSkillRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.organization?.id) {
+      loadData();
+    }
+  }, [user?.organization?.id]);
+
+
+  const handleDeleteClick = (id) => {
+    setSkillToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!skillToDelete) return;
+    try {
+      await deleteSkillInventoryEntry(skillToDelete);
+      setSkillRows((prev) => prev.filter((row) => row.id !== skillToDelete));
+      addToast("Skill entry deleted", { appearance: "success" });
+    } catch {
+      addToast("Failed to delete skill entry", { appearance: "error" });
+    } finally {
+      setDeleteModalOpen(false);
+      setSkillToDelete(null);
+    }
   };
 
   return (
@@ -62,50 +66,79 @@ const SkillInventoryOverview = () => {
       </div>
 
       <div className="bg-white rounded p-3 mt-2">
-        <table className="table-auto w-full border-collapse">
-          <thead>
-            <tr className="text-left text-secondary-grey border-b border-gray-200">
-              <th className="py-6 px-4 w-10 text-center">#</th>
-              <th className="py-6 px-4">Employee</th>
-              <th className="py-6 px-4">Job Title</th>
-              <th className="py-6 px-4">Skill</th>
-              <th className="py-6 px-4">Certification</th>
-              <th className="py-6 px-4">Years of Experience</th>
-              <th className="py-6 px-4">Proficiency Level</th>
-              <th className="py-6 px-4 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {skillRows.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="text-center text-gray-500 py-4">
-                  No records found
-                </td>
+        {loading ? (
+          <p className="text-center py-6 text-gray-500">Loading...</p>
+        ) : (
+          <table className="table-auto w-full border-collapse">
+            <thead>
+              <tr className="text-left text-secondary-grey border-b border-gray-200">
+                <th className="py-6 px-4 w-10 text-center">#</th>
+                <th className="py-6 px-4">Employee</th>
+                <th className="py-6 px-4">Job Title</th>
+                <th className="py-6 px-4">Skill</th>
+                <th className="py-6 px-4">Certification</th>
+                <th className="py-6 px-4">Years of Experience</th>
+                <th className="py-6 px-4">Proficiency Level</th>
+                <th className="py-6 px-4 text-center">Action</th>
               </tr>
-            ) : (
-              skillRows.map((row, index) => (
-                <tr key={row.id} className="border-b border-gray-200">
-                  <td className="py-6 px-4 text-center">{index + 1}</td>
-                  <td className="py-6 px-4">{row.employee}</td>
-                  <td className="py-6 px-4">{row.jobTitle}</td>
-                  <td className="py-6 px-4">{row.skill}</td>
-                  <td className="py-6 px-4">{row.certification}</td>
-                  <td className="py-6 px-4 text-left">{row.experience}</td>
-                  <td className="py-6 px-4 text-left">{row.proficiency}</td>
-                  <td className="py-6 px-4 text-center">
-                    <div className="flex justify-center">
-                      <TrashIcon
-                        onClick={() => handleDeleteRow(row.id)}
-                        className="w-5 h-5 text-text-color cursor-pointer"
-                      />
-                    </div>
+            </thead>
+            <tbody>
+              {skillRows.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="text-center text-gray-500 py-8">
+                    No skill inventory records found
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                skillRows.map((row, index) => (
+                  <tr key={row.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="py-4 px-4 text-center">{index + 1}</td>
+                    <td className="py-4 px-4">
+                      {row.employee ||
+                        (row.user
+                          ? `${row.user.firstName} ${row.user.lastName}`
+                          : "-")}
+                    </td>
+                    <td className="py-4 px-4">{row.jobTitle || "-"}</td>
+                    <td className="py-4 px-4 font-medium">{row.skill}</td>
+                    <td className="py-4 px-4">{row.certification || "-"}</td>
+                    <td className="py-4 px-4">
+                      {row.yearsOfExperience
+                        ? `${row.yearsOfExperience} yr${row.yearsOfExperience != 1 ? "s" : ""}`
+                        : "-"}
+                    </td>
+                    <td className="py-4 px-4">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          PROFICIENCY_COLORS[row.proficiencyLevel] ||
+                          "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {row.proficiencyLevel || "-"}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-center">
+                      <div className="flex justify-center">
+                        <TrashIcon
+                          onClick={() => handleDeleteClick(row.id)}
+                          className="w-5 h-5 text-text-color cursor-pointer hover:text-red-500"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
+      <ConfirmationDialog
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Skill Entry?"
+        message="Are you sure you want to delete this skill entry? This action cannot be undone."
+      />
     </div>
   );
 };

@@ -1,18 +1,13 @@
-import React from "react";
 import SteeringCommitteeContentPage from "./SteeringCommittee/SteeringCommitteeContent";
 import RASCIContentPage from "./RASCI/RASCIContent";
 import SkillInventoryContentPage from "./SkillInventory/SkillInventoryContent";
 import CompetencyMatrixContentPage from "./CompetencyMatrix/CompetencyMatrixContent";
-
+import UserAccessMatrixContentPage from "./UserAccessMatrix/UserAccessMatrixContent";
 
 const RoleContentPage = ({ selectedDocument }) => {
   const renderContent = () => {
     if (!selectedDocument) {
-      return (
-        <div className="text-gray-600 text-center mt-10">
-          <SteeringCommitteeContentPage />
-        </div>
-      );
+      return <SteeringCommitteeContentPage />;
     }
 
     switch (selectedDocument.name) {
@@ -24,14 +19,10 @@ const RoleContentPage = ({ selectedDocument }) => {
         return <SkillInventoryContentPage />;
       case "Competency Matrix":
         return <CompetencyMatrixContentPage />;
-      case "Stakeholder Context":
-        return <StakeholderContextContent />;
+      case "User access Matrix":
+        return <UserAccessMatrixContentPage />;
       default:
-        return (
-          <div className="text-gray-600 text-center mt-10">
-            <ContextContent />
-          </div>
-        );
+        return <SteeringCommitteeContentPage />;
     }
   };
 

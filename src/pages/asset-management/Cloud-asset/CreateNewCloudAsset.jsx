@@ -14,12 +14,14 @@ import {
   selectProjectUserList,
 } from "../../../state/slice/projectUsersSlice.js";
 
+
 const CreateNewCloudAsset = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const { addToast } = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
   const masterData = useSelector((state) => state.cloudAsset.masterData || {});
   const projectUsers = useSelector(selectProjectUserList) || [];
+  const departments = masterData.assetDepartments || [];
 
   // Initial form values
   const [formValues, setFormValues] = useState({
