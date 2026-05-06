@@ -23,7 +23,7 @@ const CMDashboard = () => {
 
     const [riskFilters, setRiskFilters] = useState({ status: "", owner: "" });
     const [incidentFilters, setIncidentFilters] = useState({ status: "", owner: "" });
-    const [kpiFilters, setKpiFilters] = useState({ year: new Date().getFullYear(), department: "" });
+    const [kpiFilters, setKpiFilters] = useState({ year: "", department: "" });
 
     useEffect(() => {
         if (!organizationUsers) {
@@ -96,13 +96,15 @@ const CMDashboard = () => {
                     
                     return {
                         id: obj.id,
-                        kpi: obj.kpi,
-                        cycle: obj.frequencyName || obj.monitoringFrequency || "-",
+                        year: obj.year || "-",
+                        department: obj.departmentName || obj.department || "-",
+                        type: obj.typeName || obj.type || "-",
+                        objective: obj.objectiveText || obj.objective || "-",
+                        kpi: obj.kpi || "-",
+                        initialStatus: obj.initialStatus || "-",
                         target: latestTracking.target || obj.target || "-",
-                        value: latestTracking.value || "-",
-                        comments: latestTracking.comments || "-",
-                        year: obj.year,
-                        department: obj.departmentName || obj.department
+                        monitoringFrequency: obj.frequencyName || obj.monitoringFrequency || "-",
+                        howToMeasure: obj.howToMeasure || "-"
                     };
                 }).map((k, i) => ({
                     ...k,
@@ -338,31 +340,39 @@ const CMDashboard = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
                     <table className="w-full text-sm text-left">
                         <thead className="bg-white border-b border-gray-100 text-gray-400 font-medium">
                             <tr>
                                 <th className="px-6 py-4 font-medium">ID</th>
+                                <th className="px-6 py-4 font-medium">Year</th>
+                                <th className="px-6 py-4 font-medium">Department</th>
+                                <th className="px-6 py-4 font-medium">Type</th>
+                                <th className="px-6 py-4 font-medium">Objective</th>
                                 <th className="px-6 py-4 font-medium">KPI</th>
-                                <th className="px-6 py-4 font-medium">Cycle</th>
+                                <th className="px-6 py-4 font-medium">Initial Status</th>
                                 <th className="px-6 py-4 font-medium">Target</th>
-                                <th className="px-6 py-4 font-medium">Value</th>
-                                <th className="px-6 py-4 font-medium">Comments</th>
+                                <th className="px-6 py-4 font-medium">Monitoring Frequency</th>
+                                <th className="px-6 py-4 font-medium">How to Measure</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {isLoading ? (
-                                <tr><td colSpan="6" className="px-6 py-8 text-center text-gray-400 animate-pulse">Loading KPIs...</td></tr>
+                                <tr><td colSpan="10" className="px-6 py-8 text-center text-gray-400 animate-pulse">Loading KPIs...</td></tr>
                             ) : filteredKpis.length === 0 ? (
-                                <tr><td colSpan="6" className="px-6 py-8 text-center text-gray-400">No KPI data available</td></tr>
+                                <tr><td colSpan="10" className="px-6 py-8 text-center text-gray-400">No KPI data available</td></tr>
                             ) : filteredKpis.map((kpi) => (
                                 <tr key={kpi.id} className="hover:bg-gray-50/50 transition-colors">
                                     <td className="px-6 py-6 text-gray-500 font-medium">{kpi.displayId}</td>
-                                    <td className="px-6 py-6 text-gray-600">{kpi.kpi || "-"}</td>
-                                    <td className="px-6 py-6 text-gray-600">{kpi.cycle || "-"}</td>
-                                    <td className="px-6 py-6 text-gray-600">{kpi.target || "-"}</td>
-                                    <td className="px-6 py-6 text-gray-600">{kpi.value || "-"}</td>
-                                    <td className="px-6 py-6 text-gray-600 max-w-xs truncate">{kpi.comments || "-"}</td>
+                                    <td className="px-6 py-6 text-gray-600">{kpi.year}</td>
+                                    <td className="px-6 py-6 text-gray-600">{kpi.department}</td>
+                                    <td className="px-6 py-6 text-gray-600">{kpi.type}</td>
+                                    <td className="px-6 py-6 text-gray-600">{kpi.objective}</td>
+                                    <td className="px-6 py-6 text-gray-600">{kpi.kpi}</td>
+                                    <td className="px-6 py-6 text-gray-600">{kpi.initialStatus}</td>
+                                    <td className="px-6 py-6 text-gray-600">{kpi.target}</td>
+                                    <td className="px-6 py-6 text-gray-600">{kpi.monitoringFrequency}</td>
+                                    <td className="px-6 py-6 text-gray-600">{kpi.howToMeasure}</td>
                                 </tr>
                             ))}
                         </tbody>

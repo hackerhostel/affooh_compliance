@@ -237,7 +237,17 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
     })) || [];
 
     if (viewMode === 'EDIT' && editingRisk) {
-        return <RiskEditView risk={editingRisk} userOptions={userOptions} onBack={() => setViewMode('OVERVIEW')} onUpdate={() => { fetchData(); setViewMode('OVERVIEW'); }} />;
+        return <RiskEditView risk={editingRisk} userOptions={userOptions} onBack={() => setViewMode('OVERVIEW')} onUpdate={async (id, data) => {
+            try {
+                const actualId = rows.find(r => r.id === id)?.databaseId || id;
+                await riskApi.updateRisk(actualId, data);
+                fetchData();
+                setViewMode('OVERVIEW');
+            } catch (error) {
+                console.error("Failed to update risk:", error);
+                throw error; // Re-throw so RiskEditView can handle the error (toast)
+            }
+        }} />;
     }
 
     return (
