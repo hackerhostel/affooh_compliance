@@ -264,3 +264,19 @@ export const upsertUserAccess = async (payload) => {
   return response?.data?.body;
 };
 
+// Org Structure
+export const fetchOrgStructure = async (projectId) => {
+  const response = await axios.get(`/compliance/org-structure/${projectId}`);
+  return response?.data?.body || null;
+};
+
+export const saveOrgStructure = async (payload) => {
+  const response = await axios.post("/compliance/org-structure", payload);
+  return response?.data?.body;
+};
+
+export const updateOrgStructure = async (id, payload) => {
+  const response = await axios.put(`/compliance/org-structure/${id}`, payload);
+  return response?.data?.body;
+};
+

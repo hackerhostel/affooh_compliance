@@ -2,6 +2,7 @@ import axios from "axios";
 
 export const PROCESS_FRAMEWORK_TYPES = [
   { value: "POLICY", label: "Policy" },
+  { value: "DOCUMENT", label: "Documents" },
   { value: "PROCESS", label: "Process" },
   { value: "STANDARD", label: "Standard" },
   { value: "TEMPLATE", label: "Template" },

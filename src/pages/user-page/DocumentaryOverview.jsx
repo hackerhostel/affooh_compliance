@@ -44,14 +44,13 @@ const DocumentaryOverview = () => {
 
                 <div className='p-2'>
                    {isEditing ? (
-                    <FormTextArea
-                        name="purpose"
-                        formValues={formValues}
-                        onChange={(name, value) => handleChange(name, value)}
-                        showLabel={false}
-                        className="w-full"
-                        rows={5}
-                    />
+                    <div className="wysiwyg-large">
+                        <WYSIWYGInput
+                            name="purpose"
+                            value={formValues.purpose}
+                            onchange={(name, value) => handleChange(name, value)}
+                        />
+                    </div>
                 ) : (
                     <p>{formValues.purpose}</p>
                 )} 
@@ -74,7 +73,7 @@ const DocumentaryOverview = () => {
                         initialValue={{ description: formValues.description }}
                         value={formValues.description}
                         name="description"
-                        onChange={(name, value) => handleChange(name, value)}
+                        onchange={(name, value) => handleChange(name, value)}
                     />
                 </div>
             </div>

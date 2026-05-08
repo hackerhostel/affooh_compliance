@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import FormTextArea from "../../../components/FormTextArea.jsx";
 import FormInput from '../../../components/FormInput.jsx';
 import FormSelect from '../../../components/FormSelect.jsx';
+import WYSIWYGInput from '../../../components/WYSIWYGInput.jsx';
 import { PencilIcon, EllipsisVerticalIcon, CheckCircleIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { getUserSelectOptions } from "../../../utils/commonUtils.js";
 import { useSelector } from "react-redux";
@@ -410,15 +411,11 @@ const ContextOverview = () => {
             <div className='mt-6'>
                 <span className='text-lg font-semibold'>Overview</span>
                 <div className='bg-white rounded p-3 mt-2'>
-                    <div className='p-2'>
-                        <FormTextArea
+                    <div className="p-2 wysiwyg-large">
+                        <WYSIWYGInput
                             name="purpose"
-                            formValues={formValues}
-                            onChange={handleChange}
-                            showLabel={false}
-                            className="w-full"
-                            rows={5}
-                            placeholder="Enter organization purpose and context..."
+                            value={formValues.purpose}
+                            onchange={handleChange}
                         />
                     </div>
                 </div>

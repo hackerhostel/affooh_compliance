@@ -4,6 +4,7 @@ import { PROCESS_FRAMEWORK_TYPES } from "../../utils/processFrameworkApi.js";
 
 const typeMeta = {
   POLICY: { classification: "Public" },
+  DOCUMENT: { classification: "Public" },
   PROCESS: { classification: "Confidential" },
   STANDARD: { classification: "Restricted" },
   TEMPLATE: { classification: "Restricted" },

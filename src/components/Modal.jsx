@@ -16,7 +16,8 @@ const Modal = ({
                  isOpen,
                  children = <div />,
                  onClose = () => {},
-                 type = 'basic'
+                 type = 'basic',
+                 titleClassName = ''
                }) => {
   const isSideModal = type === 'side';
 
@@ -69,11 +70,9 @@ const Modal = ({
                   <div className="h-full flex flex-col bg-white shadow-xl overflow-y-scroll">
                     <div className="px-4 py-6 sm:px-6">
                       <div className="flex items-start justify-between">
-                        {title && (
-                          <span className="text-3xl text-gray-900 font-medium">
+                          <span className={classNames("text-gray-900 font-medium", titleClassName || "text-3xl")}>
                             {title}
                           </span>
-                        )}
                         <div className="ml-3 h-7 flex items-center">
                           <button
                             type="button"
@@ -107,8 +106,8 @@ const Modal = ({
                     </div>
                     {title && (
                       <Dialog.Title
-                        as="h3"
-                        className="text-lg leading-6 font-medium text-gray-900 p-6 pb-0"
+                        as="h5"
+                        className={classNames("leading-6 font-semibold text-gray-900 p-6 pb-0", titleClassName || "text-lg")}
                       >
                         {title}
                       </Dialog.Title>

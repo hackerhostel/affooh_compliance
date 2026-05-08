@@ -235,6 +235,7 @@ const ProcessFrameworkContentPage = ({
   const getClassification = (type) => {
     switch (type) {
       case "POLICY":
+      case "DOCUMENT":
         return "Public";
       case "PROCESS":
         return "Confidential";
@@ -246,6 +247,7 @@ const ProcessFrameworkContentPage = ({
   const getDocumentCode = (row) => {
     const prefix = {
       POLICY: "POL",
+      DOCUMENT: "DOC",
       PROCESS: "PRO",
       STANDARD: "STD",
       TEMPLATE: "TMP",

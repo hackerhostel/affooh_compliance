@@ -32,3 +32,12 @@
 .animate-pulse-scale {
   animation: pulse-scale 1.5s ease-in-out infinite;
 }
+
+.wysiwyg-large .ql-container {
+  height: 400px;
+  font-size: 16px;
+}
+
+.wysiwyg-large .ql-editor {
+  min-height: 400px;
+}
