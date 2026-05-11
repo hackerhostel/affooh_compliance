@@ -22,8 +22,6 @@ import ReviewAndAuditsLayout from "./ReviewsAndAudits/index.jsx";
 import ObjectivesAndKPIsLayout from "./Objectives-KPIs/index.jsx";
 import TrainingPlansLayout from "./Training-plans/index.jsx";
 import OperationLayout from "./Operation-management/index.jsx";
-import OrgStructureLayout from "./org-structure/index.jsx";
-import SOALayout from "./SOA/index.jsx";
 import { doGetProjectBreakdown, selectSelectedProject } from "../state/slice/projectSlice.js";
 import { isNotEmptyObj } from "../utils/commonUtils.js";
 import EditTaskPage from "../pages/sprint-page/editTask/index.jsx"
@@ -106,11 +104,11 @@ const Dashboard = () => {
             </Route>
 
             <Route path="/soa">
-              <SOALayout />
+              <Redirect to="/organizational" />
             </Route>
 
             <Route path="/orgStructure">
-              <OrgStructureLayout />
+              <Redirect to="/organizational" />
             </Route>
 
             <Route path="/settings">

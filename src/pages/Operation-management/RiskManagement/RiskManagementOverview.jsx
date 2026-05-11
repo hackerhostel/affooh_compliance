@@ -18,9 +18,12 @@ import {
     doGetOrganizationUsers,
 } from "../../../state/slice/appSlice.js";
 import { selectUser } from "../../../state/slice/authSlice.js";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
 import riskApi from "../../../utils/riskApi.js";
+import { createRevisionHistory, createApproval } from "../../../utils/complianceApi.js";
 import { useToasts } from "react-toast-notifications";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
+import SaveVersionPopup from "../../../components/SaveVersionPopup.jsx";
 import RiskEditView from "./RiskEditView.jsx";
 import AddTaskModal from "./AddTaskModal.jsx";
 import LinkedTasksModal from './LinkedTasksModal.jsx';
@@ -66,6 +69,8 @@ const initialData = [
     }
 ];
 
+const DOCUMENT_TYPE = "RISK_MANAGEMENT";
+
 const RiskManagementOverview = ({ hideTitle = false }) => {
     const dispatch = useDispatch();
     const history = useHistory();
@@ -73,7 +78,13 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
 
     const organizationUsers = useSelector(selectOrganizationUsers);
     const user = useSelector(selectUser);
+    const selectedProject = useSelector(selectSelectedProject);
     const organizationID = user?.organization?.id;
+    const projectId = selectedProject?.id;
+
+    const [showSavePopup, setShowSavePopup] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isApproving, setIsApproving] = useState(false);
 
     const [rows, setRows] = useState(initialData);
     const [stats, setStats] = useState({ total: 25, todo: 10, inProgress: 5, done: 10 });
@@ -236,6 +247,51 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
         label: `${u.firstName} ${u.lastName || ""}`.trim()
     })) || [];
 
+    const handleSaveConfirm = async ({ version, summary }) => {
+        if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+        setIsSaving(true);
+        try {
+            await createRevisionHistory({
+                projectId,
+                documentType: DOCUMENT_TYPE,
+                version,
+                summaryOfChanges: summary,
+                revisionDate: new Date().toISOString().split("T")[0],
+                name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+                status: "draft",
+            });
+            addToast("Document saved as draft", { appearance: "success" });
+            setShowSavePopup(false);
+        } catch {
+            addToast("Failed to save document", { appearance: "error" });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleApprove = async () => {
+        if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+        setIsApproving(true);
+        try {
+            await createApproval({
+                projectId,
+                documentType: DOCUMENT_TYPE,
+                approvalDate: new Date().toISOString().split("T")[0],
+                status: "approved",
+                approver: {
+                    id: user?.id,
+                    name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+                    position: user?.position || null,
+                },
+            });
+            addToast("Document approved successfully", { appearance: "success" });
+        } catch {
+            addToast("Failed to approve document", { appearance: "error" });
+        } finally {
+            setIsApproving(false);
+        }
+    };
+
     if (viewMode === 'EDIT' && editingRisk) {
         return <RiskEditView risk={editingRisk} userOptions={userOptions} onBack={() => setViewMode('OVERVIEW')} onUpdate={async (id, data) => {
             try {
@@ -272,6 +328,22 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                         </div>
                     </div>
                 )}
+
+                <div className="flex justify-end items-center gap-2">
+                    <button
+                        onClick={() => setShowSavePopup(true)}
+                        className="bg-white border border-primary-pink text-primary-pink px-6 py-2 rounded-md text-sm font-medium hover:bg-pink-50 transition-all"
+                    >
+                        Save
+                    </button>
+                    <button
+                        onClick={handleApprove}
+                        disabled={isApproving}
+                        className="bg-primary-pink text-white px-6 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-all disabled:opacity-60"
+                    >
+                        {isApproving ? "Approving..." : "Approve"}
+                    </button>
+                </div>
 
                 <div className="grid grid-cols-4 gap-6">
                     <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col items-center justify-center group hover:shadow-md transition-all">
@@ -586,11 +658,18 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                 }}
             />
 
-            <LinkedTasksModal 
+            <LinkedTasksModal
                 isOpen={isLinkedTasksModalOpen}
                 onClose={() => setIsLinkedTasksModalOpen(false)}
                 risk={selectedRiskForView}
                 onTaskUnlinked={handleTaskUnlinked}
+            />
+
+            <SaveVersionPopup
+                isOpen={showSavePopup}
+                onClose={() => setShowSavePopup(false)}
+                onConfirm={handleSaveConfirm}
+                isLoading={isSaving}
             />
         </div>
     );

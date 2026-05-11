@@ -13,13 +13,17 @@ import {
 } from "@heroicons/react/24/outline";
 import { getSelectOptions } from "../../utils/commonUtils.js";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
+import SaveVersionPopup from "../../components/SaveVersionPopup.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { useToasts } from "react-toast-notifications";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import { selectProjectUserList } from "../../state/slice/projectUsersSlice.js";
 import { selectUser } from "../../state/slice/authSlice.js";
 import trainingPlanApi from "../../utils/trainingPlanApi.js";
+import { createRevisionHistory, createApproval } from "../../utils/complianceApi.js";
 import { useEffect } from "react";
+
+const DOCUMENT_TYPE = "TRAINING_PLAN";
 
 const DATE_INPUT_CLS =
   "border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-pink-400";
@@ -60,6 +64,56 @@ const TrainingPlansOverview = () => {
   const projectUserList = useSelector(selectProjectUserList);
   const currentUser = useSelector(selectUser);
   const organizationID = currentUser?.organization?.id;
+  const projectId = selectedProject?.id;
+
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+
+  const handleSaveConfirm = async ({ version, summary }) => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsSaving(true);
+    try {
+      await createRevisionHistory({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        version,
+        summaryOfChanges: summary,
+        revisionDate: new Date().toISOString().split("T")[0],
+        name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+        status: "draft",
+      });
+      addToast("Document saved as draft", { appearance: "success" });
+      setShowSavePopup(false);
+    } catch {
+      addToast("Failed to save document", { appearance: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsApproving(true);
+    try {
+      await createApproval({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        approvalDate: new Date().toISOString().split("T")[0],
+        status: "approved",
+        approver: {
+          id: currentUser?.id,
+          name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+          position: currentUser?.position || null,
+        },
+      });
+      addToast("Document approved successfully", { appearance: "success" });
+    } catch {
+      addToast("Failed to approve document", { appearance: "error" });
+    } finally {
+      setIsApproving(false);
+    }
+  };
 
   const [trainingRows, setTrainingRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -259,7 +313,24 @@ const TrainingPlansOverview = () => {
     <div className="p-4">
       {/* Title + Filters + Add New */}
       <div className="items-center gap-5 mt-5">
-        <span className="text-lg font-semibold">Training Plans</span>
+        <div className="flex justify-between items-center">
+          <span className="text-lg font-semibold">Training Plans</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowSavePopup(true)}
+              className="bg-white border border-primary-pink text-primary-pink px-6 py-2 rounded-md text-sm font-medium hover:bg-pink-50 transition-all"
+            >
+              Save
+            </button>
+            <button
+              onClick={handleApprove}
+              disabled={isApproving}
+              className="bg-primary-pink text-white px-6 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-all disabled:opacity-60"
+            >
+              {isApproving ? "Approving..." : "Approve"}
+            </button>
+          </div>
+        </div>
         <div className="flex items-center gap-3 mt-2 flex-wrap">
           {/* Year filter — only years present in the table */}
           <FormSelect
@@ -626,6 +697,13 @@ const TrainingPlansOverview = () => {
         onConfirm={confirmDelete}
         title="Delete Training Plan?"
         message="Are you sure you want to delete this training plan? This action cannot be undone."
+      />
+
+      <SaveVersionPopup
+        isOpen={showSavePopup}
+        onClose={() => setShowSavePopup(false)}
+        onConfirm={handleSaveConfirm}
+        isLoading={isSaving}
       />
     </div>
   );

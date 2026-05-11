@@ -4,14 +4,10 @@ import {
   ArrowRightStartOnRectangleIcon,
   ArrowUpCircleIcon,
   BellIcon,
-  BuildingOffice2Icon,
-  ClipboardDocumentCheckIcon,
   CogIcon,
   DocumentTextIcon,
   FolderIcon,
-  Square3Stack3DIcon,
   Squares2X2Icon,
-  UserIcon,
   UserPlusIcon,
   WrenchScrewdriverIcon
 } from '@heroicons/react/24/outline';
@@ -113,14 +109,12 @@ function Sidebar() {
         {/* Menu items section */}
         <div className="flex-grow flex flex-col items-center py-5 space-y-6">
           <MenuItem link="/dashboard" Icon={Squares2X2Icon} />
-          <MenuItem link="/orgStructure" Icon={BuildingOffice2Icon} />
           <MenuItem link="/organizational" Icon={FolderIcon} />
           <MenuItem link="/role" Icon={UserPlusIcon} />
           <MenuItem link="/assetManagement" Icon={DocumentTextIcon} />
           <MenuItem link="/processFramework" Icon={WrenchScrewdriverIcon} />
           <MenuItem link="/reviewAndAudits" Icon={ArrowUpCircleIcon} />
           <MenuItem link="/operations" Icon={ArrowPathIcon} />
-          <MenuItem link="/soa" Icon={ClipboardDocumentCheckIcon} />
 
           {/* <MenuItem link="/test-plans" Icon={TableCellsIcon}/>  */}
           {/* <MenuItem link="/projects" Icon={Square3Stack3DIcon} /> */}

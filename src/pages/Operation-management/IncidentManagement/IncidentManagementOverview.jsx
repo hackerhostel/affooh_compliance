@@ -2,14 +2,19 @@ import { useState, useEffect } from "react";
 import { XMarkIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUser } from "../../../state/slice/authSlice.js";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
 import {
     selectOrganizationUsers,
     doGetOrganizationUsers,
 } from "../../../state/slice/appSlice.js";
 import { useToasts } from "react-toast-notifications";
 import incidentApi from "../../../utils/incidentApi.js";
+import { createRevisionHistory, createApproval } from "../../../utils/complianceApi.js";
 import IncidentEditView from "./IncidentEditView.jsx";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
+import SaveVersionPopup from "../../../components/SaveVersionPopup.jsx";
+
+const DOCUMENT_TYPE = "INCIDENT_MANAGEMENT";
 
 const severityOptions = ["Low", "Medium", "High", "Critical"];
 const statusOptions = ["To Do", "In Progress", "Closed"];
@@ -53,8 +58,14 @@ const IncidentManagementOverview = () => {
     const dispatch = useDispatch();
     const { addToast } = useToasts();
     const user = useSelector(selectUser);
+    const selectedProject = useSelector(selectSelectedProject);
     const organizationUsers = useSelector(selectOrganizationUsers);
     const organizationID = user?.organization?.id;
+    const projectId = selectedProject?.id;
+
+    const [showSavePopup, setShowSavePopup] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isApproving, setIsApproving] = useState(false);
 
     const [rows, setRows] = useState([]);
     const [stats, setStats] = useState({ total: 0, open: 0, inProgress: 0, closed: 0 });
@@ -172,6 +183,51 @@ const IncidentManagementOverview = () => {
         }
     };
 
+    const handleSaveConfirm = async ({ version, summary }) => {
+        if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+        setIsSaving(true);
+        try {
+            await createRevisionHistory({
+                projectId,
+                documentType: DOCUMENT_TYPE,
+                version,
+                summaryOfChanges: summary,
+                revisionDate: new Date().toISOString().split("T")[0],
+                name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+                status: "draft",
+            });
+            addToast("Document saved as draft", { appearance: "success" });
+            setShowSavePopup(false);
+        } catch {
+            addToast("Failed to save document", { appearance: "error" });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleApprove = async () => {
+        if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+        setIsApproving(true);
+        try {
+            await createApproval({
+                projectId,
+                documentType: DOCUMENT_TYPE,
+                approvalDate: new Date().toISOString().split("T")[0],
+                status: "approved",
+                approver: {
+                    id: user?.id,
+                    name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+                    position: user?.position || null,
+                },
+            });
+            addToast("Document approved successfully", { appearance: "success" });
+        } catch {
+            addToast("Failed to approve document", { appearance: "error" });
+        } finally {
+            setIsApproving(false);
+        }
+    };
+
     if (viewMode === "EDIT" && editingIncident) {
         return (
             <IncidentEditView
@@ -192,8 +248,19 @@ const IncidentManagementOverview = () => {
             <div className="items-center justify-between flex px-4">
                 <span className="text-xl font-semibold">Incident Management</span>
                 <div className="flex justify-end items-center mt-4 space-x-2">
-                    <button className="bg-primary-pink px-8 py-3 rounded-md text-white">Approved</button>
-                    <button className="bg-primary-pink px-8 py-3 rounded-md text-white">Save</button>
+                    <button
+                        onClick={() => setShowSavePopup(true)}
+                        className="bg-white border border-primary-pink text-primary-pink px-6 py-2 rounded-md text-sm font-medium hover:bg-pink-50 transition-all"
+                    >
+                        Save
+                    </button>
+                    <button
+                        onClick={handleApprove}
+                        disabled={isApproving}
+                        className="bg-primary-pink text-white px-6 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-all disabled:opacity-60"
+                    >
+                        {isApproving ? "Approving..." : "Approve"}
+                    </button>
                 </div>
             </div>
 
@@ -461,6 +528,13 @@ const IncidentManagementOverview = () => {
                     </div>
                 </div>
             )}
+
+            <SaveVersionPopup
+                isOpen={showSavePopup}
+                onClose={() => setShowSavePopup(false)}
+                onConfirm={handleSaveConfirm}
+                isLoading={isSaving}
+            />
         </div>
     );
 };

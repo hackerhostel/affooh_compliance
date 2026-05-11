@@ -10,11 +10,12 @@ const OrganizationalListPage = ({ onDocumentSelect }) => {
   // Dummy document list
   const [documents, setDocuments] = useState([
     { id: 1, name: "Context", classification: "Public" },
+    { id: 2, name: "Organization Structure", classification: "Public" },
     { id: 3, name: "SWOT", classification: "Confidential" },
     { id: 4, name: "PEST", classification: "Restricted" },
     { id: 5, name: "Stakeholder Context", classification: "Restricted" },
     { id: 6, name: "Communication Register", classification: "Restricted" },
-
+    { id: 7, name: "Statement of Applicability", classification: "Restricted" },
   ]);
 
   // Auto-select first document on mount

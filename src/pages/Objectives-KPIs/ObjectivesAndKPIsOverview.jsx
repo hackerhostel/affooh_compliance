@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectSelectedProject } from "../../state/slice/projectSlice.js";
+import { selectUser } from "../../state/slice/authSlice.js";
 import FormTextArea from "../../components/FormTextArea.jsx";
 import FormSelect from "../../components/FormSelect.jsx";
 import ConfirmationDialog from "../../components/ConfirmationDialog.jsx";
+import SaveVersionPopup from "../../components/SaveVersionPopup.jsx";
 import {
   PencilIcon,
   EllipsisVerticalIcon,
@@ -17,6 +19,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { getSelectOptions } from "../../utils/commonUtils.js";
 import { useToasts } from "react-toast-notifications";
+import { createRevisionHistory, createApproval } from "../../utils/complianceApi.js";
 import {
   getObjectives,
   createObjective,
@@ -25,11 +28,64 @@ import {
   getObjectiveMasterData,
 } from "../../utils/objectiveApi.js";
 
+const DOCUMENT_TYPE = "OBJECTIVES_KPI";
+
 const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
   const { addToast } = useToasts();
   const [loading, setLoading] = useState(false);
-  
+
   const selectedProject = useSelector(selectSelectedProject);
+  const currentUser = useSelector(selectUser);
+  const projectId = selectedProject?.id;
+
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+
+  const handleSaveConfirm = async ({ version, summary }) => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsSaving(true);
+    try {
+      await createRevisionHistory({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        version,
+        summaryOfChanges: summary,
+        revisionDate: new Date().toISOString().split("T")[0],
+        name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+        status: "draft",
+      });
+      addToast("Document saved as draft", { appearance: "success" });
+      setShowSavePopup(false);
+    } catch {
+      addToast("Failed to save document", { appearance: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsApproving(true);
+    try {
+      await createApproval({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        approvalDate: new Date().toISOString().split("T")[0],
+        status: "approved",
+        approver: {
+          id: currentUser?.id,
+          name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+          position: currentUser?.position || null,
+        },
+      });
+      addToast("Document approved successfully", { appearance: "success" });
+    } catch {
+      addToast("Failed to approve document", { appearance: "error" });
+    } finally {
+      setIsApproving(false);
+    }
+  };
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [typeOptions, setTypeOptions] = useState([]);
   const [frequencyOptions, setFrequencyOptions] = useState([]);
@@ -255,8 +311,18 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
   return (
     <div className="p-4">
       <div className="flex justify-end items-center mt-4 space-x-2">
-        <button className="bg-primary-pink px-8 py-3 rounded-md text-white">
-          Approved
+        <button
+          onClick={() => setShowSavePopup(true)}
+          className="bg-white border border-primary-pink text-primary-pink px-6 py-2 rounded-md text-sm font-medium hover:bg-pink-50 transition-all"
+        >
+          Save
+        </button>
+        <button
+          onClick={handleApprove}
+          disabled={isApproving}
+          className="bg-primary-pink text-white px-6 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-all disabled:opacity-60"
+        >
+          {isApproving ? "Approving..." : "Approve"}
         </button>
       </div>
         <div className="flex items-center gap-3 mt-2 flex-wrap">
@@ -528,6 +594,13 @@ const ObjectivesAndKPIsOverview = ({ selectedDocument, onView }) => {
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
         message="Are you sure you want to delete this objective? This action cannot be undone."
+      />
+
+      <SaveVersionPopup
+        isOpen={showSavePopup}
+        onClose={() => setShowSavePopup(false)}
+        onConfirm={handleSaveConfirm}
+        isLoading={isSaving}
       />
     </div>
   );
