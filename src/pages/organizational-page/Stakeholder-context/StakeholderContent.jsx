@@ -5,6 +5,11 @@ import StakeholderHistory from "./StakeholderHistory.jsx";
 const StakeholderContentPage = () => {
   // Left sidebar removed; state related to it has been removed
   const [activeTab, setActiveTab] = useState("overview");
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
+
+  const handleHistoryRefresh = () => {
+    setHistoryRefreshTrigger((prev) => prev + 1);
+  };
 
   return (
     <div className=" bg-dashboard-bgc min-h-screen">
@@ -36,8 +41,12 @@ const StakeholderContentPage = () => {
             </div>
           </div>
 
-          {activeTab === "overview" && <StakeholderOverview/>}
-          {activeTab === "history" && <StakeholderHistory />}
+          {activeTab === "overview" && (
+            <StakeholderOverview onHistoryRefresh={handleHistoryRefresh} />
+          )}
+          {activeTab === "history" && (
+            <StakeholderHistory refreshTrigger={historyRefreshTrigger} />
+          )}
         </div>
       </div>
     </div>

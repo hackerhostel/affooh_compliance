@@ -5,16 +5,70 @@ import { PencilIcon, EllipsisVerticalIcon, CheckCircleIcon, XMarkIcon, ChevronLe
 import { getSelectOptions } from "../../../utils/commonUtils.js";
 import { useSelector } from "react-redux";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import { selectUser } from "../../../state/slice/authSlice.js";
 import useFetchStakeholders from "../../../hooks/custom-hooks/compliance/useFetchStakeholders.jsx";
-import { createStakeholder, deleteStakeholder as deleteStakeholderApi, updateStakeholder } from "../../../utils/complianceApi.js";
+import { createStakeholder, deleteStakeholder as deleteStakeholderApi, updateStakeholder, createRevisionHistory, createApproval } from "../../../utils/complianceApi.js";
 import { useToasts } from "react-toast-notifications";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
+import SaveVersionPopup from "../../../components/SaveVersionPopup.jsx";
 
+const DOCUMENT_TYPE = "Stakeholder";
 
-const StakeholderOverview = () => {
+const StakeholderOverview = ({ onHistoryRefresh }) => {
     const { addToast } = useToasts();
     const selectedProject = useSelector(selectSelectedProject);
+    const currentUser = useSelector(selectUser);
     const projectId = selectedProject?.id;
+    const [showSavePopup, setShowSavePopup] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isApproving, setIsApproving] = useState(false);
+
+    const handleSaveConfirm = async ({ version, summary }) => {
+        if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+        setIsSaving(true);
+        try {
+            await createRevisionHistory({
+                projectId,
+                documentType: DOCUMENT_TYPE,
+                version,
+                summaryOfChanges: summary,
+                revisionDate: new Date().toISOString().split("T")[0],
+                name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+                status: "draft",
+            });
+            addToast("Document saved as draft", { appearance: "success" });
+            setShowSavePopup(false);
+            if (onHistoryRefresh) onHistoryRefresh();
+        } catch {
+            addToast("Failed to save document", { appearance: "error" });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleApprove = async () => {
+        if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+        setIsApproving(true);
+        try {
+            await createApproval({
+                projectId,
+                documentType: DOCUMENT_TYPE,
+                approvalDate: new Date().toISOString().split("T")[0],
+                status: "approved",
+                approver: {
+                    id: currentUser?.id,
+                    name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+                    position: currentUser?.position || null,
+                },
+            });
+            addToast("Document approved successfully", { appearance: "success" });
+            if (onHistoryRefresh) onHistoryRefresh();
+        } catch {
+            addToast("Failed to approve document", { appearance: "error" });
+        } finally {
+            setIsApproving(false);
+        }
+    };
     const { data: stakeholderData, refetch } = useFetchStakeholders(projectId);
 
     // Stakeholder Context section state
@@ -170,7 +224,8 @@ const StakeholderOverview = () => {
         <div>
             {/* Top Buttons */}
             <div className='flex justify-end items-center mt-4 space-x-2'>
-                <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Approved</button>
+                <button onClick={() => setShowSavePopup(true)} className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
+                <button onClick={handleApprove} disabled={isApproving} className='bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60'>{isApproving ? "Approving..." : "Approve"}</button>
             </div>
 
 
@@ -326,6 +381,7 @@ const StakeholderOverview = () => {
                         : ""
                 }
             />
+            <SaveVersionPopup isOpen={showSavePopup} onClose={() => setShowSavePopup(false)} onConfirm={handleSaveConfirm} isLoading={isSaving} />
         </div>
     );
 };

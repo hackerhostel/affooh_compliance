@@ -27,6 +27,17 @@ import {
   updateProcessFrameworkDocument,
   updateProcessFrameworkSection,
 } from "../../utils/processFrameworkApi.js";
+import { useDispatch, useSelector } from "react-redux";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
+import { selectUser } from "../../state/slice/authSlice.js";
+import { createRevisionHistory, createApproval } from "../../utils/complianceApi.js";
+import SaveVersionPopup from "../../components/SaveVersionPopup.jsx";
+
+import PolicyHistory from "./Policy/PolicyHistory.jsx";
+import ProcessHistory from "./process/ProcessHistory.jsx";
+import StandardHistory from "./Standards/StandardHistory.jsx";
+import TemplateHistory from "./Templates/TemplateHistory.jsx";
+import DocumentHistory from "./Documents/DocumentHistory.jsx";
 
 const emptyDocumentRow = {
   title: "",
@@ -44,13 +55,18 @@ const emptySection = {
 
 const ProcessFrameworkContentPage = ({
   organizationID,
-  currentUser,
+  currentUser: propUser,
   selectedType,
   addNewTrigger,
   refreshTrigger,
   onRefresh,
 }) => {
   const { addToast } = useToasts();
+  const dispatch = useDispatch();
+  const selectedProject = useSelector(selectSelectedProject);
+  const currentUser = useSelector(selectUser) || propUser;
+  const projectId = selectedProject?.id;
+
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showNewRow, setShowNewRow] = useState(false);
@@ -60,6 +76,12 @@ const ProcessFrameworkContentPage = ({
   const [deleteDocument, setDeleteDocument] = useState(null);
   const [activeDocument, setActiveDocument] = useState(null);
   const [activeMode, setActiveMode] = useState("view");
+  const [activeTab, setActiveTab] = useState("overview");
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
+
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
 
   const [documentDetail, setDocumentDetail] = useState(null);
   const [showNewSection, setShowNewSection] = useState(false);
@@ -182,6 +204,7 @@ const ProcessFrameworkContentPage = ({
     setDocumentDetail(null);
     setShowNewRow(false);
     setEditingRowId(null);
+    setActiveTab("overview");
     fetchDocuments();
   }, [organizationID, selectedType, refreshTrigger]);
 
@@ -347,6 +370,7 @@ const ProcessFrameworkContentPage = ({
   const openDocument = (row, mode) => {
     setActiveDocument(row);
     setActiveMode(mode);
+    setActiveTab("overview");
     setShowNewRow(false);
     setShowNewSection(false);
     setNewSection(emptySection);
@@ -534,6 +558,71 @@ const ProcessFrameworkContentPage = ({
       className="w-4 h-4 text-text-color cursor-pointer hover:text-primary-pink inline-block ml-2 align-middle"
     />
   );
+
+  const handleSaveConfirm = async ({ version, summary }) => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsSaving(true);
+    try {
+      await createRevisionHistory({
+        projectId,
+        documentType: selectedType,
+        version,
+        summaryOfChanges: summary,
+        revisionDate: new Date().toISOString().split("T")[0],
+        name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+        status: "draft",
+      });
+      addToast("Document saved as draft", { appearance: "success" });
+      setHistoryRefreshTrigger((prev) => prev + 1);
+      setShowSavePopup(false);
+    } catch {
+      addToast("Failed to save document", { appearance: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsApproving(true);
+    try {
+      await createApproval({
+        projectId,
+        documentType: selectedType,
+        approvalDate: new Date().toISOString().split("T")[0],
+        status: "approved",
+        approver: {
+          id: currentUser?.id,
+          name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+          position: currentUser?.position || null,
+        },
+      });
+      addToast("Document approved successfully", { appearance: "success" });
+      setHistoryRefreshTrigger((prev) => prev + 1);
+    } catch {
+      addToast("Failed to approve document", { appearance: "error" });
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  const renderHistoryComponent = () => {
+    const props = { refreshTrigger: historyRefreshTrigger };
+    switch (selectedType) {
+      case "POLICY":
+        return <PolicyHistory {...props} />;
+      case "PROCESS":
+        return <ProcessHistory {...props} />;
+      case "STANDARD":
+        return <StandardHistory {...props} />;
+      case "TEMPLATE":
+        return <TemplateHistory {...props} />;
+      case "DOCUMENT":
+        return <DocumentHistory {...props} />;
+      default:
+        return <PolicyHistory {...props} />;
+    }
+  };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage((page) => page + 1);
@@ -781,112 +870,6 @@ const ProcessFrameworkContentPage = ({
     </div>
   );
 
-  const renderSectionRow = (section, index) => {
-    const isEditing = editingSectionId === section.id;
-    const control = controls.find((item) => String(item.id) === String(section.controlID));
-
-    return (
-      <tr key={section.id} className="border-b border-gray-200 align-top">
-        <td className="py-3 px-4 text-center">{index + 1}</td>
-        <td className="py-3 px-4">
-          {isEditing ? (
-            <FormInput
-              name="sectionNumber"
-              formValues={{ sectionNumber: section.sectionNumber }}
-              onChange={(event) => handleDetailSectionChange(section.id, event)}
-              showLabel={false}
-            />
-          ) : (
-            section.sectionNumber
-          )}
-        </td>
-        <td className="py-3 px-4">
-          {isEditing ? (
-            <FormInput
-              name="title"
-              formValues={{ title: section.title }}
-              onChange={(event) => handleDetailSectionChange(section.id, event)}
-              showLabel={false}
-            />
-          ) : (
-            section.title
-          )}
-        </td>
-        <td className="py-3 px-4">
-          {isEditing ? (
-            <FormTextArea
-              name="content"
-              rows={3}
-              formValues={{ content: section.content }}
-              onChange={(event) => handleDetailSectionChange(section.id, event)}
-              showLabel={false}
-            />
-          ) : (
-            section.content || "-"
-          )}
-        </td>
-        <td className="py-3 px-4">
-          {isEditing ? (
-            <FormSelect
-              name="category"
-              formValues={{ category: section.category }}
-              options={categoryOptions}
-              onChange={(event) => handleDetailSectionChange(section.id, event)}
-              showLabel={false}
-            />
-          ) : (
-            section.category || "-"
-          )}
-        </td>
-        <td className="py-3 px-4">
-          {isEditing ? (
-            <FormSelect
-              name="controlID"
-              formValues={{ controlID: section.controlID || "__none" }}
-              options={getControlOptions(section.category)}
-              onChange={(event) => handleDetailSectionChange(section.id, event)}
-              showLabel={false}
-            />
-          ) : control ? (
-            control.clauseReference
-          ) : (
-            "-"
-          )}
-        </td>
-        <td className="py-3 px-4">
-          {isEditing ? (
-            <div className="flex gap-3 items-center justify-center">
-              <CheckCircleIcon
-                onClick={handleDoneEditSection}
-                className="w-5 h-5 text-primary-pink cursor-pointer"
-              />
-              <XMarkIcon
-                onClick={() => {
-                  setEditingSectionId(null);
-                  fetchDocumentDetail(documentDetail.id);
-                }}
-                className="w-5 h-5 text-text-color cursor-pointer"
-              />
-            </div>
-          ) : (
-            <div className="flex items-center justify-center gap-3">
-              {activeMode === "edit" && (
-                <PencilIcon
-                  onClick={() => setEditingSectionId(section.id)}
-                  className="w-5 h-5 text-text-color cursor-pointer hover:text-primary-pink"
-                />
-              )}
-              <TrashIcon
-                onClick={() => setDeleteSection(section)}
-                className="w-5 h-5 text-text-color cursor-pointer hover:text-primary-pink"
-              />
-            </div>
-          )}
-        </td>
-      </tr>
-    );
-  };
-
   const renderDetailSection = (section) => {
     const isEditing = editingSectionId === section.id;
 
@@ -981,117 +964,162 @@ const ProcessFrameworkContentPage = ({
         >
           Back
         </button>
-        <button
-          onClick={() => setShowNewSection(true)}
-          className="bg-primary-pink px-6 py-3 rounded-md text-white flex items-center gap-2"
-        >
-          Add Section
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setShowSavePopup(true)}
+            className="bg-primary-pink px-8 py-3 rounded-md text-white"
+          >
+            Save
+          </button>
+          <button
+            onClick={handleApprove}
+            disabled={isApproving}
+            className="bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60"
+          >
+            {isApproving ? "Approving..." : "Approve"}
+          </button>
+          <button
+            onClick={() => setShowNewSection(true)}
+            className="bg-primary-pink px-6 py-3 rounded-md text-white flex items-center gap-2"
+          >
+            Add Section
+          </button>
+        </div>
       </div>
 
-      <div className="flex items-center gap-5 mt-4 mb-4">
+      <div className="flex justify-between items-center mt-6 mb-4">
         <span className="text-lg font-semibold text-primary-pink">
-          {typeLabel} - Update
+          {typeLabel} - {activeTab === "overview" ? "Update" : "History"}
         </span>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={`px-6 py-2 rounded-2xl ${
+              activeTab === "overview"
+                ? "bg-black text-white"
+                : "bg-gray-200 text-black hover:bg-gray-300"
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`px-6 py-2 rounded-2xl ${
+              activeTab === "history"
+                ? "bg-black text-white"
+                : "bg-gray-200 text-black hover:bg-gray-300"
+            }`}
+          >
+            History
+          </button>
+        </div>
       </div>
 
-      <div className="mb-4">
-        <div className="text-base font-semibold text-gray-900 mb-3">Document Name</div>
-        {isDetailEditing("document", documentDetail?.id, "title") ? (
-          <div className="flex items-center gap-2 max-w-xl">
-            <FormInput
-              name="title"
-              formValues={{ title: detailValue }}
-              onChange={(event) => setDetailValue(event.target.value)}
-              showLabel={false}
-            />
-            {renderDetailActions(saveDocumentTitleDetail)}
-          </div>
-        ) : (
-          <div className="text-sm text-gray-700">
-            {documentDetail?.title || activeDocument?.title || "Document Name"}
-            {renderPencil(() =>
-              beginDetailEdit(
-                "document",
-                documentDetail?.id,
-                "title",
-                documentDetail?.title || activeDocument?.title || ""
-              )
+      {activeTab === "overview" ? (
+        <>
+          <div className="mb-4">
+            <div className="text-base font-semibold text-gray-900 mb-3">Document Name</div>
+            {isDetailEditing("document", documentDetail?.id, "title") ? (
+              <div className="flex items-center gap-2 max-w-xl">
+                <FormInput
+                  name="title"
+                  formValues={{ title: detailValue }}
+                  onChange={(event) => setDetailValue(event.target.value)}
+                  showLabel={false}
+                />
+                {renderDetailActions(saveDocumentTitleDetail)}
+              </div>
+            ) : (
+              <div className="text-sm text-gray-700">
+                {documentDetail?.title || activeDocument?.title || "Document Name"}
+                {renderPencil(() =>
+                  beginDetailEdit(
+                    "document",
+                    documentDetail?.id,
+                    "title",
+                    documentDetail?.title || activeDocument?.title || ""
+                  )
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      <div className="bg-white rounded p-6 mt-4 min-h-[520px]">
-        {showNewSection && (
-          <div className="border border-gray-200 rounded-md p-4 mb-4 bg-gray-50">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <FormInput
-                name="sectionNumber"
-                placeholder="Number"
-                formValues={newSection}
-                onChange={handleSectionChange}
-              />
-              <FormInput
-                name="title"
-                placeholder="Title"
-                formValues={newSection}
-                onChange={handleSectionChange}
-              />
-              <div className="lg:col-span-2">
-                <FormTextArea
-                  name="content"
-                  placeholder="Description / Content"
-                  rows={4}
-                  formValues={newSection}
-                  onChange={handleSectionChange}
-                />
+          <div className="bg-white rounded p-6 mt-4 min-h-[520px]">
+            {showNewSection && (
+              <div className="border border-gray-200 rounded-md p-4 mb-4 bg-gray-50">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <FormInput
+                    name="sectionNumber"
+                    placeholder="Number"
+                    formValues={newSection}
+                    onChange={handleSectionChange}
+                  />
+                  <FormInput
+                    name="title"
+                    placeholder="Title"
+                    formValues={newSection}
+                    onChange={handleSectionChange}
+                  />
+                  <div className="lg:col-span-2">
+                    <FormTextArea
+                      name="content"
+                      placeholder="Description / Content"
+                      rows={4}
+                      formValues={newSection}
+                      onChange={handleSectionChange}
+                    />
+                  </div>
+                  <FormSelect
+                    name="category"
+                    placeholder="Select category"
+                    formValues={newSection}
+                    options={categoryOptions}
+                    onChange={handleSectionChange}
+                  />
+                  <FormSelect
+                    name="controlID"
+                    placeholder="Select control"
+                    formValues={newSection}
+                    options={getControlOptions(newSection.category)}
+                    onChange={handleSectionChange}
+                  />
+                </div>
+                <div className="flex justify-end gap-3 mt-4">
+                  <button
+                    onClick={() => {
+                      setShowNewSection(false);
+                      setNewSection(emptySection);
+                    }}
+                    className="px-5 py-2 rounded-md bg-gray-200 text-gray-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveNewSection}
+                    className="px-5 py-2 rounded-md bg-primary-pink text-white"
+                  >
+                    Save
+                  </button>
+                </div>
               </div>
-              <FormSelect
-                name="category"
-                placeholder="Select category"
-                formValues={newSection}
-                options={categoryOptions}
-                onChange={handleSectionChange}
-              />
-              <FormSelect
-                name="controlID"
-                placeholder="Select control"
-                formValues={newSection}
-                options={getControlOptions(newSection.category)}
-                onChange={handleSectionChange}
-              />
-            </div>
-            <div className="flex justify-end gap-3 mt-4">
-              <button
-                onClick={() => {
-                  setShowNewSection(false);
-                  setNewSection(emptySection);
-                }}
-                className="px-5 py-2 rounded-md bg-gray-200 text-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveNewSection}
-                className="px-5 py-2 rounded-md bg-primary-pink text-white"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        )}
+            )}
 
-        {sortedSections.length ? (
-          <div className="space-y-4">
-            {sortedSections.map(renderDetailSection)}
+            {sortedSections.length ? (
+              <div className="space-y-4">
+                {sortedSections.map(renderDetailSection)}
+              </div>
+            ) : !showNewSection ? (
+              <div className="text-center text-gray-500 py-20">
+                Click Add Section to start a new section
+              </div>
+            ) : null}
           </div>
-        ) : !showNewSection ? (
-          <div className="text-center text-gray-500 py-20">
-            Click Add Section to start a new section
-          </div>
-        ) : null}
-      </div>
+        </>
+      ) : (
+        <div className="mt-4">
+          {renderHistoryComponent()}
+        </div>
+      )}
     </div>
   );
 
@@ -1112,6 +1140,12 @@ const ProcessFrameworkContentPage = ({
         onClose={() => setDeleteSection(null)}
         onConfirm={handleConfirmDeleteSection}
         message={deleteSection ? `Do you want to delete "${deleteSection.title}"?` : ""}
+      />
+      <SaveVersionPopup
+        isOpen={showSavePopup}
+        onClose={() => setShowSavePopup(false)}
+        onConfirm={handleSaveConfirm}
+        isLoading={isSaving}
       />
     </div>
   );

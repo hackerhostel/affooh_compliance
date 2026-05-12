@@ -13,9 +13,13 @@ import {
 import Select from 'react-select';
 import Modal from '../../components/Modal';
 import ConfirmationDialog from '../../components/ConfirmationDialog';
+import SaveVersionPopup from '../../components/SaveVersionPopup';
 import { selectSelectedProject } from '../../state/slice/projectSlice';
-import { fetchOrgStructure, saveOrgStructure, updateOrgStructure } from '../../utils/complianceApi';
+import { selectUser } from '../../state/slice/authSlice';
+import { fetchOrgStructure, saveOrgStructure, updateOrgStructure, createRevisionHistory, createApproval } from '../../utils/complianceApi';
 import axios from 'axios';
+
+const DOCUMENT_TYPE = "ORG_STRUCTURE";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -458,6 +462,7 @@ function AssignUserModal({ isOpen, onClose, onConfirm, currentUser, userOptions 
 function OrgChartPage() {
   const { addToast } = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
+  const currentUser = useSelector(selectUser);
   const projectId = selectedProject?.id;
 
   const [root, setRoot] = useState(null);
@@ -465,6 +470,9 @@ function OrgChartPage() {
   const [projectUsers, setProjectUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
 
   // Dialog state
   const [addDialog, setAddDialog] = useState(null);   // { type, nodeId, direction }
@@ -530,6 +538,51 @@ function OrgChartPage() {
       addToast('Failed to save. Please try again.', { appearance: 'error' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveConfirm = async ({ version, summary }) => {
+    if (!projectId) { addToast('No project selected', { appearance: 'error' }); return; }
+    setIsSaving(true);
+    try {
+      await createRevisionHistory({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        version,
+        summaryOfChanges: summary,
+        revisionDate: new Date().toISOString().split('T')[0],
+        name: `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim(),
+        status: 'draft',
+      });
+      addToast('Document saved as draft', { appearance: 'success' });
+      setShowSavePopup(false);
+    } catch {
+      addToast('Failed to save document', { appearance: 'error' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApproveDoc = async () => {
+    if (!projectId) { addToast('No project selected', { appearance: 'error' }); return; }
+    setIsApproving(true);
+    try {
+      await createApproval({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        approvalDate: new Date().toISOString().split('T')[0],
+        status: 'approved',
+        approver: {
+          id: currentUser?.id,
+          name: `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim(),
+          position: currentUser?.position || null,
+        },
+      });
+      addToast('Document approved successfully', { appearance: 'success' });
+    } catch {
+      addToast('Failed to approve document', { appearance: 'error' });
+    } finally {
+      setIsApproving(false);
     }
   };
 
@@ -615,6 +668,21 @@ function OrgChartPage() {
           <h4 className="text-xl font-semibold text-gray-800">Organization Structure</h4>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowSavePopup(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-pink text-white rounded-lg
+                       hover:bg-pink-600 transition-colors text-sm font-medium shadow-sm"
+          >
+            Save
+          </button>
+          <button
+            onClick={handleApproveDoc}
+            disabled={isApproving}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-pink text-white rounded-lg
+                       hover:bg-pink-600 transition-colors disabled:opacity-60 text-sm font-medium shadow-sm"
+          >
+            {isApproving ? 'Approving...' : 'Approve'}
+          </button>
           {root && (
             <button
               onClick={handleSave}
@@ -710,6 +778,7 @@ function OrgChartPage() {
         title="Delete Position"
         message={`Are you sure you want to delete ${deleteConfirm?.label || 'this position'}? All reporting positions under this node will also be removed.`}
       />
+      <SaveVersionPopup isOpen={showSavePopup} onClose={() => setShowSavePopup(false)} onConfirm={handleSaveConfirm} isLoading={isSaving} />
     </div>
   );
 }

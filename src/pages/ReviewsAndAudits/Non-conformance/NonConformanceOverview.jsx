@@ -6,6 +6,10 @@ import { useSelector } from "react-redux";
 import { reviewAuditApi } from "../../../utils/reviewAuditApi.js";
 import { useToasts } from "react-toast-notifications";
 import NonConformanceDetail from "./NonConformanceDetail.jsx";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import { selectUser } from "../../../state/slice/authSlice.js";
+import { createRevisionHistory, createApproval } from "../../../utils/complianceApi.js";
+import SaveVersionPopup from "../../../components/SaveVersionPopup.jsx";
 
 const complianceOptions = [
   { label: "Compliant", value: "Compliant" },
@@ -25,9 +29,17 @@ const statusOptions = [
   { label: "Done", value: "Done" },
 ];
 
+const DOCUMENT_TYPE = "NON_CONFORMANCE";
+
 const NonConformanceOverview = () => {
   const { addToast } = useToasts();
   const orgId = useSelector((state) => state.auth?.user?.organization?.id);
+  const selectedProject = useSelector(selectSelectedProject);
+  const currentUser = useSelector(selectUser);
+  const projectId = selectedProject?.id;
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
   const [filterValues, setFilterValues] = useState({
     control: "",
     assignee: "",
@@ -35,6 +47,51 @@ const NonConformanceOverview = () => {
     severity: "",
     status: "",
   });
+
+  const handleSaveConfirm = async ({ version, summary }) => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsSaving(true);
+    try {
+      await createRevisionHistory({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        version,
+        summaryOfChanges: summary,
+        revisionDate: new Date().toISOString().split("T")[0],
+        name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+        status: "draft",
+      });
+      addToast("Document saved as draft", { appearance: "success" });
+      setShowSavePopup(false);
+    } catch {
+      addToast("Failed to save document", { appearance: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsApproving(true);
+    try {
+      await createApproval({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        approvalDate: new Date().toISOString().split("T")[0],
+        status: "approved",
+        approver: {
+          id: currentUser?.id,
+          name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+          position: currentUser?.position || null,
+        },
+      });
+      addToast("Document approved successfully", { appearance: "success" });
+    } catch {
+      addToast("Failed to approve document", { appearance: "error" });
+    } finally {
+      setIsApproving(false);
+    }
+  };
 
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(1);
@@ -74,6 +131,10 @@ const NonConformanceOverview = () => {
 
   return (
     <div>
+      <div className='flex justify-end items-center mt-4 space-x-2'>
+        <button onClick={() => setShowSavePopup(true)} className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
+        <button onClick={handleApprove} disabled={isApproving} className='bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60'>{isApproving ? "Approving..." : "Approve"}</button>
+      </div>
       <div className="items-center justify-between flex px-4">
         <div>
           <span className="text-xl font-semibold">Non Conformance</span>
@@ -216,6 +277,7 @@ const NonConformanceOverview = () => {
           </div>
         </div>
       </div>
+      <SaveVersionPopup isOpen={showSavePopup} onClose={() => setShowSavePopup(false)} onConfirm={handleSaveConfirm} isLoading={isSaving} />
     </div>
   );
 };

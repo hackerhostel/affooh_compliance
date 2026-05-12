@@ -4,18 +4,18 @@ import {
   ChevronRightIcon
 } from "@heroicons/react/24/outline";
 import { PencilIcon } from "@heroicons/react/24/outline";
-import FormInput from "../../../components/FormInput.jsx";
-import FormSelect from "../../../components/FormSelect.jsx";
-import UserSelect from "../../../components/UserSelect.jsx";
+import FormInput from "../../components/FormInput.jsx";
+import FormSelect from "../../components/FormSelect.jsx";
+import UserSelect from "../../components/UserSelect.jsx";
 import { useToasts } from "react-toast-notifications";
 import { useSelector } from "react-redux";
-import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
-import { selectProjectUserList } from "../../../state/slice/projectUsersSlice.js";
-import { selectUser } from "../../../state/slice/authSlice.js";
-import useFetchOrganizationalContext from "../../../hooks/custom-hooks/compliance/useFetchOrganizationalContext.jsx";
-import useFetchRevisionHistory from "../../../hooks/custom-hooks/compliance/useFetchRevisionHistory.jsx";
-import useFetchApprovals from "../../../hooks/custom-hooks/compliance/useFetchApprovals.jsx";
-import { createOrganizationalContext, updateOrganizationalContext } from "../../../utils/complianceApi.js";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
+import { selectProjectUserList } from "../../state/slice/projectUsersSlice.js";
+import { selectUser } from "../../state/slice/authSlice.js";
+import useFetchOrganizationalContext from "../../hooks/custom-hooks/compliance/useFetchOrganizationalContext.jsx";
+import useFetchRevisionHistory from "../../hooks/custom-hooks/compliance/useFetchRevisionHistory.jsx";
+import useFetchApprovals from "../../hooks/custom-hooks/compliance/useFetchApprovals.jsx";
+import { createOrganizationalContext, updateOrganizationalContext } from "../../utils/complianceApi.js";
 import DataGrid, {
   Column,
   ColumnChooser,
@@ -26,9 +26,9 @@ import DataGrid, {
   Sorting
 } from "devextreme-react/data-grid";
 
-const DOCUMENT_TYPE = "GAP_ANALYSIS";
+const DOCUMENT_TYPE = "SOA";
 
-const GapAnalysisHistory = () => {
+const SOAHistory = () => {
   const { addToast } = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
   const projectUserList = useSelector(selectProjectUserList);
@@ -148,10 +148,10 @@ const GapAnalysisHistory = () => {
 
         <div className="flex flex-col items-center">
           <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold">
-            {"G"}{"A"}
+            {"S"}{"A"}
           </div>
           <span className="text-lg font-semibold text-center mt-5 mb-1">
-            Gap <br /> Analysis
+            Statement of <br /> Applicability
           </span>
 
           <hr className="w-full mt-6 border-t border-gray-200" />
@@ -268,4 +268,4 @@ const GapAnalysisHistory = () => {
   );
 };
 
-export default GapAnalysisHistory;
+export default SOAHistory;

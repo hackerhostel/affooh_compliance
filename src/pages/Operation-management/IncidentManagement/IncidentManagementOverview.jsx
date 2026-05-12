@@ -244,20 +244,20 @@ const IncidentManagementOverview = () => {
 
     return (
         <div className="relative">
-            {/* Header */}
-            <div className="items-center justify-between flex px-4">
+            {/* Header with Buttons */}
+            <div className="flex justify-between items-center mt-4 px-4">
                 <span className="text-xl font-semibold">Incident Management</span>
-                <div className="flex justify-end items-center mt-4 space-x-2">
+                <div className="flex items-center space-x-2">
                     <button
                         onClick={() => setShowSavePopup(true)}
-                        className="bg-white border border-primary-pink text-primary-pink px-6 py-2 rounded-md text-sm font-medium hover:bg-pink-50 transition-all"
+                        className="bg-primary-pink text-white px-8 py-3 rounded-md text-sm font-medium hover:opacity-90 transition-all"
                     >
                         Save
                     </button>
                     <button
                         onClick={handleApprove}
                         disabled={isApproving}
-                        className="bg-primary-pink text-white px-6 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-all disabled:opacity-60"
+                        className="bg-primary-pink text-white px-8 py-3 rounded-md text-sm font-medium hover:opacity-90 transition-all disabled:opacity-60"
                     >
                         {isApproving ? "Approving..." : "Approve"}
                     </button>

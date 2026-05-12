@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import PESTOverview from "./PESTOverview.jsx";
-import PESTtHistory from "./PESTHistory.jsx";
+import PESTHistory from "./PESTHistory.jsx";
 
 const PESTContentPage = () => {
   // Left sidebar removed; state related to it has been removed
   const [activeTab, setActiveTab] = useState("overview");
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
+
+  const handleHistoryRefresh = () => {
+    setHistoryRefreshTrigger((prev) => prev + 1);
+  };
 
   return (
     <div className=" bg-dashboard-bgc min-h-screen">
@@ -36,8 +41,12 @@ const PESTContentPage = () => {
             </div>
           </div>
 
-          {activeTab === "overview" && <PESTOverview />}
-          {activeTab === "history" && <PESTtHistory />}
+          {activeTab === "overview" && (
+            <PESTOverview onHistoryRefresh={handleHistoryRefresh} />
+          )}
+          {activeTab === "history" && (
+            <PESTHistory refreshTrigger={historyRefreshTrigger} />
+          )}
         </div>
       </div>
     </div>

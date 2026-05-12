@@ -7,10 +7,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../state/slice/authSlice.js";
+import { selectSelectedProject } from "../../state/slice/projectSlice.js";
 import soaApi from "../../utils/soaApi.js";
 import { getProcessFrameworkDocuments } from "../../utils/processFrameworkApi.js";
 import { useToasts } from "react-toast-notifications";
 import { ISO27001_CONTROLS, CATEGORY_COLORS } from "../../constants/iso27001Controls.js";
+import { createRevisionHistory, createApproval } from "../../utils/complianceApi.js";
+import SaveVersionPopup from "../../components/SaveVersionPopup.jsx";
 
 const parseDocs = (raw) => {
     if (!raw) return [];
@@ -144,9 +147,13 @@ const FilterDropdown = ({ value, options, placeholder, onChange }) => {
     );
 };
 
+const DOCUMENT_TYPE = "SOA";
+
 const SOAOverview = () => {
     const { addToast } = useToasts();
     const user = useSelector(selectUser);
+    const selectedProject = useSelector(selectSelectedProject);
+    const projectId = selectedProject?.id;
     const organizationID = user?.organization?.id;
 
     const [rows, setRows] = useState([]);
@@ -156,6 +163,60 @@ const SOAOverview = () => {
     const [savingId, setSavingId] = useState(null);
     const [docPickerOpen, setDocPickerOpen] = useState(null);
     const [filters, setFilters] = useState({ control: "", applicability: "", status: "" });
+    const [showSavePopup, setShowSavePopup] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isApproving, setIsApproving] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 20;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filters]);
+
+    const handleSaveConfirm = async ({ version, summary }) => {
+        if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+        setIsSaving(true);
+        try {
+            await createRevisionHistory({
+                projectId,
+                documentType: DOCUMENT_TYPE,
+                version,
+                summaryOfChanges: summary,
+                revisionDate: new Date().toISOString().split("T")[0],
+                name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+                status: "draft",
+            });
+            addToast("Document saved as draft", { appearance: "success" });
+            setShowSavePopup(false);
+        } catch {
+            addToast("Failed to save document", { appearance: "error" });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleApprove = async () => {
+        if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+        setIsApproving(true);
+        try {
+            await createApproval({
+                projectId,
+                documentType: DOCUMENT_TYPE,
+                approvalDate: new Date().toISOString().split("T")[0],
+                status: "approved",
+                approver: {
+                    id: user?.id,
+                    name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+                    position: user?.position || null,
+                },
+            });
+            addToast("Document approved successfully", { appearance: "success" });
+        } catch {
+            addToast("Failed to approve document", { appearance: "error" });
+        } finally {
+            setIsApproving(false);
+        }
+    };
 
     // Always-fresh rows reference to avoid stale closures in async handlers
     const rowsRef = useRef([]);
@@ -302,6 +363,12 @@ const SOAOverview = () => {
 
     const hasFilters = filters.control || filters.applicability || filters.status;
 
+    const totalPages = Math.ceil(filteredRows.length / pageSize);
+    const paginatedRows = filteredRows.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
+
     return (
         <div className="bg-[#F8F9FD] p-6 font-sans min-h-screen">
             <div className="max-w-[1600px] mx-auto space-y-6">
@@ -313,9 +380,10 @@ const SOAOverview = () => {
                         </h4>
                         <p className="text-xs text-gray-400 mt-1">ISO/IEC 27001:2022 — Annex A Controls</p>
                     </div>
-                    <span className="text-sm font-semibold text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm">
-                        {filteredRows.length} / {rows.length} Controls
-                    </span>
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => setShowSavePopup(true)} className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
+                        <button onClick={handleApprove} disabled={isApproving} className='bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60'>{isApproving ? "Approving..." : "Approve"}</button>
+                    </div>
                 </div>
 
                 {/* Filters */}
@@ -341,6 +409,9 @@ const SOAOverview = () => {
                         placeholder="Status"
                         onChange={(val) => setFilters((f) => ({ ...f, status: val }))}
                     />
+                    <span className="text-sm font-semibold text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm ml-auto">
+                        {filteredRows.length} / {rows.length} Controls
+                    </span>
                     {hasFilters && (
                         <button
                             onClick={() =>
@@ -377,11 +448,11 @@ const SOAOverview = () => {
                             ) : filteredRows.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="text-center py-16 text-gray-400">
-                                        No controls match the current filters
+                                    No controls match the current filters
                                     </td>
                                 </tr>
                             ) : (
-                                filteredRows.map((row) => {
+                                paginatedRows.map((row) => {
                                     const catColor = CATEGORY_COLORS[row.category] || CATEGORY_COLORS.Organizational;
                                     const isExpanded = expandedId === row.controlId;
                                     return (
@@ -628,6 +699,58 @@ const SOAOverview = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex justify-between items-center bg-white px-6 py-4 rounded-xl border border-gray-100 shadow-sm">
+                        <span className="text-sm text-gray-500 font-medium">
+                            Showing <span className="text-[#1E293B]">{(currentPage - 1) * pageSize + 1}</span> to{" "}
+                            <span className="text-[#1E293B]">{Math.min(currentPage * pageSize, filteredRows.length)}</span> of{" "}
+                            <span className="text-[#1E293B] font-bold">{filteredRows.length}</span> controls
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                            >
+                                Previous
+                            </button>
+                            <div className="flex items-center gap-1">
+                                {[...Array(totalPages)].map((_, i) => {
+                                    const p = i + 1;
+                                    // Show first, last, and pages around current
+                                    if (p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)) {
+                                        return (
+                                            <button
+                                                key={p}
+                                                onClick={() => setCurrentPage(p)}
+                                                className={`w-9 h-9 text-sm font-bold rounded-lg transition-all ${
+                                                    currentPage === p
+                                                        ? "bg-primary-pink text-white shadow-md shadow-primary-pink/20"
+                                                        : "text-gray-500 hover:bg-gray-50 border border-transparent hover:border-gray-100"
+                                                }`}
+                                            >
+                                                {p}
+                                            </button>
+                                        );
+                                    }
+                                    if (p === currentPage - 2 || p === currentPage + 2) {
+                                        return <span key={p} className="text-gray-300 text-xs">...</span>;
+                                    }
+                                    return null;
+                                })}
+                            </div>
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Backdrop to close doc picker */}
@@ -637,6 +760,7 @@ const SOAOverview = () => {
                     onClick={() => setDocPickerOpen(null)}
                 />
             )}
+            <SaveVersionPopup isOpen={showSavePopup} onClose={() => setShowSavePopup(false)} onConfirm={handleSaveConfirm} isLoading={isSaving} />
         </div>
     );
 };

@@ -20,11 +20,66 @@ import {
   doGetCloudAssetDetail,
 } from "../../../state/slice/cloudAssetSlice.js";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import { selectUser } from "../../../state/slice/authSlice.js";
+import { createRevisionHistory, createApproval } from "../../../utils/complianceApi.js";
+import SaveVersionPopup from "../../../components/SaveVersionPopup.jsx";
+
+const DOCUMENT_TYPE = "CLOUD_ASSET";
 
 const CloudAssetOverview = () => {
   const dispatch = useDispatch();
   const { addToast } = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
+  const currentUser = useSelector(selectUser);
+
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+
+  const handleSaveConfirm = async ({ version, summary }) => {
+    if (!selectedProject?.id) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsSaving(true);
+    try {
+      await createRevisionHistory({
+        projectId: selectedProject.id,
+        documentType: DOCUMENT_TYPE,
+        version,
+        summaryOfChanges: summary,
+        revisionDate: new Date().toISOString().split("T")[0],
+        name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+        status: "draft",
+      });
+      addToast("Document saved as draft", { appearance: "success" });
+      setShowSavePopup(false);
+    } catch {
+      addToast("Failed to save document", { appearance: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!selectedProject?.id) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsApproving(true);
+    try {
+      await createApproval({
+        projectId: selectedProject.id,
+        documentType: DOCUMENT_TYPE,
+        approvalDate: new Date().toISOString().split("T")[0],
+        status: "approved",
+        approver: {
+          id: currentUser?.id,
+          name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+          position: currentUser?.position || null,
+        },
+      });
+      addToast("Document approved successfully", { appearance: "success" });
+    } catch {
+      addToast("Failed to approve document", { appearance: "error" });
+    } finally {
+      setIsApproving(false);
+    }
+  };
 
   const [isOpen, setIsOpen] = useState(false);
   const [openActionRowId, setOpenActionRowId] = useState(null);
@@ -213,27 +268,26 @@ const CloudAssetOverview = () => {
     );
   };
 
-  if (detailAssetId) {
-    return (
-      <CloudAssetDetail
-        assetId={detailAssetId}
-        onBack={handleBackFromDetail}
-      />
-    );
-  }
-
-  if (editAsset) {
-    return (
-      <CloudAssetUpdate
-        asset={editAsset}
-        onBack={handleBackFromEdit}
-      />
-    );
-  }
-
   return (
     <div className="mt-6">
-      <div className="flex items-center gap-5 mt-4">
+      <div className="flex justify-end items-center mt-4 space-x-2">
+        <button onClick={() => setShowSavePopup(true)} className="bg-primary-pink px-8 py-3 rounded-md text-white">Save</button>
+        <button onClick={handleApprove} disabled={isApproving} className="bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60">{isApproving ? "Approving..." : "Approve"}</button>
+      </div>
+
+      {detailAssetId ? (
+        <CloudAssetDetail
+          assetId={detailAssetId}
+          onBack={handleBackFromDetail}
+        />
+      ) : editAsset ? (
+        <CloudAssetUpdate
+          asset={editAsset}
+          onBack={handleBackFromEdit}
+        />
+      ) : (
+        <>
+          <div className="flex items-center gap-5 mt-4">
         <span className="text-lg font-semibold">Cloud Asset</span>
         <div className="flex items-center gap-1">
           <PlusCircleIcon
@@ -408,6 +462,8 @@ const CloudAssetOverview = () => {
           </table>
         )}
       </div>
+    </>
+  )}
 
       <CreateNewCloudAsset isOpen={isOpen} onClose={handleClose} />
       <ConfirmationDialog
@@ -420,6 +476,7 @@ const CloudAssetOverview = () => {
         title="Delete Cloud Asset"
         message="Are you sure you want to delete this cloud asset? This action cannot be undone."
       />
+      <SaveVersionPopup isOpen={showSavePopup} onClose={() => setShowSavePopup(false)} onConfirm={handleSaveConfirm} isLoading={isSaving} />
     </div>
   );
 };

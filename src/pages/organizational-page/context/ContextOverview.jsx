@@ -19,17 +19,26 @@ import {
     deleteLaw,
     updateFunction,
     updateLaw,
-    updateOrganizationalContext
+    updateOrganizationalContext,
+    createRevisionHistory,
+    createApproval
 } from "../../../utils/complianceApi.js";
 import { useToasts } from "react-toast-notifications";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
+import SaveVersionPopup from "../../../components/SaveVersionPopup.jsx";
+import { selectUser } from "../../../state/slice/authSlice.js";
 
-const ContextOverview = () => {
+const ContextOverview = ({ onHistoryRefresh }) => {
     const { addToast } = useToasts();
     const selectedProject = useSelector(selectSelectedProject);
     const projectUserList = useSelector(selectProjectUserList);
+    const currentUser = useSelector(selectUser);
     const projectId = selectedProject?.id;
     const [contextId, setContextId] = useState(null);
+
+    const [showSavePopup, setShowSavePopup] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isApproving, setIsApproving] = useState(false);
 
     const {
         data: contextData,
@@ -351,27 +360,90 @@ const ContextOverview = () => {
             return;
         }
 
-        const payload = {
-            projectID: projectId,
-            documentType: "Context",
-            purpose: formValues.purpose,
-            companyName: formValues.companyName,
-            companyAddress: formValues.companyAddress,
-            contactInformation: formValues.contactInformation,
-        };
+        setShowSavePopup(true);
+    };
 
+    const handleSaveConfirm = async ({ version, summary }) => {
+        setIsSaving(true);
         try {
+            const payload = {
+                projectID: projectId,
+                documentType: "Context",
+                purpose: formValues.purpose,
+                companyName: formValues.companyName,
+                companyAddress: formValues.companyAddress,
+                contactInformation: formValues.contactInformation,
+                status: "draft",
+            };
+
+            let currentContextId = contextId;
             if (contextId) {
                 await updateOrganizationalContext(contextId, payload);
-                addToast("Context updated successfully", { appearance: "success" });
             } else {
                 const created = await createOrganizationalContext(payload);
-                setContextId(created?.id || null);
-                addToast("Context saved successfully", { appearance: "success" });
+                currentContextId = created?.id;
+                setContextId(currentContextId);
             }
+
+            await createRevisionHistory({
+                projectID: projectId,
+                documentType: "Context",
+                version,
+                summaryOfChanges: summary,
+                name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+            });
+
+            addToast("Context saved as draft", { appearance: "success" });
+            setShowSavePopup(false);
             refetchContext();
+            if (onHistoryRefresh) onHistoryRefresh();
         } catch (error) {
             addToast("Failed to save context", { appearance: "error" });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleApprove = async () => {
+        if (!projectId) {
+            addToast("No project selected", { appearance: "error" });
+            return;
+        }
+        setIsApproving(true);
+        try {
+            const payload = {
+                projectID: projectId,
+                documentType: "Context",
+                purpose: formValues.purpose,
+                companyName: formValues.companyName,
+                companyAddress: formValues.companyAddress,
+                contactInformation: formValues.contactInformation,
+                status: "approved",
+            };
+
+            if (contextId) {
+                await updateOrganizationalContext(contextId, payload);
+            } else {
+                const created = await createOrganizationalContext(payload);
+                setContextId(created?.id);
+            }
+
+            await createApproval({
+                projectID: projectId,
+                documentType: "Context",
+                approver: {
+                    name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+                    position: currentUser?.position || null,
+                },
+            });
+
+            addToast("Context approved successfully", { appearance: "success" });
+            refetchContext();
+            if (onHistoryRefresh) onHistoryRefresh();
+        } catch (error) {
+            addToast("Failed to approve context", { appearance: "error" });
+        } finally {
+            setIsApproving(false);
         }
     };
 
@@ -403,8 +475,20 @@ const ContextOverview = () => {
         <div>
             {/* Top Buttons */}
             <div className='flex justify-end items-center mt-4 space-x-2'>
-                <button className='bg-primary-pink px-8 py-3 rounded-md text-white'>Approved</button>
-                <button className='bg-primary-pink px-8 py-3 rounded-md text-white' onClick={handleSaveContext}>Save</button>
+                <button
+                    className='bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60'
+                    onClick={handleApprove}
+                    disabled={isApproving}
+                >
+                    {isApproving ? "Approving..." : "Approved"}
+                </button>
+                <button
+                    className='bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60'
+                    onClick={handleSaveContext}
+                    disabled={isSaving}
+                >
+                    {isSaving ? "Saving..." : "Save"}
+                </button>
             </div>
 
             {/* overview */}
@@ -775,6 +859,14 @@ const ContextOverview = () => {
                     )}
                 </div>
             </div>
+
+            {/* Save Version Popup */}
+            <SaveVersionPopup
+                isOpen={showSavePopup}
+                onClose={() => setShowSavePopup(false)}
+                onConfirm={handleSaveConfirm}
+                isSaving={isSaving}
+            />
 
             {/* Delete Confirmation Dialog */}
             <ConfirmationDialog

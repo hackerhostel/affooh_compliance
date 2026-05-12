@@ -310,7 +310,7 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
         <div className="bg-[#F8F9FD] p-6 font-sans min-h-screen">
             <div className="max-w-[1400px] mx-auto space-y-8">
                 {!hideTitle && (
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center px-4">
                         <h4 className="text-2xl font-bold text-[#1E293B]">Risk Management</h4>
                         <div className="bg-gray-200/50 p-1 rounded-xl flex gap-1">
                             <button 
@@ -329,20 +329,22 @@ const RiskManagementOverview = ({ hideTitle = false }) => {
                     </div>
                 )}
 
-                <div className="flex justify-end items-center gap-2">
-                    <button
-                        onClick={() => setShowSavePopup(true)}
-                        className="bg-white border border-primary-pink text-primary-pink px-6 py-2 rounded-md text-sm font-medium hover:bg-pink-50 transition-all"
-                    >
-                        Save
-                    </button>
-                    <button
-                        onClick={handleApprove}
-                        disabled={isApproving}
-                        className="bg-primary-pink text-white px-6 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-all disabled:opacity-60"
-                    >
-                        {isApproving ? "Approving..." : "Approve"}
-                    </button>
+                <div className="flex justify-end items-center px-4">
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => setShowSavePopup(true)}
+                            className="bg-primary-pink text-white px-8 py-3 rounded-md text-sm font-medium hover:opacity-90 transition-all"
+                        >
+                            Save
+                        </button>
+                        <button
+                            onClick={handleApprove}
+                            disabled={isApproving}
+                            className="bg-primary-pink text-white px-8 py-3 rounded-md text-sm font-medium hover:opacity-90 transition-all disabled:opacity-60"
+                        >
+                            {isApproving ? "Approving..." : "Approve"}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-4 gap-6">

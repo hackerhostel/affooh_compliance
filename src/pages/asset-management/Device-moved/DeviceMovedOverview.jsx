@@ -22,6 +22,10 @@ import {
 } from "../../../state/slice/deviceMovementSlice.js";
 import { doGetProjectUsers } from "../../../state/slice/projectUsersSlice.js";
 import { selectUser } from "../../../state/slice/authSlice.js";
+import { createRevisionHistory, createApproval } from "../../../utils/complianceApi.js";
+import SaveVersionPopup from "../../../components/SaveVersionPopup.jsx";
+
+const DOCUMENT_TYPE = "DEVICE_MOVEMENT";
 
 const DeviceMovedOverview = () => {
   const dispatch = useDispatch();
@@ -62,6 +66,54 @@ const DeviceMovedOverview = () => {
   const [openActionRowId, setOpenActionRowId] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [movementToDelete, setMovementToDelete] = useState(null);
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isApprovingStandard, setIsApprovingStandard] = useState(false);
+
+  const handleSaveDoc = async ({ version, summary }) => {
+    if (!selectedProject?.id) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsSaving(true);
+    try {
+      await createRevisionHistory({
+        projectId: selectedProject.id,
+        documentType: DOCUMENT_TYPE,
+        version,
+        summaryOfChanges: summary,
+        revisionDate: new Date().toISOString().split("T")[0],
+        name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+        status: "draft",
+      });
+      addToast("Document saved as draft", { appearance: "success" });
+      setShowSavePopup(false);
+    } catch {
+      addToast("Failed to save document", { appearance: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApproveDoc = async () => {
+    if (!selectedProject?.id) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsApprovingStandard(true);
+    try {
+      await createApproval({
+        projectId: selectedProject.id,
+        documentType: DOCUMENT_TYPE,
+        approvalDate: new Date().toISOString().split("T")[0],
+        status: "approved",
+        approver: {
+          id: currentUser?.id,
+          name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+          position: currentUser?.position || null,
+        },
+      });
+      addToast("Document approved successfully", { appearance: "success" });
+    } catch {
+      addToast("Failed to approve document", { appearance: "error" });
+    } finally {
+      setIsApprovingStandard(false);
+    }
+  };
 
   // Load movements when project changes or filters change
   useEffect(() => {
@@ -504,6 +556,14 @@ const DeviceMovedOverview = () => {
 
   return (
     <div className="mt-6">
+      <div className="flex justify-end items-center mt-4 space-x-2">
+        <button onClick={() => setShowSavePopup(true)} className="bg-primary-pink px-8 py-3 rounded-md text-white">
+          Save
+        </button>
+        <button onClick={handleApproveDoc} disabled={isApprovingStandard} className="bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60">
+          {isApprovingStandard ? "Approving..." : "Approve"}
+        </button>
+      </div>
       {/* Header */}
       <div className="flex items-center gap-5 mt-4">
         <span className="text-lg font-semibold">Device Moved</span>

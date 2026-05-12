@@ -3,8 +3,12 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import { useToasts } from "react-toast-notifications";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../../state/slice/authSlice.js";
-import { fetchSkillInventory, deleteSkillInventoryEntry } from "../../../utils/complianceApi.js";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import { fetchSkillInventory, deleteSkillInventoryEntry, createRevisionHistory, createApproval } from "../../../utils/complianceApi.js";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
+import SaveVersionPopup from "../../../components/SaveVersionPopup.jsx";
+
+const DOCUMENT_TYPE = "SKILL_INVENTORY";
 
 const PROFICIENCY_COLORS = {
   Advance: "bg-green-100 text-green-700",
@@ -15,10 +19,60 @@ const PROFICIENCY_COLORS = {
 const SkillInventoryOverview = () => {
   const { addToast } = useToasts();
   const user = useSelector(selectUser);
+  const selectedProject = useSelector(selectSelectedProject);
+  const projectId = selectedProject?.id;
   const [skillRows, setSkillRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [skillToDelete, setSkillToDelete] = useState(null);
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+
+  const handleSaveConfirm = async ({ version, summary }) => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsSaving(true);
+    try {
+      await createRevisionHistory({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        version,
+        summaryOfChanges: summary,
+        revisionDate: new Date().toISOString().split("T")[0],
+        name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+        status: "draft",
+      });
+      addToast("Document saved as draft", { appearance: "success" });
+      setShowSavePopup(false);
+    } catch {
+      addToast("Failed to save document", { appearance: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsApproving(true);
+    try {
+      await createApproval({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        approvalDate: new Date().toISOString().split("T")[0],
+        status: "approved",
+        approver: {
+          id: user?.id,
+          name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+          position: user?.position || null,
+        },
+      });
+      addToast("Document approved successfully", { appearance: "success" });
+    } catch {
+      addToast("Failed to approve document", { appearance: "error" });
+    } finally {
+      setIsApproving(false);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -60,7 +114,12 @@ const SkillInventoryOverview = () => {
   };
 
   return (
-    <div className="mt-6">
+    <div>
+      <div className='flex justify-end items-center mt-4 space-x-2'>
+        <button onClick={() => setShowSavePopup(true)} className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
+        <button onClick={handleApprove} disabled={isApproving} className='bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60'>{isApproving ? "Approving..." : "Approve"}</button>
+      </div>
+      <div className="mt-6">
       <div className="flex items-center gap-5">
         <span className="text-lg font-semibold">Skill Inventory</span>
       </div>
@@ -139,6 +198,8 @@ const SkillInventoryOverview = () => {
         title="Delete Skill Entry?"
         message="Are you sure you want to delete this skill entry? This action cannot be undone."
       />
+      </div>
+      <SaveVersionPopup isOpen={showSavePopup} onClose={() => setShowSavePopup(false)} onConfirm={handleSaveConfirm} isLoading={isSaving} />
     </div>
   );
 };

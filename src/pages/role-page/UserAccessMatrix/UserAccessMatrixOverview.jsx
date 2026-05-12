@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useToasts } from "react-toast-notifications";
-import { fetchUserAccess } from "../../../utils/complianceApi.js";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../../state/slice/authSlice.js";
+import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import { fetchUserAccess, createRevisionHistory, createApproval } from "../../../utils/complianceApi.js";
+import SaveVersionPopup from "../../../components/SaveVersionPopup.jsx";
 
 const ASSET_TYPE_LABELS = {
   HW: "Hardware",
@@ -16,11 +20,64 @@ const ACCESS_LEVEL_COLORS = {
   "N/A": "bg-gray-100 text-gray-500",
 };
 
+const DOCUMENT_TYPE = "USER_ACCESS_MATRIX";
+
 const UserAccessMatrixOverview = () => {
   const { addToast } = useToasts();
+  const currentUser = useSelector(selectUser);
+  const selectedProject = useSelector(selectSelectedProject);
+  const projectId = selectedProject?.id;
   const [accessRows, setAccessRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeType, setActiveType] = useState("All");
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+
+  const handleSaveConfirm = async ({ version, summary }) => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsSaving(true);
+    try {
+      await createRevisionHistory({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        version,
+        summaryOfChanges: summary,
+        revisionDate: new Date().toISOString().split("T")[0],
+        name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+        status: "draft",
+      });
+      addToast("Document saved as draft", { appearance: "success" });
+      setShowSavePopup(false);
+    } catch {
+      addToast("Failed to save document", { appearance: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsApproving(true);
+    try {
+      await createApproval({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        approvalDate: new Date().toISOString().split("T")[0],
+        status: "approved",
+        approver: {
+          id: currentUser?.id,
+          name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+          position: currentUser?.position || null,
+        },
+      });
+      addToast("Document approved successfully", { appearance: "success" });
+    } catch {
+      addToast("Failed to approve document", { appearance: "error" });
+    } finally {
+      setIsApproving(false);
+    }
+  };
 
   const TYPES = ["All", "HW", "SW", "Data", "Cloud"];
 
@@ -46,7 +103,12 @@ const UserAccessMatrixOverview = () => {
       : accessRows.filter((r) => r.assetType === activeType);
 
   return (
-    <div className="mt-6">
+    <div>
+      <div className='flex justify-end items-center mt-4 space-x-2'>
+        <button onClick={() => setShowSavePopup(true)} className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
+        <button onClick={handleApprove} disabled={isApproving} className='bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60'>{isApproving ? "Approving..." : "Approve"}</button>
+      </div>
+      <div className="mt-6">
       <div className="flex items-center gap-5">
         <span className="text-lg font-semibold">User Access Matrix</span>
       </div>
@@ -123,6 +185,8 @@ const UserAccessMatrixOverview = () => {
           </table>
         )}
       </div>
+      </div>
+      <SaveVersionPopup isOpen={showSavePopup} onClose={() => setShowSavePopup(false)} onConfirm={handleSaveConfirm} isLoading={isSaving} />
     </div>
   );
 };

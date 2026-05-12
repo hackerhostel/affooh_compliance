@@ -5,6 +5,11 @@ import SWOTHistory from "./SWOTHistory.jsx";
 const DocumentaryContentPage = () => {
   // Left sidebar removed; state related to it has been removed
   const [activeTab, setActiveTab] = useState("overview");
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
+
+  const handleHistoryRefresh = () => {
+    setHistoryRefreshTrigger((prev) => prev + 1);
+  };
 
   return (
     <div className=" bg-dashboard-bgc min-h-screen">
@@ -36,8 +41,8 @@ const DocumentaryContentPage = () => {
             </div>
           </div>
 
-          {activeTab === "overview" && <SWOTOverview />}
-          {activeTab === "history" && <SWOTHistory />}
+          {activeTab === "overview" && <SWOTOverview onHistoryRefresh={handleHistoryRefresh} />}
+          {activeTab === "history" && <SWOTHistory refreshTrigger={historyRefreshTrigger} />}
         </div>
       </div>
     </div>

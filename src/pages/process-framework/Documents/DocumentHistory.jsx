@@ -26,9 +26,9 @@ import DataGrid, {
   Sorting
 } from "devextreme-react/data-grid";
 
-const DOCUMENT_TYPE = "GAP_ANALYSIS";
+const DOCUMENT_TYPE = "DOCUMENT";
 
-const GapAnalysisHistory = () => {
+const DocumentHistory = ({ refreshTrigger }) => {
   const { addToast } = useToasts();
   const selectedProject = useSelector(selectSelectedProject);
   const projectUserList = useSelector(selectProjectUserList);
@@ -36,8 +36,13 @@ const GapAnalysisHistory = () => {
   const projectId = selectedProject?.id;
 
   const { data: contextData, refetch: refetchContext } = useFetchOrganizationalContext(projectId, DOCUMENT_TYPE);
-  const { data: revisionHistory } = useFetchRevisionHistory(projectId, DOCUMENT_TYPE);
-  const { data: approvals } = useFetchApprovals(projectId, DOCUMENT_TYPE);
+  const { data: revisionHistory, refetch: refetchRevision } = useFetchRevisionHistory(projectId, DOCUMENT_TYPE);
+  const { data: approvals, refetch: refetchApprovals } = useFetchApprovals(projectId, DOCUMENT_TYPE);
+
+  useEffect(() => {
+    refetchRevision();
+    refetchApprovals();
+  }, [refreshTrigger]);
 
   const [formValues, setFormValues] = useState({
     documentID: "",
@@ -148,10 +153,10 @@ const GapAnalysisHistory = () => {
 
         <div className="flex flex-col items-center">
           <div className="w-10 h-10 rounded-full bg-primary-pink flex items-center justify-center text-white text-sm font-semibold">
-            {"G"}{"A"}
+            {"D"}{"O"}
           </div>
           <span className="text-lg font-semibold text-center mt-5 mb-1">
-            Gap <br /> Analysis
+            Documents
           </span>
 
           <hr className="w-full mt-6 border-t border-gray-200" />
@@ -268,4 +273,4 @@ const GapAnalysisHistory = () => {
   );
 };
 
-export default GapAnalysisHistory;
+export default DocumentHistory;

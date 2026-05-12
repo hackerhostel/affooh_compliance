@@ -14,6 +14,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import { selectSelectedProject } from "../../../state/slice/projectSlice.js";
+import { selectUser } from "../../../state/slice/authSlice.js";
 import { selectProjectUserList, doGetProjectUsers } from "../../../state/slice/projectUsersSlice.js";
 import { getUserSelectOptions } from "../../../utils/commonUtils.js";
 import useFetchCommunications from "../../../hooks/custom-hooks/compliance/useFetchCommunications.jsx";
@@ -21,9 +22,14 @@ import {
   createCommunication,
   deleteCommunication,
   updateCommunication,
+  createRevisionHistory,
+  createApproval,
 } from "../../../utils/complianceApi.js";
 import { useToasts } from "react-toast-notifications";
 import ConfirmationDialog from "../../../components/ConfirmationDialog.jsx";
+import SaveVersionPopup from "../../../components/SaveVersionPopup.jsx";
+
+const DOCUMENT_TYPE = "Communication";
 
 const CommunicationRegisterOverview = () => {
   // -------------------------------
@@ -32,7 +38,56 @@ const CommunicationRegisterOverview = () => {
   const { addToast } = useToasts();
   const dispatch = useDispatch();
   const selectedProject = useSelector(selectSelectedProject);
+  const currentUser = useSelector(selectUser);
   const projectId = selectedProject?.id;
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+
+  const handleSaveConfirm = async ({ version, summary }) => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsSaving(true);
+    try {
+      await createRevisionHistory({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        version,
+        summaryOfChanges: summary,
+        revisionDate: new Date().toISOString().split("T")[0],
+        name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+        status: "draft",
+      });
+      addToast("Document saved as draft", { appearance: "success" });
+      setShowSavePopup(false);
+    } catch {
+      addToast("Failed to save document", { appearance: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!projectId) { addToast("No project selected", { appearance: "error" }); return; }
+    setIsApproving(true);
+    try {
+      await createApproval({
+        projectId,
+        documentType: DOCUMENT_TYPE,
+        approvalDate: new Date().toISOString().split("T")[0],
+        status: "approved",
+        approver: {
+          id: currentUser?.id,
+          name: `${currentUser?.firstName || ""} ${currentUser?.lastName || ""}`.trim(),
+          position: currentUser?.position || null,
+        },
+      });
+      addToast("Document approved successfully", { appearance: "success" });
+    } catch {
+      addToast("Failed to approve document", { appearance: "error" });
+    } finally {
+      setIsApproving(false);
+    }
+  };
   const { data: communications, refetch } = useFetchCommunications(projectId);
   const projectUsers = useSelector(selectProjectUserList);
 
@@ -325,6 +380,11 @@ const CommunicationRegisterOverview = () => {
 
   return (
     <div>
+      {/* Top Buttons */}
+      <div className='flex justify-end items-center mt-4 space-x-2'>
+        <button onClick={() => setShowSavePopup(true)} className='bg-primary-pink px-8 py-3 rounded-md text-white'>Save</button>
+        <button onClick={handleApprove} disabled={isApproving} className='bg-primary-pink px-8 py-3 rounded-md text-white disabled:opacity-60'>{isApproving ? "Approving..." : "Approve"}</button>
+      </div>
       {/* ---------------- INTERNAL COMMUNICATION ---------------- */}
       <div className="mt-6">
         <div className="flex items-center gap-5">
@@ -786,6 +846,7 @@ const CommunicationRegisterOverview = () => {
             : ""
         }
       />
+      <SaveVersionPopup isOpen={showSavePopup} onClose={() => setShowSavePopup(false)} onConfirm={handleSaveConfirm} isLoading={isSaving} />
     </div>
   );
 };

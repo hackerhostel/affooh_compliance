@@ -5,6 +5,11 @@ import ContextHistory from "./ContextHistory.jsx";
 const ContextContentPage = () => {
   // Left sidebar removed; state related to it has been removed
   const [activeTab, setActiveTab] = useState("overview");
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
+
+  const handleHistoryRefresh = () => {
+    setHistoryRefreshTrigger((prev) => prev + 1);
+  };
 
   return (
     <div className=" bg-dashboard-bgc min-h-screen">
@@ -36,8 +41,12 @@ const ContextContentPage = () => {
             </div>
           </div>
 
-          {activeTab === "overview" && <ContextOverview />}
-          {activeTab === "history" && <ContextHistory />}
+          {activeTab === "overview" && (
+            <ContextOverview onHistoryRefresh={handleHistoryRefresh} />
+          )}
+          {activeTab === "history" && (
+            <ContextHistory refreshTrigger={historyRefreshTrigger} />
+          )}
         </div>
       </div>
     </div>

@@ -312,25 +312,26 @@ const TrainingPlansOverview = () => {
   return (
     <div className="p-4">
       {/* Title + Filters + Add New */}
-      <div className="items-center gap-5 mt-5">
-        <div className="flex justify-between items-center">
-          <span className="text-lg font-semibold">Training Plans</span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowSavePopup(true)}
-              className="bg-white border border-primary-pink text-primary-pink px-6 py-2 rounded-md text-sm font-medium hover:bg-pink-50 transition-all"
-            >
-              Save
-            </button>
-            <button
-              onClick={handleApprove}
-              disabled={isApproving}
-              className="bg-primary-pink text-white px-6 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-all disabled:opacity-60"
-            >
-              {isApproving ? "Approving..." : "Approve"}
-            </button>
-          </div>
+      <div className="flex justify-between items-center mt-5 px-4">
+        <span className="text-lg font-semibold">Training Plans</span>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setShowSavePopup(true)}
+            className="bg-primary-pink text-white px-8 py-3 rounded-md text-sm font-medium hover:opacity-90 transition-all"
+          >
+            Save
+          </button>
+          <button
+            onClick={handleApprove}
+            disabled={isApproving}
+            className="bg-primary-pink text-white px-8 py-3 rounded-md text-sm font-medium hover:opacity-90 transition-all disabled:opacity-60"
+          >
+            {isApproving ? "Approving..." : "Approve"}
+          </button>
         </div>
+      </div>
+
+      <div className="items-center gap-5 mt-5">
         <div className="flex items-center gap-3 mt-2 flex-wrap">
           {/* Year filter — only years present in the table */}
           <FormSelect
